@@ -1,0 +1,1004 @@
+basePath: /
+definitions:
+  kisanlink-ecom_internal_models_auth.LoginRequest:
+    description: Request structure for user login
+    properties:
+      password:
+        example: password123
+        type: string
+      username:
+        example: john_doe
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  kisanlink-ecom_internal_models_order.CreateOrderRequest:
+    type: object
+  kisanlink-ecom_internal_models_order.OrderItem:
+    description: OrderItem model representing an item within an order
+    properties:
+      price:
+        example: 14.99
+        minimum: 0
+        type: number
+      product:
+        $ref: '#/definitions/kisanlink-ecom_internal_models_product.Product'
+      product_id:
+        example: PRODUCT123456789
+        type: string
+      quantity:
+        example: 2
+        minimum: 1
+        type: integer
+    required:
+    - price
+    - product_id
+    - quantity
+    type: object
+  kisanlink-ecom_internal_models_order.OrderStatus:
+    enum:
+    - pending
+    - confirmed
+    - shipped
+    - delivered
+    - cancelled
+    type: string
+    x-enum-varnames:
+    - OrderStatusPending
+    - OrderStatusConfirmed
+    - OrderStatusShipped
+    - OrderStatusDelivered
+    - OrderStatusCancelled
+  kisanlink-ecom_internal_models_order.UpdateOrderRequest:
+    description: Request structure for updating an existing order
+    properties:
+      status:
+        allOf:
+        - $ref: '#/definitions/kisanlink-ecom_internal_models_order.OrderStatus'
+        example: confirmed
+    required:
+    - status
+    type: object
+  kisanlink-ecom_internal_models_product.CreateProductRequest:
+    description: Request structure for creating a new product
+    properties:
+      category:
+        example: Vegetables
+        type: string
+      currency:
+        example: USD
+        type: string
+      description:
+        example: Fresh organic tomatoes from local farms
+        maxLength: 1000
+        type: string
+      name:
+        example: Organic Tomatoes
+        maxLength: 200
+        minLength: 1
+        type: string
+      price:
+        example: 2.99
+        minimum: 0
+        type: number
+      stock:
+        example: 100
+        minimum: 0
+        type: integer
+    required:
+    - category
+    - currency
+    - name
+    - price
+    type: object
+  kisanlink-ecom_internal_models_product.Product:
+    description: Product model representing a product in the catalog
+    properties:
+      category:
+        example: Vegetables
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      currency:
+        example: USD
+        type: string
+      deleted_at:
+        type: string
+      deleted_by:
+        type: string
+      description:
+        example: Fresh organic tomatoes from local farms
+        maxLength: 1000
+        type: string
+      id:
+        type: string
+      name:
+        example: Organic Tomatoes
+        maxLength: 200
+        minLength: 1
+        type: string
+      price:
+        example: 2.99
+        minimum: 0
+        type: number
+      status:
+        allOf:
+        - $ref: '#/definitions/kisanlink-ecom_internal_models_product.Status'
+        example: active
+      stock:
+        example: 100
+        minimum: 0
+        type: integer
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    required:
+    - category
+    - currency
+    - name
+    - price
+    - status
+    type: object
+  kisanlink-ecom_internal_models_product.Status:
+    enum:
+    - active
+    - inactive
+    - deleted
+    type: string
+    x-enum-varnames:
+    - StatusActive
+    - StatusInactive
+    - StatusDeleted
+  kisanlink-ecom_internal_models_product.UpdateProductRequest:
+    description: Request structure for updating an existing product
+    properties:
+      category:
+        example: Vegetables
+        type: string
+      currency:
+        example: USD
+        type: string
+      description:
+        example: Fresh organic tomatoes from local farms
+        maxLength: 1000
+        type: string
+      name:
+        example: Organic Tomatoes
+        maxLength: 200
+        minLength: 1
+        type: string
+      price:
+        example: 2.99
+        minimum: 0
+        type: number
+      status:
+        allOf:
+        - $ref: '#/definitions/kisanlink-ecom_internal_models_product.Status'
+        example: active
+      stock:
+        example: 100
+        minimum: 0
+        type: integer
+    type: object
+  kisanlink-ecom_internal_models_user.CreateUserRequest:
+    description: Request structure for creating a new user
+    properties:
+      email:
+        example: john@example.com
+        type: string
+      full_name:
+        example: John Doe
+        maxLength: 100
+        minLength: 2
+        type: string
+      password:
+        example: password123
+        minLength: 8
+        type: string
+      role:
+        allOf:
+        - $ref: '#/definitions/kisanlink-ecom_internal_models_user.UserRole'
+        example: customer
+      username:
+        example: john_doe
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - email
+    - full_name
+    - password
+    - role
+    - username
+    type: object
+  kisanlink-ecom_internal_models_user.Status:
+    enum:
+    - active
+    - inactive
+    - deleted
+    type: string
+    x-enum-varnames:
+    - StatusActive
+    - StatusInactive
+    - StatusDeleted
+  kisanlink-ecom_internal_models_user.UpdateUserRequest:
+    description: Request structure for updating an existing user
+    properties:
+      email:
+        example: john@example.com
+        type: string
+      full_name:
+        example: John Doe
+        maxLength: 100
+        minLength: 2
+        type: string
+      role:
+        allOf:
+        - $ref: '#/definitions/kisanlink-ecom_internal_models_user.UserRole'
+        example: customer
+      status:
+        allOf:
+        - $ref: '#/definitions/kisanlink-ecom_internal_models_user.Status'
+        example: active
+      username:
+        example: john_doe
+        maxLength: 50
+        minLength: 3
+        type: string
+    type: object
+  kisanlink-ecom_internal_models_user.UserRole:
+    enum:
+    - admin
+    - customer
+    - vendor
+    type: string
+    x-enum-varnames:
+    - RoleAdmin
+    - RoleCustomer
+    - RoleVendor
+host: localhost:8080
+info:
+  contact:
+    email: support@kisanlink.com
+    name: KisanLink API Support
+    url: http://www.kisanlink.com/support
+  description: A comprehensive e-commerce API for agricultural products and services.
+  license:
+    name: MIT
+    url: http://www.opensource.org/licenses/mit-license.php
+  termsOfService: http://swagger.io/terms/
+  title: KisanLink E-commerce API
+  version: "1.0"
+paths:
+  /api/v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return access token
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/kisanlink-ecom_internal_models_auth.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful
+          schema:
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            type: object
+        "401":
+          description: Invalid credentials
+          schema:
+            type: object
+      summary: User Login
+      tags:
+      - Authentication
+  /api/v1/auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Logout user and invalidate access token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Logout successful
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+      security:
+      - BearerAuth: []
+      summary: User Logout
+      tags:
+      - Authentication
+  /api/v1/auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user account
+      parameters:
+      - description: User registration data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/kisanlink-ecom_internal_models_user.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Registration successful
+          schema:
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            type: object
+        "409":
+          description: User already exists
+          schema:
+            type: object
+      summary: User Registration
+      tags:
+      - Authentication
+  /api/v1/orders:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of all orders with pagination
+      parameters:
+      - description: Page number
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        maximum: 100
+        minimum: 1
+        name: per_page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Orders retrieved successfully
+          schema:
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      summary: Get All Orders
+      tags:
+      - Orders
+    post:
+      consumes:
+      - application/json
+      description: Create a new order
+      parameters:
+      - description: Order data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/kisanlink-ecom_internal_models_order.CreateOrderRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Order created successfully
+          schema:
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+        "404":
+          description: User or product not found
+          schema:
+            type: object
+        "409":
+          description: Insufficient stock
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      summary: Create Order
+      tags:
+      - Orders
+  /api/v1/orders/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an order (cancel if not shipped)
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order deleted successfully
+          schema:
+            type: object
+        "400":
+          description: Invalid order ID
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+        "404":
+          description: Order not found
+          schema:
+            type: object
+        "409":
+          description: Order cannot be cancelled
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      summary: Delete Order
+      tags:
+      - Orders
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a specific order by its ID
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order retrieved successfully
+          schema:
+            type: object
+        "400":
+          description: Invalid order ID
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+        "404":
+          description: Order not found
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      summary: Get Order by ID
+      tags:
+      - Orders
+    put:
+      consumes:
+      - application/json
+      description: Update an existing order's status
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Order update data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/kisanlink-ecom_internal_models_order.UpdateOrderRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order updated successfully
+          schema:
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+        "404":
+          description: Order not found
+          schema:
+            type: object
+        "409":
+          description: Invalid status transition
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      summary: Update Order
+      tags:
+      - Orders
+  /api/v1/products:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of all products with pagination
+      parameters:
+      - description: Page number
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        maximum: 100
+        minimum: 1
+        name: per_page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Products retrieved successfully
+          schema:
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      summary: Get All Products
+      tags:
+      - Products
+    post:
+      consumes:
+      - application/json
+      description: Create a new product
+      parameters:
+      - description: Product data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/kisanlink-ecom_internal_models_product.CreateProductRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Product created successfully
+          schema:
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+        "409":
+          description: Product already exists
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      summary: Create Product
+      tags:
+      - Products
+  /api/v1/products/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a product
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Product deleted successfully
+          schema:
+            type: object
+        "400":
+          description: Invalid product ID
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+        "404":
+          description: Product not found
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      summary: Delete Product
+      tags:
+      - Products
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a specific product by its ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Product retrieved successfully
+          schema:
+            type: object
+        "400":
+          description: Invalid product ID
+          schema:
+            type: object
+        "404":
+          description: Product not found
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      summary: Get Product by ID
+      tags:
+      - Products
+    put:
+      consumes:
+      - application/json
+      description: Update an existing product's information
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Product update data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/kisanlink-ecom_internal_models_product.UpdateProductRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Product updated successfully
+          schema:
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+        "404":
+          description: Product not found
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      summary: Update Product
+      tags:
+      - Products
+  /api/v1/users:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of all users with pagination
+      parameters:
+      - description: Page number
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        maximum: 100
+        minimum: 1
+        name: per_page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Users retrieved successfully
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      summary: Get All Users
+      tags:
+      - Users
+    post:
+      consumes:
+      - application/json
+      description: Create a new user account
+      parameters:
+      - description: User data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/kisanlink-ecom_internal_models_user.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User created successfully
+          schema:
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+        "409":
+          description: User already exists
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      summary: Create User
+      tags:
+      - Users
+  /api/v1/users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a user account
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User deleted successfully
+          schema:
+            type: object
+        "400":
+          description: Invalid user ID
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+        "404":
+          description: User not found
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      summary: Delete User
+      tags:
+      - Users
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a specific user by their ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User retrieved successfully
+          schema:
+            type: object
+        "400":
+          description: Invalid user ID
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+        "404":
+          description: User not found
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      summary: Get User by ID
+      tags:
+      - Users
+    put:
+      consumes:
+      - application/json
+      description: Update an existing user's information
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User update data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/kisanlink-ecom_internal_models_user.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User updated successfully
+          schema:
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+        "404":
+          description: User not found
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      summary: Update User
+      tags:
+      - Users
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: Check if the API is running and healthy
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: API is healthy
+          schema:
+            type: object
+      summary: Health Check
+      tags:
+      - Health
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

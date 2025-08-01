@@ -30,3 +30,38 @@ go.work.sum
 # Editor/IDE
 # .idea/
 # .vscode/
+
+# Development tools
+*.log
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build artifacts
+bin/
+dist/
+*.exe
+*.exe~
+
+# Coverage files
+coverage.out
+coverage.html
+coverage.txt
+*.cover
+
+# Environment files
+.env.local
+.env.development
+.env.test
+.env.production
+
+# IDE specific files (but keep workspace files)
+.vscode/settings.json
+.vscode/launch.json
+
+# Test artifacts
+testdata/
+*.test
