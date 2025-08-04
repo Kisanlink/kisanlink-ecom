@@ -43,4 +43,4 @@ repos:
     hooks:
       - id: prettier
         types_or: [yaml, markdown, json]
-        exclude: go.sum 
+        exclude: go.sum

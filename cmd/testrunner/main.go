@@ -71,12 +71,12 @@ func main() {
 		fmt.Println("✅ Tests with coverage completed")
 
 		// Analyze coverage after running tests
-		coverageInfo, err := runner.AnalyzeCoverage()
-		if err != nil {
-			log.Printf("⚠️  Failed to analyze coverage: %v", err)
-		} else {
-			coverageInfo.PrintCoverageReport()
-		}
+	coverageInfo, err := runner.AnalyzeCoverage()
+	if err != nil {
+		log.Fatalf("❌ Failed to analyze coverage: %v", err)
+	} else {
+		coverageInfo.PrintCoverageReport()
+	}
 
 	case *specificTest != "":
 		fmt.Printf("🧪 Running specific test: %s\n", *specificTest)
