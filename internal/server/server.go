@@ -3,10 +3,8 @@ package server
 import (
 	"fmt"
 	"kisanlink-ecom/internal/config"
-	"kisanlink-ecom/internal/handlers"
 	"kisanlink-ecom/internal/middleware"
 	"kisanlink-ecom/internal/routes"
-	"kisanlink-ecom/internal/services"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -14,9 +12,9 @@ import (
 
 // Server represents the HTTP server.
 type Server struct {
-	config           *config.Config
-	router           *gin.Engine
-	serviceContainer *services.ServiceContainer
+	config   *config.Config
+	router   *gin.Engine
+	handlers *routes.Handlers
 }
 
 // New creates a new server instance.
@@ -38,21 +36,16 @@ func (s *Server) Start() error {
 	// Initialize logger
 	initLogger(s.config.Logging)
 
-	// Initialize services
-	serviceContainer, err := services.NewServiceContainer(s.config)
-	if err != nil {
-		logrus.WithError(err).Fatal("Failed to initialize services")
-	}
-	s.serviceContainer = serviceContainer
-
-	// Initialize handlers
-	s.initializeHandlers()
+	// Initialize dependency chain: repositories -> services -> handlers
+	repositories := routes.NewRepositories()
+	services := routes.NewServices(repositories)
+	s.handlers = routes.NewHandlers(services)
 
 	// Setup middleware
 	middleware.Setup(s.router, s.config)
 
-	// Setup routes
-	routes.Setup(s.router, s.config)
+	// Setup routes with handlers
+	routes.Setup(s.router, s.config, s.handlers)
 
 	// Start server
 	addr := fmt.Sprintf(":%s", s.config.Server.Port)
@@ -61,32 +54,9 @@ func (s *Server) Start() error {
 	return s.router.Run(addr)
 }
 
-// initializeHandlers initializes all handlers with their dependencies
-func (s *Server) initializeHandlers() {
-	// Initialize user handler
-	userHandler := handlers.NewUserHandler(s.serviceContainer.UserService)
-	handlers.SetDefaultUserHandler(userHandler)
-
-	// Initialize auth handler
-	authHandler := handlers.NewAuthHandler(s.serviceContainer.UserService)
-	handlers.SetDefaultAuthHandler(authHandler)
-
-	// Initialize role handler
-	roleHandler := handlers.NewRoleHandler(s.serviceContainer.RolePermissionService)
-	handlers.SetDefaultRoleHandler(roleHandler)
-
-	// Initialize permission handler
-	permissionHandler := handlers.NewPermissionHandler(s.serviceContainer.RolePermissionService)
-	handlers.SetDefaultPermissionHandler(permissionHandler)
-
-	logrus.Info("All handlers initialized successfully")
-}
-
 // Stop gracefully stops the server and closes connections
 func (s *Server) Stop() error {
-	if s.serviceContainer != nil {
-		return s.serviceContainer.Close()
-	}
+	// Clean up resources if needed
 	return nil
 }
 

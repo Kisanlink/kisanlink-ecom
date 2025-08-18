@@ -1,178 +1,268 @@
-.PHONY: help build run test clean dev deps lint format check security install-tools setup-hooks pre-commit
+# KisanLink E-commerce Service Makefile
+
+# Variables
+BINARY_NAME=kisanlink-ecom
+BINARY_UNIX=$(BINARY_NAME)_unix
+BINARY_WINDOWS=$(BINARY_NAME)_windows.exe
+BINARY_DARWIN=$(BINARY_NAME)_darwin
+
+# Go parameters
+GOCMD=go
+GOBUILD=$(GOCMD) build
+GOCLEAN=$(GOCMD) clean
+GOTEST=$(GOCMD) test
+GOGET=$(GOCMD) get
+GOMOD=$(GOCMD) mod
+GORUN=$(GOCMD) run
+GOGENERATE=$(GOCMD) generate
+
+# Build flags
+LDFLAGS=-ldflags "-X main.Version=$(shell git describe --tags --always --dirty) -X main.BuildTime=$(shell date -u '+%Y-%m-%d_%H:%M:%S')"
+
+# Directories
+CMD_DIR=cmd
+INTERNAL_DIR=internal
+PKG_DIR=pkg
+DOCS_DIR=docs
+COVERAGE_DIR=coverage
+
+# Main targets
+.PHONY: all build clean test coverage lint swagger run dev docker-build docker-run help
 
 # Default target
-help:
-	@echo "Available commands:"
-	@echo "  build         - Build the application"
-	@echo "  run           - Run the application"
-	@echo "  dev           - Run in development mode with hot reload"
-	@echo "  test          - Run tests"
-	@echo "  test-coverage - Run tests with coverage"
-	@echo "  clean         - Clean build artifacts"
-	@echo "  deps          - Download dependencies"
-	@echo "  lint          - Run linter"
-	@echo "  lint-fix      - Run linter with auto-fix"
-	@echo "  format        - Format code"
-	@echo "  check         - Run all quality checks"
-	@echo "  security      - Run security checks"
-	@echo "  install-tools - Install required development tools"
-	@echo "  setup-hooks   - Setup Git hooks"
-	@echo "  pre-commit    - Run pre-commit checks manually"
-	@echo "  quick-check   - Run quick development checks"
+all: clean build test
 
 # Build the application
 build:
-	@echo "Building application..."
-	go build -ldflags="-s -w" -o bin/server cmd/server/main.go
+	@echo "Building $(BINARY_NAME)..."
+	$(GOBUILD) $(LDFLAGS) -o $(BINARY_NAME) ./$(CMD_DIR)/server
+	@echo "Build complete!"
 
-# Run the application
-run: build
-	@echo "Running application..."
-	./bin/server
+# Build for multiple platforms
+build-all: clean
+	@echo "Building for multiple platforms..."
+	GOOS=linux GOARCH=amd64 $(GOBUILD) $(LDFLAGS) -o $(BINARY_UNIX) ./$(CMD_DIR)/server
+	GOOS=windows GOARCH=amd64 $(GOBUILD) $(LDFLAGS) -o $(BINARY_WINDOWS) ./$(CMD_DIR)/server
+	GOOS=darwin GOARCH=amd64 $(GOBUILD) $(LDFLAGS) -o $(BINARY_DARWIN) ./$(CMD_DIR)/server
+	@echo "Multi-platform build complete!"
 
-# Run in development mode
-dev:
-	@echo "Running in development mode..."
-	go run cmd/server/main.go
+# Clean build artifacts
+clean:
+	@echo "Cleaning..."
+	$(GOCLEAN)
+	rm -f $(BINARY_NAME) $(BINARY_UNIX) $(BINARY_WINDOWS) $(BINARY_DARWIN)
+	rm -rf $(COVERAGE_DIR)
+	@echo "Clean complete!"
 
 # Run tests
 test:
 	@echo "Running tests..."
-	go test -v -race ./...
+	$(GOTEST) -v ./...
+	@echo "Tests complete!"
 
 # Run tests with coverage
 test-coverage:
 	@echo "Running tests with coverage..."
-	go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
-	go tool cover -html=coverage.out -o coverage.html
-	go tool cover -func=coverage.out > coverage-func.txt
-	@echo "Coverage reports generated:"
-	@echo "  - coverage.out (raw data)"
-	@echo "  - coverage.html (HTML report)"
-	@echo "  - coverage-func.txt (function report)"
+	mkdir -p $(COVERAGE_DIR)
+	$(GOTEST) -v -coverprofile=$(COVERAGE_DIR)/coverage.out ./...
+	$(GOCMD) tool cover -html=$(COVERAGE_DIR)/coverage.out -o $(COVERAGE_DIR)/coverage.html
+	@echo "Coverage report generated in $(COVERAGE_DIR)/coverage.html"
 
-# Run tests with coverage analysis
-test-coverage-analysis:
-	@echo "Running tests with detailed coverage analysis..."
-	go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
-	go tool cover -html=coverage.out -o coverage.html
-	go tool cover -func=coverage.out > coverage-func.txt
-	@echo "📊 Coverage Summary:"
-	@go tool cover -func=coverage.out | grep total
-	@echo "📁 Reports generated: coverage.out, coverage.html, coverage-func.txt"
+# Run tests with race detection
+test-race:
+	@echo "Running tests with race detection..."
+	$(GOTEST) -race -v ./...
 
-# Clean build artifacts
-clean:
-	@echo "Cleaning build artifacts..."
-	rm -rf bin/
-	rm -f coverage.out coverage.html
-	go clean
+# Run specific test
+test-package:
+	@echo "Running tests for package: $(PACKAGE)"
+	$(GOTEST) -v ./$(PACKAGE)
 
-# Download dependencies
-deps:
-	@echo "Downloading dependencies..."
-	go mod download
-	go mod tidy
-	go mod verify
+# Run benchmarks
+bench:
+	@echo "Running benchmarks..."
+	$(GOTEST) -bench=. -benchmem ./...
 
-# Run linter
+# Lint the code
 lint:
-	@echo "Running linter..."
-	@PATH="$(shell go env GOPATH)/bin:$$PATH" golangci-lint run
-
-# Run linter with auto-fix
-lint-fix:
-	@echo "Running linter with auto-fix..."
-	@PATH="$(shell go env GOPATH)/bin:$$PATH" golangci-lint run --fix
+	@echo "Linting code..."
+	golangci-lint run
+	@echo "Lint complete!"
 
 # Format code
-format:
+fmt:
 	@echo "Formatting code..."
-	gofmt -w .
-	@PATH="$(shell go env GOPATH)/bin:$$PATH" goimports -w .
-	@PATH="$(shell go env GOPATH)/bin:$$PATH" gofumpt -w .
+	$(GOCMD) fmt ./...
+	@echo "Format complete!"
 
-# Run all quality checks
-check: format lint test security
-	@echo "✅ All quality checks passed!"
+# Vet the code
+vet:
+	@echo "Vetting code..."
+	$(GOCMD) vet ./...
+	@echo "Vet complete!"
 
-# Run security checks
-security:
+# Generate Swagger documentation
+swagger:
+	@echo "Generating Swagger documentation..."
+	swag init -g $(CMD_DIR)/server/main.go -o $(DOCS_DIR)
+	@echo "Swagger documentation generated!"
+
+# Install Swagger tools
+install-swagger:
+	@echo "Installing Swagger tools..."
+	$(GOGET) -u github.com/swaggo/swag/cmd/swag
+	$(GOGET) -u github.com/swaggo/gin-swagger
+	@echo "Swagger tools installed!"
+
+# Run the application
+run: build
+	@echo "Running $(BINARY_NAME)..."
+	./$(BINARY_NAME)
+
+# Run the application directly (without building)
+dev:
+	@echo "Running in development mode..."
+	$(GORUN) $(CMD_DIR)/server/main.go
+
+# Run with hot reload (requires air)
+dev-hot:
+	@echo "Running with hot reload..."
+	air
+
+# Install air for hot reload
+install-air:
+	@echo "Installing air for hot reload..."
+	$(GOGET) -u github.com/cosmtrek/air
+	@echo "Air installed!"
+
+# Database operations
+db-migrate:
+	@echo "Running database migrations..."
+	$(GORUN) $(CMD_DIR)/migrate/main.go
+
+db-seed:
+	@echo "Seeding database..."
+	$(GORUN) $(CMD_DIR)/seed/main.go
+
+# Docker operations
+docker-build:
+	@echo "Building Docker image..."
+	docker build -t $(BINARY_NAME) .
+	@echo "Docker build complete!"
+
+docker-run:
+	@echo "Running Docker container..."
+	docker run -p 8080:8080 $(BINARY_NAME)
+
+docker-stop:
+	@echo "Stopping Docker container..."
+	docker stop $(shell docker ps -q --filter ancestor=$(BINARY_NAME))
+
+# Dependency management
+deps:
+	@echo "Downloading dependencies..."
+	$(GOMOD) download
+	@echo "Dependencies downloaded!"
+
+deps-tidy:
+	@echo "Tidying dependencies..."
+	$(GOMOD) tidy
+	@echo "Dependencies tidied!"
+
+deps-update:
+	@echo "Updating dependencies..."
+	$(GOMOD) get -u ./...
+	$(GOMOD) tidy
+	@echo "Dependencies updated!"
+
+# Security
+security-check:
 	@echo "Running security checks..."
-	@PATH="$(shell go env GOPATH)/bin:$$PATH" gosec -quiet ./...
+	gosec ./...
+	@echo "Security check complete!"
 
-# Install required development tools
-install-tools:
-	@echo "Installing development tools..."
-	go install golang.org/x/tools/cmd/goimports@latest
-	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-	go install github.com/securego/gosec/v2/cmd/gosec@latest
-	go install mvdan.cc/gofumpt@latest
-	@echo "✅ Development tools installed!"
+# Install security tools
+install-security-tools:
+	@echo "Installing security tools..."
+	$(GOGET) -u github.com/securecodewarrior/gosec/v2/cmd/gosec
+	@echo "Security tools installed!"
 
-# Setup Git hooks
-setup-hooks:
-	@echo "Setting up Git hooks..."
-	chmod +x scripts/install-hooks.sh
-	./scripts/install-hooks.sh
+# Performance profiling
+profile:
+	@echo "Running with profiling..."
+	$(GORUN) -cpuprofile=cpu.prof -memprofile=mem.prof $(CMD_DIR)/server/main.go
 
-# Run pre-commit checks manually
-pre-commit:
-	@echo "Running pre-commit checks..."
-	chmod +x scripts/pre-commit.sh
-	@PATH="$(shell go env GOPATH)/bin:$$PATH" ./scripts/pre-commit.sh
+# Analyze profiles
+analyze-profile:
+	@echo "Analyzing profiles..."
+	$(GOCMD) tool pprof cpu.prof
+	$(GOCMD) tool pprof mem.prof
 
-# Run quick development checks
-quick-check:
-	@echo "Running quick development checks..."
-	chmod +x scripts/quick-check.sh
-	@PATH="$(shell go env GOPATH)/bin:$$PATH" ./scripts/quick-check.sh
+# Generate mocks
+mocks:
+	@echo "Generating mocks..."
+	mockgen -source=internal/services/catalog/iface.go -destination=internal/mocks/catalog_mocks.go
+	mockgen -source=internal/services/orders/iface.go -destination=internal/mocks/orders_mocks.go
+	@echo "Mocks generated!"
 
-# Setup test environment
-test-setup:
-	@echo "Setting up test environment..."
-	go mod download
-	go mod tidy
-	go mod verify
-	@echo "✅ Test environment ready"
+# Install mockgen
+install-mockgen:
+	@echo "Installing mockgen..."
+	$(GOGET) -u github.com/golang/mock/mockgen
+	@echo "Mockgen installed!"
 
-# Validate test environment
-test-validate:
-	@echo "Validating test environment..."
-	go build ./...
-	go test -v -run TestHealthCheck ./internal/handlers
-	@echo "✅ Test environment validated"
+# Code generation
+generate:
+	@echo "Generating code..."
+	$(GOGENERATE) ./...
+	@echo "Code generation complete!"
 
-# Show test configuration
-test-config:
-	@echo "Test Configuration:"
-	@echo "  - Database Provider: inmemory (for tests)"
-	@echo "  - Log Level: debug"
-	@echo "  - Test Timeout: 30s"
-	@echo "  - Coverage Threshold: 70%"
-	@echo ""
-	@echo "Test Commands:"
-	@echo "  - make test (Run all tests)"
-	@echo "  - make test-coverage (Run tests with coverage)"
-	@echo "  - make test-coverage-analysis (Detailed coverage)"
-	@echo "  - make test-runner (Use Go test runner)"
+# Install all development tools
+install-tools: install-swagger install-air install-security-tools install-mockgen
+	@echo "All development tools installed!"
 
-# Run tests using Go test runner
-test-runner:
-	@echo "Running tests using Go test runner..."
-	go run cmd/testrunner/main.go
+# Show help
+help:
+	@echo "Available targets:"
+	@echo "  build              - Build the application"
+	@echo "  build-all          - Build for multiple platforms"
+	@echo "  clean              - Clean build artifacts"
+	@echo "  test               - Run tests"
+	@echo "  test-coverage      - Run tests with coverage"
+	@echo "  test-race          - Run tests with race detection"
+	@echo "  lint               - Lint the code"
+	@echo "  fmt                - Format code"
+	@echo "  vet                - Vet the code"
+	@echo "  swagger            - Generate Swagger documentation"
+	@echo "  run                - Build and run the application"
+	@echo "  dev                - Run in development mode"
+	@echo "  dev-hot            - Run with hot reload"
+	@echo "  db-migrate         - Run database migrations"
+	@echo "  db-seed            - Seed the database"
+	@echo "  docker-build       - Build Docker image"
+	@echo "  docker-run         - Run Docker container"
+	@echo "  deps               - Download dependencies"
+	@echo "  deps-tidy          - Tidy dependencies"
+	@echo "  deps-update        - Update dependencies"
+	@echo "  security-check     - Run security checks"
+	@echo "  profile            - Run with profiling"
+	@echo "  mocks              - Generate mocks"
+	@echo "  generate           - Generate code"
+	@echo "  install-tools      - Install all development tools"
+	@echo "  help               - Show this help message"
 
-# Run tests with coverage using Go test runner
-test-runner-coverage:
-	@echo "Running tests with coverage using Go test runner..."
-	go run cmd/testrunner/main.go -coverage
+# Development workflow
+dev-setup: install-tools deps-tidy swagger
+	@echo "Development environment setup complete!"
 
-# Validate test environment using Go test runner
-test-runner-validate:
-	@echo "Validating test environment using Go test runner..."
-	go run cmd/testrunner/main.go -validate
+# CI/CD pipeline
+ci: deps-tidy lint test test-coverage security-check
+	@echo "CI pipeline complete!"
 
-# Show test summary using Go test runner
-test-runner-summary:
-	@echo "Showing test summary using Go test runner..."
-	go run cmd/testrunner/main.go -summary 
+# Pre-commit hooks
+pre-commit: fmt lint test
+	@echo "Pre-commit checks complete!"
+
+# Release preparation
+release: clean build-all test-coverage
+	@echo "Release preparation complete!" 

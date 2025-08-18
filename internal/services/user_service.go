@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 
 	"kisanlink-ecom/internal/models/user"
 )
@@ -33,17 +34,35 @@ func (s *UserService) CreateUser(ctx context.Context, req user.CreateUserRequest
 		userRoleIDs = append(userRoleIDs, "customer-role-id")
 	case user.RoleVendor:
 		userRoleIDs = append(userRoleIDs, "vendor-role-id")
+	default:
+		userRoleIDs = append(userRoleIDs, "customer-role-id") // Default to customer
 	}
 
 	// Call gRPC service
 	resp, err := s.grpcClient.CreateUser(ctx, req.Username, req.Password, userRoleIDs)
 	if err != nil {
 		log.Printf("Error creating user via gRPC: %v", err)
+		// Check if it's a connection error (aaa-service not running)
+		if isConnectionError(err) {
+			return nil, fmt.Errorf("authentication service unavailable: %v", err)
+		}
+		// Check if it's a user already exists error
+		if isUserExistsError(err) {
+			return nil, fmt.Errorf("user with username '%s' already exists", req.Username)
+		}
 		return nil, fmt.Errorf("failed to create user: %v", err)
 	}
 
 	if resp.StatusCode != 201 {
-		return nil, fmt.Errorf("gRPC service returned status %d: %s", resp.StatusCode, resp.Message)
+		// Handle specific error cases
+		switch resp.StatusCode {
+		case 409:
+			return nil, fmt.Errorf("user with username '%s' already exists", req.Username)
+		case 400:
+			return nil, fmt.Errorf("invalid request data: %s", resp.Message)
+		default:
+			return nil, fmt.Errorf("authentication service error (status %d): %s", resp.StatusCode, resp.Message)
+		}
 	}
 
 	// Convert gRPC response to our user model
@@ -58,6 +77,20 @@ func (s *UserService) CreateUser(ctx context.Context, req user.CreateUserRequest
 	}
 
 	return userModel, nil
+}
+
+// Helper functions to identify specific error types
+func isConnectionError(err error) bool {
+	return err != nil && (strings.Contains(err.Error(), "connection refused") ||
+		strings.Contains(err.Error(), "no such host") ||
+		strings.Contains(err.Error(), "unavailable") ||
+		strings.Contains(err.Error(), "deadline exceeded"))
+}
+
+func isUserExistsError(err error) bool {
+	return err != nil && (strings.Contains(err.Error(), "already exists") ||
+		strings.Contains(err.Error(), "duplicate") ||
+		strings.Contains(err.Error(), "409"))
 }
 
 // GetUserByID retrieves a user by ID via gRPC

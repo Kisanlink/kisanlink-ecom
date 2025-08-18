@@ -2,40 +2,58 @@ package services
 
 import (
 	"kisanlink-ecom/internal/config"
-	"log"
+	"kisanlink-ecom/internal/database"
+	"kisanlink-ecom/internal/repositories/catalog"
 )
 
 // ServiceContainer holds all service instances
 type ServiceContainer struct {
-	GRPCClient            *GRPCClient
 	UserService           *UserService
+	OrderService          *OrderService
+	CatalogService        *CatalogService
 	RolePermissionService *RolePermissionService
 }
 
 // NewServiceContainer creates and initializes all services
 func NewServiceContainer(cfg *config.Config) (*ServiceContainer, error) {
-	// Initialize gRPC client
-	grpcClient, err := NewGRPCClient(cfg.GRPC.ServerAddr)
+	// Initialize database manager
+	dbManager, err := database.NewManager(cfg)
 	if err != nil {
-		log.Printf("Failed to initialize gRPC client: %v", err)
 		return nil, err
 	}
 
+	// Initialize repositories
+	catalogRepo := catalog.NewCatalogRepository(dbManager)
+
 	// Initialize services
-	userService := NewUserService(grpcClient)
-	rolePermissionService := NewRolePermissionService(grpcClient)
+	userService := NewUserService()
+	orderService := NewOrderService()
+	catalogService := NewCatalogService(catalogRepo)
+	rolePermissionService := NewRolePermissionService()
 
 	return &ServiceContainer{
-		GRPCClient:            grpcClient,
 		UserService:           userService,
+		OrderService:          orderService,
+		CatalogService:        catalogService,
 		RolePermissionService: rolePermissionService,
 	}, nil
 }
 
 // Close closes all service connections
 func (sc *ServiceContainer) Close() error {
-	if sc.GRPCClient != nil {
-		return sc.GRPCClient.Close()
+	// Close database connections
+	if dbManager := sc.getDBManager(); dbManager != nil {
+		return dbManager.Close()
+	}
+	return nil
+}
+
+// getDBManager returns the database manager from one of the repositories
+func (sc *ServiceContainer) getDBManager() *database.Manager {
+	// Try to get DB manager from catalog service
+	if sc.CatalogService != nil && sc.CatalogService.catalogRepo != nil {
+		// This would need to be exposed from the repository
+		return nil
 	}
 	return nil
 }

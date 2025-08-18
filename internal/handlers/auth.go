@@ -31,9 +31,9 @@ func NewAuthHandler(userService *services.UserService) *AuthHandler {
 // @Accept       json
 // @Produce      json
 // @Param        request  body      auth.LoginRequest  true  "Login credentials"
-// @Success      200      {object}  object  "Login successful"
-// @Failure      400      {object}  object  "Invalid request"
-// @Failure      401      {object}  object  "Invalid credentials"
+// @Success      200      {object}  common.LoginSuccessResponse  "Login successful"
+// @Failure      400      {object}  common.ErrorResponseModel  "Invalid request"
+// @Failure      401      {object}  common.ErrorResponseModel  "Invalid credentials"
 // @Router       /api/v1/auth/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req auth.LoginRequest
@@ -67,9 +67,10 @@ func (h *AuthHandler) Login(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        request  body      user.CreateUserRequest  true  "User registration data"
-// @Success      201      {object}  object  "Registration successful"
-// @Failure      400      {object}  object  "Invalid request"
-// @Failure      409      {object}  object  "User already exists"
+// @Success      201      {object}  common.RegisterSuccessResponse  "Registration successful"
+// @Failure      400      {object}  common.ErrorResponseModel  "Invalid request"
+// @Failure      409      {object}  common.ErrorResponseModel  "User already exists"
+// @Failure      500      {object}  common.ErrorResponseModel  "Internal server error"
 // @Router       /api/v1/auth/register [post]
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req user.CreateUserRequest
@@ -102,8 +103,8 @@ func (h *AuthHandler) Register(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Success      200      {object}  object  "Logout successful"
-// @Failure      401      {object}  object  "Unauthorized"
+// @Success      200      {object}  common.LogoutSuccessResponse  "Logout successful"
+// @Failure      401      {object}  common.ErrorResponseModel  "Unauthorized"
 // @Router       /api/v1/auth/logout [post]
 func (h *AuthHandler) Logout(c *gin.Context) {
 	// TODO: Implement token invalidation logic

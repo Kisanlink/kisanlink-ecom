@@ -3,7 +3,8 @@ module kisanlink-ecom
 go 1.24
 
 require (
-	github.com/Kisanlink/kisanlink-db v0.0.0
+	github.com/Kisanlink/kisanlink-db v0.1.8
+	github.com/MarceloPetrucio/go-scalar-api-reference v0.0.0-20240521013641-ce5d2efe0e06
 	github.com/gin-contrib/cors v1.7.6
 	github.com/gin-contrib/requestid v1.0.2
 	github.com/gin-gonic/gin v1.10.1
@@ -11,12 +12,9 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.10.0
-	github.com/swaggo/files v1.0.1
-	github.com/swaggo/gin-swagger v1.6.0
 	github.com/swaggo/swag v1.16.6
 	go.uber.org/zap v1.27.0
 	google.golang.org/grpc v1.73.0
-	google.golang.org/protobuf v1.36.6
 )
 
 require (
@@ -82,6 +80,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/samber/lo v1.51.0 // indirect
 	github.com/sony/gobreaker v1.0.0 // indirect
+	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.0 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
@@ -95,12 +94,11 @@ require (
 	golang.org/x/tools v0.33.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250603155806-513f23925822 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250603155806-513f23925822 // indirect
+	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/postgres v1.6.0 // indirect
 	gorm.io/gorm v1.30.0 // indirect
 )
 
-replace github.com/Kisanlink/kisanlink-db v0.0.0 => ../kisanlink-db
-
-replace github.com/Kisanlink/aaa-service v0.0.0 => ../aaa-service
+replace github.com/Kisanlink/kisanlink-db => ../kisanlink-db

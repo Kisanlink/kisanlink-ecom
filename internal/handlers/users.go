@@ -29,12 +29,13 @@ func NewUserHandler(userService *services.UserService) *UserHandler {
 // @Tags         Users
 // @Accept       json
 // @Produce      json
+// @Security     BearerAuth
 // @Param        page     query     int  false  "Page number"     minimum(1)
 // @Param        per_page query     int  false  "Items per page"  minimum(1) maximum(100)
-// @Success      200      {object}  object  "Users retrieved successfully"
-// @Failure      401      {object}  object  "Unauthorized"
-// @Failure      403      {object}  object  "Forbidden"
-// @Failure      500      {object}  object  "Internal server error"
+// @Success      200      {object}  common.UsersSuccessResponse  "Users retrieved successfully"
+// @Failure      401      {object}  common.ErrorResponseModel  "Unauthorized"
+// @Failure      403      {object}  common.ErrorResponseModel  "Forbidden"
+// @Failure      500      {object}  common.ErrorResponseModel  "Internal server error"
 // @Router       /api/v1/users [get]
 func (h *UserHandler) GetUsers(c *gin.Context) {
 	ctx := context.Background()
@@ -56,13 +57,14 @@ func (h *UserHandler) GetUsers(c *gin.Context) {
 // @Tags         Users
 // @Accept       json
 // @Produce      json
+// @Security     BearerAuth
 // @Param        request  body      user.CreateUserRequest  true  "User data"
-// @Success      201      {object}  object  "User created successfully"
-// @Failure      400      {object}  object  "Invalid request"
-// @Failure      401      {object}  object  "Unauthorized"
-// @Failure      403      {object}  object  "Forbidden"
-// @Failure      409      {object}  object  "User already exists"
-// @Failure      500      {object}  object  "Internal server error"
+// @Success      201      {object}  common.UserSuccessResponse  "User created successfully"
+// @Failure      400      {object}  common.ErrorResponseModel  "Invalid request"
+// @Failure      401      {object}  common.ErrorResponseModel  "Unauthorized"
+// @Failure      403      {object}  common.ErrorResponseModel  "Forbidden"
+// @Failure      409      {object}  common.ErrorResponseModel  "User already exists"
+// @Failure      500      {object}  common.ErrorResponseModel  "Internal server error"
 // @Router       /api/v1/users [post]
 func (h *UserHandler) CreateUser(c *gin.Context) {
 	var req user.CreateUserRequest
@@ -94,13 +96,14 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 // @Tags         Users
 // @Accept       json
 // @Produce      json
+// @Security     BearerAuth
 // @Param        id   path      string  true  "User ID"
-// @Success      200  {object}  object  "User retrieved successfully"
-// @Failure      400  {object}  object  "Invalid user ID"
-// @Failure      401  {object}  object  "Unauthorized"
-// @Failure      403  {object}  object  "Forbidden"
-// @Failure      404  {object}  object  "User not found"
-// @Failure      500  {object}  object  "Internal server error"
+// @Success      200  {object}  common.UserSuccessResponse  "User retrieved successfully"
+// @Failure      400  {object}  common.ErrorResponseModel  "Invalid user ID"
+// @Failure      401  {object}  common.ErrorResponseModel  "Unauthorized"
+// @Failure      403  {object}  common.ErrorResponseModel  "Forbidden"
+// @Failure      404  {object}  common.ErrorResponseModel  "User not found"
+// @Failure      500  {object}  common.ErrorResponseModel  "Internal server error"
 // @Router       /api/v1/users/{id} [get]
 func (h *UserHandler) GetUser(c *gin.Context) {
 	userID := c.Param("id")
@@ -127,14 +130,15 @@ func (h *UserHandler) GetUser(c *gin.Context) {
 // @Tags         Users
 // @Accept       json
 // @Produce      json
+// @Security     BearerAuth
 // @Param        id      path      string                true   "User ID"
 // @Param        request body      user.UpdateUserRequest  true  "User update data"
-// @Success      200      {object}  object  "User updated successfully"
-// @Failure      400      {object}  object  "Invalid request"
-// @Failure      401      {object}  object  "Unauthorized"
-// @Failure      403      {object}  object  "Forbidden"
-// @Failure      404      {object}  object  "User not found"
-// @Failure      500      {object}  object  "Internal server error"
+// @Success      200      {object}  common.UserSuccessResponse  "User updated successfully"
+// @Failure      400      {object}  common.ErrorResponseModel  "Invalid request"
+// @Failure      401      {object}  common.ErrorResponseModel  "Unauthorized"
+// @Failure      403      {object}  common.ErrorResponseModel  "Forbidden"
+// @Failure      404      {object}  common.ErrorResponseModel  "User not found"
+// @Failure      500      {object}  common.ErrorResponseModel  "Internal server error"
 // @Router       /api/v1/users/{id} [put]
 func (h *UserHandler) UpdateUser(c *gin.Context) {
 	userID := c.Param("id")
@@ -172,13 +176,14 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 // @Tags         Users
 // @Accept       json
 // @Produce      json
+// @Security     BearerAuth
 // @Param        id   path      string  true  "User ID"
-// @Success      200  {object}  object  "User deleted successfully"
-// @Failure      400  {object}  object  "Invalid user ID"
-// @Failure      401  {object}  object  "Unauthorized"
-// @Failure      403  {object}  object  "Forbidden"
-// @Failure      404  {object}  object  "User not found"
-// @Failure      500  {object}  object  "Internal server error"
+// @Success      200  {object}  common.SuccessResponse  "User deleted successfully"
+// @Failure      400  {object}  common.ErrorResponseModel  "Invalid user ID"
+// @Failure      401  {object}  common.ErrorResponseModel  "Unauthorized"
+// @Failure      403  {object}  common.ErrorResponseModel  "Forbidden"
+// @Failure      404  {object}  common.ErrorResponseModel  "User not found"
+// @Failure      500  {object}  common.ErrorResponseModel  "Internal server error"
 // @Router       /api/v1/users/{id} [delete]
 func (h *UserHandler) DeleteUser(c *gin.Context) {
 	userID := c.Param("id")

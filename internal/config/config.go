@@ -19,6 +19,7 @@ type Config struct {
 	CORS     CORSConfig
 	Logging  LoggingConfig
 	GRPC     GRPCConfig
+	AAA      AAAConfig
 }
 
 // ServerConfig holds server configuration.
@@ -31,17 +32,17 @@ type ServerConfig struct {
 // DatabaseConfig holds database configuration.
 type DatabaseConfig struct {
 	Provider    string `env:"DB_PROVIDER" envDefault:"inmemory"`
-	Host        string `env:"DB_HOST" envDefault:"localhost"`
-	Port        int    `env:"DB_PORT" envDefault:"5432"`
-	User        string `env:"DB_USER" envDefault:"postgres"`
-	Password    string `env:"DB_PASSWORD"`
-	Name        string `env:"DB_NAME" envDefault:"kisanlink_ecom"`
-	SSLMode     string `env:"DB_SSLMODE" envDefault:"disable"`
-	MaxConns    int    `env:"DB_MAX_CONNS" envDefault:"10"`
-	MaxIdleTime int    `env:"DB_MAX_IDLE_TIME" envDefault:"30"`
+	Host        string `env:"DB_POSTGRES_HOST" envDefault:"localhost"`
+	Port        int    `env:"DB_POSTGRES_PORT" envDefault:"5432"`
+	User        string `env:"DB_POSTGRES_USER" envDefault:"postgres"`
+	Password    string `env:"DB_POSTGRES_PASSWORD"`
+	Name        string `env:"DB_POSTGRES_DBNAME" envDefault:"kisanlink_ecom"`
+	SSLMode     string `env:"DB_POSTGRES_SSLMODE" envDefault:"disable"`
+	MaxConns    int    `env:"DB_POSTGRES_MAX_CONNS" envDefault:"10"`
+	MaxIdleTime int    `env:"DB_POSTGRES_IDLE_CONNS" envDefault:"5"`
 
 	// For DynamoDB
-	Region    string `env:"AWS_REGION" envDefault:"us-east-1"`
+	Region    string `env:"DB_DYNAMO_REGION" envDefault:"us-east-1"`
 	AccessKey string `env:"AWS_ACCESS_KEY_ID"`
 	SecretKey string `env:"AWS_SECRET_ACCESS_KEY"`
 
@@ -93,6 +94,14 @@ type GRPCConfig struct {
 	ServerAddr string
 }
 
+// AAAConfig holds AAA service configuration.
+type AAAConfig struct {
+	Endpoint       string
+	TimeoutMs      int
+	Retries        int
+	GRPCServerAddr string
+}
+
 // Load loads configuration from environment variables.
 func Load() (*Config, error) {
 	err := godotenv.Load()
@@ -102,21 +111,21 @@ func Load() (*Config, error) {
 	}
 
 	dbPort := 5432
-	if portStr := getEnv("DB_PORT", "5432"); portStr != "" {
+	if portStr := getEnv("DB_POSTGRES_PORT", "5432"); portStr != "" {
 		if p, err := strconv.Atoi(portStr); err == nil {
 			dbPort = p
 		}
 	}
 
 	maxConns := 10
-	if maxConnsStr := getEnv("DB_MAX_CONNS", "10"); maxConnsStr != "" {
+	if maxConnsStr := getEnv("DB_POSTGRES_MAX_CONNS", "10"); maxConnsStr != "" {
 		if mc, err := strconv.Atoi(maxConnsStr); err == nil {
 			maxConns = mc
 		}
 	}
 
-	maxIdleTime := 30
-	if maxIdleTimeStr := getEnv("DB_MAX_IDLE_TIME", "30"); maxIdleTimeStr != "" {
+	maxIdleTime := 5
+	if maxIdleTimeStr := getEnv("DB_POSTGRES_IDLE_CONNS", "5"); maxIdleTimeStr != "" {
 		if mit, err := strconv.Atoi(maxIdleTimeStr); err == nil {
 			maxIdleTime = mit
 		}
@@ -130,17 +139,17 @@ func Load() (*Config, error) {
 		},
 		Database: DatabaseConfig{
 			Provider:         getEnv("DB_PROVIDER", "inmemory"),
-			Host:             getEnv("DB_HOST", "localhost"),
+			Host:             getEnv("DB_POSTGRES_HOST", "localhost"),
 			Port:             dbPort,
-			User:             getEnv("DB_USER", "postgres"),
-			Password:         getEnv("DB_PASSWORD", "password"),
-			Name:             getEnv("DB_NAME", "kisanlink_ecom"),
-			SSLMode:          getEnv("DB_SSLMODE", "disable"),
+			User:             getEnv("DB_POSTGRES_USER", "postgres"),
+			Password:         getEnv("DB_POSTGRES_PASSWORD", "password"),
+			Name:             getEnv("DB_POSTGRES_DBNAME", "kisanlink_ecom"),
+			SSLMode:          getEnv("DB_POSTGRES_SSLMODE", "disable"),
 			MaxConns:         maxConns,
 			MaxIdleTime:      maxIdleTime,
-			Region:           getEnv("AWS_REGION", "us-east-1"),
-			AccessKey:        getEnv("AWS_ACCESS_KEY_ID", ""),
-			SecretKey:        getEnv("AWS_SECRET_ACCESS_KEY", ""),
+			Region:           getEnv("DB_DYNAMO_REGION", "us-east-1"),
+			AccessKey:        getEnv("DYNAMODB_ACCESS_KEY_ID", ""),
+			SecretKey:        getEnv("DYNAMODB_SECRET_ACCESS_KEY", ""),
 			ConnectionString: getEnv("DB_CONNECTION_STRING", ""),
 		},
 		JWT: JWTConfig{
@@ -173,6 +182,12 @@ func Load() (*Config, error) {
 		GRPC: GRPCConfig{
 			ServerAddr: getEnv("AAA_GRPC_SERVER_ADDR", "localhost:50051"),
 		},
+		AAA: AAAConfig{
+			Endpoint:       getEnv("AAA_ENDPOINT", "localhost:50051"),
+			TimeoutMs:      getEnvAsInt("AAA_TIMEOUT_MS", 800),
+			Retries:        getEnvAsInt("AAA_RETRIES", 2),
+			GRPCServerAddr: getEnv("AAA_GRPC_SERVER_ADDR", "localhost:50051"),
+		},
 	}, nil
 }
 
@@ -182,5 +197,15 @@ func getEnv(key, fallback string) string {
 		return value
 	}
 
+	return fallback
+}
+
+// getEnvAsInt gets an environment variable as an integer with a fallback value.
+func getEnvAsInt(key string, fallback int) int {
+	if value := os.Getenv(key); value != "" {
+		if i, err := strconv.Atoi(value); err == nil {
+			return i
+		}
+	}
 	return fallback
 }

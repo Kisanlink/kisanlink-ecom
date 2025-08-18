@@ -1,0 +1,132 @@
+package common
+
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
+
+// Response represents a standardized API response
+type Response struct {
+	Data  interface{}    `json:"data,omitempty"`
+	Meta  *ResponseMeta  `json:"meta,omitempty"`
+	Error *ResponseError `json:"error,omitempty"`
+}
+
+// ResponseMeta contains metadata about the response
+type ResponseMeta struct {
+	TraceID    string                 `json:"trace_id,omitempty"`
+	Pagination *PaginationMeta        `json:"pagination,omitempty"`
+	Timestamp  string                 `json:"timestamp,omitempty"`
+	Extra      map[string]interface{} `json:"extra,omitempty"`
+}
+
+// ResponseError represents an error response
+type ResponseError struct {
+	Code    string                 `json:"code"`
+	Message string                 `json:"message"`
+	Details map[string]interface{} `json:"details,omitempty"`
+}
+
+// PaginationMeta contains pagination information
+type PaginationMeta struct {
+	Page       int  `json:"page"`
+	Limit      int  `json:"limit"`
+	Total      int  `json:"total"`
+	TotalPages int  `json:"total_pages"`
+	HasNext    bool `json:"has_next"`
+	HasPrev    bool `json:"has_prev"`
+}
+
+// Success sends a successful response
+func Success(c *gin.Context, data interface{}, meta *ResponseMeta) {
+	response := Response{
+		Data: data,
+		Meta: meta,
+	}
+
+	if meta != nil && meta.TraceID == "" {
+		meta.TraceID = GetTraceID(c)
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+// Created sends a 201 Created response
+func Created(c *gin.Context, data interface{}, meta *ResponseMeta) {
+	response := Response{
+		Data: data,
+		Meta: meta,
+	}
+
+	if meta != nil && meta.TraceID == "" {
+		meta.TraceID = GetTraceID(c)
+	}
+
+	c.JSON(http.StatusCreated, response)
+}
+
+// Error sends an error response
+func Error(c *gin.Context, statusCode int, code, message string, details map[string]interface{}) {
+	response := Response{
+		Error: &ResponseError{
+			Code:    code,
+			Message: message,
+			Details: details,
+		},
+		Meta: &ResponseMeta{
+			TraceID: GetTraceID(c),
+		},
+	}
+
+	c.JSON(statusCode, response)
+}
+
+// BadRequest sends a 400 Bad Request response
+func BadRequest(c *gin.Context, code, message string, details map[string]interface{}) {
+	Error(c, http.StatusBadRequest, code, message, details)
+}
+
+// Unauthorized sends a 401 Unauthorized response
+func Unauthorized(c *gin.Context, code, message string, details map[string]interface{}) {
+	Error(c, http.StatusUnauthorized, code, message, details)
+}
+
+// Forbidden sends a 403 Forbidden response
+func Forbidden(c *gin.Context, code, message string, details map[string]interface{}) {
+	Error(c, http.StatusForbidden, code, message, details)
+}
+
+// NotFound sends a 404 Not Found response
+func NotFound(c *gin.Context, code, message string, details map[string]interface{}) {
+	Error(c, http.StatusNotFound, code, message, details)
+}
+
+// InternalServerError sends a 500 Internal Server Error response
+func InternalServerError(c *gin.Context, code, message string, details map[string]interface{}) {
+	Error(c, http.StatusInternalServerError, code, message, details)
+}
+
+// GetTraceID extracts the trace ID from the gin context
+func GetTraceID(c *gin.Context) string {
+	if traceID, exists := c.Get("trace_id"); exists {
+		if id, ok := traceID.(string); ok {
+			return id
+		}
+	}
+	return ""
+}
+
+// NewPaginationMeta creates pagination metadata
+func NewPaginationMeta(page, limit, total int) *PaginationMeta {
+	totalPages := (total + limit - 1) / limit // Ceiling division
+
+	return &PaginationMeta{
+		Page:       page,
+		Limit:      limit,
+		Total:      total,
+		TotalPages: totalPages,
+		HasNext:    page < totalPages,
+		HasPrev:    page > 1,
+	}
+}
