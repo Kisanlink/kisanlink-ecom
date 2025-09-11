@@ -9,16 +9,7 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "termsOfService": "http://swagger.io/terms/",
-        "contact": {
-            "name": "KisanLink API Support",
-            "url": "http://www.kisanlink.com/support",
-            "email": "support@kisanlink.com"
-        },
-        "license": {
-            "name": "MIT",
-            "url": "http://www.opensource.org/licenses/mit-license.php"
-        },
+        "contact": {},
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -44,7 +35,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/kisanlink-ecom_internal_models_auth.LoginRequest"
+                            "$ref": "#/definitions/auth.LoginRequest"
                         }
                     }
                 ],
@@ -52,19 +43,43 @@ const docTemplate = `{
                     "200": {
                         "description": "Login successful",
                         "schema": {
-                            "type": "object"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "400": {
                         "description": "Invalid request",
                         "schema": {
-                            "type": "object"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "401": {
                         "description": "Invalid credentials",
                         "schema": {
-                            "type": "object"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -92,13 +107,25 @@ const docTemplate = `{
                     "200": {
                         "description": "Logout successful",
                         "schema": {
-                            "type": "object"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "type": "object"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -124,7 +151,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/kisanlink-ecom_internal_models_user.CreateUserRequest"
+                            "$ref": "#/definitions/auth.RegisterRequest"
                         }
                     }
                 ],
@@ -132,19 +159,572 @@ const docTemplate = `{
                     "201": {
                         "description": "Registration successful",
                         "schema": {
-                            "type": "object"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "400": {
                         "description": "Invalid request",
                         "schema": {
-                            "type": "object"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "409": {
                         "description": "User already exists",
                         "schema": {
-                            "type": "object"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/catalog/products": {
+            "get": {
+                "description": "Retrieve a list of products with filtering and pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "List products",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by category",
+                        "name": "category",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by organization ID",
+                        "name": "org_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filter by active status",
+                        "name": "is_active",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search term",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/catalog.ProductResponse"
+                                            }
+                                        },
+                                        "meta": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/common.ResponseMeta"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "pagination": {
+                                                            "$ref": "#/definitions/common.PaginationMeta"
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new product in the catalog",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Create a new product",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Product information",
+                        "name": "product",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/catalog.CreateCatalogItemRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/catalog.ProductResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/catalog/products/{id}": {
+            "get": {
+                "description": "Retrieve a product by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Get product by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/catalog.ProductResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing product",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Update a product",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Product updates",
+                        "name": "product",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/catalog.UpdateCatalogItemRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/catalog.ProductResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a product from the catalog",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Delete a product",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -152,7 +732,7 @@ const docTemplate = `{
         },
         "/api/v1/orders": {
             "get": {
-                "description": "Retrieve a list of all orders with pagination",
+                "description": "Retrieve a list of orders with filtering and pagination",
                 "consumes": [
                     "application/json"
                 ],
@@ -160,61 +740,84 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Orders"
+                    "orders"
                 ],
-                "summary": "Get All Orders",
+                "summary": "List orders",
                 "parameters": [
                     {
-                        "minimum": 1,
                         "type": "integer",
+                        "default": 1,
                         "description": "Page number",
                         "name": "page",
                         "in": "query"
                     },
                     {
-                        "maximum": 100,
-                        "minimum": 1,
                         "type": "integer",
+                        "default": 20,
                         "description": "Items per page",
-                        "name": "per_page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by buyer ID",
+                        "name": "buyer_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by seller ID",
+                        "name": "seller_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by status",
+                        "name": "status",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Orders retrieved successfully",
+                        "description": "OK",
                         "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "type": "object"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/orders.OrderResponse"
+                                            }
+                                        },
+                                        "meta": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/common.ResponseMeta"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "pagination": {
+                                                            "$ref": "#/definitions/common.PaginationMeta"
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
             },
             "post": {
-                "description": "Create a new order",
+                "description": "Create a new order with items",
                 "consumes": [
                     "application/json"
                 ],
@@ -222,61 +825,98 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Orders"
+                    "orders"
                 ],
-                "summary": "Create Order",
+                "summary": "Create a new order",
                 "parameters": [
                     {
-                        "description": "Order data",
-                        "name": "request",
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Order information",
+                        "name": "order",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/kisanlink-ecom_internal_models_order.CreateOrderRequest"
+                            "$ref": "#/definitions/orders.CreateOrderRequest"
                         }
                     }
                 ],
                 "responses": {
                     "201": {
-                        "description": "Order created successfully",
+                        "description": "Created",
                         "schema": {
-                            "type": "object"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/orders.OrderResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
-                        "description": "Invalid request",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "object"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "type": "object"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "404": {
-                        "description": "User or product not found",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "409": {
-                        "description": "Insufficient stock",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "type": "object"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -284,7 +924,7 @@ const docTemplate = `{
         },
         "/api/v1/orders/{id}": {
             "get": {
-                "description": "Retrieve a specific order by its ID",
+                "description": "Retrieve an order by its ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -292,9 +932,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Orders"
+                    "orders"
                 ],
-                "summary": "Get Order by ID",
+                "summary": "Get order by ID",
                 "parameters": [
                     {
                         "type": "string",
@@ -306,39 +946,39 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Order retrieved successfully",
+                        "description": "OK",
                         "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid order ID",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "type": "object"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/orders.OrderResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "404": {
-                        "description": "Order not found",
+                        "description": "Not Found",
                         "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "type": "object"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -369,7 +1009,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/kisanlink-ecom_internal_models_order.UpdateOrderRequest"
+                            "$ref": "#/definitions/orders.UpdateOrderStatusRequest"
                         }
                     }
                 ],
@@ -485,6 +1125,489 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/orders/{id}/cancel": {
+            "post": {
+                "description": "Cancel an order and release inventory",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Cancel an order",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/orders/{id}/status": {
+            "patch": {
+                "description": "Update the status of an order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Update order status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Status update",
+                        "name": "status",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/orders.UpdateOrderStatusRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/permissions": {
+            "get": {
+                "description": "Retrieve a list of all permissions",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Permissions"
+                ],
+                "summary": "Get All Permissions",
+                "responses": {
+                    "200": {
+                        "description": "Permissions retrieved successfully",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new permission with specific resource and action",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Permissions"
+                ],
+                "summary": "Create Permission",
+                "parameters": [
+                    {
+                        "description": "Permission data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.CreatePermissionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Permission created successfully",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/permissions/{id}": {
+            "get": {
+                "description": "Retrieve a specific permission by their ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Permissions"
+                ],
+                "summary": "Get Permission by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Permission ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Permission retrieved successfully",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid permission ID",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "404": {
+                        "description": "Permission not found",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing permission's information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Permissions"
+                ],
+                "summary": "Update Permission",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Permission ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Permission update data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.UpdatePermissionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Permission updated successfully",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "404": {
+                        "description": "Permission not found",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a permission",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Permissions"
+                ],
+                "summary": "Delete Permission",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Permission ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Permission deleted successfully",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid permission ID",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "404": {
+                        "description": "Permission not found",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/products": {
             "get": {
                 "description": "Retrieve a list of all products with pagination",
@@ -555,7 +1678,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/kisanlink-ecom_internal_models_product.CreateProductRequest"
+                            "$ref": "#/definitions/catalog.CreateCatalogItemRequest"
                         }
                     }
                 ],
@@ -674,7 +1797,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/kisanlink-ecom_internal_models_product.UpdateProductRequest"
+                            "$ref": "#/definitions/catalog.UpdateCatalogItemRequest"
                         }
                     }
                 ],
@@ -778,9 +1901,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/users": {
+        "/api/v1/roles": {
             "get": {
-                "description": "Retrieve a list of all users with pagination",
+                "description": "Retrieve a list of all roles",
                 "consumes": [
                     "application/json"
                 ],
@@ -788,41 +1911,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Users"
+                    "Roles"
                 ],
-                "summary": "Get All Users",
-                "parameters": [
-                    {
-                        "minimum": 1,
-                        "type": "integer",
-                        "description": "Page number",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "maximum": 100,
-                        "minimum": 1,
-                        "type": "integer",
-                        "description": "Items per page",
-                        "name": "per_page",
-                        "in": "query"
-                    }
-                ],
+                "summary": "Get All Roles",
                 "responses": {
                     "200": {
-                        "description": "Users retrieved successfully",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
+                        "description": "Roles retrieved successfully",
                         "schema": {
                             "type": "object"
                         }
@@ -836,7 +1930,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Create a new user account",
+                "description": "Create a new role with hierarchical structure",
                 "consumes": [
                     "application/json"
                 ],
@@ -844,47 +1938,29 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Users"
+                    "Roles"
                 ],
-                "summary": "Create User",
+                "summary": "Create Role",
                 "parameters": [
                     {
-                        "description": "User data",
+                        "description": "Role data",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/kisanlink-ecom_internal_models_user.CreateUserRequest"
+                            "$ref": "#/definitions/handlers.CreateRoleRequest"
                         }
                     }
                 ],
                 "responses": {
                     "201": {
-                        "description": "User created successfully",
+                        "description": "Role created successfully",
                         "schema": {
                             "type": "object"
                         }
                     },
                     "400": {
                         "description": "Invalid request",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "409": {
-                        "description": "User already exists",
                         "schema": {
                             "type": "object"
                         }
@@ -898,9 +1974,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/users/{id}": {
+        "/api/v1/roles/{id}": {
             "get": {
-                "description": "Retrieve a specific user by their ID",
+                "description": "Retrieve a specific role by their ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -908,13 +1984,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Users"
+                    "Roles"
                 ],
-                "summary": "Get User by ID",
+                "summary": "Get Role by ID",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "User ID",
+                        "description": "Role ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -922,31 +1998,19 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "User retrieved successfully",
+                        "description": "Role retrieved successfully",
                         "schema": {
                             "type": "object"
                         }
                     },
                     "400": {
-                        "description": "Invalid user ID",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
+                        "description": "Invalid role ID",
                         "schema": {
                             "type": "object"
                         }
                     },
                     "404": {
-                        "description": "User not found",
+                        "description": "Role not found",
                         "schema": {
                             "type": "object"
                         }
@@ -960,7 +2024,7 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "Update an existing user's information",
+                "description": "Update an existing role's information",
                 "consumes": [
                     "application/json"
                 ],
@@ -968,30 +2032,30 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Users"
+                    "Roles"
                 ],
-                "summary": "Update User",
+                "summary": "Update Role",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "User ID",
+                        "description": "Role ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "User update data",
+                        "description": "Role update data",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/kisanlink-ecom_internal_models_user.UpdateUserRequest"
+                            "$ref": "#/definitions/handlers.UpdateRoleRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "User updated successfully",
+                        "description": "Role updated successfully",
                         "schema": {
                             "type": "object"
                         }
@@ -1002,20 +2066,8 @@ const docTemplate = `{
                             "type": "object"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
                     "404": {
-                        "description": "User not found",
+                        "description": "Role not found",
                         "schema": {
                             "type": "object"
                         }
@@ -1029,7 +2081,7 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Delete a user account",
+                "description": "Delete a role",
                 "consumes": [
                     "application/json"
                 ],
@@ -1037,13 +2089,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Users"
+                    "Roles"
                 ],
-                "summary": "Delete User",
+                "summary": "Delete Role",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "User ID",
+                        "description": "Role ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1051,31 +2103,19 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "User deleted successfully",
+                        "description": "Role deleted successfully",
                         "schema": {
                             "type": "object"
                         }
                     },
                     "400": {
-                        "description": "Invalid user ID",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
+                        "description": "Invalid role ID",
                         "schema": {
                             "type": "object"
                         }
                     },
                     "404": {
-                        "description": "User not found",
+                        "description": "Role not found",
                         "schema": {
                             "type": "object"
                         }
@@ -1091,22 +2131,19 @@ const docTemplate = `{
         },
         "/health": {
             "get": {
-                "description": "Check if the API is running and healthy",
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "Check if the service is running",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Health"
+                    "health"
                 ],
-                "summary": "Health Check",
+                "summary": "Health check",
                 "responses": {
                     "200": {
-                        "description": "API is healthy",
+                        "description": "OK",
                         "schema": {
-                            "type": "object"
+                            "$ref": "#/definitions/common.HealthResponse"
                         }
                     }
                 }
@@ -1114,8 +2151,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "kisanlink-ecom_internal_models_auth.LoginRequest": {
-            "description": "Request structure for user login",
+        "auth.LoginRequest": {
             "type": "object",
             "required": [
                 "password",
@@ -1124,378 +2160,780 @@ const docTemplate = `{
             "properties": {
                 "password": {
                     "type": "string",
-                    "example": "password123"
+                    "maxLength": 255,
+                    "minLength": 6
                 },
                 "username": {
                     "type": "string",
-                    "example": "john_doe"
+                    "maxLength": 255
                 }
             }
         },
-        "kisanlink-ecom_internal_models_order.CreateOrderRequest": {
-            "type": "object"
-        },
-        "kisanlink-ecom_internal_models_order.OrderItem": {
-            "description": "OrderItem model representing an item within an order",
+        "auth.RegisterRequest": {
             "type": "object",
             "required": [
-                "price",
-                "product_id",
-                "quantity"
+                "email",
+                "first_name",
+                "last_name",
+                "password",
+                "username"
             ],
             "properties": {
-                "price": {
-                    "type": "number",
-                    "minimum": 0,
-                    "example": 14.99
+                "email": {
+                    "type": "string"
                 },
-                "product": {
-                    "$ref": "#/definitions/kisanlink-ecom_internal_models_product.Product"
-                },
-                "product_id": {
+                "first_name": {
                     "type": "string",
-                    "example": "PRODUCT123456789"
+                    "maxLength": 100
                 },
-                "quantity": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "example": 2
+                "last_name": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 6
+                },
+                "phone": {
+                    "type": "string",
+                    "maxLength": 20
+                },
+                "username": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 3
                 }
             }
         },
-        "kisanlink-ecom_internal_models_order.OrderStatus": {
+        "catalog.CatalogItemType": {
             "type": "string",
             "enum": [
-                "pending",
-                "confirmed",
-                "shipped",
-                "delivered",
-                "cancelled"
+                "PRODUCT",
+                "SERVICE",
+                "LABOUR"
             ],
             "x-enum-varnames": [
-                "OrderStatusPending",
-                "OrderStatusConfirmed",
-                "OrderStatusShipped",
-                "OrderStatusDelivered",
-                "OrderStatusCancelled"
+                "CatalogItemTypeProduct",
+                "CatalogItemTypeService",
+                "CatalogItemTypeLabour"
             ]
         },
-        "kisanlink-ecom_internal_models_order.UpdateOrderRequest": {
-            "description": "Request structure for updating an existing order",
+        "catalog.CreateCatalogItemRequest": {
             "type": "object",
             "required": [
-                "status"
+                "base_price",
+                "item_type",
+                "name"
             ],
             "properties": {
-                "status": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/kisanlink-ecom_internal_models_order.OrderStatus"
-                        }
-                    ],
-                    "example": "confirmed"
-                }
-            }
-        },
-        "kisanlink-ecom_internal_models_product.CreateProductRequest": {
-            "description": "Request structure for creating a new product",
-            "type": "object",
-            "required": [
-                "category",
-                "currency",
-                "name",
-                "price"
-            ],
-            "properties": {
+                "attributes": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "base_price": {
+                    "type": "number",
+                    "minimum": 0
+                },
                 "category": {
                     "type": "string",
-                    "example": "Vegetables"
+                    "maxLength": 100
                 },
                 "currency": {
-                    "type": "string",
-                    "example": "USD"
+                    "type": "string"
                 },
                 "description": {
-                    "type": "string",
-                    "maxLength": 1000,
-                    "example": "Fresh organic tomatoes from local farms"
+                    "type": "string"
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "item_type": {
+                    "enum": [
+                        "PRODUCT",
+                        "SERVICE",
+                        "LABOUR"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/catalog.CatalogItemType"
+                        }
+                    ]
                 },
                 "name": {
                     "type": "string",
-                    "maxLength": 200,
-                    "minLength": 1,
-                    "example": "Organic Tomatoes"
+                    "maxLength": 255
                 },
-                "price": {
-                    "type": "number",
-                    "minimum": 0,
-                    "example": 2.99
+                "sku": {
+                    "type": "string",
+                    "maxLength": 100
                 },
-                "stock": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "example": 100
+                "subcategory": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "unit_of_measure": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "visibility": {
+                    "enum": [
+                        "PRIVATE",
+                        "ORG",
+                        "NETWORK",
+                        "PUBLIC"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/catalog.VisibilityType"
+                        }
+                    ]
                 }
             }
         },
-        "kisanlink-ecom_internal_models_product.Product": {
-            "description": "Product model representing a product in the catalog",
+        "catalog.ProductResponse": {
             "type": "object",
-            "required": [
-                "category",
-                "currency",
-                "name",
-                "price",
-                "status"
-            ],
             "properties": {
+                "attributes": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "base_price": {
+                    "type": "number"
+                },
                 "category": {
-                    "type": "string",
-                    "example": "Vegetables"
+                    "type": "string"
                 },
                 "created_at": {
                     "type": "string"
                 },
-                "created_by": {
-                    "type": "string"
-                },
                 "currency": {
-                    "type": "string",
-                    "example": "USD"
-                },
-                "deleted_at": {
-                    "type": "string"
-                },
-                "deleted_by": {
                     "type": "string"
                 },
                 "description": {
-                    "type": "string",
-                    "maxLength": 1000,
-                    "example": "Fresh organic tomatoes from local farms"
+                    "type": "string"
+                },
+                "dimensions": {
+                    "type": "object",
+                    "additionalProperties": true
                 },
                 "id": {
                     "type": "string"
                 },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "item_type": {
+                    "type": "string"
+                },
                 "name": {
-                    "type": "string",
-                    "maxLength": 200,
-                    "minLength": 1,
-                    "example": "Organic Tomatoes"
+                    "type": "string"
                 },
-                "price": {
-                    "type": "number",
-                    "minimum": 0,
-                    "example": 2.99
+                "organization_id": {
+                    "type": "string"
                 },
-                "status": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/kisanlink-ecom_internal_models_product.Status"
-                        }
-                    ],
-                    "example": "active"
+                "perishable": {
+                    "type": "boolean"
                 },
-                "stock": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "example": 100
+                "shelf_life_days": {
+                    "type": "integer"
+                },
+                "sku": {
+                    "type": "string"
+                },
+                "subcategory": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "unit_of_measure": {
+                    "type": "string"
                 },
                 "updated_at": {
                     "type": "string"
                 },
-                "updated_by": {
+                "visibility": {
+                    "type": "string"
+                },
+                "weight": {
+                    "type": "number"
+                }
+            }
+        },
+        "catalog.UpdateCatalogItemRequest": {
+            "type": "object",
+            "properties": {
+                "attributes": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "base_price": {
+                    "type": "number",
+                    "minimum": 0
+                },
+                "category": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "sku": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "subcategory": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "unit_of_measure": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "visibility": {
+                    "enum": [
+                        "PRIVATE",
+                        "ORG",
+                        "NETWORK",
+                        "PUBLIC"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/catalog.VisibilityType"
+                        }
+                    ]
+                }
+            }
+        },
+        "catalog.VisibilityType": {
+            "type": "string",
+            "enum": [
+                "PRIVATE",
+                "ORG",
+                "NETWORK",
+                "PUBLIC"
+            ],
+            "x-enum-varnames": [
+                "VisibilityPrivate",
+                "VisibilityOrg",
+                "VisibilityNetwork",
+                "VisibilityPublic"
+            ]
+        },
+        "common.HealthResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "version": {
                     "type": "string"
                 }
             }
         },
-        "kisanlink-ecom_internal_models_product.Status": {
-            "type": "string",
-            "enum": [
-                "active",
-                "inactive",
-                "deleted"
-            ],
-            "x-enum-varnames": [
-                "StatusActive",
-                "StatusInactive",
-                "StatusDeleted"
-            ]
-        },
-        "kisanlink-ecom_internal_models_product.UpdateProductRequest": {
-            "description": "Request structure for updating an existing product",
+        "common.PaginationMeta": {
             "type": "object",
             "properties": {
-                "category": {
-                    "type": "string",
-                    "example": "Vegetables"
+                "has_next": {
+                    "type": "boolean"
                 },
-                "currency": {
-                    "type": "string",
-                    "example": "USD"
+                "has_prev": {
+                    "type": "boolean"
                 },
+                "limit": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                },
+                "total_pages": {
+                    "type": "integer"
+                }
+            }
+        },
+        "common.Response": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "error": {
+                    "$ref": "#/definitions/common.ResponseError"
+                },
+                "meta": {
+                    "$ref": "#/definitions/common.ResponseMeta"
+                }
+            }
+        },
+        "common.ResponseError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "details": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "common.ResponseMeta": {
+            "type": "object",
+            "properties": {
+                "extra": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "pagination": {
+                    "$ref": "#/definitions/common.PaginationMeta"
+                },
+                "timestamp": {
+                    "type": "string"
+                },
+                "trace_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "entities_requests_orders.Address": {
+            "type": "object",
+            "required": [
+                "city",
+                "country",
+                "postal_code",
+                "state",
+                "street"
+            ],
+            "properties": {
+                "city": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "country": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "postal_code": {
+                    "type": "string",
+                    "maxLength": 20
+                },
+                "state": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "street": {
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        },
+        "handlers.CreatePermissionRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
                 "description": {
                     "type": "string",
-                    "maxLength": 1000,
-                    "example": "Fresh organic tomatoes from local farms"
+                    "maxLength": 500
                 },
                 "name": {
                     "type": "string",
-                    "maxLength": 200,
-                    "minLength": 1,
-                    "example": "Organic Tomatoes"
-                },
-                "price": {
-                    "type": "number",
-                    "minimum": 0,
-                    "example": 2.99
-                },
-                "status": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/kisanlink-ecom_internal_models_product.Status"
-                        }
-                    ],
-                    "example": "active"
-                },
-                "stock": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "example": 100
+                    "maxLength": 100,
+                    "minLength": 1
                 }
             }
         },
-        "kisanlink-ecom_internal_models_user.CreateUserRequest": {
-            "description": "Request structure for creating a new user",
+        "handlers.CreateRoleRequest": {
             "type": "object",
             "required": [
-                "email",
-                "full_name",
-                "password",
-                "role",
-                "username"
+                "name"
             ],
             "properties": {
-                "email": {
+                "description": {
                     "type": "string",
-                    "example": "john@example.com"
+                    "maxLength": 500
                 },
-                "full_name": {
+                "name": {
                     "type": "string",
                     "maxLength": 100,
-                    "minLength": 2,
-                    "example": "John Doe"
-                },
-                "password": {
-                    "type": "string",
-                    "minLength": 8,
-                    "example": "password123"
-                },
-                "role": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/kisanlink-ecom_internal_models_user.UserRole"
-                        }
-                    ],
-                    "example": "customer"
-                },
-                "username": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 3,
-                    "example": "john_doe"
+                    "minLength": 1
                 }
             }
         },
-        "kisanlink-ecom_internal_models_user.Status": {
-            "type": "string",
-            "enum": [
-                "active",
-                "inactive",
-                "deleted"
+        "handlers.UpdatePermissionRequest": {
+            "type": "object",
+            "required": [
+                "name"
             ],
-            "x-enum-varnames": [
-                "StatusActive",
-                "StatusInactive",
-                "StatusDeleted"
-            ]
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 1
+                }
+            }
         },
-        "kisanlink-ecom_internal_models_user.UpdateUserRequest": {
-            "description": "Request structure for updating an existing user",
+        "handlers.UpdateRoleRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 1
+                }
+            }
+        },
+        "orders.CreateOrderItemRequest": {
+            "type": "object",
+            "required": [
+                "catalog_item_id",
+                "catalog_item_type",
+                "quantity",
+                "unit_price"
+            ],
+            "properties": {
+                "catalog_item_id": {
+                    "type": "string"
+                },
+                "catalog_item_type": {
+                    "type": "string",
+                    "enum": [
+                        "product",
+                        "service",
+                        "labour"
+                    ]
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "number"
+                },
+                "unit_price": {
+                    "type": "number",
+                    "minimum": 0
+                }
+            }
+        },
+        "orders.CreateOrderRequest": {
+            "type": "object",
+            "required": [
+                "buyer_organization_id",
+                "items",
+                "seller_organization_id"
+            ],
+            "properties": {
+                "buyer_organization_id": {
+                    "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/orders.CreateOrderItemRequest"
+                    }
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "seller_organization_id": {
+                    "type": "string"
+                },
+                "shipping_address": {
+                    "$ref": "#/definitions/entities_requests_orders.Address"
+                }
+            }
+        },
+        "orders.OrderItemResponse": {
             "type": "object",
             "properties": {
-                "email": {
-                    "type": "string",
-                    "example": "john@example.com"
+                "catalog_item_id": {
+                    "type": "string"
                 },
-                "full_name": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "minLength": 2,
-                    "example": "John Doe"
+                "catalog_item_name": {
+                    "type": "string"
                 },
-                "role": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/kisanlink-ecom_internal_models_user.UserRole"
-                        }
-                    ],
-                    "example": "customer"
+                "catalog_item_sku": {
+                    "type": "string"
                 },
-                "status": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/kisanlink-ecom_internal_models_user.Status"
-                        }
-                    ],
-                    "example": "active"
+                "catalog_item_type": {
+                    "type": "string"
                 },
-                "username": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 3,
-                    "example": "john_doe"
+                "created_at": {
+                    "type": "string"
+                },
+                "discount_amount": {
+                    "type": "number"
+                },
+                "discount_rate": {
+                    "type": "number"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "type": "string"
+                },
+                "order_id": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "number"
+                },
+                "tax_amount": {
+                    "type": "number"
+                },
+                "tax_rate": {
+                    "type": "number"
+                },
+                "total_price": {
+                    "type": "number"
+                },
+                "unit_price": {
+                    "type": "number"
+                },
+                "updated_at": {
+                    "type": "string"
                 }
             }
         },
-        "kisanlink-ecom_internal_models_user.UserRole": {
+        "orders.OrderResponse": {
+            "type": "object",
+            "properties": {
+                "actual_delivery_date": {
+                    "type": "string"
+                },
+                "buyer_organization_id": {
+                    "type": "string"
+                },
+                "buyer_user_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "discount_amount": {
+                    "type": "number"
+                },
+                "estimated_delivery_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/orders.OrderItemResponse"
+                    }
+                },
+                "metadata": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "order_number": {
+                    "type": "string"
+                },
+                "seller_organization_id": {
+                    "type": "string"
+                },
+                "shipping_address": {
+                    "type": "string"
+                },
+                "shipping_amount": {
+                    "type": "number"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "status_history": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/orders.OrderStatusHistoryResponse"
+                    }
+                },
+                "subtotal_amount": {
+                    "type": "number"
+                },
+                "tax_amount": {
+                    "type": "number"
+                },
+                "total_amount": {
+                    "type": "number"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "orders.OrderStatus": {
             "type": "string",
             "enum": [
-                "admin",
-                "customer",
-                "vendor"
+                "pending",
+                "confirmed",
+                "paid",
+                "shipped",
+                "delivered",
+                "completed",
+                "cancelled",
+                "refunded"
             ],
             "x-enum-varnames": [
-                "RoleAdmin",
-                "RoleCustomer",
-                "RoleVendor"
+                "OrderStatusPending",
+                "OrderStatusConfirmed",
+                "OrderStatusPaid",
+                "OrderStatusShipped",
+                "OrderStatusDelivered",
+                "OrderStatusCompleted",
+                "OrderStatusCancelled",
+                "OrderStatusRefunded"
             ]
-        }
-    },
-    "securityDefinitions": {
-        "BearerAuth": {
-            "description": "Type \"Bearer\" followed by a space and JWT token.",
-            "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
+        },
+        "orders.OrderStatusHistoryResponse": {
+            "type": "object",
+            "properties": {
+                "changed_by_organization_id": {
+                    "type": "string"
+                },
+                "changed_by_user_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "from_status": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "type": "string"
+                },
+                "order_id": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "to_status": {
+                    "type": "string"
+                }
+            }
+        },
+        "orders.UpdateOrderStatusRequest": {
+            "type": "object",
+            "required": [
+                "reason",
+                "status"
+            ],
+            "properties": {
+                "reason": {
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "status": {
+                    "enum": [
+                        "pending",
+                        "confirmed",
+                        "paid",
+                        "shipped",
+                        "delivered",
+                        "completed",
+                        "cancelled",
+                        "refunded"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/orders.OrderStatus"
+                        }
+                    ]
+                }
+            }
         }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
-	Host:             "localhost:8080",
-	BasePath:         "/",
-	Schemes:          []string{},
-	Title:            "KisanLink E-commerce API",
-	Description:      "A comprehensive e-commerce API for agricultural products and services.",
-	InfoInstanceName: "swagger",
-	SwaggerTemplate:  docTemplate,
-	LeftDelim:        "{{",
-	RightDelim:       "}}",
+    Version:          "1.0",
+    Host:             "localhost:8080",
+    BasePath:         "/",
+    Schemes:          []string{},
+    Title:            "KisanLink E-commerce API",
+    Description:      "This is the KisanLink E-commerce service API.",
+    InfoInstanceName: "swagger",
+    SwaggerTemplate:  docTemplate,
+    LeftDelim:        "{{",
+    RightDelim:       "}}",
 }
 
 func init() {
-	swag.Register(SwaggerInfo.InstanceName(), SwaggerInfo)
+    swag.Register(SwaggerInfo.InstanceName(), SwaggerInfo)
 }

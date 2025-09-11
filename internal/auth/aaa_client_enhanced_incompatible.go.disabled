@@ -1,0 +1,687 @@
+package auth
+
+import (
+    "context"
+    "fmt"
+    "log"
+    "sync"
+    "time"
+
+    "kisanlink-ecom/internal/config"
+
+    aaaPb "github.com/Kisanlink/aaa-service/pkg/proto"
+    "google.golang.org/grpc"
+    "google.golang.org/grpc/codes"
+    "google.golang.org/grpc/credentials/insecure"
+    "google.golang.org/grpc/status"
+)
+
+// AAAClient interface for interacting with AAA service
+type AAAClient interface {
+    // User management
+    CreateUser(ctx context.Context, user *AAAUser) (*AAAUser, error)
+    GetUser(ctx context.Context, userID string) (*AAAUser, error)
+    UpdateUser(ctx context.Context, user *AAAUser) (*AAAUser, error)
+    DeleteUser(ctx context.Context, userID string) error
+
+    // Authentication
+    AuthenticateUser(ctx context.Context, username, password string) (*AuthenticationResponse, error)
+    RefreshToken(ctx context.Context, refreshToken string) (*AuthenticationResponse, error)
+
+    // Token validation
+    ValidateJWT(ctx context.Context, token string) (bool, error)
+    GetUserFromToken(ctx context.Context, token string) (*UserContext, error)
+
+    // Role and permission management
+    GetUserRoles(ctx context.Context, userID string) ([]*AAARole, error)
+    AssignRole(ctx context.Context, userID, roleID string) error
+    RemoveRole(ctx context.Context, userID, roleID string) error
+    GetUserPermissions(ctx context.Context, userID string) ([]string, error)
+
+    // Permission evaluation
+    EvaluatePermission(ctx context.Context, userID, resource, action string) (bool, error)
+    EvaluateResourcePermission(ctx context.Context, userID, resourceType, resourceID, action string) (bool, error)
+    BulkEvaluatePermissions(ctx context.Context, userID string, permissions []PermissionCheck) ([]PermissionResult, error)
+
+    // Organization validation
+    ValidateUserOrganization(ctx context.Context, userID, orgID string) (bool, error)
+
+    // Health check
+    HealthCheck(ctx context.Context) error
+
+    // Close connection
+    Close() error
+}
+
+// PermissionCheck represents a permission to check
+type PermissionCheck struct {
+    Resource string
+    Action   string
+}
+
+// PermissionResult represents the result of a permission check
+type PermissionResult struct {
+    Resource string
+    Action   string
+    Allowed  bool
+    Reason   string
+}
+
+// CircuitState represents the state of the circuit breaker
+type CircuitState int
+
+const (
+    CircuitClosed CircuitState = iota
+    CircuitOpen
+    CircuitHalfOpen
+)
+
+// CircuitBreaker implements a circuit breaker pattern for AAA service calls
+type CircuitBreaker struct {
+    maxFailures  int
+    resetTimeout time.Duration
+    failureCount int
+    lastFailTime time.Time
+    state        CircuitState
+    mutex        sync.RWMutex
+}
+
+// NewCircuitBreaker creates a new circuit breaker
+func NewCircuitBreaker(maxFailures int, resetTimeout time.Duration) *CircuitBreaker {
+    return &CircuitBreaker{
+        maxFailures:  maxFailures,
+        resetTimeout: resetTimeout,
+        state:        CircuitClosed,
+    }
+}
+
+// Call executes a function through the circuit breaker
+func (cb *CircuitBreaker) Call(fn func() error) error {
+    cb.mutex.Lock()
+    defer cb.mutex.Unlock()
+
+    if cb.state == CircuitOpen {
+        if time.Since(cb.lastFailTime) > cb.resetTimeout {
+            cb.state = CircuitHalfOpen
+            cb.failureCount = 0
+        } else {
+            return fmt.Errorf("circuit breaker is open")
+        }
+    }
+
+    err := fn()
+    if err != nil {
+        cb.failureCount++
+        cb.lastFailTime = time.Now()
+
+        if cb.failureCount >= cb.maxFailures {
+            cb.state = CircuitOpen
+        }
+        return err
+    }
+
+    // Success - reset the circuit breaker
+    cb.failureCount = 0
+    cb.state = CircuitClosed
+    return nil
+}
+
+// GetState returns the current circuit breaker state
+func (cb *CircuitBreaker) GetState() CircuitState {
+    cb.mutex.RLock()
+    defer cb.mutex.RUnlock()
+    return cb.state
+}
+
+// EnhancedAAAClient implements AAAClient with resilience patterns
+type EnhancedAAAClient struct {
+    conn           *grpc.ClientConn
+    userClient     aaaPb.UserServiceV2Client
+    authzClient    aaaPb.AuthorizationServiceClient
+    circuitBreaker *CircuitBreaker
+    config         *config.AAAConfig
+    jwtValidator   *JWTValidator
+}
+
+// NewAAAClient creates a new enhanced AAA client with resilience patterns
+func NewAAAClient(config *config.AAAConfig) (AAAClient, error) {
+    // Create gRPC connection with timeout
+    ctx, cancel := context.WithTimeout(context.Background(), time.Duration(config.TimeoutMs)*time.Millisecond)
+    defer cancel()
+
+    conn, err := grpc.DialContext(ctx, config.GRPCServerAddr,
+        grpc.WithTransportCredentials(insecure.NewCredentials()),
+        grpc.WithBlock(), // Wait for connection to be ready
+    )
+    if err != nil {
+        return nil, fmt.Errorf("failed to connect to AAA service: %w", err)
+    }
+
+    client := &EnhancedAAAClient{
+        conn:           conn,
+        userClient:     aaaPb.NewUserServiceV2Client(conn),
+        authzClient:    aaaPb.NewAuthorizationServiceClient(conn),
+        circuitBreaker: NewCircuitBreaker(5, 30*time.Second), // 5 failures, 30s timeout
+        config:         config,
+    }
+
+    // Initialize JWT validator
+    client.jwtValidator = NewJWTValidator(client, "aaa-service", "kisanlink-ecom")
+
+    return client, nil
+}
+
+// Close closes the gRPC connection
+func (c *EnhancedAAAClient) Close() error {
+    if c.conn != nil {
+        return c.conn.Close()
+    }
+    return nil
+}
+
+// HealthCheck checks the health of the AAA service
+func (c *EnhancedAAAClient) HealthCheck(ctx context.Context) error {
+    return c.circuitBreaker.Call(func() error {
+        // Simple ping to check connectivity
+        // This would use a health check gRPC endpoint if available
+        _, err := c.userClient.GetUser(ctx, &aaaPb.GetUserRequest{UserId: "health-check"})
+        if err != nil {
+            // Ignore not found errors for health check
+            if status.Code(err) == codes.NotFound {
+                return nil
+            }
+            return err
+        }
+        return nil
+    })
+}
+
+// CreateUser creates a new user in AAA service
+func (c *EnhancedAAAClient) CreateUser(ctx context.Context, user *AAAUser) (*AAAUser, error) {
+    var result *AAAUser
+    err := c.withRetry(ctx, func() error {
+        req := &aaaPb.CreateUserRequest{
+            Username:  user.Username,
+            Email:     user.Email,
+            FirstName: user.FirstName,
+            LastName:  user.LastName,
+            Phone:     user.Phone,
+        }
+
+        resp, err := c.userClient.CreateUser(ctx, req)
+        if err != nil {
+            return c.handleGRPCError(err)
+        }
+
+        result = &AAAUser{
+            ID:               resp.User.Id,
+            Username:         resp.User.Username,
+            Email:            resp.User.Email,
+            FirstName:        resp.User.FirstName,
+            LastName:         resp.User.LastName,
+            Phone:            resp.User.Phone,
+            IsActive:         resp.User.IsActive,
+            OrganizationID:   resp.User.OrganizationId,
+            OrganizationName: resp.User.OrganizationName,
+        }
+        return nil
+    })
+
+    return result, err
+}
+
+// GetUser retrieves a user from AAA service
+func (c *EnhancedAAAClient) GetUser(ctx context.Context, userID string) (*AAAUser, error) {
+    var result *AAAUser
+    err := c.withRetry(ctx, func() error {
+        req := &aaaPb.GetUserRequest{UserId: userID}
+        resp, err := c.userClient.GetUser(ctx, req)
+        if err != nil {
+            return c.handleGRPCError(err)
+        }
+
+        result = &AAAUser{
+            ID:               resp.User.Id,
+            Username:         resp.User.Username,
+            Email:            resp.User.Email,
+            FirstName:        resp.User.FirstName,
+            LastName:         resp.User.LastName,
+            Phone:            resp.User.Phone,
+            IsActive:         resp.User.IsActive,
+            OrganizationID:   resp.User.OrganizationId,
+            OrganizationName: resp.User.OrganizationName,
+        }
+        return nil
+    })
+
+    return result, err
+}
+
+// UpdateUser updates a user in AAA service
+func (c *EnhancedAAAClient) UpdateUser(ctx context.Context, user *AAAUser) (*AAAUser, error) {
+    var result *AAAUser
+    err := c.withRetry(ctx, func() error {
+        req := &aaaPb.UpdateUserRequest{
+            UserId:    user.ID,
+            Username:  user.Username,
+            Email:     user.Email,
+            FirstName: user.FirstName,
+            LastName:  user.LastName,
+            Phone:     user.Phone,
+            IsActive:  user.IsActive,
+        }
+
+        resp, err := c.userClient.UpdateUser(ctx, req)
+        if err != nil {
+            return c.handleGRPCError(err)
+        }
+
+        result = &AAAUser{
+            ID:               resp.User.Id,
+            Username:         resp.User.Username,
+            Email:            resp.User.Email,
+            FirstName:        resp.User.FirstName,
+            LastName:         resp.User.LastName,
+            Phone:            resp.User.Phone,
+            IsActive:         resp.User.IsActive,
+            OrganizationID:   resp.User.OrganizationId,
+            OrganizationName: resp.User.OrganizationName,
+        }
+        return nil
+    })
+
+    return result, err
+}
+
+// DeleteUser deletes a user from AAA service
+func (c *EnhancedAAAClient) DeleteUser(ctx context.Context, userID string) error {
+    return c.withRetry(ctx, func() error {
+        req := &aaaPb.DeleteUserRequest{UserId: userID}
+        _, err := c.userClient.DeleteUser(ctx, req)
+        return c.handleGRPCError(err)
+    })
+}
+
+// AuthenticateUser authenticates a user with AAA service
+func (c *EnhancedAAAClient) AuthenticateUser(ctx context.Context, username, password string) (*AuthenticationResponse, error) {
+    var result *AuthenticationResponse
+    err := c.withRetry(ctx, func() error {
+        req := &aaaPb.AuthenticateRequest{
+            Username: username,
+            Password: password,
+        }
+
+        resp, err := c.userClient.Authenticate(ctx, req)
+        if err != nil {
+            return c.handleGRPCError(err)
+        }
+
+        user := &AAAUser{
+            ID:               resp.User.Id,
+            Username:         resp.User.Username,
+            Email:            resp.User.Email,
+            FirstName:        resp.User.FirstName,
+            LastName:         resp.User.LastName,
+            Phone:            resp.User.Phone,
+            IsActive:         resp.User.IsActive,
+            OrganizationID:   resp.User.OrganizationId,
+            OrganizationName: resp.User.OrganizationName,
+        }
+
+        userContext := &UserContext{
+            UserID:           user.ID,
+            Username:         user.Username,
+            Email:            user.Email,
+            OrganizationID:   user.OrganizationID,
+            OrganizationName: user.OrganizationName,
+            Roles:            resp.Roles,
+            Permissions:      resp.Permissions,
+            IsActive:         user.IsActive,
+        }
+
+        result = &AuthenticationResponse{
+            AccessToken:  resp.AccessToken,
+            RefreshToken: resp.RefreshToken,
+            ExpiresIn:    resp.ExpiresIn,
+            TokenType:    resp.TokenType,
+            User:         user,
+            UserContext:  userContext,
+        }
+        return nil
+    })
+
+    return result, err
+}
+
+// RefreshToken refreshes a user's token
+func (c *EnhancedAAAClient) RefreshToken(ctx context.Context, refreshToken string) (*AuthenticationResponse, error) {
+    var result *AuthenticationResponse
+    err := c.withRetry(ctx, func() error {
+        req := &aaaPb.RefreshTokenRequest{RefreshToken: refreshToken}
+        resp, err := c.userClient.RefreshToken(ctx, req)
+        if err != nil {
+            return c.handleGRPCError(err)
+        }
+
+        user := &AAAUser{
+            ID:               resp.User.Id,
+            Username:         resp.User.Username,
+            Email:            resp.User.Email,
+            FirstName:        resp.User.FirstName,
+            LastName:         resp.User.LastName,
+            Phone:            resp.User.Phone,
+            IsActive:         resp.User.IsActive,
+            OrganizationID:   resp.User.OrganizationId,
+            OrganizationName: resp.User.OrganizationName,
+        }
+
+        userContext := &UserContext{
+            UserID:           user.ID,
+            Username:         user.Username,
+            Email:            user.Email,
+            OrganizationID:   user.OrganizationID,
+            OrganizationName: user.OrganizationName,
+            Roles:            resp.Roles,
+            Permissions:      resp.Permissions,
+            IsActive:         user.IsActive,
+        }
+
+        result = &AuthenticationResponse{
+            AccessToken:  resp.AccessToken,
+            RefreshToken: resp.RefreshToken,
+            ExpiresIn:    resp.ExpiresIn,
+            TokenType:    resp.TokenType,
+            User:         user,
+            UserContext:  userContext,
+        }
+        return nil
+    })
+
+    return result, err
+}
+
+// ValidateJWT validates a JWT token with AAA service
+func (c *EnhancedAAAClient) ValidateJWT(ctx context.Context, token string) (bool, error) {
+    var result bool
+    err := c.withRetry(ctx, func() error {
+        req := &aaaPb.ValidateTokenRequest{Token: token}
+        resp, err := c.userClient.ValidateToken(ctx, req)
+        if err != nil {
+            return c.handleGRPCError(err)
+        }
+        result = resp.Valid
+        return nil
+    })
+
+    return result, err
+}
+
+// GetUserFromToken gets user context from a validated token
+func (c *EnhancedAAAClient) GetUserFromToken(ctx context.Context, token string) (*UserContext, error) {
+    // First validate the token
+    isValid, err := c.ValidateJWT(ctx, token)
+    if err != nil {
+        return nil, fmt.Errorf("token validation failed: %w", err)
+    }
+
+    if !isValid {
+        return nil, fmt.Errorf("invalid token")
+    }
+
+    // Use JWT validator to extract claims
+    result, err := c.jwtValidator.ValidateToken(ctx, token)
+    if err != nil {
+        return nil, fmt.Errorf("failed to extract user context: %w", err)
+    }
+
+    return result.UserContext, nil
+}
+
+// EvaluatePermission evaluates if a user has permission to perform an action on a resource
+func (c *EnhancedAAAClient) EvaluatePermission(ctx context.Context, userID, resource, action string) (bool, error) {
+    var result bool
+    err := c.withRetry(ctx, func() error {
+        req := &aaaPb.EvaluatePermissionRequest{
+            UserId:   userID,
+            Resource: resource,
+            Action:   action,
+        }
+
+        resp, err := c.authzClient.EvaluatePermission(ctx, req)
+        if err != nil {
+            return c.handleGRPCError(err)
+        }
+        result = resp.Allowed
+        return nil
+    })
+
+    return result, err
+}
+
+// EvaluateResourcePermission evaluates permission for a specific resource instance
+func (c *EnhancedAAAClient) EvaluateResourcePermission(ctx context.Context, userID, resourceType, resourceID, action string) (bool, error) {
+    var result bool
+    err := c.withRetry(ctx, func() error {
+        req := &aaaPb.EvaluateResourcePermissionRequest{
+            UserId:       userID,
+            ResourceType: resourceType,
+            ResourceId:   resourceID,
+            Action:       action,
+        }
+
+        resp, err := c.authzClient.EvaluateResourcePermission(ctx, req)
+        if err != nil {
+            return c.handleGRPCError(err)
+        }
+        result = resp.Allowed
+        return nil
+    })
+
+    return result, err
+}
+
+// BulkEvaluatePermissions evaluates multiple permissions at once
+func (c *EnhancedAAAClient) BulkEvaluatePermissions(ctx context.Context, userID string, permissions []PermissionCheck) ([]PermissionResult, error) {
+    var result []PermissionResult
+    err := c.withRetry(ctx, func() error {
+        // Convert to protobuf format
+        pbPermissions := make([]*aaaPb.PermissionCheck, len(permissions))
+        for i, perm := range permissions {
+            pbPermissions[i] = &aaaPb.PermissionCheck{
+                Resource: perm.Resource,
+                Action:   perm.Action,
+            }
+        }
+
+        req := &aaaPb.BulkEvaluatePermissionsRequest{
+            UserId:      userID,
+            Permissions: pbPermissions,
+        }
+
+        resp, err := c.authzClient.BulkEvaluatePermissions(ctx, req)
+        if err != nil {
+            return c.handleGRPCError(err)
+        }
+
+        // Convert response
+        result = make([]PermissionResult, len(resp.Results))
+        for i, r := range resp.Results {
+            result[i] = PermissionResult{
+                Resource: r.Resource,
+                Action:   r.Action,
+                Allowed:  r.Allowed,
+                Reason:   r.Reason,
+            }
+        }
+        return nil
+    })
+
+    return result, err
+}
+
+// GetUserRoles retrieves roles assigned to a user
+func (c *EnhancedAAAClient) GetUserRoles(ctx context.Context, userID string) ([]*AAARole, error) {
+    var result []*AAARole
+    err := c.withRetry(ctx, func() error {
+        req := &aaaPb.GetUserRolesRequest{UserId: userID}
+        resp, err := c.userClient.GetUserRoles(ctx, req)
+        if err != nil {
+            return c.handleGRPCError(err)
+        }
+
+        result = make([]*AAARole, len(resp.Roles))
+        for i, role := range resp.Roles {
+            result[i] = &AAARole{
+                ID:          role.Id,
+                Name:        role.Name,
+                Description: role.Description,
+                Scope:       role.Scope,
+                IsActive:    role.IsActive,
+            }
+        }
+        return nil
+    })
+
+    return result, err
+}
+
+// AssignRole assigns a role to a user
+func (c *EnhancedAAAClient) AssignRole(ctx context.Context, userID, roleID string) error {
+    return c.withRetry(ctx, func() error {
+        req := &aaaPb.AssignRoleRequest{
+            UserId: userID,
+            RoleId: roleID,
+        }
+        _, err := c.userClient.AssignRole(ctx, req)
+        return c.handleGRPCError(err)
+    })
+}
+
+// RemoveRole removes a role from a user
+func (c *EnhancedAAAClient) RemoveRole(ctx context.Context, userID, roleID string) error {
+    return c.withRetry(ctx, func() error {
+        req := &aaaPb.RemoveRoleRequest{
+            UserId: userID,
+            RoleId: roleID,
+        }
+        _, err := c.userClient.RemoveRole(ctx, req)
+        return c.handleGRPCError(err)
+    })
+}
+
+// GetUserPermissions retrieves permissions for a user
+func (c *EnhancedAAAClient) GetUserPermissions(ctx context.Context, userID string) ([]string, error) {
+    var result []string
+    err := c.withRetry(ctx, func() error {
+        req := &aaaPb.GetUserPermissionsRequest{UserId: userID}
+        resp, err := c.userClient.GetUserPermissions(ctx, req)
+        if err != nil {
+            return c.handleGRPCError(err)
+        }
+        result = resp.Permissions
+        return nil
+    })
+
+    return result, err
+}
+
+// ValidateUserOrganization validates that a user belongs to an organization
+func (c *EnhancedAAAClient) ValidateUserOrganization(ctx context.Context, userID, orgID string) (bool, error) {
+    var result bool
+    err := c.withRetry(ctx, func() error {
+        req := &aaaPb.ValidateUserOrganizationRequest{
+            UserId: userID,
+            OrgId:  orgID,
+        }
+        resp, err := c.userClient.ValidateUserOrganization(ctx, req)
+        if err != nil {
+            return c.handleGRPCError(err)
+        }
+        result = resp.Valid
+        return nil
+    })
+
+    return result, err
+}
+
+// withRetry executes a function with retry logic
+func (c *EnhancedAAAClient) withRetry(ctx context.Context, operation func() error) error {
+    return c.circuitBreaker.Call(func() error {
+        var lastErr error
+
+        for attempt := 0; attempt <= c.config.Retries; attempt++ {
+            if attempt > 0 {
+                // Exponential backoff
+                backoffDelay := time.Duration(attempt) * 100 * time.Millisecond
+                select {
+                case <-ctx.Done():
+                    return ctx.Err()
+                case <-time.After(backoffDelay):
+                }
+            }
+
+            err := operation()
+            if err == nil {
+                return nil
+            }
+
+            lastErr = err
+
+            // Don't retry on certain errors
+            if c.shouldNotRetry(err) {
+                return err
+            }
+
+            log.Printf("AAA service call failed (attempt %d/%d): %v", attempt+1, c.config.Retries+1, err)
+        }
+
+        return fmt.Errorf("operation failed after %d retries: %w", c.config.Retries, lastErr)
+    })
+}
+
+// shouldNotRetry determines if an error should not be retried
+func (c *EnhancedAAAClient) shouldNotRetry(err error) bool {
+    if err == nil {
+        return true
+    }
+
+    grpcStatus := status.Code(err)
+
+    // Don't retry on client errors
+    switch grpcStatus {
+    case codes.InvalidArgument, codes.NotFound, codes.AlreadyExists,
+        codes.PermissionDenied, codes.FailedPrecondition, codes.Unauthenticated:
+        return true
+    }
+
+    return false
+}
+
+// handleGRPCError converts gRPC errors to application errors
+func (c *EnhancedAAAClient) handleGRPCError(err error) error {
+    if err == nil {
+        return nil
+    }
+
+    grpcStatus := status.Code(err)
+    grpcMessage := status.Convert(err).Message()
+
+    switch grpcStatus {
+    case codes.NotFound:
+        return fmt.Errorf("resource not found: %s", grpcMessage)
+    case codes.AlreadyExists:
+        return fmt.Errorf("resource already exists: %s", grpcMessage)
+    case codes.PermissionDenied:
+        return fmt.Errorf("permission denied: %s", grpcMessage)
+    case codes.Unauthenticated:
+        return fmt.Errorf("authentication failed: %s", grpcMessage)
+    case codes.InvalidArgument:
+        return fmt.Errorf("invalid argument: %s", grpcMessage)
+    case codes.Unavailable:
+        return fmt.Errorf("service unavailable: %s", grpcMessage)
+    case codes.DeadlineExceeded:
+        return fmt.Errorf("request timeout: %s", grpcMessage)
+    default:
+        return fmt.Errorf("AAA service error [%s]: %s", grpcStatus.String(), grpcMessage)
+    }
+}

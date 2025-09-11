@@ -1,0 +1,53 @@
+# Testing-specific Docker Compose configuration
+# Use with: docker-compose -f docker-compose.yml -f docker-compose.test.yml up
+
+version: "3.8"
+
+services:
+  test:
+    build:
+      target: testing
+    environment:
+      - GIN_MODE=test
+      - LOG_LEVEL=debug
+      - DB_HOST=postgres-test
+      - REDIS_HOST=redis-test
+    volumes:
+      - .:/app:ro
+      - test_coverage:/app/coverage
+      - go_mod_cache:/go/pkg/mod
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+      redis-test:
+        condition: service_healthy
+
+  postgres-test:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: kisanlink_ecom_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: test_password_123
+    volumes:
+      - ./scripts/init-test-db.sql:/docker-entrypoint-initdb.d/init-test-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d kisanlink_ecom_test"]
+      interval: 2s
+      timeout: 1s
+      retries: 10
+      start_period: 5s
+
+  redis-test:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 1s
+      retries: 5
+      start_period: 2s
+
+volumes:
+  test_coverage:
+    driver: local
+  go_mod_cache:
+    driver: local

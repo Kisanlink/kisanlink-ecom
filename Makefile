@@ -17,7 +17,16 @@ GORUN=$(GOCMD) run
 GOGENERATE=$(GOCMD) generate
 
 # Build flags
-LDFLAGS=-ldflags "-X main.Version=$(shell git describe --tags --always --dirty) -X main.BuildTime=$(shell date -u '+%Y-%m-%d_%H:%M:%S')"
+VERSION=$(shell git describe --tags --always --dirty)
+BUILD_TIME=$(shell date -u '+%Y-%m-%d_%H:%M:%S')
+GIT_COMMIT=$(shell git rev-parse --short HEAD)
+GIT_BRANCH=$(shell git rev-parse --abbrev-ref HEAD)
+
+# Environment-specific build flags
+LDFLAGS_BASE=-X main.Version=$(VERSION) -X main.BuildTime=$(BUILD_TIME) -X main.GitCommit=$(GIT_COMMIT) -X main.GitBranch=$(GIT_BRANCH)
+LDFLAGS_DEV=-ldflags "$(LDFLAGS_BASE)"
+LDFLAGS_PROD=-ldflags "-s -w $(LDFLAGS_BASE)"
+LDFLAGS=$(LDFLAGS_DEV)
 
 # Directories
 CMD_DIR=cmd
@@ -27,23 +36,37 @@ DOCS_DIR=docs
 COVERAGE_DIR=coverage
 
 # Main targets
-.PHONY: all build clean test coverage lint swagger run dev docker-build docker-run help
+.PHONY: all build clean test coverage lint swagger run dev docker-build docker-run help test-aaa seed-aaa test-endpoints
 
 # Default target
 all: clean build test
 
 # Build the application
 build:
-	@echo "Building $(BINARY_NAME)..."
-	$(GOBUILD) $(LDFLAGS) -o $(BINARY_NAME) ./$(CMD_DIR)/server
+	@echo "Building $(BINARY_NAME) for development..."
+	$(GOBUILD) $(LDFLAGS_DEV) -o $(BINARY_NAME) ./$(CMD_DIR)/server
 	@echo "Build complete!"
+
+# Build for production (optimized)
+build-prod:
+	@echo "Building $(BINARY_NAME) for production..."
+	CGO_ENABLED=0 $(GOBUILD) $(LDFLAGS_PROD) -a -installsuffix cgo -o $(BINARY_NAME) ./$(CMD_DIR)/server
+	@echo "Production build complete!"
+
+# Build for staging
+build-staging:
+	@echo "Building $(BINARY_NAME) for staging..."
+	CGO_ENABLED=0 $(GOBUILD) $(LDFLAGS_DEV) -a -installsuffix cgo -o $(BINARY_NAME) ./$(CMD_DIR)/server
+	@echo "Staging build complete!"
 
 # Build for multiple platforms
 build-all: clean
 	@echo "Building for multiple platforms..."
-	GOOS=linux GOARCH=amd64 $(GOBUILD) $(LDFLAGS) -o $(BINARY_UNIX) ./$(CMD_DIR)/server
-	GOOS=windows GOARCH=amd64 $(GOBUILD) $(LDFLAGS) -o $(BINARY_WINDOWS) ./$(CMD_DIR)/server
-	GOOS=darwin GOARCH=amd64 $(GOBUILD) $(LDFLAGS) -o $(BINARY_DARWIN) ./$(CMD_DIR)/server
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 $(GOBUILD) $(LDFLAGS_PROD) -a -installsuffix cgo -o $(BINARY_UNIX) ./$(CMD_DIR)/server
+	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 $(GOBUILD) $(LDFLAGS_PROD) -a -installsuffix cgo -o $(BINARY_WINDOWS) ./$(CMD_DIR)/server
+	GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 $(GOBUILD) $(LDFLAGS_PROD) -a -installsuffix cgo -o $(BINARY_DARWIN) ./$(CMD_DIR)/server
+	GOOS=linux GOARCH=arm64 CGO_ENABLED=0 $(GOBUILD) $(LDFLAGS_PROD) -a -installsuffix cgo -o $(BINARY_NAME)_linux_arm64 ./$(CMD_DIR)/server
+	GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 $(GOBUILD) $(LDFLAGS_PROD) -a -installsuffix cgo -o $(BINARY_NAME)_darwin_arm64 ./$(CMD_DIR)/server
 	@echo "Multi-platform build complete!"
 
 # Clean build artifacts
@@ -64,9 +87,22 @@ test:
 test-coverage:
 	@echo "Running tests with coverage..."
 	mkdir -p $(COVERAGE_DIR)
-	$(GOTEST) -v -coverprofile=$(COVERAGE_DIR)/coverage.out ./...
+	$(GOTEST) -v -coverprofile=$(COVERAGE_DIR)/coverage.out -covermode=atomic ./...
 	$(GOCMD) tool cover -html=$(COVERAGE_DIR)/coverage.out -o $(COVERAGE_DIR)/coverage.html
+	$(GOCMD) tool cover -func=$(COVERAGE_DIR)/coverage.out | grep total | awk '{print "Total coverage: " $$3}'
 	@echo "Coverage report generated in $(COVERAGE_DIR)/coverage.html"
+
+# Run tests with coverage and enforce minimum coverage
+test-coverage-check:
+	@echo "Running tests with coverage check (minimum 90%)..."
+	mkdir -p $(COVERAGE_DIR)
+	$(GOTEST) -v -coverprofile=$(COVERAGE_DIR)/coverage.out -covermode=atomic ./...
+	@COVERAGE=$$($(GOCMD) tool cover -func=$(COVERAGE_DIR)/coverage.out | grep total | awk '{print $$3}' | sed 's/%//'); \
+	echo "Total coverage: $$COVERAGE%"; \
+	if [ $$(echo "$$COVERAGE < 90" | bc -l) -eq 1 ]; then \
+		echo "Coverage $$COVERAGE% is below minimum 90%"; \
+		exit 1; \
+	fi
 
 # Run tests with race detection
 test-race:
@@ -150,13 +186,62 @@ docker-build:
 	docker build -t $(BINARY_NAME) .
 	@echo "Docker build complete!"
 
+docker-build-dev:
+	@echo "Building development Docker image..."
+	docker build --target development -t $(BINARY_NAME):dev .
+	@echo "Development Docker build complete!"
+
+docker-build-prod:
+	@echo "Building production Docker image..."
+	docker build --target runtime -t $(BINARY_NAME):prod .
+	@echo "Production Docker build complete!"
+
 docker-run:
 	@echo "Running Docker container..."
 	docker run -p 8080:8080 $(BINARY_NAME)
 
+docker-run-dev:
+	@echo "Running development Docker container..."
+	docker run -p 8080:8080 -v $(PWD):/app $(BINARY_NAME):dev
+
 docker-stop:
 	@echo "Stopping Docker container..."
-	docker stop $(shell docker ps -q --filter ancestor=$(BINARY_NAME))
+	docker stop $(shell docker ps -q --filter ancestor=$(BINARY_NAME)) || true
+
+# Docker Compose operations
+compose-dev-up:
+	@echo "Starting development environment with Docker Compose..."
+	docker-compose --profile dev up -d
+	@echo "Development environment started!"
+
+compose-dev-down:
+	@echo "Stopping development environment..."
+	docker-compose --profile dev down
+	@echo "Development environment stopped!"
+
+compose-prod-up:
+	@echo "Starting production environment with Docker Compose..."
+	docker-compose -f docker-compose.yml -f docker-compose.prod.yml --profile prod up -d
+	@echo "Production environment started!"
+
+compose-prod-down:
+	@echo "Stopping production environment..."
+	docker-compose -f docker-compose.yml -f docker-compose.prod.yml --profile prod down
+	@echo "Production environment stopped!"
+
+compose-test:
+	@echo "Running tests with Docker Compose..."
+	docker-compose -f docker-compose.yml -f docker-compose.test.yml --profile test up --abort-on-container-exit
+	docker-compose -f docker-compose.yml -f docker-compose.test.yml --profile test down
+	@echo "Tests completed!"
+
+compose-logs:
+	@echo "Showing Docker Compose logs..."
+	docker-compose logs -f
+
+compose-status:
+	@echo "Docker Compose service status:"
+	docker-compose ps
 
 # Dependency management
 deps:
@@ -224,45 +309,174 @@ install-tools: install-swagger install-air install-security-tools install-mockge
 # Show help
 help:
 	@echo "Available targets:"
-	@echo "  build              - Build the application"
+	@echo ""
+	@echo "Build targets:"
+	@echo "  build              - Build the application for development"
+	@echo "  build-prod         - Build optimized production binary"
+	@echo "  build-staging      - Build staging binary"
 	@echo "  build-all          - Build for multiple platforms"
 	@echo "  clean              - Clean build artifacts"
+	@echo ""
+	@echo "Test targets:"
 	@echo "  test               - Run tests"
-	@echo "  test-coverage      - Run tests with coverage"
+	@echo "  test-coverage      - Run tests with coverage report"
+	@echo "  test-coverage-check - Run tests with coverage enforcement (90%)"
 	@echo "  test-race          - Run tests with race detection"
-	@echo "  lint               - Lint the code"
-	@echo "  fmt                - Format code"
-	@echo "  vet                - Vet the code"
-	@echo "  swagger            - Generate Swagger documentation"
+	@echo "  test-package       - Run tests for specific package (PACKAGE=path)"
+	@echo "  bench              - Run benchmarks"
+	@echo ""
+	@echo "Code quality targets:"
+	@echo "  lint               - Lint the code with golangci-lint"
+	@echo "  fmt                - Format code with go fmt"
+	@echo "  vet                - Vet the code with go vet"
+	@echo "  security-check     - Run security checks with gosec"
+	@echo "  pre-commit         - Run all pre-commit checks"
+	@echo "  pre-commit-all     - Run pre-commit on all files"
+	@echo ""
+	@echo "Development targets:"
 	@echo "  run                - Build and run the application"
 	@echo "  dev                - Run in development mode"
-	@echo "  dev-hot            - Run with hot reload"
+	@echo "  dev-hot            - Run with hot reload (requires air)"
+	@echo "  dev-setup          - Full development environment setup"
+	@echo "  dev-setup-quick    - Quick development setup"
+	@echo "  dev-setup-full     - Full setup with Docker services"
+	@echo ""
+	@echo "Docker targets:"
+	@echo "  docker-build       - Build Docker image"
+	@echo "  docker-build-dev   - Build development Docker image"
+	@echo "  docker-build-prod  - Build production Docker image"
+	@echo "  docker-run         - Run Docker container"
+	@echo "  docker-run-dev     - Run development Docker container"
+	@echo "  docker-stop        - Stop Docker container"
+	@echo "  docker-dev-up      - Start development services (postgres, redis)"
+	@echo "  docker-dev-down    - Stop development services"
+	@echo "  docker-dev-reset   - Reset development environment"
+	@echo ""
+	@echo "Docker Compose targets:"
+	@echo "  compose-dev-up     - Start development environment"
+	@echo "  compose-dev-down   - Stop development environment"
+	@echo "  compose-prod-up    - Start production environment"
+	@echo "  compose-prod-down  - Stop production environment"
+	@echo "  compose-test       - Run tests in containers"
+	@echo "  compose-logs       - Show service logs"
+	@echo "  compose-status     - Show service status"
+	@echo ""
+	@echo "Database targets:"
 	@echo "  db-migrate         - Run database migrations"
 	@echo "  db-seed            - Seed the database"
-	@echo "  docker-build       - Build Docker image"
-	@echo "  docker-run         - Run Docker container"
+	@echo ""
+	@echo "Documentation targets:"
+	@echo "  swagger            - Generate Swagger documentation"
+	@echo ""
+	@echo "Dependency targets:"
 	@echo "  deps               - Download dependencies"
 	@echo "  deps-tidy          - Tidy dependencies"
 	@echo "  deps-update        - Update dependencies"
-	@echo "  security-check     - Run security checks"
+	@echo ""
+	@echo "CI/CD targets:"
+	@echo "  ci                 - Full CI pipeline"
+	@echo "  ci-pr              - PR CI pipeline"
+	@echo "  cd-dev             - Development deployment pipeline"
+	@echo "  cd-staging         - Staging deployment pipeline"
+	@echo "  cd-prod            - Production deployment pipeline"
+	@echo ""
+	@echo "Utility targets:"
 	@echo "  profile            - Run with profiling"
+	@echo "  analyze-profile    - Analyze CPU and memory profiles"
 	@echo "  mocks              - Generate mocks"
 	@echo "  generate           - Generate code"
 	@echo "  install-tools      - Install all development tools"
+	@echo "  install-pre-commit - Install pre-commit hooks"
+	@echo ""
+	@echo "AAA Service targets:"
+	@echo "  test-aaa           - Test AAA service connection"
+	@echo "  seed-aaa           - Seed AAA service with RBAC data"
+	@echo "  test-endpoints     - Test e-commerce endpoints"
+	@echo "  test-full-aaa      - Run full AAA integration test"
+	@echo ""
 	@echo "  help               - Show this help message"
 
 # Development workflow
-dev-setup: install-tools deps-tidy swagger
+dev-setup: install-tools deps-tidy install-pre-commit swagger
 	@echo "Development environment setup complete!"
 
+# Quick development setup (minimal)
+dev-setup-quick: deps-tidy swagger
+	@echo "Quick development setup complete!"
+
+# Full development environment with Docker
+dev-setup-full: dev-setup docker-dev-up
+	@echo "Full development environment setup complete!"
+
+# Start development environment with Docker
+docker-dev-up:
+	@echo "Starting development environment..."
+	docker-compose up -d postgres redis
+	@echo "Development environment started!"
+
+# Stop development environment
+docker-dev-down:
+	@echo "Stopping development environment..."
+	docker-compose down
+	@echo "Development environment stopped!"
+
+# Reset development environment
+docker-dev-reset: docker-dev-down
+	@echo "Resetting development environment..."
+	docker-compose down -v
+	docker-compose up -d postgres redis
+	@echo "Development environment reset complete!"
+
 # CI/CD pipeline
-ci: deps-tidy lint test test-coverage security-check
+ci: deps-tidy fmt vet lint test-coverage-check security-check swagger
 	@echo "CI pipeline complete!"
 
+# CI pipeline for pull requests
+ci-pr: deps-tidy fmt vet lint test test-race
+	@echo "PR CI pipeline complete!"
+
+# CD pipeline for deployment
+cd-dev: build-staging swagger
+	@echo "Development deployment pipeline complete!"
+
+cd-staging: build-staging test-coverage-check swagger
+	@echo "Staging deployment pipeline complete!"
+
+cd-prod: build-prod test-coverage-check security-check swagger
+	@echo "Production deployment pipeline complete!"
+
 # Pre-commit hooks
-pre-commit: fmt lint test
+pre-commit: fmt vet lint test-coverage-check security-check
 	@echo "Pre-commit checks complete!"
+
+# Install pre-commit hooks
+install-pre-commit:
+	@echo "Installing pre-commit hooks..."
+	pre-commit install
+	@echo "Pre-commit hooks installed!"
+
+# Run pre-commit on all files
+pre-commit-all:
+	@echo "Running pre-commit on all files..."
+	pre-commit run --all-files
+
+# AAA Service Testing
+test-aaa:
+	@echo "Testing AAA service connection..."
+	$(GORUN) debug/test_aaa_connection.go
+
+seed-aaa:
+	@echo "Seeding AAA service with e-commerce RBAC data..."
+	$(GORUN) debug/seed_ecommerce_rbac.go
+
+test-endpoints:
+	@echo "Testing e-commerce endpoints..."
+	$(GORUN) debug/test_ecommerce_endpoints.go
+
+# Full AAA integration test
+test-full-aaa: seed-aaa test-aaa test-endpoints
+	@echo "Full AAA integration test complete!"
 
 # Release preparation
 release: clean build-all test-coverage
-	@echo "Release preparation complete!" 
+	@echo "Release preparation complete!"

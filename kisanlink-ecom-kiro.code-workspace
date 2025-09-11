@@ -1,0 +1,16 @@
+{
+    "folders": [
+        {
+            "path": "."
+        },
+        {
+            "path": "../kisanlink-db"
+        },
+        {
+            "path": "../aaa-service"
+        }
+    ],
+    "settings": {
+        "kiroAgent.configureMCP": "Enabled"
+    }
+}

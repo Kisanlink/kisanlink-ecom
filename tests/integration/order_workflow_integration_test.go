@@ -1,0 +1,697 @@
+package integration
+
+import (
+    "bytes"
+    "context"
+    "database/sql"
+    "encoding/json"
+    "net/http"
+    "net/http/httptest"
+    "testing"
+    "time"
+
+    orderModels "kisanlink-ecom/entities/models/orders"
+    orderRequests "kisanlink-ecom/entities/requests/orders"
+    "kisanlink-ecom/internal/auth"
+    catalogHandler "kisanlink-ecom/internal/handlers/catalog"
+    orderHandler "kisanlink-ecom/internal/handlers/orders"
+    "kisanlink-ecom/internal/middleware"
+    catalogRepo "kisanlink-ecom/internal/repositories/catalog"
+    orderRepo "kisanlink-ecom/internal/repositories/orders"
+    catalogService "kisanlink-ecom/internal/services/catalog"
+    orderService "kisanlink-ecom/internal/services/orders"
+    "kisanlink-ecom/tests/testutils"
+
+    "github.com/gin-gonic/gin"
+    "github.com/stretchr/testify/mock"
+    "github.com/stretchr/testify/suite"
+)
+
+// OrderWorkflowIntegrationTestSuite tests complete order workflows from creation to completion
+type OrderWorkflowIntegrationTestSuite struct {
+    suite.Suite
+    router         *gin.Engine
+    mockDB         *testutils.MockDatabase
+    mockAAAClient  *MockAAAClient
+    orderHandler   *orderHandler.OrderHandler
+    catalogHandler *catalogHandler.CatalogHandler
+    createdOrderID string
+    createdItemID  string
+}
+
+// MockAAAClient for integration testing
+type MockAAAClient struct {
+    users         map[string]*auth.UserContext
+    permissions   map[string]map[string]bool // userID -> resource:action -> allowed
+    organizations map[string][]string        // userID -> orgIDs
+}
+
+func NewMockAAAClient() *MockAAAClient {
+    return &MockAAAClient{
+        users:         make(map[string]*auth.UserContext),
+        permissions:   make(map[string]map[string]bool),
+        organizations: make(map[string][]string),
+    }
+}
+
+func (m *MockAAAClient) AddUser(userID string, userContext *auth.UserContext) {
+    m.users[userID] = userContext
+    if m.permissions[userID] == nil {
+        m.permissions[userID] = make(map[string]bool)
+    }
+}
+
+func (m *MockAAAClient) SetPermission(userID, resource, action string, allowed bool) {
+    if m.permissions[userID] == nil {
+        m.permissions[userID] = make(map[string]bool)
+    }
+    m.permissions[userID][resource+":"+action] = allowed
+}
+
+func (m *MockAAAClient) AddUserToOrganization(userID, orgID string) {
+    m.organizations[userID] = append(m.organizations[userID], orgID)
+}
+
+func (m *MockAAAClient) ValidateJWT(ctx context.Context, token string) (bool, error) {
+    return token != "", nil
+}
+
+func (m *MockAAAClient) GetUserFromToken(ctx context.Context, token string) (*auth.UserContext, error) {
+    // Extract user ID from token (simplified for testing)
+    userID := "user-123" // Default test user
+    if userContext, exists := m.users[userID]; exists {
+        return userContext, nil
+    }
+    return testutils.CreateTestUserContext(), nil
+}
+
+func (m *MockAAAClient) EvaluatePermission(ctx context.Context, userID, resource, action string) (bool, error) {
+    if userPerms, exists := m.permissions[userID]; exists {
+        if allowed, exists := userPerms[resource+":"+action]; exists {
+            return allowed, nil
+        }
+    }
+    return true, nil // Default allow for testing
+}
+
+func (m *MockAAAClient) ValidateUserOrganization(ctx context.Context, userID, orgID string) (bool, error) {
+    if orgs, exists := m.organizations[userID]; exists {
+        for _, org := range orgs {
+            if org == orgID {
+                return true, nil
+            }
+        }
+    }
+    return true, nil // Default allow for testing
+}
+
+// Implement other required methods as no-ops
+func (m *MockAAAClient) CreateUser(ctx context.Context, user *auth.AAAUser) (*auth.AAAUser, error) {
+    return user, nil
+}
+func (m *MockAAAClient) GetUser(ctx context.Context, userID string) (*auth.AAAUser, error) {
+    return &auth.AAAUser{ID: userID}, nil
+}
+func (m *MockAAAClient) UpdateUser(ctx context.Context, user *auth.AAAUser) (*auth.AAAUser, error) {
+    return user, nil
+}
+func (m *MockAAAClient) DeleteUser(ctx context.Context, userID string) error { return nil }
+func (m *MockAAAClient) AuthenticateUser(ctx context.Context, username, password string) (*auth.AuthenticationResponse, error) {
+    return testutils.CreateTestAuthenticationResponse(), nil
+}
+func (m *MockAAAClient) RefreshToken(ctx context.Context, refreshToken string) (*auth.AuthenticationResponse, error) {
+    return testutils.CreateTestAuthenticationResponse(), nil
+}
+func (m *MockAAAClient) GetUserRoles(ctx context.Context, userID string) ([]*auth.AAARole, error) {
+    return nil, nil
+}
+func (m *MockAAAClient) AssignRole(ctx context.Context, userID, roleID string) error { return nil }
+func (m *MockAAAClient) RemoveRole(ctx context.Context, userID, roleID string) error { return nil }
+func (m *MockAAAClient) GetUserPermissions(ctx context.Context, userID string) ([]string, error) {
+    return []string{}, nil
+}
+func (m *MockAAAClient) EvaluateResourcePermission(ctx context.Context, userID, resourceType, resourceID, action string) (bool, error) {
+    return true, nil
+}
+func (m *MockAAAClient) BulkEvaluatePermissions(ctx context.Context, userID string, permissions []auth.PermissionCheck) ([]auth.PermissionResult, error) {
+    return []auth.PermissionResult{}, nil
+}
+func (m *MockAAAClient) HealthCheck(ctx context.Context) error { return nil }
+func (m *MockAAAClient) Close() error                          { return nil }
+
+// SetupSuite initializes the test suite
+func (suite *OrderWorkflowIntegrationTestSuite) SetupSuite() {
+    gin.SetMode(gin.TestMode)
+
+    // Initialize mock dependencies
+    suite.mockDB = testutils.SetupMockDatabase()
+    suite.mockAAAClient = NewMockAAAClient()
+
+    // Set up test users and permissions
+    suite.setupTestUsers()
+
+    // Initialize repositories
+    catalogRepository := catalogRepo.NewCatalogRepository(suite.mockDB)
+    orderRepository := orderRepo.NewOrderRepository(suite.mockDB)
+
+    // Initialize services
+    catalogSvc := catalogService.NewCatalogService(catalogRepository)
+    orderSvc := orderService.NewOrderService(orderRepository, catalogSvc)
+
+    // Initialize handlers
+    suite.catalogHandler = catalogHandler.NewCatalogHandler(catalogSvc)
+    suite.orderHandler = orderHandler.NewOrderHandler(orderSvc)
+
+    // Setup router with middleware
+    suite.router = suite.setupRouter()
+}
+
+func (suite *OrderWorkflowIntegrationTestSuite) setupTestUsers() {
+    // Create test buyer user
+    buyerUser := testutils.CreateTestUserContext()
+    buyerUser.UserID = "buyer-user-123"
+    buyerUser.OrganizationID = testutils.TestOrgID
+    buyerUser.Roles = []string{"buyer", "user"}
+    suite.mockAAAClient.AddUser("buyer-user-123", buyerUser)
+    suite.mockAAAClient.AddUserToOrganization("buyer-user-123", testutils.TestOrgID)
+
+    // Create test seller user
+    sellerUser := testutils.CreateTestUserContext()
+    sellerUser.UserID = "seller-user-456"
+    sellerUser.OrganizationID = testutils.TestSellerOrgID
+    sellerUser.Roles = []string{"seller", "collaborator", "user"}
+    suite.mockAAAClient.AddUser("seller-user-456", sellerUser)
+    suite.mockAAAClient.AddUserToOrganization("seller-user-456", testutils.TestSellerOrgID)
+
+    // Set permissions
+    suite.mockAAAClient.SetPermission("buyer-user-123", "orders", "create", true)
+    suite.mockAAAClient.SetPermission("buyer-user-123", "orders", "read", true)
+    suite.mockAAAClient.SetPermission("seller-user-456", "catalog", "create", true)
+    suite.mockAAAClient.SetPermission("seller-user-456", "orders", "update", true)
+    suite.mockAAAClient.SetPermission("seller-user-456", "orders", "read", true)
+}
+
+func (suite *OrderWorkflowIntegrationTestSuite) setupRouter() *gin.Engine {
+    router := gin.New()
+
+    // Add middleware
+    router.Use(func(c *gin.Context) {
+        // Mock authentication middleware
+        c.Set(middleware.SubjectIDKey, "user-123")
+        c.Set(middleware.OrgIDKey, testutils.TestOrgID)
+        c.Set(middleware.UserRolesKey, []string{"buyer", "seller", "collaborator"})
+        c.Set("aaaClient", suite.mockAAAClient)
+        c.Next()
+    })
+
+    // Setup routes
+    v1 := router.Group("/api/v1")
+    {
+        // Catalog routes
+        catalog := v1.Group("/catalog")
+        {
+            catalog.POST("/products", suite.catalogHandler.CreateProduct)
+            catalog.GET("/:type/:id", suite.catalogHandler.GetCatalogItemByTypeAndID)
+            catalog.PUT("/:type/:id", suite.catalogHandler.UpdateCatalogItemByTypeAndID)
+        }
+
+        // Order routes
+        orders := v1.Group("/orders")
+        {
+            orders.POST("", suite.orderHandler.CreateOrder)
+            orders.GET("/:id", suite.orderHandler.GetOrderByID)
+            orders.GET("", suite.orderHandler.ListOrders)
+            orders.PATCH("/:id/status", suite.orderHandler.UpdateOrderStatus)
+            orders.POST("/:id/cancel", suite.orderHandler.CancelOrder)
+        }
+    }
+
+    return router
+}
+
+// TearDownSuite cleans up after all tests
+func (suite *OrderWorkflowIntegrationTestSuite) TearDownSuite() {
+    if suite.mockDB != nil {
+        testutils.CleanupMockDatabase(suite.mockDB)
+    }
+}
+
+// SetupTest runs before each test
+func (suite *OrderWorkflowIntegrationTestSuite) SetupTest() {
+    // Reset any test-specific state
+    suite.createdOrderID = ""
+    suite.createdItemID = ""
+}
+
+// Test complete order workflow: Create catalog item -> Create order -> Update status -> Complete
+func (suite *OrderWorkflowIntegrationTestSuite) TestCompleteOrderWorkflow() {
+    // Step 1: Create a catalog item (product)
+    suite.T().Log("Step 1: Creating catalog item")
+    catalogItemID := suite.createCatalogItem()
+    suite.createdItemID = catalogItemID
+
+    // Step 2: Create an order with the catalog item
+    suite.T().Log("Step 2: Creating order")
+    orderID := suite.createOrder(catalogItemID)
+    suite.createdOrderID = orderID
+
+    // Step 3: Verify order was created successfully
+    suite.T().Log("Step 3: Verifying order creation")
+    suite.verifyOrderCreated(orderID)
+
+    // Step 4: Update order status through workflow
+    suite.T().Log("Step 4: Processing order through status workflow")
+    suite.processOrderWorkflow(orderID)
+
+    // Step 5: Verify final order state
+    suite.T().Log("Step 5: Verifying final order state")
+    suite.verifyOrderCompleted(orderID)
+}
+
+func (suite *OrderWorkflowIntegrationTestSuite) createCatalogItem() string {
+    // Mock database operations for catalog item creation
+    testutils.MockSuccessfulInsert(suite.mockDB, 1)
+    suite.mockDB.On("QueryRow", mock.AnythingOfType("string"), mock.Anything).Return(&sql.Row{}).Once()
+
+    // Create product request
+    productReq := testutils.CreateTestProductRequest()
+    reqBody, _ := json.Marshal(productReq)
+
+    // Make request
+    w := httptest.NewRecorder()
+    req, _ := http.NewRequest("POST", "/api/v1/catalog/products", bytes.NewBuffer(reqBody))
+    req.Header.Set("Content-Type", "application/json")
+    req.Header.Set("Authorization", "Bearer test_token")
+
+    suite.router.ServeHTTP(w, req)
+
+    // Verify response
+    suite.Equal(http.StatusCreated, w.Code)
+
+    var response map[string]interface{}
+    err := json.Unmarshal(w.Body.Bytes(), &response)
+    suite.NoError(err)
+    suite.True(response["success"].(bool))
+
+    // Extract created item ID (in real implementation, this would come from the response)
+    return testutils.TestCatalogItemID
+}
+
+func (suite *OrderWorkflowIntegrationTestSuite) createOrder(catalogItemID string) string {
+    // Mock database operations for order creation
+    testutils.MockSuccessfulInsert(suite.mockDB, 1)
+    testutils.MockSuccessfulInsert(suite.mockDB, 1) // For order items
+    testutils.MockSuccessfulInsert(suite.mockDB, 1) // For status history
+
+    // Mock inventory validation
+    suite.mockDB.On("QueryRow", mock.AnythingOfType("string"), mock.Anything).Return(&sql.Row{}).Times(3)
+
+    // Create order request
+    orderReq := testutils.CreateTestCreateOrderRequest()
+    orderReq.Items[0].CatalogItemID = catalogItemID
+    reqBody, _ := json.Marshal(orderReq)
+
+    // Make request
+    w := httptest.NewRecorder()
+    req, _ := http.NewRequest("POST", "/api/v1/orders", bytes.NewBuffer(reqBody))
+    req.Header.Set("Content-Type", "application/json")
+    req.Header.Set("Authorization", "Bearer test_token")
+
+    suite.router.ServeHTTP(w, req)
+
+    // Verify response
+    suite.Equal(http.StatusCreated, w.Code)
+
+    var response map[string]interface{}
+    err := json.Unmarshal(w.Body.Bytes(), &response)
+    suite.NoError(err)
+    suite.True(response["success"].(bool))
+
+    // Extract created order ID
+    return testutils.TestOrderID
+}
+
+func (suite *OrderWorkflowIntegrationTestSuite) verifyOrderCreated(orderID string) {
+    // Mock database query for order retrieval
+    suite.mockDB.On("QueryRow", mock.AnythingOfType("string"), orderID).Return(&sql.Row{}).Once()
+    suite.mockDB.On("Query", mock.AnythingOfType("string"), orderID).Return(&sql.Rows{}, nil).Once()
+
+    // Make request to get order
+    w := httptest.NewRecorder()
+    req, _ := http.NewRequest("GET", "/api/v1/orders/"+orderID, nil)
+    req.Header.Set("Authorization", "Bearer test_token")
+
+    suite.router.ServeHTTP(w, req)
+
+    // Verify response
+    suite.Equal(http.StatusOK, w.Code)
+
+    var response map[string]interface{}
+    err := json.Unmarshal(w.Body.Bytes(), &response)
+    suite.NoError(err)
+    suite.True(response["success"].(bool))
+
+    // Verify order data
+    orderData := response["data"].(map[string]interface{})
+    suite.Equal(orderID, orderData["id"])
+    suite.Equal("pending", orderData["status"])
+}
+
+func (suite *OrderWorkflowIntegrationTestSuite) processOrderWorkflow(orderID string) {
+    // Define order status workflow
+    statusWorkflow := []orderModels.OrderStatus{
+        orderModels.OrderStatusConfirmed,
+        orderModels.OrderStatusPaid,
+        orderModels.OrderStatusShipped,
+        orderModels.OrderStatusDelivered,
+        orderModels.OrderStatusCompleted,
+    }
+
+    for _, status := range statusWorkflow {
+        suite.T().Logf("Updating order status to: %s", status)
+        suite.updateOrderStatus(orderID, status)
+        time.Sleep(10 * time.Millisecond) // Small delay to simulate real workflow
+    }
+}
+
+func (suite *OrderWorkflowIntegrationTestSuite) updateOrderStatus(orderID string, status orderModels.OrderStatus) {
+    // Mock database operations for status update
+    suite.mockDB.On("QueryRow", mock.AnythingOfType("string"), orderID).Return(&sql.Row{}).Once()
+    testutils.MockSuccessfulUpdate(suite.mockDB, 1)
+    testutils.MockSuccessfulInsert(suite.mockDB, 1) // For status history
+
+    // Create status update request
+    statusReq := &orderRequests.UpdateOrderStatusRequest{
+        Status: status,
+        Reason: "Integration test status update",
+    }
+    reqBody, _ := json.Marshal(statusReq)
+
+    // Make request
+    w := httptest.NewRecorder()
+    req, _ := http.NewRequest("PATCH", "/api/v1/orders/"+orderID+"/status", bytes.NewBuffer(reqBody))
+    req.Header.Set("Content-Type", "application/json")
+    req.Header.Set("Authorization", "Bearer test_token")
+
+    suite.router.ServeHTTP(w, req)
+
+    // Verify response
+    suite.Equal(http.StatusOK, w.Code)
+
+    var response map[string]interface{}
+    err := json.Unmarshal(w.Body.Bytes(), &response)
+    suite.NoError(err)
+    suite.True(response["success"].(bool))
+}
+
+func (suite *OrderWorkflowIntegrationTestSuite) verifyOrderCompleted(orderID string) {
+    // Mock database query for final order state
+    suite.mockDB.On("QueryRow", mock.AnythingOfType("string"), orderID).Return(&sql.Row{}).Once()
+    suite.mockDB.On("Query", mock.AnythingOfType("string"), orderID).Return(&sql.Rows{}, nil).Once()
+
+    // Make request to get final order state
+    w := httptest.NewRecorder()
+    req, _ := http.NewRequest("GET", "/api/v1/orders/"+orderID, nil)
+    req.Header.Set("Authorization", "Bearer test_token")
+
+    suite.router.ServeHTTP(w, req)
+
+    // Verify response
+    suite.Equal(http.StatusOK, w.Code)
+
+    var response map[string]interface{}
+    err := json.Unmarshal(w.Body.Bytes(), &response)
+    suite.NoError(err)
+    suite.True(response["success"].(bool))
+
+    // Verify final order state
+    orderData := response["data"].(map[string]interface{})
+    suite.Equal(orderID, orderData["id"])
+    suite.Equal("completed", orderData["status"])
+}
+
+// Test order cancellation workflow
+func (suite *OrderWorkflowIntegrationTestSuite) TestOrderCancellationWorkflow() {
+    // Step 1: Create catalog item and order
+    catalogItemID := suite.createCatalogItem()
+    orderID := suite.createOrder(catalogItemID)
+
+    // Step 2: Cancel the order
+    suite.T().Log("Cancelling order")
+    suite.cancelOrder(orderID)
+
+    // Step 3: Verify order is cancelled
+    suite.T().Log("Verifying order cancellation")
+    suite.verifyOrderCancelled(orderID)
+}
+
+func (suite *OrderWorkflowIntegrationTestSuite) cancelOrder(orderID string) {
+    // Mock database operations for order cancellation
+    suite.mockDB.On("QueryRow", mock.AnythingOfType("string"), orderID).Return(&sql.Row{}).Once()
+    testutils.MockSuccessfulUpdate(suite.mockDB, 1) // Update order status
+    testutils.MockSuccessfulUpdate(suite.mockDB, 1) // Release inventory
+    testutils.MockSuccessfulInsert(suite.mockDB, 1) // Status history
+
+    // Make request
+    w := httptest.NewRecorder()
+    req, _ := http.NewRequest("POST", "/api/v1/orders/"+orderID+"/cancel", nil)
+    req.Header.Set("Authorization", "Bearer test_token")
+
+    suite.router.ServeHTTP(w, req)
+
+    // Verify response
+    suite.Equal(http.StatusOK, w.Code)
+
+    var response map[string]interface{}
+    err := json.Unmarshal(w.Body.Bytes(), &response)
+    suite.NoError(err)
+    suite.True(response["success"].(bool))
+}
+
+func (suite *OrderWorkflowIntegrationTestSuite) verifyOrderCancelled(orderID string) {
+    // Mock database query for cancelled order
+    suite.mockDB.On("QueryRow", mock.AnythingOfType("string"), orderID).Return(&sql.Row{}).Once()
+    suite.mockDB.On("Query", mock.AnythingOfType("string"), orderID).Return(&sql.Rows{}, nil).Once()
+
+    // Make request to get order
+    w := httptest.NewRecorder()
+    req, _ := http.NewRequest("GET", "/api/v1/orders/"+orderID, nil)
+    req.Header.Set("Authorization", "Bearer test_token")
+
+    suite.router.ServeHTTP(w, req)
+
+    // Verify response
+    suite.Equal(http.StatusOK, w.Code)
+
+    var response map[string]interface{}
+    err := json.Unmarshal(w.Body.Bytes(), &response)
+    suite.NoError(err)
+    suite.True(response["success"].(bool))
+
+    // Verify order is cancelled
+    orderData := response["data"].(map[string]interface{})
+    suite.Equal("cancelled", orderData["status"])
+}
+
+// Test multiple orders workflow
+func (suite *OrderWorkflowIntegrationTestSuite) TestMultipleOrdersWorkflow() {
+    // Create catalog item
+    catalogItemID := suite.createCatalogItem()
+
+    // Create multiple orders
+    orderIDs := make([]string, 3)
+    for i := 0; i < 3; i++ {
+        suite.T().Logf("Creating order %d", i+1)
+        orderIDs[i] = suite.createOrder(catalogItemID)
+    }
+
+    // Process orders with different outcomes
+    suite.T().Log("Processing first order to completion")
+    suite.processOrderWorkflow(orderIDs[0])
+
+    suite.T().Log("Cancelling second order")
+    suite.cancelOrder(orderIDs[1])
+
+    suite.T().Log("Partially processing third order")
+    suite.updateOrderStatus(orderIDs[2], orderModels.OrderStatusConfirmed)
+    suite.updateOrderStatus(orderIDs[2], orderModels.OrderStatusPaid)
+
+    // Verify final states
+    suite.verifyOrderCompleted(orderIDs[0])
+    suite.verifyOrderCancelled(orderIDs[1])
+    suite.verifyOrderStatus(orderIDs[2], "paid")
+}
+
+func (suite *OrderWorkflowIntegrationTestSuite) verifyOrderStatus(orderID, expectedStatus string) {
+    // Mock database query
+    suite.mockDB.On("QueryRow", mock.AnythingOfType("string"), orderID).Return(&sql.Row{}).Once()
+    suite.mockDB.On("Query", mock.AnythingOfType("string"), orderID).Return(&sql.Rows{}, nil).Once()
+
+    // Make request
+    w := httptest.NewRecorder()
+    req, _ := http.NewRequest("GET", "/api/v1/orders/"+orderID, nil)
+    req.Header.Set("Authorization", "Bearer test_token")
+
+    suite.router.ServeHTTP(w, req)
+
+    // Verify response
+    suite.Equal(http.StatusOK, w.Code)
+
+    var response map[string]interface{}
+    err := json.Unmarshal(w.Body.Bytes(), &response)
+    suite.NoError(err)
+
+    orderData := response["data"].(map[string]interface{})
+    suite.Equal(expectedStatus, orderData["status"])
+}
+
+// Test error scenarios in workflow
+func (suite *OrderWorkflowIntegrationTestSuite) TestOrderWorkflowErrorScenarios() {
+    // Test invalid status transition
+    suite.T().Log("Testing invalid status transition")
+    catalogItemID := suite.createCatalogItem()
+    orderID := suite.createOrder(catalogItemID)
+
+    // Try to transition from pending directly to delivered (invalid)
+    suite.testInvalidStatusTransition(orderID, orderModels.OrderStatusDelivered)
+
+    // Test cancellation of completed order
+    suite.T().Log("Testing cancellation of completed order")
+    suite.processOrderWorkflow(orderID)
+    suite.testInvalidCancellation(orderID)
+}
+
+func (suite *OrderWorkflowIntegrationTestSuite) testInvalidStatusTransition(orderID string, invalidStatus orderModels.OrderStatus) {
+    // Mock database query that returns current order
+    suite.mockDB.On("QueryRow", mock.AnythingOfType("string"), orderID).Return(&sql.Row{}).Once()
+
+    // Create invalid status update request
+    statusReq := &orderRequests.UpdateOrderStatusRequest{
+        Status: invalidStatus,
+        Reason: "Invalid transition test",
+    }
+    reqBody, _ := json.Marshal(statusReq)
+
+    // Make request
+    w := httptest.NewRecorder()
+    req, _ := http.NewRequest("PATCH", "/api/v1/orders/"+orderID+"/status", bytes.NewBuffer(reqBody))
+    req.Header.Set("Content-Type", "application/json")
+    req.Header.Set("Authorization", "Bearer test_token")
+
+    suite.router.ServeHTTP(w, req)
+
+    // Verify error response
+    suite.Equal(http.StatusBadRequest, w.Code)
+
+    var response map[string]interface{}
+    err := json.Unmarshal(w.Body.Bytes(), &response)
+    suite.NoError(err)
+    suite.False(response["success"].(bool))
+}
+
+func (suite *OrderWorkflowIntegrationTestSuite) testInvalidCancellation(orderID string) {
+    // Mock database query that returns completed order
+    suite.mockDB.On("QueryRow", mock.AnythingOfType("string"), orderID).Return(&sql.Row{}).Once()
+
+    // Make cancellation request
+    w := httptest.NewRecorder()
+    req, _ := http.NewRequest("POST", "/api/v1/orders/"+orderID+"/cancel", nil)
+    req.Header.Set("Authorization", "Bearer test_token")
+
+    suite.router.ServeHTTP(w, req)
+
+    // Verify error response
+    suite.Equal(http.StatusBadRequest, w.Code)
+
+    var response map[string]interface{}
+    err := json.Unmarshal(w.Body.Bytes(), &response)
+    suite.NoError(err)
+    suite.False(response["success"].(bool))
+}
+
+// Test concurrent order processing
+func (suite *OrderWorkflowIntegrationTestSuite) TestConcurrentOrderProcessing() {
+    catalogItemID := suite.createCatalogItem()
+    orderID := suite.createOrder(catalogItemID)
+
+    // Simulate concurrent status updates
+    done := make(chan bool, 2)
+
+    go func() {
+        suite.updateOrderStatus(orderID, orderModels.OrderStatusConfirmed)
+        done <- true
+    }()
+
+    go func() {
+        // This should fail due to concurrent modification
+        time.Sleep(5 * time.Millisecond)
+        suite.updateOrderStatus(orderID, orderModels.OrderStatusPaid)
+        done <- true
+    }()
+
+    // Wait for both goroutines to complete
+    <-done
+    <-done
+
+    // Verify final state is consistent
+    suite.verifyOrderStatus(orderID, "confirmed")
+}
+
+// Test performance with multiple concurrent workflows
+func (suite *OrderWorkflowIntegrationTestSuite) TestPerformanceWithMultipleWorkflows() {
+    catalogItemID := suite.createCatalogItem()
+
+    // Create multiple orders concurrently
+    orderCount := 5
+    orderIDs := make([]string, orderCount)
+    done := make(chan string, orderCount)
+
+    start := time.Now()
+
+    for i := 0; i < orderCount; i++ {
+        go func(index int) {
+            orderID := suite.createOrder(catalogItemID)
+            done <- orderID
+        }(i)
+    }
+
+    // Collect order IDs
+    for i := 0; i < orderCount; i++ {
+        orderIDs[i] = <-done
+    }
+
+    creationTime := time.Since(start)
+    suite.T().Logf("Created %d orders in %v", orderCount, creationTime)
+
+    // Process orders concurrently
+    start = time.Now()
+
+    for _, orderID := range orderIDs {
+        go func(id string) {
+            suite.processOrderWorkflow(id)
+            done <- id
+        }(orderID)
+    }
+
+    // Wait for all processing to complete
+    for i := 0; i < orderCount; i++ {
+        <-done
+    }
+
+    processingTime := time.Since(start)
+    suite.T().Logf("Processed %d orders in %v", orderCount, processingTime)
+
+    // Verify all orders are completed
+    for _, orderID := range orderIDs {
+        suite.verifyOrderCompleted(orderID)
+    }
+
+    // Assert performance requirements
+    suite.Less(creationTime, 5*time.Second, "Order creation should complete within 5 seconds")
+    suite.Less(processingTime, 10*time.Second, "Order processing should complete within 10 seconds")
+}
+
+// Run the integration test suite
+func TestOrderWorkflowIntegrationSuite(t *testing.T) {
+    suite.Run(t, new(OrderWorkflowIntegrationTestSuite))
+}

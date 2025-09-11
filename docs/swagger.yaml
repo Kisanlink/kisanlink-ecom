@@ -1,461 +1,1070 @@
 basePath: /
 definitions:
-  kisanlink-ecom_internal_models_auth.LoginRequest:
-    description: Request structure for user login
+  auth.LoginRequest:
     properties:
       password:
-        example: password123
+        maxLength: 255
+        minLength: 6
         type: string
       username:
-        example: john_doe
+        maxLength: 255
         type: string
     required:
-    - password
-    - username
+      - password
+      - username
     type: object
-  kisanlink-ecom_internal_models_order.CreateOrderRequest:
-    type: object
-  kisanlink-ecom_internal_models_order.OrderItem:
-    description: OrderItem model representing an item within an order
+  auth.RegisterRequest:
     properties:
-      price:
-        example: 14.99
-        minimum: 0
-        type: number
-      product:
-        $ref: '#/definitions/kisanlink-ecom_internal_models_product.Product'
-      product_id:
-        example: PRODUCT123456789
+      email:
         type: string
-      quantity:
-        example: 2
-        minimum: 1
-        type: integer
+      first_name:
+        maxLength: 100
+        type: string
+      last_name:
+        maxLength: 100
+        type: string
+      password:
+        maxLength: 255
+        minLength: 6
+        type: string
+      phone:
+        maxLength: 20
+        type: string
+      username:
+        maxLength: 50
+        minLength: 3
+        type: string
     required:
-    - price
-    - product_id
-    - quantity
+      - email
+      - first_name
+      - last_name
+      - password
+      - username
     type: object
-  kisanlink-ecom_internal_models_order.OrderStatus:
+  catalog.CatalogItemType:
     enum:
-    - pending
-    - confirmed
-    - shipped
-    - delivered
-    - cancelled
+      - PRODUCT
+      - SERVICE
+      - LABOUR
     type: string
     x-enum-varnames:
-    - OrderStatusPending
-    - OrderStatusConfirmed
-    - OrderStatusShipped
-    - OrderStatusDelivered
-    - OrderStatusCancelled
-  kisanlink-ecom_internal_models_order.UpdateOrderRequest:
-    description: Request structure for updating an existing order
+      - CatalogItemTypeProduct
+      - CatalogItemTypeService
+      - CatalogItemTypeLabour
+  catalog.CreateCatalogItemRequest:
     properties:
-      status:
-        allOf:
-        - $ref: '#/definitions/kisanlink-ecom_internal_models_order.OrderStatus'
-        example: confirmed
-    required:
-    - status
-    type: object
-  kisanlink-ecom_internal_models_product.CreateProductRequest:
-    description: Request structure for creating a new product
-    properties:
-      category:
-        example: Vegetables
-        type: string
-      currency:
-        example: USD
-        type: string
-      description:
-        example: Fresh organic tomatoes from local farms
-        maxLength: 1000
-        type: string
-      name:
-        example: Organic Tomatoes
-        maxLength: 200
-        minLength: 1
-        type: string
-      price:
-        example: 2.99
+      attributes:
+        additionalProperties: true
+        type: object
+      base_price:
         minimum: 0
         type: number
-      stock:
-        example: 100
-        minimum: 0
-        type: integer
-    required:
-    - category
-    - currency
-    - name
-    - price
-    type: object
-  kisanlink-ecom_internal_models_product.Product:
-    description: Product model representing a product in the catalog
-    properties:
       category:
-        example: Vegetables
+        maxLength: 100
+        type: string
+      currency:
+        type: string
+      description:
+        type: string
+      images:
+        items:
+          type: string
+        type: array
+      item_type:
+        allOf:
+          - $ref: "#/definitions/catalog.CatalogItemType"
+        enum:
+          - PRODUCT
+          - SERVICE
+          - LABOUR
+      name:
+        maxLength: 255
+        type: string
+      sku:
+        maxLength: 100
+        type: string
+      subcategory:
+        maxLength: 100
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      unit_of_measure:
+        maxLength: 50
+        type: string
+      visibility:
+        allOf:
+          - $ref: "#/definitions/catalog.VisibilityType"
+        enum:
+          - PRIVATE
+          - ORG
+          - NETWORK
+          - PUBLIC
+    required:
+      - base_price
+      - item_type
+      - name
+    type: object
+  catalog.ProductResponse:
+    properties:
+      attributes:
+        additionalProperties: true
+        type: object
+      base_price:
+        type: number
+      category:
         type: string
       created_at:
         type: string
-      created_by:
-        type: string
       currency:
-        example: USD
-        type: string
-      deleted_at:
-        type: string
-      deleted_by:
         type: string
       description:
-        example: Fresh organic tomatoes from local farms
-        maxLength: 1000
+        type: string
+      dimensions:
+        additionalProperties: true
+        type: object
+      id:
+        type: string
+      images:
+        items:
+          type: string
+        type: array
+      is_active:
+        type: boolean
+      item_type:
+        type: string
+      name:
+        type: string
+      organization_id:
+        type: string
+      perishable:
+        type: boolean
+      shelf_life_days:
+        type: integer
+      sku:
+        type: string
+      subcategory:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      unit_of_measure:
+        type: string
+      updated_at:
+        type: string
+      visibility:
+        type: string
+      weight:
+        type: number
+    type: object
+  catalog.UpdateCatalogItemRequest:
+    properties:
+      attributes:
+        additionalProperties: true
+        type: object
+      base_price:
+        minimum: 0
+        type: number
+      category:
+        maxLength: 100
+        type: string
+      currency:
+        type: string
+      description:
+        type: string
+      images:
+        items:
+          type: string
+        type: array
+      is_active:
+        type: boolean
+      name:
+        maxLength: 255
+        type: string
+      sku:
+        maxLength: 100
+        type: string
+      subcategory:
+        maxLength: 100
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      unit_of_measure:
+        maxLength: 50
+        type: string
+      visibility:
+        allOf:
+          - $ref: "#/definitions/catalog.VisibilityType"
+        enum:
+          - PRIVATE
+          - ORG
+          - NETWORK
+          - PUBLIC
+    type: object
+  catalog.VisibilityType:
+    enum:
+      - PRIVATE
+      - ORG
+      - NETWORK
+      - PUBLIC
+    type: string
+    x-enum-varnames:
+      - VisibilityPrivate
+      - VisibilityOrg
+      - VisibilityNetwork
+      - VisibilityPublic
+  common.HealthResponse:
+    properties:
+      message:
+        type: string
+      status:
+        type: string
+      version:
+        type: string
+    type: object
+  common.PaginationMeta:
+    properties:
+      has_next:
+        type: boolean
+      has_prev:
+        type: boolean
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  common.Response:
+    properties:
+      data: {}
+      error:
+        $ref: "#/definitions/common.ResponseError"
+      meta:
+        $ref: "#/definitions/common.ResponseMeta"
+    type: object
+  common.ResponseError:
+    properties:
+      code:
+        type: string
+      details:
+        additionalProperties: true
+        type: object
+      message:
+        type: string
+    type: object
+  common.ResponseMeta:
+    properties:
+      extra:
+        additionalProperties: true
+        type: object
+      pagination:
+        $ref: "#/definitions/common.PaginationMeta"
+      timestamp:
+        type: string
+      trace_id:
+        type: string
+    type: object
+  entities_requests_orders.Address:
+    properties:
+      city:
+        maxLength: 100
+        type: string
+      country:
+        maxLength: 100
+        type: string
+      postal_code:
+        maxLength: 20
+        type: string
+      state:
+        maxLength: 100
+        type: string
+      street:
+        maxLength: 255
+        type: string
+    required:
+      - city
+      - country
+      - postal_code
+      - state
+      - street
+    type: object
+  handlers.CreatePermissionRequest:
+    properties:
+      description:
+        maxLength: 500
+        type: string
+      name:
+        maxLength: 100
+        minLength: 1
+        type: string
+    required:
+      - name
+    type: object
+  handlers.CreateRoleRequest:
+    properties:
+      description:
+        maxLength: 500
+        type: string
+      name:
+        maxLength: 100
+        minLength: 1
+        type: string
+    required:
+      - name
+    type: object
+  handlers.UpdatePermissionRequest:
+    properties:
+      description:
+        maxLength: 500
+        type: string
+      name:
+        maxLength: 100
+        minLength: 1
+        type: string
+    required:
+      - name
+    type: object
+  handlers.UpdateRoleRequest:
+    properties:
+      description:
+        maxLength: 500
+        type: string
+      name:
+        maxLength: 100
+        minLength: 1
+        type: string
+    required:
+      - name
+    type: object
+  orders.CreateOrderItemRequest:
+    properties:
+      catalog_item_id:
+        type: string
+      catalog_item_type:
+        enum:
+          - product
+          - service
+          - labour
+        type: string
+      notes:
+        type: string
+      quantity:
+        type: number
+      unit_price:
+        minimum: 0
+        type: number
+    required:
+      - catalog_item_id
+      - catalog_item_type
+      - quantity
+      - unit_price
+    type: object
+  orders.CreateOrderRequest:
+    properties:
+      buyer_organization_id:
+        type: string
+      items:
+        items:
+          $ref: "#/definitions/orders.CreateOrderItemRequest"
+        minItems: 1
+        type: array
+      metadata:
+        additionalProperties: true
+        type: object
+      notes:
+        type: string
+      seller_organization_id:
+        type: string
+      shipping_address:
+        $ref: "#/definitions/entities_requests_orders.Address"
+    required:
+      - buyer_organization_id
+      - items
+      - seller_organization_id
+    type: object
+  orders.OrderItemResponse:
+    properties:
+      catalog_item_id:
+        type: string
+      catalog_item_name:
+        type: string
+      catalog_item_sku:
+        type: string
+      catalog_item_type:
+        type: string
+      created_at:
+        type: string
+      discount_amount:
+        type: number
+      discount_rate:
+        type: number
+      id:
+        type: string
+      metadata:
+        type: string
+      order_id:
+        type: string
+      quantity:
+        type: number
+      tax_amount:
+        type: number
+      tax_rate:
+        type: number
+      total_price:
+        type: number
+      unit_price:
+        type: number
+      updated_at:
+        type: string
+    type: object
+  orders.OrderResponse:
+    properties:
+      actual_delivery_date:
+        type: string
+      buyer_organization_id:
+        type: string
+      buyer_user_id:
+        type: string
+      created_at:
+        type: string
+      discount_amount:
+        type: number
+      estimated_delivery_date:
         type: string
       id:
         type: string
-      name:
-        example: Organic Tomatoes
-        maxLength: 200
-        minLength: 1
+      items:
+        items:
+          $ref: "#/definitions/orders.OrderItemResponse"
+        type: array
+      metadata:
         type: string
-      price:
-        example: 2.99
-        minimum: 0
+      notes:
+        type: string
+      order_number:
+        type: string
+      seller_organization_id:
+        type: string
+      shipping_address:
+        type: string
+      shipping_amount:
         type: number
       status:
-        allOf:
-        - $ref: '#/definitions/kisanlink-ecom_internal_models_product.Status'
-        example: active
-      stock:
-        example: 100
-        minimum: 0
-        type: integer
+        type: string
+      status_history:
+        items:
+          $ref: "#/definitions/orders.OrderStatusHistoryResponse"
+        type: array
+      subtotal_amount:
+        type: number
+      tax_amount:
+        type: number
+      total_amount:
+        type: number
       updated_at:
         type: string
-      updated_by:
-        type: string
-    required:
-    - category
-    - currency
-    - name
-    - price
-    - status
     type: object
-  kisanlink-ecom_internal_models_product.Status:
+  orders.OrderStatus:
     enum:
-    - active
-    - inactive
-    - deleted
+      - pending
+      - confirmed
+      - paid
+      - shipped
+      - delivered
+      - completed
+      - cancelled
+      - refunded
     type: string
     x-enum-varnames:
-    - StatusActive
-    - StatusInactive
-    - StatusDeleted
-  kisanlink-ecom_internal_models_product.UpdateProductRequest:
-    description: Request structure for updating an existing product
+      - OrderStatusPending
+      - OrderStatusConfirmed
+      - OrderStatusPaid
+      - OrderStatusShipped
+      - OrderStatusDelivered
+      - OrderStatusCompleted
+      - OrderStatusCancelled
+      - OrderStatusRefunded
+  orders.OrderStatusHistoryResponse:
     properties:
-      category:
-        example: Vegetables
+      changed_by_organization_id:
         type: string
-      currency:
-        example: USD
+      changed_by_user_id:
         type: string
-      description:
-        example: Fresh organic tomatoes from local farms
-        maxLength: 1000
+      created_at:
         type: string
-      name:
-        example: Organic Tomatoes
-        maxLength: 200
-        minLength: 1
+      from_status:
         type: string
-      price:
-        example: 2.99
-        minimum: 0
-        type: number
+      id:
+        type: string
+      metadata:
+        type: string
+      order_id:
+        type: string
+      reason:
+        type: string
+      to_status:
+        type: string
+    type: object
+  orders.UpdateOrderStatusRequest:
+    properties:
+      reason:
+        maxLength: 500
+        type: string
       status:
         allOf:
-        - $ref: '#/definitions/kisanlink-ecom_internal_models_product.Status'
-        example: active
-      stock:
-        example: 100
-        minimum: 0
-        type: integer
-    type: object
-  kisanlink-ecom_internal_models_user.CreateUserRequest:
-    description: Request structure for creating a new user
-    properties:
-      email:
-        example: john@example.com
-        type: string
-      full_name:
-        example: John Doe
-        maxLength: 100
-        minLength: 2
-        type: string
-      password:
-        example: password123
-        minLength: 8
-        type: string
-      role:
-        allOf:
-        - $ref: '#/definitions/kisanlink-ecom_internal_models_user.UserRole'
-        example: customer
-      username:
-        example: john_doe
-        maxLength: 50
-        minLength: 3
-        type: string
+          - $ref: "#/definitions/orders.OrderStatus"
+        enum:
+          - pending
+          - confirmed
+          - paid
+          - shipped
+          - delivered
+          - completed
+          - cancelled
+          - refunded
     required:
-    - email
-    - full_name
-    - password
-    - role
-    - username
+      - reason
+      - status
     type: object
-  kisanlink-ecom_internal_models_user.Status:
-    enum:
-    - active
-    - inactive
-    - deleted
-    type: string
-    x-enum-varnames:
-    - StatusActive
-    - StatusInactive
-    - StatusDeleted
-  kisanlink-ecom_internal_models_user.UpdateUserRequest:
-    description: Request structure for updating an existing user
-    properties:
-      email:
-        example: john@example.com
-        type: string
-      full_name:
-        example: John Doe
-        maxLength: 100
-        minLength: 2
-        type: string
-      role:
-        allOf:
-        - $ref: '#/definitions/kisanlink-ecom_internal_models_user.UserRole'
-        example: customer
-      status:
-        allOf:
-        - $ref: '#/definitions/kisanlink-ecom_internal_models_user.Status'
-        example: active
-      username:
-        example: john_doe
-        maxLength: 50
-        minLength: 3
-        type: string
-    type: object
-  kisanlink-ecom_internal_models_user.UserRole:
-    enum:
-    - admin
-    - customer
-    - vendor
-    type: string
-    x-enum-varnames:
-    - RoleAdmin
-    - RoleCustomer
-    - RoleVendor
 host: localhost:8080
 info:
-  contact:
-    email: support@kisanlink.com
-    name: KisanLink API Support
-    url: http://www.kisanlink.com/support
-  description: A comprehensive e-commerce API for agricultural products and services.
-  license:
-    name: MIT
-    url: http://www.opensource.org/licenses/mit-license.php
-  termsOfService: http://swagger.io/terms/
+  contact: {}
+  description: This is the KisanLink E-commerce service API.
   title: KisanLink E-commerce API
   version: "1.0"
 paths:
   /api/v1/auth/login:
     post:
       consumes:
-      - application/json
+        - application/json
       description: Authenticate user and return access token
       parameters:
-      - description: Login credentials
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/kisanlink-ecom_internal_models_auth.LoginRequest'
+        - description: Login credentials
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/auth.LoginRequest"
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: Login successful
           schema:
-            type: object
+            $ref: "#/definitions/common.Response"
         "400":
           description: Invalid request
           schema:
-            type: object
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
         "401":
           description: Invalid credentials
           schema:
-            type: object
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
       summary: User Login
       tags:
-      - Authentication
+        - Authentication
   /api/v1/auth/logout:
     post:
       consumes:
-      - application/json
+        - application/json
       description: Logout user and invalidate access token
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: Logout successful
           schema:
-            type: object
+            $ref: "#/definitions/common.Response"
         "401":
           description: Unauthorized
           schema:
-            type: object
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: User Logout
       tags:
-      - Authentication
+        - Authentication
   /api/v1/auth/register:
     post:
       consumes:
-      - application/json
+        - application/json
       description: Register a new user account
       parameters:
-      - description: User registration data
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/kisanlink-ecom_internal_models_user.CreateUserRequest'
+        - description: User registration data
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/auth.RegisterRequest"
       produces:
-      - application/json
+        - application/json
       responses:
         "201":
           description: Registration successful
           schema:
-            type: object
+            $ref: "#/definitions/common.Response"
         "400":
           description: Invalid request
           schema:
-            type: object
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
         "409":
           description: User already exists
           schema:
-            type: object
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
       summary: User Registration
       tags:
-      - Authentication
+        - Authentication
+  /api/v1/catalog/products:
+    get:
+      consumes:
+        - application/json
+      description: Retrieve a list of products with filtering and pagination
+      parameters:
+        - default: 1
+          description: Page number
+          in: query
+          name: page
+          type: integer
+        - default: 20
+          description: Items per page
+          in: query
+          name: limit
+          type: integer
+        - description: Filter by category
+          in: query
+          name: category
+          type: string
+        - description: Filter by organization ID
+          in: query
+          name: org_id
+          type: string
+        - description: Filter by active status
+          in: query
+          name: is_active
+          type: boolean
+        - description: Search term
+          in: query
+          name: search
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    items:
+                      $ref: "#/definitions/catalog.ProductResponse"
+                    type: array
+                  meta:
+                    allOf:
+                      - $ref: "#/definitions/common.ResponseMeta"
+                      - properties:
+                          pagination:
+                            $ref: "#/definitions/common.PaginationMeta"
+                        type: object
+                type: object
+      summary: List products
+      tags:
+        - products
+    post:
+      consumes:
+        - application/json
+      description: Create a new product in the catalog
+      parameters:
+        - description: Bearer token
+          in: header
+          name: Authorization
+          required: true
+          type: string
+        - description: Product information
+          in: body
+          name: product
+          required: true
+          schema:
+            $ref: "#/definitions/catalog.CreateCatalogItemRequest"
+      produces:
+        - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    $ref: "#/definitions/catalog.ProductResponse"
+                type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Create a new product
+      tags:
+        - products
+  /api/v1/catalog/products/{id}:
+    delete:
+      consumes:
+        - application/json
+      description: Delete a product from the catalog
+      parameters:
+        - description: Bearer token
+          in: header
+          name: Authorization
+          required: true
+          type: string
+        - description: Product ID
+          in: path
+          name: id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    type: string
+                type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Delete a product
+      tags:
+        - products
+    get:
+      consumes:
+        - application/json
+      description: Retrieve a product by its ID
+      parameters:
+        - description: Product ID
+          in: path
+          name: id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    $ref: "#/definitions/catalog.ProductResponse"
+                type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Get product by ID
+      tags:
+        - products
+    put:
+      consumes:
+        - application/json
+      description: Update an existing product
+      parameters:
+        - description: Bearer token
+          in: header
+          name: Authorization
+          required: true
+          type: string
+        - description: Product ID
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: Product updates
+          in: body
+          name: product
+          required: true
+          schema:
+            $ref: "#/definitions/catalog.UpdateCatalogItemRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    $ref: "#/definitions/catalog.ProductResponse"
+                type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Update a product
+      tags:
+        - products
   /api/v1/orders:
     get:
       consumes:
-      - application/json
-      description: Retrieve a list of all orders with pagination
+        - application/json
+      description: Retrieve a list of orders with filtering and pagination
       parameters:
-      - description: Page number
-        in: query
-        minimum: 1
-        name: page
-        type: integer
-      - description: Items per page
-        in: query
-        maximum: 100
-        minimum: 1
-        name: per_page
-        type: integer
+        - default: 1
+          description: Page number
+          in: query
+          name: page
+          type: integer
+        - default: 20
+          description: Items per page
+          in: query
+          name: limit
+          type: integer
+        - description: Filter by buyer ID
+          in: query
+          name: buyer_id
+          type: string
+        - description: Filter by seller ID
+          in: query
+          name: seller_id
+          type: string
+        - description: Filter by status
+          in: query
+          name: status
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
-          description: Orders retrieved successfully
+          description: OK
           schema:
-            type: object
-        "400":
-          description: Invalid request
-          schema:
-            type: object
-        "401":
-          description: Unauthorized
-          schema:
-            type: object
-        "403":
-          description: Forbidden
-          schema:
-            type: object
-        "500":
-          description: Internal server error
-          schema:
-            type: object
-      summary: Get All Orders
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    items:
+                      $ref: "#/definitions/orders.OrderResponse"
+                    type: array
+                  meta:
+                    allOf:
+                      - $ref: "#/definitions/common.ResponseMeta"
+                      - properties:
+                          pagination:
+                            $ref: "#/definitions/common.PaginationMeta"
+                        type: object
+                type: object
+      summary: List orders
       tags:
-      - Orders
+        - orders
     post:
       consumes:
-      - application/json
-      description: Create a new order
+        - application/json
+      description: Create a new order with items
       parameters:
-      - description: Order data
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/kisanlink-ecom_internal_models_order.CreateOrderRequest'
+        - description: Bearer token
+          in: header
+          name: Authorization
+          required: true
+          type: string
+        - description: Order information
+          in: body
+          name: order
+          required: true
+          schema:
+            $ref: "#/definitions/orders.CreateOrderRequest"
       produces:
-      - application/json
+        - application/json
       responses:
         "201":
-          description: Order created successfully
+          description: Created
           schema:
-            type: object
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    $ref: "#/definitions/orders.OrderResponse"
+                type: object
         "400":
-          description: Invalid request
+          description: Bad Request
           schema:
-            type: object
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
         "401":
           description: Unauthorized
           schema:
-            type: object
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
         "403":
           description: Forbidden
           schema:
-            type: object
-        "404":
-          description: User or product not found
-          schema:
-            type: object
-        "409":
-          description: Insufficient stock
-          schema:
-            type: object
-        "500":
-          description: Internal server error
-          schema:
-            type: object
-      summary: Create Order
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Create a new order
       tags:
-      - Orders
+        - orders
   /api/v1/orders/{id}:
     delete:
       consumes:
-      - application/json
+        - application/json
       description: Delete an order (cancel if not shipped)
       parameters:
-      - description: Order ID
-        in: path
-        name: id
-        required: true
-        type: string
+        - description: Order ID
+          in: path
+          name: id
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: Order deleted successfully
@@ -487,65 +1096,59 @@ paths:
             type: object
       summary: Delete Order
       tags:
-      - Orders
+        - Orders
     get:
       consumes:
-      - application/json
-      description: Retrieve a specific order by its ID
+        - application/json
+      description: Retrieve an order by its ID
       parameters:
-      - description: Order ID
-        in: path
-        name: id
-        required: true
-        type: string
+        - description: Order ID
+          in: path
+          name: id
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
-          description: Order retrieved successfully
+          description: OK
           schema:
-            type: object
-        "400":
-          description: Invalid order ID
-          schema:
-            type: object
-        "401":
-          description: Unauthorized
-          schema:
-            type: object
-        "403":
-          description: Forbidden
-          schema:
-            type: object
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    $ref: "#/definitions/orders.OrderResponse"
+                type: object
         "404":
-          description: Order not found
+          description: Not Found
           schema:
-            type: object
-        "500":
-          description: Internal server error
-          schema:
-            type: object
-      summary: Get Order by ID
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Get order by ID
       tags:
-      - Orders
+        - orders
     put:
       consumes:
-      - application/json
+        - application/json
       description: Update an existing order's status
       parameters:
-      - description: Order ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Order update data
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/kisanlink-ecom_internal_models_order.UpdateOrderRequest'
+        - description: Order ID
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: Order update data
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/orders.UpdateOrderStatusRequest"
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: Order updated successfully
@@ -577,26 +1180,317 @@ paths:
             type: object
       summary: Update Order
       tags:
-      - Orders
+        - Orders
+  /api/v1/orders/{id}/cancel:
+    post:
+      consumes:
+        - application/json
+      description: Cancel an order and release inventory
+      parameters:
+        - description: Bearer token
+          in: header
+          name: Authorization
+          required: true
+          type: string
+        - description: Order ID
+          in: path
+          name: id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    type: string
+                type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Cancel an order
+      tags:
+        - orders
+  /api/v1/orders/{id}/status:
+    patch:
+      consumes:
+        - application/json
+      description: Update the status of an order
+      parameters:
+        - description: Bearer token
+          in: header
+          name: Authorization
+          required: true
+          type: string
+        - description: Order ID
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: Status update
+          in: body
+          name: status
+          required: true
+          schema:
+            $ref: "#/definitions/orders.UpdateOrderStatusRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    type: string
+                type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Update order status
+      tags:
+        - orders
+  /api/v1/permissions:
+    get:
+      consumes:
+        - application/json
+      description: Retrieve a list of all permissions
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Permissions retrieved successfully
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      summary: Get All Permissions
+      tags:
+        - Permissions
+    post:
+      consumes:
+        - application/json
+      description: Create a new permission with specific resource and action
+      parameters:
+        - description: Permission data
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/handlers.CreatePermissionRequest"
+      produces:
+        - application/json
+      responses:
+        "201":
+          description: Permission created successfully
+          schema:
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      summary: Create Permission
+      tags:
+        - Permissions
+  /api/v1/permissions/{id}:
+    delete:
+      consumes:
+        - application/json
+      description: Delete a permission
+      parameters:
+        - description: Permission ID
+          in: path
+          name: id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Permission deleted successfully
+          schema:
+            type: object
+        "400":
+          description: Invalid permission ID
+          schema:
+            type: object
+        "404":
+          description: Permission not found
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      summary: Delete Permission
+      tags:
+        - Permissions
+    get:
+      consumes:
+        - application/json
+      description: Retrieve a specific permission by their ID
+      parameters:
+        - description: Permission ID
+          in: path
+          name: id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Permission retrieved successfully
+          schema:
+            type: object
+        "400":
+          description: Invalid permission ID
+          schema:
+            type: object
+        "404":
+          description: Permission not found
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      summary: Get Permission by ID
+      tags:
+        - Permissions
+    put:
+      consumes:
+        - application/json
+      description: Update an existing permission's information
+      parameters:
+        - description: Permission ID
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: Permission update data
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/handlers.UpdatePermissionRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Permission updated successfully
+          schema:
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            type: object
+        "404":
+          description: Permission not found
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      summary: Update Permission
+      tags:
+        - Permissions
   /api/v1/products:
     get:
       consumes:
-      - application/json
+        - application/json
       description: Retrieve a list of all products with pagination
       parameters:
-      - description: Page number
-        in: query
-        minimum: 1
-        name: page
-        type: integer
-      - description: Items per page
-        in: query
-        maximum: 100
-        minimum: 1
-        name: per_page
-        type: integer
+        - description: Page number
+          in: query
+          minimum: 1
+          name: page
+          type: integer
+        - description: Items per page
+          in: query
+          maximum: 100
+          minimum: 1
+          name: per_page
+          type: integer
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: Products retrieved successfully
@@ -612,20 +1506,20 @@ paths:
             type: object
       summary: Get All Products
       tags:
-      - Products
+        - Products
     post:
       consumes:
-      - application/json
+        - application/json
       description: Create a new product
       parameters:
-      - description: Product data
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/kisanlink-ecom_internal_models_product.CreateProductRequest'
+        - description: Product data
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/catalog.CreateCatalogItemRequest"
       produces:
-      - application/json
+        - application/json
       responses:
         "201":
           description: Product created successfully
@@ -653,20 +1547,20 @@ paths:
             type: object
       summary: Create Product
       tags:
-      - Products
+        - Products
   /api/v1/products/{id}:
     delete:
       consumes:
-      - application/json
+        - application/json
       description: Delete a product
       parameters:
-      - description: Product ID
-        in: path
-        name: id
-        required: true
-        type: string
+        - description: Product ID
+          in: path
+          name: id
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: Product deleted successfully
@@ -694,19 +1588,19 @@ paths:
             type: object
       summary: Delete Product
       tags:
-      - Products
+        - Products
     get:
       consumes:
-      - application/json
+        - application/json
       description: Retrieve a specific product by its ID
       parameters:
-      - description: Product ID
-        in: path
-        name: id
-        required: true
-        type: string
+        - description: Product ID
+          in: path
+          name: id
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: Product retrieved successfully
@@ -726,25 +1620,25 @@ paths:
             type: object
       summary: Get Product by ID
       tags:
-      - Products
+        - Products
     put:
       consumes:
-      - application/json
+        - application/json
       description: Update an existing product's information
       parameters:
-      - description: Product ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Product update data
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/kisanlink-ecom_internal_models_product.UpdateProductRequest'
+        - description: Product ID
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: Product update data
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/catalog.UpdateCatalogItemRequest"
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: Product updated successfully
@@ -772,233 +1666,169 @@ paths:
             type: object
       summary: Update Product
       tags:
-      - Products
-  /api/v1/users:
+        - Products
+  /api/v1/roles:
     get:
       consumes:
-      - application/json
-      description: Retrieve a list of all users with pagination
-      parameters:
-      - description: Page number
-        in: query
-        minimum: 1
-        name: page
-        type: integer
-      - description: Items per page
-        in: query
-        maximum: 100
-        minimum: 1
-        name: per_page
-        type: integer
+        - application/json
+      description: Retrieve a list of all roles
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
-          description: Users retrieved successfully
-          schema:
-            type: object
-        "401":
-          description: Unauthorized
-          schema:
-            type: object
-        "403":
-          description: Forbidden
+          description: Roles retrieved successfully
           schema:
             type: object
         "500":
           description: Internal server error
           schema:
             type: object
-      summary: Get All Users
+      summary: Get All Roles
       tags:
-      - Users
+        - Roles
     post:
       consumes:
-      - application/json
-      description: Create a new user account
+        - application/json
+      description: Create a new role with hierarchical structure
       parameters:
-      - description: User data
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/kisanlink-ecom_internal_models_user.CreateUserRequest'
+        - description: Role data
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/handlers.CreateRoleRequest"
       produces:
-      - application/json
+        - application/json
       responses:
         "201":
-          description: User created successfully
+          description: Role created successfully
           schema:
             type: object
         "400":
           description: Invalid request
           schema:
             type: object
-        "401":
-          description: Unauthorized
-          schema:
-            type: object
-        "403":
-          description: Forbidden
-          schema:
-            type: object
-        "409":
-          description: User already exists
-          schema:
-            type: object
         "500":
           description: Internal server error
           schema:
             type: object
-      summary: Create User
+      summary: Create Role
       tags:
-      - Users
-  /api/v1/users/{id}:
+        - Roles
+  /api/v1/roles/{id}:
     delete:
       consumes:
-      - application/json
-      description: Delete a user account
+        - application/json
+      description: Delete a role
       parameters:
-      - description: User ID
-        in: path
-        name: id
-        required: true
-        type: string
+        - description: Role ID
+          in: path
+          name: id
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
-          description: User deleted successfully
+          description: Role deleted successfully
           schema:
             type: object
         "400":
-          description: Invalid user ID
-          schema:
-            type: object
-        "401":
-          description: Unauthorized
-          schema:
-            type: object
-        "403":
-          description: Forbidden
+          description: Invalid role ID
           schema:
             type: object
         "404":
-          description: User not found
+          description: Role not found
           schema:
             type: object
         "500":
           description: Internal server error
           schema:
             type: object
-      summary: Delete User
+      summary: Delete Role
       tags:
-      - Users
+        - Roles
     get:
       consumes:
-      - application/json
-      description: Retrieve a specific user by their ID
+        - application/json
+      description: Retrieve a specific role by their ID
       parameters:
-      - description: User ID
-        in: path
-        name: id
-        required: true
-        type: string
+        - description: Role ID
+          in: path
+          name: id
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
-          description: User retrieved successfully
+          description: Role retrieved successfully
           schema:
             type: object
         "400":
-          description: Invalid user ID
-          schema:
-            type: object
-        "401":
-          description: Unauthorized
-          schema:
-            type: object
-        "403":
-          description: Forbidden
+          description: Invalid role ID
           schema:
             type: object
         "404":
-          description: User not found
+          description: Role not found
           schema:
             type: object
         "500":
           description: Internal server error
           schema:
             type: object
-      summary: Get User by ID
+      summary: Get Role by ID
       tags:
-      - Users
+        - Roles
     put:
       consumes:
-      - application/json
-      description: Update an existing user's information
+        - application/json
+      description: Update an existing role's information
       parameters:
-      - description: User ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: User update data
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/kisanlink-ecom_internal_models_user.UpdateUserRequest'
+        - description: Role ID
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: Role update data
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/handlers.UpdateRoleRequest"
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
-          description: User updated successfully
+          description: Role updated successfully
           schema:
             type: object
         "400":
           description: Invalid request
           schema:
             type: object
-        "401":
-          description: Unauthorized
-          schema:
-            type: object
-        "403":
-          description: Forbidden
-          schema:
-            type: object
         "404":
-          description: User not found
+          description: Role not found
           schema:
             type: object
         "500":
           description: Internal server error
           schema:
             type: object
-      summary: Update User
+      summary: Update Role
       tags:
-      - Users
+        - Roles
   /health:
     get:
-      consumes:
-      - application/json
-      description: Check if the API is running and healthy
+      description: Check if the service is running
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
-          description: API is healthy
+          description: OK
           schema:
-            type: object
-      summary: Health Check
+            $ref: "#/definitions/common.HealthResponse"
+      summary: Health check
       tags:
-      - Health
-securityDefinitions:
-  BearerAuth:
-    description: Type "Bearer" followed by a space and JWT token.
-    in: header
-    name: Authorization
-    type: apiKey
+        - health
 swagger: "2.0"
