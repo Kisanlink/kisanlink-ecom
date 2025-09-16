@@ -20,15 +20,14 @@ func ExtractTokenFromHeader(c *gin.Context) (string, error) {
 		return "", common.ErrMissingAuthorizationHeader
 	}
 
-	if !strings.HasPrefix(authHeader, BearerTokenPrefix) {
+	// Case-insensitive check for Bearer prefix
+	if len(authHeader) < len(BearerTokenPrefix) ||
+		!strings.EqualFold(authHeader[:len(BearerTokenPrefix)], BearerTokenPrefix) {
 		return "", common.ErrInvalidAuthorizationFormat
 	}
 
-	token := strings.TrimPrefix(authHeader, BearerTokenPrefix)
-	if token == "" {
-		return "", common.ErrEmptyToken
-	}
-
+	token := authHeader[len(BearerTokenPrefix):]
+	// Return the token even if empty - let the middleware handle empty tokens
 	return token, nil
 }
 

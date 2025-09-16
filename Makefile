@@ -100,8 +100,8 @@ test-coverage-check:
 	@COVERAGE=$$($(GOCMD) tool cover -func=$(COVERAGE_DIR)/coverage.out | grep total | awk '{print $$3}' | sed 's/%//'); \
 	echo "Total coverage: $$COVERAGE%"; \
 	if [ $$(echo "$$COVERAGE < 90" | bc -l) -eq 1 ]; then \
-		echo "Coverage $$COVERAGE% is below minimum 90%"; \
-		exit 1; \
+	    echo "Coverage $$COVERAGE% is below minimum 90%"; \
+	    exit 1; \
 	fi
 
 # Run tests with race detection
@@ -130,6 +130,17 @@ fmt:
 	@echo "Formatting code..."
 	$(GOCMD) fmt ./...
 	@echo "Format complete!"
+
+# Comprehensive format command aligned with pre-commit hooks
+format: fmt
+	@echo "Running comprehensive formatting..."
+	@echo "  - Running go fmt..."
+	$(GOCMD) fmt ./...
+	@echo "  - Running goimports..."
+	goimports -w .
+	@echo "  - Running go mod tidy..."
+	$(GOMOD) tidy
+	@echo "Comprehensive format complete!"
 
 # Vet the code
 vet:

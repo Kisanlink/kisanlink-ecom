@@ -1,839 +1,839 @@
 package inventory
 
 import (
-    "context"
-    "fmt"
-    "time"
+	"context"
+	"fmt"
+	"time"
 
-    catalogModels "kisanlink-ecom/entities/models/catalog"
-    inventoryRepo "kisanlink-ecom/internal/repositories/inventory"
+	catalogModels "kisanlink-ecom/entities/models/catalog"
+	inventoryRepo "kisanlink-ecom/internal/repositories/inventory"
 
-    "github.com/Kisanlink/kisanlink-db/pkg/base"
-    "github.com/shopspring/decimal"
+	"github.com/Kisanlink/kisanlink-db/pkg/base"
+	"github.com/shopspring/decimal"
 )
 
 // InventoryService defines the interface for inventory business logic
 type InventoryService interface {
-    // Inventory lot management
-    CreateInventoryLot(ctx context.Context, req *CreateInventoryLotRequest, userID, orgID string) (*catalogModels.InventoryLot, error)
-    GetInventoryLot(ctx context.Context, lotID, userID, orgID string) (*catalogModels.InventoryLot, error)
-    ListInventoryLots(ctx context.Context, filter *InventoryFilter, userID, orgID string) (*InventoryListResponse, error)
-    UpdateInventoryLot(ctx context.Context, lotID string, req *UpdateInventoryLotRequest, userID, orgID string) (*catalogModels.InventoryLot, error)
-    DeleteInventoryLot(ctx context.Context, lotID, userID, orgID string) error
+	// Inventory lot management
+	CreateInventoryLot(ctx context.Context, req *CreateInventoryLotRequest, userID, orgID string) (*catalogModels.InventoryLot, error)
+	GetInventoryLot(ctx context.Context, lotID, userID, orgID string) (*catalogModels.InventoryLot, error)
+	ListInventoryLots(ctx context.Context, filter *InventoryFilter, userID, orgID string) (*InventoryListResponse, error)
+	UpdateInventoryLot(ctx context.Context, lotID string, req *UpdateInventoryLotRequest, userID, orgID string) (*catalogModels.InventoryLot, error)
+	DeleteInventoryLot(ctx context.Context, lotID, userID, orgID string) error
 
-    // Inventory operations
-    ReserveInventory(ctx context.Context, catalogItemID string, quantity decimal.Decimal, userID, orgID string) ([]*catalogModels.InventoryLot, error)
-    ReleaseInventory(ctx context.Context, catalogItemID string, quantity decimal.Decimal, userID, orgID string) error
-    SellInventory(ctx context.Context, catalogItemID string, quantity decimal.Decimal, userID, orgID string) error
-    AdjustInventory(ctx context.Context, lotID string, adjustment decimal.Decimal, reason, userID, orgID string) (*catalogModels.InventoryLot, error)
+	// Inventory operations
+	ReserveInventory(ctx context.Context, catalogItemID string, quantity decimal.Decimal, userID, orgID string) ([]*catalogModels.InventoryLot, error)
+	ReleaseInventory(ctx context.Context, catalogItemID string, quantity decimal.Decimal, userID, orgID string) error
+	SellInventory(ctx context.Context, catalogItemID string, quantity decimal.Decimal, userID, orgID string) error
+	AdjustInventory(ctx context.Context, lotID string, adjustment decimal.Decimal, reason, userID, orgID string) (*catalogModels.InventoryLot, error)
 
-    // Inventory queries
-    GetAvailableQuantity(ctx context.Context, catalogItemID, userID, orgID string) (decimal.Decimal, error)
-    GetTotalQuantity(ctx context.Context, catalogItemID, userID, orgID string) (decimal.Decimal, error)
-    CheckAvailability(ctx context.Context, catalogItemID string, requiredQuantity decimal.Decimal, userID, orgID string) (bool, decimal.Decimal, error)
+	// Inventory queries
+	GetAvailableQuantity(ctx context.Context, catalogItemID, userID, orgID string) (decimal.Decimal, error)
+	GetTotalQuantity(ctx context.Context, catalogItemID, userID, orgID string) (decimal.Decimal, error)
+	CheckAvailability(ctx context.Context, catalogItemID string, requiredQuantity decimal.Decimal, userID, orgID string) (bool, decimal.Decimal, error)
 
-    // Expiration handling
-    ProcessExpiringLots(ctx context.Context, orgID string) ([]*catalogModels.InventoryLot, error)
-    MarkLotExpired(ctx context.Context, lotID, userID, orgID string) error
+	// Expiration handling
+	ProcessExpiringLots(ctx context.Context, orgID string) ([]*catalogModels.InventoryLot, error)
+	MarkLotExpired(ctx context.Context, lotID, userID, orgID string) error
 
-    // Audit trail
-    GetAuditTrail(ctx context.Context, lotID string, offset, limit int, userID, orgID string) (*AuditTrailResponse, error)
+	// Audit trail
+	GetAuditTrail(ctx context.Context, lotID string, offset, limit int, userID, orgID string) (*AuditTrailResponse, error)
 }
 
 // CreateInventoryLotRequest represents a request to create an inventory lot
 type CreateInventoryLotRequest struct {
-    CatalogItemID     string           `json:"catalog_item_id" validate:"required"`
-    LotNumber         string           `json:"lot_number" validate:"required"`
-    BatchNumber       string           `json:"batch_number"`
-    InitialQuantity   decimal.Decimal  `json:"initial_quantity" validate:"required,gt=0"`
-    QualityGrade      string           `json:"quality_grade"`
-    HarvestDate       *time.Time       `json:"harvest_date"`
-    ExpiryDate        *time.Time       `json:"expiry_date"`
-    WarehouseLocation string           `json:"warehouse_location"`
-    StorageConditions string           `json:"storage_conditions"`
-    LotPrice          *decimal.Decimal `json:"lot_price"`
-    Metadata          string           `json:"metadata"`
+	CatalogItemID     string           `json:"catalog_item_id" validate:"required"`
+	LotNumber         string           `json:"lot_number" validate:"required"`
+	BatchNumber       string           `json:"batch_number"`
+	InitialQuantity   decimal.Decimal  `json:"initial_quantity" validate:"required,gt=0"`
+	QualityGrade      string           `json:"quality_grade"`
+	HarvestDate       *time.Time       `json:"harvest_date"`
+	ExpiryDate        *time.Time       `json:"expiry_date"`
+	WarehouseLocation string           `json:"warehouse_location"`
+	StorageConditions string           `json:"storage_conditions"`
+	LotPrice          *decimal.Decimal `json:"lot_price"`
+	Metadata          string           `json:"metadata"`
 }
 
 // UpdateInventoryLotRequest represents a request to update an inventory lot
 type UpdateInventoryLotRequest struct {
-    QualityGrade      *string          `json:"quality_grade"`
-    HarvestDate       *time.Time       `json:"harvest_date"`
-    ExpiryDate        *time.Time       `json:"expiry_date"`
-    WarehouseLocation *string          `json:"warehouse_location"`
-    StorageConditions *string          `json:"storage_conditions"`
-    LotPrice          *decimal.Decimal `json:"lot_price"`
-    Metadata          *string          `json:"metadata"`
+	QualityGrade      *string          `json:"quality_grade"`
+	HarvestDate       *time.Time       `json:"harvest_date"`
+	ExpiryDate        *time.Time       `json:"expiry_date"`
+	WarehouseLocation *string          `json:"warehouse_location"`
+	StorageConditions *string          `json:"storage_conditions"`
+	LotPrice          *decimal.Decimal `json:"lot_price"`
+	Metadata          *string          `json:"metadata"`
 }
 
 // InventoryFilter represents filters for listing inventory lots
 type InventoryFilter struct {
-    CatalogItemID  string                        `json:"catalog_item_id"`
-    Status         catalogModels.InventoryStatus `json:"status"`
-    ExpiringBefore *time.Time                    `json:"expiring_before"`
-    QualityGrade   string                        `json:"quality_grade"`
-    Offset         int                           `json:"offset"`
-    Limit          int                           `json:"limit"`
+	CatalogItemID  string                        `json:"catalog_item_id"`
+	Status         catalogModels.InventoryStatus `json:"status"`
+	ExpiringBefore *time.Time                    `json:"expiring_before"`
+	QualityGrade   string                        `json:"quality_grade"`
+	Offset         int                           `json:"offset"`
+	Limit          int                           `json:"limit"`
 }
 
 // InventoryListResponse represents a paginated list of inventory lots
 type InventoryListResponse struct {
-    Lots   []*catalogModels.InventoryLot `json:"lots"`
-    Total  int64                         `json:"total"`
-    Offset int                           `json:"offset"`
-    Limit  int                           `json:"limit"`
+	Lots   []*catalogModels.InventoryLot `json:"lots"`
+	Total  int64                         `json:"total"`
+	Offset int                           `json:"offset"`
+	Limit  int                           `json:"limit"`
 }
 
 // AuditTrailResponse represents a paginated list of audit logs
 type AuditTrailResponse struct {
-    Logs   []*inventoryRepo.InventoryAuditLog `json:"logs"`
-    Total  int64                              `json:"total"`
-    Offset int                                `json:"offset"`
-    Limit  int                                `json:"limit"`
+	Logs   []*inventoryRepo.InventoryAuditLog `json:"logs"`
+	Total  int64                              `json:"total"`
+	Offset int                                `json:"offset"`
+	Limit  int                                `json:"limit"`
 }
 
 // CatalogRepository interface for inventory service dependencies
 type CatalogRepository interface {
-    GetByID(ctx context.Context, id string, model interface{}) (interface{}, error)
+	GetByID(ctx context.Context, id string, model interface{}) (interface{}, error)
 }
 
 // inventoryService implements the InventoryService interface
 type inventoryService struct {
-    inventoryRepo inventoryRepo.InventoryRepository
-    catalogRepo   CatalogRepository
+	inventoryRepo inventoryRepo.InventoryRepository
+	catalogRepo   CatalogRepository
 }
 
 // NewInventoryService creates a new inventory service
 func NewInventoryService(inventoryRepo inventoryRepo.InventoryRepository, catalogRepo CatalogRepository) InventoryService {
-    return &inventoryService{
-        inventoryRepo: inventoryRepo,
-        catalogRepo:   catalogRepo,
-    }
+	return &inventoryService{
+		inventoryRepo: inventoryRepo,
+		catalogRepo:   catalogRepo,
+	}
 }
 
 // CreateInventoryLot creates a new inventory lot with product validation
 func (s *inventoryService) CreateInventoryLot(ctx context.Context, req *CreateInventoryLotRequest, userID, orgID string) (*catalogModels.InventoryLot, error) {
-    // Validate catalog item exists and is a product
-    catalogItem := &catalogModels.CatalogItem{}
-    _, err := s.catalogRepo.GetByID(ctx, req.CatalogItemID, catalogItem)
-    if err != nil {
-        return nil, fmt.Errorf("catalog item not found: %w", err)
-    }
+	// Validate catalog item exists and is a product
+	catalogItem := &catalogModels.CatalogItem{}
+	_, err := s.catalogRepo.GetByID(ctx, req.CatalogItemID, catalogItem)
+	if err != nil {
+		return nil, fmt.Errorf("catalog item not found: %w", err)
+	}
 
-    // Check if catalog item belongs to the organization
-    if catalogItem.OrganizationID != orgID {
-        return nil, fmt.Errorf("catalog item does not belong to organization")
-    }
+	// Check if catalog item belongs to the organization
+	if catalogItem.OrganizationID != orgID {
+		return nil, fmt.Errorf("catalog item does not belong to organization")
+	}
 
-    // Validate that it's a product (only products have inventory)
-    if catalogItem.ItemType != catalogModels.CatalogItemTypeProduct {
-        return nil, fmt.Errorf("inventory lots can only be created for products")
-    }
+	// Validate that it's a product (only products have inventory)
+	if catalogItem.ItemType != catalogModels.CatalogItemTypeProduct {
+		return nil, fmt.Errorf("inventory lots can only be created for products")
+	}
 
-    // Check if lot number is unique within the organization
-    existingLot, err := s.inventoryRepo.GetByLotNumber(ctx, orgID, req.LotNumber)
-    if err == nil && existingLot != nil {
-        return nil, fmt.Errorf("lot number already exists in organization")
-    }
+	// Check if lot number is unique within the organization
+	existingLot, err := s.inventoryRepo.GetByLotNumber(ctx, orgID, req.LotNumber)
+	if err == nil && existingLot != nil {
+		return nil, fmt.Errorf("lot number already exists in organization")
+	}
 
-    // Validate expiry date is in the future if provided
-    if req.ExpiryDate != nil && req.ExpiryDate.Before(time.Now()) {
-        return nil, fmt.Errorf("expiry date must be in the future")
-    }
+	// Validate expiry date is in the future if provided
+	if req.ExpiryDate != nil && req.ExpiryDate.Before(time.Now()) {
+		return nil, fmt.Errorf("expiry date must be in the future")
+	}
 
-    // Create inventory lot
-    lot := catalogModels.NewInventoryLot(req.CatalogItemID, orgID, req.LotNumber, req.InitialQuantity)
-    lot.BatchNumber = req.BatchNumber
-    lot.QualityGrade = req.QualityGrade
-    lot.HarvestDate = req.HarvestDate
-    lot.ExpiryDate = req.ExpiryDate
-    lot.WarehouseLocation = req.WarehouseLocation
-    lot.StorageConditions = req.StorageConditions
-    lot.LotPrice = req.LotPrice
-    lot.Metadata = req.Metadata
-    lot.CreatedBy = userID
+	// Create inventory lot
+	lot := catalogModels.NewInventoryLot(req.CatalogItemID, orgID, req.LotNumber, req.InitialQuantity)
+	lot.BatchNumber = req.BatchNumber
+	lot.QualityGrade = req.QualityGrade
+	lot.HarvestDate = req.HarvestDate
+	lot.ExpiryDate = req.ExpiryDate
+	lot.WarehouseLocation = req.WarehouseLocation
+	lot.StorageConditions = req.StorageConditions
+	lot.LotPrice = req.LotPrice
+	lot.Metadata = req.Metadata
+	lot.CreatedBy = userID
 
-    // Save to database
-    if err := s.inventoryRepo.Create(ctx, lot); err != nil {
-        return nil, fmt.Errorf("failed to create inventory lot: %w", err)
-    }
+	// Save to database
+	if err := s.inventoryRepo.Create(ctx, lot); err != nil {
+		return nil, fmt.Errorf("failed to create inventory lot: %w", err)
+	}
 
-    // Create audit log
-    auditLog := &inventoryRepo.InventoryAuditLog{
-        BaseModel:       *base.NewBaseModel("AUDIT", "small"),
-        LotID:           lot.ID,
-        Operation:       "create",
-        QuantityBefore:  decimal.Zero,
-        QuantityAfter:   req.InitialQuantity,
-        QuantityChanged: req.InitialQuantity,
-        Reason:          "Initial inventory lot creation",
-        UserID:          userID,
-        OrganizationID:  orgID,
-    }
+	// Create audit log
+	auditLog := &inventoryRepo.InventoryAuditLog{
+		BaseModel:       *base.NewBaseModel("AUDIT", "small"),
+		LotID:           lot.ID,
+		Operation:       "create",
+		QuantityBefore:  decimal.Zero,
+		QuantityAfter:   req.InitialQuantity,
+		QuantityChanged: req.InitialQuantity,
+		Reason:          "Initial inventory lot creation",
+		UserID:          userID,
+		OrganizationID:  orgID,
+	}
 
-    if err := s.inventoryRepo.CreateAuditLog(ctx, auditLog); err != nil {
-        // Log error but don't fail the operation
-        fmt.Printf("Warning: failed to create audit log: %v\n", err)
-    }
+	if err := s.inventoryRepo.CreateAuditLog(ctx, auditLog); err != nil {
+		// Log error but don't fail the operation
+		fmt.Printf("Warning: failed to create audit log: %v\n", err)
+	}
 
-    return lot, nil
+	return lot, nil
 }
 
 // GetInventoryLot retrieves an inventory lot by ID
 func (s *inventoryService) GetInventoryLot(ctx context.Context, lotID, userID, orgID string) (*catalogModels.InventoryLot, error) {
-    lot, err := s.inventoryRepo.GetByID(ctx, lotID)
-    if err != nil {
-        return nil, err
-    }
+	lot, err := s.inventoryRepo.GetByID(ctx, lotID)
+	if err != nil {
+		return nil, err
+	}
 
-    // Check organization access
-    if lot.OrganizationID != orgID {
-        return nil, fmt.Errorf("access denied: lot does not belong to organization")
-    }
+	// Check organization access
+	if lot.OrganizationID != orgID {
+		return nil, fmt.Errorf("access denied: lot does not belong to organization")
+	}
 
-    return lot, nil
+	return lot, nil
 }
 
 // ListInventoryLots lists inventory lots with filtering and pagination
 func (s *inventoryService) ListInventoryLots(ctx context.Context, filter *InventoryFilter, userID, orgID string) (*InventoryListResponse, error) {
-    var lots []*catalogModels.InventoryLot
-    var total int64
-    var err error
+	var lots []*catalogModels.InventoryLot
+	var total int64
+	var err error
 
-    // Set default pagination
-    if filter.Limit <= 0 {
-        filter.Limit = 20
-    }
-    if filter.Limit > 100 {
-        filter.Limit = 100
-    }
+	// Set default pagination
+	if filter.Limit <= 0 {
+		filter.Limit = 20
+	}
+	if filter.Limit > 100 {
+		filter.Limit = 100
+	}
 
-    // Apply filters
-    if filter.CatalogItemID != "" {
-        lots, total, err = s.inventoryRepo.ListByCatalogItem(ctx, filter.CatalogItemID, filter.Offset, filter.Limit)
-    } else if filter.Status != "" {
-        lots, total, err = s.inventoryRepo.ListByStatus(ctx, orgID, filter.Status, filter.Offset, filter.Limit)
-    } else {
-        lots, total, err = s.inventoryRepo.ListByOrganization(ctx, orgID, filter.Offset, filter.Limit)
-    }
+	// Apply filters
+	if filter.CatalogItemID != "" {
+		lots, total, err = s.inventoryRepo.ListByCatalogItem(ctx, filter.CatalogItemID, filter.Offset, filter.Limit)
+	} else if filter.Status != "" {
+		lots, total, err = s.inventoryRepo.ListByStatus(ctx, orgID, filter.Status, filter.Offset, filter.Limit)
+	} else {
+		lots, total, err = s.inventoryRepo.ListByOrganization(ctx, orgID, filter.Offset, filter.Limit)
+	}
 
-    if err != nil {
-        return nil, fmt.Errorf("failed to list inventory lots: %w", err)
-    }
+	if err != nil {
+		return nil, fmt.Errorf("failed to list inventory lots: %w", err)
+	}
 
-    // Filter by expiring date if specified
-    if filter.ExpiringBefore != nil {
-        filteredLots := make([]*catalogModels.InventoryLot, 0)
-        for _, lot := range lots {
-            if lot.ExpiryDate != nil && lot.ExpiryDate.Before(*filter.ExpiringBefore) {
-                filteredLots = append(filteredLots, lot)
-            }
-        }
-        lots = filteredLots
-        total = int64(len(lots))
-    }
+	// Filter by expiring date if specified
+	if filter.ExpiringBefore != nil {
+		filteredLots := make([]*catalogModels.InventoryLot, 0)
+		for _, lot := range lots {
+			if lot.ExpiryDate != nil && lot.ExpiryDate.Before(*filter.ExpiringBefore) {
+				filteredLots = append(filteredLots, lot)
+			}
+		}
+		lots = filteredLots
+		total = int64(len(lots))
+	}
 
-    return &InventoryListResponse{
-        Lots:   lots,
-        Total:  total,
-        Offset: filter.Offset,
-        Limit:  filter.Limit,
-    }, nil
+	return &InventoryListResponse{
+		Lots:   lots,
+		Total:  total,
+		Offset: filter.Offset,
+		Limit:  filter.Limit,
+	}, nil
 }
 
 // UpdateInventoryLot updates an inventory lot
 func (s *inventoryService) UpdateInventoryLot(ctx context.Context, lotID string, req *UpdateInventoryLotRequest, userID, orgID string) (*catalogModels.InventoryLot, error) {
-    // Get existing lot
-    lot, err := s.inventoryRepo.GetByID(ctx, lotID)
-    if err != nil {
-        return nil, err
-    }
+	// Get existing lot
+	lot, err := s.inventoryRepo.GetByID(ctx, lotID)
+	if err != nil {
+		return nil, err
+	}
 
-    // Check organization access
-    if lot.OrganizationID != orgID {
-        return nil, fmt.Errorf("access denied: lot does not belong to organization")
-    }
+	// Check organization access
+	if lot.OrganizationID != orgID {
+		return nil, fmt.Errorf("access denied: lot does not belong to organization")
+	}
 
-    // Update fields if provided
-    if req.QualityGrade != nil {
-        lot.QualityGrade = *req.QualityGrade
-    }
-    if req.HarvestDate != nil {
-        lot.HarvestDate = req.HarvestDate
-    }
-    if req.ExpiryDate != nil {
-        // Validate expiry date is in the future
-        if req.ExpiryDate.Before(time.Now()) {
-            return nil, fmt.Errorf("expiry date must be in the future")
-        }
-        lot.ExpiryDate = req.ExpiryDate
-    }
-    if req.WarehouseLocation != nil {
-        lot.WarehouseLocation = *req.WarehouseLocation
-    }
-    if req.StorageConditions != nil {
-        lot.StorageConditions = *req.StorageConditions
-    }
-    if req.LotPrice != nil {
-        lot.LotPrice = req.LotPrice
-    }
-    if req.Metadata != nil {
-        lot.Metadata = *req.Metadata
-    }
+	// Update fields if provided
+	if req.QualityGrade != nil {
+		lot.QualityGrade = *req.QualityGrade
+	}
+	if req.HarvestDate != nil {
+		lot.HarvestDate = req.HarvestDate
+	}
+	if req.ExpiryDate != nil {
+		// Validate expiry date is in the future
+		if req.ExpiryDate.Before(time.Now()) {
+			return nil, fmt.Errorf("expiry date must be in the future")
+		}
+		lot.ExpiryDate = req.ExpiryDate
+	}
+	if req.WarehouseLocation != nil {
+		lot.WarehouseLocation = *req.WarehouseLocation
+	}
+	if req.StorageConditions != nil {
+		lot.StorageConditions = *req.StorageConditions
+	}
+	if req.LotPrice != nil {
+		lot.LotPrice = req.LotPrice
+	}
+	if req.Metadata != nil {
+		lot.Metadata = *req.Metadata
+	}
 
-    lot.UpdatedBy = userID
+	lot.UpdatedBy = userID
 
-    // Save changes
-    if err := s.inventoryRepo.Update(ctx, lot); err != nil {
-        return nil, fmt.Errorf("failed to update inventory lot: %w", err)
-    }
+	// Save changes
+	if err := s.inventoryRepo.Update(ctx, lot); err != nil {
+		return nil, fmt.Errorf("failed to update inventory lot: %w", err)
+	}
 
-    // Create audit log
-    auditLog := &inventoryRepo.InventoryAuditLog{
-        BaseModel:       *base.NewBaseModel("AUDIT", "small"),
-        LotID:           lot.ID,
-        Operation:       "update",
-        QuantityBefore:  lot.AvailableQuantity.Add(lot.ReservedQuantity).Add(lot.SoldQuantity),
-        QuantityAfter:   lot.AvailableQuantity.Add(lot.ReservedQuantity).Add(lot.SoldQuantity),
-        QuantityChanged: decimal.Zero,
-        Reason:          "Inventory lot metadata update",
-        UserID:          userID,
-        OrganizationID:  orgID,
-    }
+	// Create audit log
+	auditLog := &inventoryRepo.InventoryAuditLog{
+		BaseModel:       *base.NewBaseModel("AUDIT", "small"),
+		LotID:           lot.ID,
+		Operation:       "update",
+		QuantityBefore:  lot.AvailableQuantity.Add(lot.ReservedQuantity).Add(lot.SoldQuantity),
+		QuantityAfter:   lot.AvailableQuantity.Add(lot.ReservedQuantity).Add(lot.SoldQuantity),
+		QuantityChanged: decimal.Zero,
+		Reason:          "Inventory lot metadata update",
+		UserID:          userID,
+		OrganizationID:  orgID,
+	}
 
-    if err := s.inventoryRepo.CreateAuditLog(ctx, auditLog); err != nil {
-        // Log error but don't fail the operation
-        fmt.Printf("Warning: failed to create audit log: %v\n", err)
-    }
+	if err := s.inventoryRepo.CreateAuditLog(ctx, auditLog); err != nil {
+		// Log error but don't fail the operation
+		fmt.Printf("Warning: failed to create audit log: %v\n", err)
+	}
 
-    return lot, nil
+	return lot, nil
 }
 
 // DeleteInventoryLot soft deletes an inventory lot
 func (s *inventoryService) DeleteInventoryLot(ctx context.Context, lotID, userID, orgID string) error {
-    // Get existing lot
-    lot, err := s.inventoryRepo.GetByID(ctx, lotID)
-    if err != nil {
-        return err
-    }
+	// Get existing lot
+	lot, err := s.inventoryRepo.GetByID(ctx, lotID)
+	if err != nil {
+		return err
+	}
 
-    // Check organization access
-    if lot.OrganizationID != orgID {
-        return fmt.Errorf("access denied: lot does not belong to organization")
-    }
+	// Check organization access
+	if lot.OrganizationID != orgID {
+		return fmt.Errorf("access denied: lot does not belong to organization")
+	}
 
-    // Check if lot has reserved or sold quantities
-    if lot.ReservedQuantity.GreaterThan(decimal.Zero) || lot.SoldQuantity.GreaterThan(decimal.Zero) {
-        return fmt.Errorf("cannot delete lot with reserved or sold quantities")
-    }
+	// Check if lot has reserved or sold quantities
+	if lot.ReservedQuantity.GreaterThan(decimal.Zero) || lot.SoldQuantity.GreaterThan(decimal.Zero) {
+		return fmt.Errorf("cannot delete lot with reserved or sold quantities")
+	}
 
-    // Delete lot
-    if err := s.inventoryRepo.Delete(ctx, lotID); err != nil {
-        return fmt.Errorf("failed to delete inventory lot: %w", err)
-    }
+	// Delete lot
+	if err := s.inventoryRepo.Delete(ctx, lotID); err != nil {
+		return fmt.Errorf("failed to delete inventory lot: %w", err)
+	}
 
-    // Create audit log
-    auditLog := &inventoryRepo.InventoryAuditLog{
-        BaseModel:       *base.NewBaseModel("AUDIT", "small"),
-        LotID:           lot.ID,
-        Operation:       "delete",
-        QuantityBefore:  lot.AvailableQuantity,
-        QuantityAfter:   decimal.Zero,
-        QuantityChanged: lot.AvailableQuantity.Neg(),
-        Reason:          "Inventory lot deletion",
-        UserID:          userID,
-        OrganizationID:  orgID,
-    }
+	// Create audit log
+	auditLog := &inventoryRepo.InventoryAuditLog{
+		BaseModel:       *base.NewBaseModel("AUDIT", "small"),
+		LotID:           lot.ID,
+		Operation:       "delete",
+		QuantityBefore:  lot.AvailableQuantity,
+		QuantityAfter:   decimal.Zero,
+		QuantityChanged: lot.AvailableQuantity.Neg(),
+		Reason:          "Inventory lot deletion",
+		UserID:          userID,
+		OrganizationID:  orgID,
+	}
 
-    if err := s.inventoryRepo.CreateAuditLog(ctx, auditLog); err != nil {
-        // Log error but don't fail the operation
-        fmt.Printf("Warning: failed to create audit log: %v\n", err)
-    }
+	if err := s.inventoryRepo.CreateAuditLog(ctx, auditLog); err != nil {
+		// Log error but don't fail the operation
+		fmt.Printf("Warning: failed to create audit log: %v\n", err)
+	}
 
-    return nil
+	return nil
 }
 
 // ReserveInventory reserves inventory with audit trail
 func (s *inventoryService) ReserveInventory(ctx context.Context, catalogItemID string, quantity decimal.Decimal, userID, orgID string) ([]*catalogModels.InventoryLot, error) {
-    // Validate input
-    if quantity.LessThanOrEqual(decimal.Zero) {
-        return nil, fmt.Errorf("quantity must be greater than zero")
-    }
+	// Validate input
+	if quantity.LessThanOrEqual(decimal.Zero) {
+		return nil, fmt.Errorf("quantity must be greater than zero")
+	}
 
-    // Validate catalog item exists and belongs to organization
-    catalogItem := &catalogModels.CatalogItem{}
-    _, err := s.catalogRepo.GetByID(ctx, catalogItemID, catalogItem)
-    if err != nil {
-        return nil, fmt.Errorf("catalog item not found: %w", err)
-    }
+	// Validate catalog item exists and belongs to organization
+	catalogItem := &catalogModels.CatalogItem{}
+	_, err := s.catalogRepo.GetByID(ctx, catalogItemID, catalogItem)
+	if err != nil {
+		return nil, fmt.Errorf("catalog item not found: %w", err)
+	}
 
-    if catalogItem.OrganizationID != orgID {
-        return nil, fmt.Errorf("catalog item does not belong to organization")
-    }
+	if catalogItem.OrganizationID != orgID {
+		return nil, fmt.Errorf("catalog item does not belong to organization")
+	}
 
-    if catalogItem.ItemType != catalogModels.CatalogItemTypeProduct {
-        return nil, fmt.Errorf("inventory operations are only available for products")
-    }
+	if catalogItem.ItemType != catalogModels.CatalogItemTypeProduct {
+		return nil, fmt.Errorf("inventory operations are only available for products")
+	}
 
-    // Check real-time availability
-    available, err := s.inventoryRepo.GetAvailableQuantity(ctx, catalogItemID)
-    if err != nil {
-        return nil, fmt.Errorf("failed to check availability: %w", err)
-    }
+	// Check real-time availability
+	available, err := s.inventoryRepo.GetAvailableQuantity(ctx, catalogItemID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to check availability: %w", err)
+	}
 
-    if available.LessThan(quantity) {
-        return nil, fmt.Errorf("insufficient inventory: requested %s, available %s", quantity.String(), available.String())
-    }
+	if available.LessThan(quantity) {
+		return nil, fmt.Errorf("insufficient inventory: requested %s, available %s", quantity.String(), available.String())
+	}
 
-    // Store original quantities for audit trail
-    originalLots := make(map[string]decimal.Decimal)
+	// Store original quantities for audit trail
+	originalLots := make(map[string]decimal.Decimal)
 
-    // Get lots that will be affected for audit trail
-    lotsBeforeReservation, _, err := s.inventoryRepo.ListByCatalogItem(ctx, catalogItemID, 0, 1000)
-    if err == nil {
-        for _, lot := range lotsBeforeReservation {
-            if lot.Status == catalogModels.InventoryStatusAvailable && lot.AvailableQuantity.GreaterThan(decimal.Zero) {
-                originalLots[lot.ID] = lot.AvailableQuantity
-            }
-        }
-    }
+	// Get lots that will be affected for audit trail
+	lotsBeforeReservation, _, err := s.inventoryRepo.ListByCatalogItem(ctx, catalogItemID, 0, 1000)
+	if err == nil {
+		for _, lot := range lotsBeforeReservation {
+			if lot.Status == catalogModels.InventoryStatusAvailable && lot.AvailableQuantity.GreaterThan(decimal.Zero) {
+				originalLots[lot.ID] = lot.AvailableQuantity
+			}
+		}
+	}
 
-    // Reserve inventory
-    affectedLots, err := s.inventoryRepo.ReserveQuantity(ctx, catalogItemID, quantity)
-    if err != nil {
-        return nil, fmt.Errorf("failed to reserve inventory: %w", err)
-    }
+	// Reserve inventory
+	affectedLots, err := s.inventoryRepo.ReserveQuantity(ctx, catalogItemID, quantity)
+	if err != nil {
+		return nil, fmt.Errorf("failed to reserve inventory: %w", err)
+	}
 
-    // Create detailed audit logs for affected lots
-    for _, lot := range affectedLots {
-        originalAvailable := originalLots[lot.ID]
-        quantityReserved := originalAvailable.Sub(lot.AvailableQuantity)
+	// Create detailed audit logs for affected lots
+	for _, lot := range affectedLots {
+		originalAvailable := originalLots[lot.ID]
+		quantityReserved := originalAvailable.Sub(lot.AvailableQuantity)
 
-        auditLog := &inventoryRepo.InventoryAuditLog{
-            BaseModel:       *base.NewBaseModel("AUDIT", "small"),
-            LotID:           lot.ID,
-            Operation:       "reserve",
-            QuantityBefore:  originalAvailable,
-            QuantityAfter:   lot.AvailableQuantity,
-            QuantityChanged: quantityReserved.Neg(), // Negative because it's a reduction
-            Reason:          fmt.Sprintf("Inventory reservation for catalog item %s", catalogItemID),
-            UserID:          userID,
-            OrganizationID:  orgID,
-        }
+		auditLog := &inventoryRepo.InventoryAuditLog{
+			BaseModel:       *base.NewBaseModel("AUDIT", "small"),
+			LotID:           lot.ID,
+			Operation:       "reserve",
+			QuantityBefore:  originalAvailable,
+			QuantityAfter:   lot.AvailableQuantity,
+			QuantityChanged: quantityReserved.Neg(), // Negative because it's a reduction
+			Reason:          fmt.Sprintf("Inventory reservation for catalog item %s", catalogItemID),
+			UserID:          userID,
+			OrganizationID:  orgID,
+		}
 
-        if err := s.inventoryRepo.CreateAuditLog(ctx, auditLog); err != nil {
-            // Log error but don't fail the operation
-            fmt.Printf("Warning: failed to create audit log for lot %s: %v\n", lot.ID, err)
-        }
-    }
+		if err := s.inventoryRepo.CreateAuditLog(ctx, auditLog); err != nil {
+			// Log error but don't fail the operation
+			fmt.Printf("Warning: failed to create audit log for lot %s: %v\n", lot.ID, err)
+		}
+	}
 
-    return affectedLots, nil
+	return affectedLots, nil
 }
 
 // ReleaseInventory releases reserved inventory with audit trail
 func (s *inventoryService) ReleaseInventory(ctx context.Context, catalogItemID string, quantity decimal.Decimal, userID, orgID string) error {
-    // Validate input
-    if quantity.LessThanOrEqual(decimal.Zero) {
-        return fmt.Errorf("quantity must be greater than zero")
-    }
+	// Validate input
+	if quantity.LessThanOrEqual(decimal.Zero) {
+		return fmt.Errorf("quantity must be greater than zero")
+	}
 
-    // Validate catalog item exists and belongs to organization
-    catalogItem := &catalogModels.CatalogItem{}
-    _, err := s.catalogRepo.GetByID(ctx, catalogItemID, catalogItem)
-    if err != nil {
-        return fmt.Errorf("catalog item not found: %w", err)
-    }
+	// Validate catalog item exists and belongs to organization
+	catalogItem := &catalogModels.CatalogItem{}
+	_, err := s.catalogRepo.GetByID(ctx, catalogItemID, catalogItem)
+	if err != nil {
+		return fmt.Errorf("catalog item not found: %w", err)
+	}
 
-    if catalogItem.OrganizationID != orgID {
-        return fmt.Errorf("catalog item does not belong to organization")
-    }
+	if catalogItem.OrganizationID != orgID {
+		return fmt.Errorf("catalog item does not belong to organization")
+	}
 
-    if catalogItem.ItemType != catalogModels.CatalogItemTypeProduct {
-        return fmt.Errorf("inventory operations are only available for products")
-    }
+	if catalogItem.ItemType != catalogModels.CatalogItemTypeProduct {
+		return fmt.Errorf("inventory operations are only available for products")
+	}
 
-    // Check if there's enough reserved quantity to release
-    lotsWithReserved, _, err := s.inventoryRepo.ListByCatalogItem(ctx, catalogItemID, 0, 1000)
-    if err != nil {
-        return fmt.Errorf("failed to get reserved lots: %w", err)
-    }
+	// Check if there's enough reserved quantity to release
+	lotsWithReserved, _, err := s.inventoryRepo.ListByCatalogItem(ctx, catalogItemID, 0, 1000)
+	if err != nil {
+		return fmt.Errorf("failed to get reserved lots: %w", err)
+	}
 
-    // Filter to only lots with reserved quantity
-    var filteredLots []*catalogModels.InventoryLot
-    for _, lot := range lotsWithReserved {
-        if lot.ReservedQuantity.GreaterThan(decimal.Zero) {
-            filteredLots = append(filteredLots, lot)
-        }
-    }
-    lotsWithReserved = filteredLots
+	// Filter to only lots with reserved quantity
+	var filteredLots []*catalogModels.InventoryLot
+	for _, lot := range lotsWithReserved {
+		if lot.ReservedQuantity.GreaterThan(decimal.Zero) {
+			filteredLots = append(filteredLots, lot)
+		}
+	}
+	lotsWithReserved = filteredLots
 
-    totalReserved := decimal.Zero
-    originalReserved := make(map[string]decimal.Decimal)
-    for _, lot := range lotsWithReserved {
-        totalReserved = totalReserved.Add(lot.ReservedQuantity)
-        originalReserved[lot.ID] = lot.ReservedQuantity
-    }
+	totalReserved := decimal.Zero
+	originalReserved := make(map[string]decimal.Decimal)
+	for _, lot := range lotsWithReserved {
+		totalReserved = totalReserved.Add(lot.ReservedQuantity)
+		originalReserved[lot.ID] = lot.ReservedQuantity
+	}
 
-    if totalReserved.LessThan(quantity) {
-        return fmt.Errorf("insufficient reserved inventory: requested %s, reserved %s", quantity.String(), totalReserved.String())
-    }
+	if totalReserved.LessThan(quantity) {
+		return fmt.Errorf("insufficient reserved inventory: requested %s, reserved %s", quantity.String(), totalReserved.String())
+	}
 
-    // Release inventory
-    if err := s.inventoryRepo.ReleaseQuantity(ctx, catalogItemID, quantity); err != nil {
-        return fmt.Errorf("failed to release inventory: %w", err)
-    }
+	// Release inventory
+	if err := s.inventoryRepo.ReleaseQuantity(ctx, catalogItemID, quantity); err != nil {
+		return fmt.Errorf("failed to release inventory: %w", err)
+	}
 
-    // Create audit logs for affected lots
-    // Get updated lots to see what changed
-    updatedLots, _, err := s.inventoryRepo.ListByCatalogItem(ctx, catalogItemID, 0, 1000)
-    if err == nil {
-        for _, lot := range updatedLots {
-            originalQty := originalReserved[lot.ID]
-            if originalQty.GreaterThan(lot.ReservedQuantity) {
-                quantityReleased := originalQty.Sub(lot.ReservedQuantity)
+	// Create audit logs for affected lots
+	// Get updated lots to see what changed
+	updatedLots, _, err := s.inventoryRepo.ListByCatalogItem(ctx, catalogItemID, 0, 1000)
+	if err == nil {
+		for _, lot := range updatedLots {
+			originalQty := originalReserved[lot.ID]
+			if originalQty.GreaterThan(lot.ReservedQuantity) {
+				quantityReleased := originalQty.Sub(lot.ReservedQuantity)
 
-                auditLog := &inventoryRepo.InventoryAuditLog{
-                    BaseModel:       *base.NewBaseModel("AUDIT", "small"),
-                    LotID:           lot.ID,
-                    Operation:       "release",
-                    QuantityBefore:  originalQty,
-                    QuantityAfter:   lot.ReservedQuantity,
-                    QuantityChanged: quantityReleased.Neg(), // Negative because reserved quantity decreased
-                    Reason:          fmt.Sprintf("Inventory release for catalog item %s", catalogItemID),
-                    UserID:          userID,
-                    OrganizationID:  orgID,
-                }
+				auditLog := &inventoryRepo.InventoryAuditLog{
+					BaseModel:       *base.NewBaseModel("AUDIT", "small"),
+					LotID:           lot.ID,
+					Operation:       "release",
+					QuantityBefore:  originalQty,
+					QuantityAfter:   lot.ReservedQuantity,
+					QuantityChanged: quantityReleased.Neg(), // Negative because reserved quantity decreased
+					Reason:          fmt.Sprintf("Inventory release for catalog item %s", catalogItemID),
+					UserID:          userID,
+					OrganizationID:  orgID,
+				}
 
-                if err := s.inventoryRepo.CreateAuditLog(ctx, auditLog); err != nil {
-                    // Log error but don't fail the operation
-                    fmt.Printf("Warning: failed to create audit log for lot %s: %v\n", lot.ID, err)
-                }
-            }
-        }
-    }
+				if err := s.inventoryRepo.CreateAuditLog(ctx, auditLog); err != nil {
+					// Log error but don't fail the operation
+					fmt.Printf("Warning: failed to create audit log for lot %s: %v\n", lot.ID, err)
+				}
+			}
+		}
+	}
 
-    return nil
+	return nil
 }
 
 // SellInventory converts reserved inventory to sold with audit trail
 func (s *inventoryService) SellInventory(ctx context.Context, catalogItemID string, quantity decimal.Decimal, userID, orgID string) error {
-    // Validate input
-    if quantity.LessThanOrEqual(decimal.Zero) {
-        return fmt.Errorf("quantity must be greater than zero")
-    }
+	// Validate input
+	if quantity.LessThanOrEqual(decimal.Zero) {
+		return fmt.Errorf("quantity must be greater than zero")
+	}
 
-    // Validate catalog item exists and belongs to organization
-    catalogItem := &catalogModels.CatalogItem{}
-    _, err := s.catalogRepo.GetByID(ctx, catalogItemID, catalogItem)
-    if err != nil {
-        return fmt.Errorf("catalog item not found: %w", err)
-    }
+	// Validate catalog item exists and belongs to organization
+	catalogItem := &catalogModels.CatalogItem{}
+	_, err := s.catalogRepo.GetByID(ctx, catalogItemID, catalogItem)
+	if err != nil {
+		return fmt.Errorf("catalog item not found: %w", err)
+	}
 
-    if catalogItem.OrganizationID != orgID {
-        return fmt.Errorf("catalog item does not belong to organization")
-    }
+	if catalogItem.OrganizationID != orgID {
+		return fmt.Errorf("catalog item does not belong to organization")
+	}
 
-    if catalogItem.ItemType != catalogModels.CatalogItemTypeProduct {
-        return fmt.Errorf("inventory operations are only available for products")
-    }
+	if catalogItem.ItemType != catalogModels.CatalogItemTypeProduct {
+		return fmt.Errorf("inventory operations are only available for products")
+	}
 
-    // Check if there's enough reserved quantity to sell
-    lotsWithReserved, _, err := s.inventoryRepo.ListByCatalogItem(ctx, catalogItemID, 0, 1000)
-    if err != nil {
-        return fmt.Errorf("failed to get reserved lots: %w", err)
-    }
+	// Check if there's enough reserved quantity to sell
+	lotsWithReserved, _, err := s.inventoryRepo.ListByCatalogItem(ctx, catalogItemID, 0, 1000)
+	if err != nil {
+		return fmt.Errorf("failed to get reserved lots: %w", err)
+	}
 
-    // Filter to only lots with reserved quantity
-    var filteredLots []*catalogModels.InventoryLot
-    for _, lot := range lotsWithReserved {
-        if lot.ReservedQuantity.GreaterThan(decimal.Zero) {
-            filteredLots = append(filteredLots, lot)
-        }
-    }
-    lotsWithReserved = filteredLots
+	// Filter to only lots with reserved quantity
+	var filteredLots []*catalogModels.InventoryLot
+	for _, lot := range lotsWithReserved {
+		if lot.ReservedQuantity.GreaterThan(decimal.Zero) {
+			filteredLots = append(filteredLots, lot)
+		}
+	}
+	lotsWithReserved = filteredLots
 
-    totalReserved := decimal.Zero
-    originalReserved := make(map[string]decimal.Decimal)
-    originalSold := make(map[string]decimal.Decimal)
-    for _, lot := range lotsWithReserved {
-        totalReserved = totalReserved.Add(lot.ReservedQuantity)
-        originalReserved[lot.ID] = lot.ReservedQuantity
-        originalSold[lot.ID] = lot.SoldQuantity
-    }
+	totalReserved := decimal.Zero
+	originalReserved := make(map[string]decimal.Decimal)
+	originalSold := make(map[string]decimal.Decimal)
+	for _, lot := range lotsWithReserved {
+		totalReserved = totalReserved.Add(lot.ReservedQuantity)
+		originalReserved[lot.ID] = lot.ReservedQuantity
+		originalSold[lot.ID] = lot.SoldQuantity
+	}
 
-    if totalReserved.LessThan(quantity) {
-        return fmt.Errorf("insufficient reserved inventory: requested %s, reserved %s", quantity.String(), totalReserved.String())
-    }
+	if totalReserved.LessThan(quantity) {
+		return fmt.Errorf("insufficient reserved inventory: requested %s, reserved %s", quantity.String(), totalReserved.String())
+	}
 
-    // Sell inventory
-    if err := s.inventoryRepo.SellQuantity(ctx, catalogItemID, quantity); err != nil {
-        return fmt.Errorf("failed to sell inventory: %w", err)
-    }
+	// Sell inventory
+	if err := s.inventoryRepo.SellQuantity(ctx, catalogItemID, quantity); err != nil {
+		return fmt.Errorf("failed to sell inventory: %w", err)
+	}
 
-    // Create audit logs for affected lots
-    // Get updated lots to see what changed
-    updatedLots, _, err := s.inventoryRepo.ListByCatalogItem(ctx, catalogItemID, 0, 1000)
-    if err == nil {
-        for _, lot := range updatedLots {
-            originalReservedQty := originalReserved[lot.ID]
-            originalSoldQty := originalSold[lot.ID]
+	// Create audit logs for affected lots
+	// Get updated lots to see what changed
+	updatedLots, _, err := s.inventoryRepo.ListByCatalogItem(ctx, catalogItemID, 0, 1000)
+	if err == nil {
+		for _, lot := range updatedLots {
+			originalReservedQty := originalReserved[lot.ID]
+			originalSoldQty := originalSold[lot.ID]
 
-            if lot.SoldQuantity.GreaterThan(originalSoldQty) {
-                quantitySold := lot.SoldQuantity.Sub(originalSoldQty)
+			if lot.SoldQuantity.GreaterThan(originalSoldQty) {
+				quantitySold := lot.SoldQuantity.Sub(originalSoldQty)
 
-                auditLog := &inventoryRepo.InventoryAuditLog{
-                    BaseModel:       *base.NewBaseModel("AUDIT", "small"),
-                    LotID:           lot.ID,
-                    Operation:       "sell",
-                    QuantityBefore:  originalReservedQty,
-                    QuantityAfter:   lot.ReservedQuantity,
-                    QuantityChanged: quantitySold,
-                    Reason:          fmt.Sprintf("Inventory sale for catalog item %s", catalogItemID),
-                    UserID:          userID,
-                    OrganizationID:  orgID,
-                }
+				auditLog := &inventoryRepo.InventoryAuditLog{
+					BaseModel:       *base.NewBaseModel("AUDIT", "small"),
+					LotID:           lot.ID,
+					Operation:       "sell",
+					QuantityBefore:  originalReservedQty,
+					QuantityAfter:   lot.ReservedQuantity,
+					QuantityChanged: quantitySold,
+					Reason:          fmt.Sprintf("Inventory sale for catalog item %s", catalogItemID),
+					UserID:          userID,
+					OrganizationID:  orgID,
+				}
 
-                if err := s.inventoryRepo.CreateAuditLog(ctx, auditLog); err != nil {
-                    // Log error but don't fail the operation
-                    fmt.Printf("Warning: failed to create audit log for lot %s: %v\n", lot.ID, err)
-                }
-            }
-        }
-    }
+				if err := s.inventoryRepo.CreateAuditLog(ctx, auditLog); err != nil {
+					// Log error but don't fail the operation
+					fmt.Printf("Warning: failed to create audit log for lot %s: %v\n", lot.ID, err)
+				}
+			}
+		}
+	}
 
-    return nil
+	return nil
 }
 
 // AdjustInventory adjusts inventory quantity with audit trail
 func (s *inventoryService) AdjustInventory(ctx context.Context, lotID string, adjustment decimal.Decimal, reason, userID, orgID string) (*catalogModels.InventoryLot, error) {
-    // Get existing lot
-    lot, err := s.inventoryRepo.GetByID(ctx, lotID)
-    if err != nil {
-        return nil, err
-    }
+	// Get existing lot
+	lot, err := s.inventoryRepo.GetByID(ctx, lotID)
+	if err != nil {
+		return nil, err
+	}
 
-    // Check organization access
-    if lot.OrganizationID != orgID {
-        return nil, fmt.Errorf("access denied: lot does not belong to organization")
-    }
+	// Check organization access
+	if lot.OrganizationID != orgID {
+		return nil, fmt.Errorf("access denied: lot does not belong to organization")
+	}
 
-    // Store original quantities for audit
-    originalTotal := lot.AvailableQuantity.Add(lot.ReservedQuantity).Add(lot.SoldQuantity)
+	// Store original quantities for audit
+	originalTotal := lot.AvailableQuantity.Add(lot.ReservedQuantity).Add(lot.SoldQuantity)
 
-    // Apply adjustment to available quantity
-    newAvailable := lot.AvailableQuantity.Add(adjustment)
-    if newAvailable.LessThan(decimal.Zero) {
-        return nil, fmt.Errorf("adjustment would result in negative available quantity")
-    }
+	// Apply adjustment to available quantity
+	newAvailable := lot.AvailableQuantity.Add(adjustment)
+	if newAvailable.LessThan(decimal.Zero) {
+		return nil, fmt.Errorf("adjustment would result in negative available quantity")
+	}
 
-    lot.AvailableQuantity = newAvailable
-    lot.InitialQuantity = lot.InitialQuantity.Add(adjustment)
-    lot.UpdatedBy = userID
+	lot.AvailableQuantity = newAvailable
+	lot.InitialQuantity = lot.InitialQuantity.Add(adjustment)
+	lot.UpdatedBy = userID
 
-    // Update status if necessary
-    if lot.AvailableQuantity.IsZero() && lot.ReservedQuantity.IsZero() {
-        lot.Status = catalogModels.InventoryStatusSold
-    } else if lot.AvailableQuantity.GreaterThan(decimal.Zero) {
-        lot.Status = catalogModels.InventoryStatusAvailable
-    }
+	// Update status if necessary
+	if lot.AvailableQuantity.IsZero() && lot.ReservedQuantity.IsZero() {
+		lot.Status = catalogModels.InventoryStatusSold
+	} else if lot.AvailableQuantity.GreaterThan(decimal.Zero) {
+		lot.Status = catalogModels.InventoryStatusAvailable
+	}
 
-    // Save changes
-    if err := s.inventoryRepo.Update(ctx, lot); err != nil {
-        return nil, fmt.Errorf("failed to adjust inventory: %w", err)
-    }
+	// Save changes
+	if err := s.inventoryRepo.Update(ctx, lot); err != nil {
+		return nil, fmt.Errorf("failed to adjust inventory: %w", err)
+	}
 
-    // Create audit log
-    newTotal := lot.AvailableQuantity.Add(lot.ReservedQuantity).Add(lot.SoldQuantity)
-    auditLog := &inventoryRepo.InventoryAuditLog{
-        BaseModel:       *base.NewBaseModel("AUDIT", "small"),
-        LotID:           lot.ID,
-        Operation:       "adjust",
-        QuantityBefore:  originalTotal,
-        QuantityAfter:   newTotal,
-        QuantityChanged: adjustment,
-        Reason:          reason,
-        UserID:          userID,
-        OrganizationID:  orgID,
-    }
+	// Create audit log
+	newTotal := lot.AvailableQuantity.Add(lot.ReservedQuantity).Add(lot.SoldQuantity)
+	auditLog := &inventoryRepo.InventoryAuditLog{
+		BaseModel:       *base.NewBaseModel("AUDIT", "small"),
+		LotID:           lot.ID,
+		Operation:       "adjust",
+		QuantityBefore:  originalTotal,
+		QuantityAfter:   newTotal,
+		QuantityChanged: adjustment,
+		Reason:          reason,
+		UserID:          userID,
+		OrganizationID:  orgID,
+	}
 
-    if err := s.inventoryRepo.CreateAuditLog(ctx, auditLog); err != nil {
-        // Log error but don't fail the operation
-        fmt.Printf("Warning: failed to create audit log: %v\n", err)
-    }
+	if err := s.inventoryRepo.CreateAuditLog(ctx, auditLog); err != nil {
+		// Log error but don't fail the operation
+		fmt.Printf("Warning: failed to create audit log: %v\n", err)
+	}
 
-    return lot, nil
+	return lot, nil
 }
 
 // GetAvailableQuantity gets available quantity for a catalog item
 func (s *inventoryService) GetAvailableQuantity(ctx context.Context, catalogItemID, userID, orgID string) (decimal.Decimal, error) {
-    // Validate catalog item exists and belongs to organization
-    catalogItem := &catalogModels.CatalogItem{}
-    _, err := s.catalogRepo.GetByID(ctx, catalogItemID, catalogItem)
-    if err != nil {
-        return decimal.Zero, fmt.Errorf("catalog item not found: %w", err)
-    }
+	// Validate catalog item exists and belongs to organization
+	catalogItem := &catalogModels.CatalogItem{}
+	_, err := s.catalogRepo.GetByID(ctx, catalogItemID, catalogItem)
+	if err != nil {
+		return decimal.Zero, fmt.Errorf("catalog item not found: %w", err)
+	}
 
-    if catalogItem.OrganizationID != orgID {
-        return decimal.Zero, fmt.Errorf("catalog item does not belong to organization")
-    }
+	if catalogItem.OrganizationID != orgID {
+		return decimal.Zero, fmt.Errorf("catalog item does not belong to organization")
+	}
 
-    if catalogItem.ItemType != catalogModels.CatalogItemTypeProduct {
-        return decimal.Zero, fmt.Errorf("inventory is only available for products")
-    }
+	if catalogItem.ItemType != catalogModels.CatalogItemTypeProduct {
+		return decimal.Zero, fmt.Errorf("inventory is only available for products")
+	}
 
-    return s.inventoryRepo.GetAvailableQuantity(ctx, catalogItemID)
+	return s.inventoryRepo.GetAvailableQuantity(ctx, catalogItemID)
 }
 
 // GetTotalQuantity gets total quantity for a catalog item
 func (s *inventoryService) GetTotalQuantity(ctx context.Context, catalogItemID, userID, orgID string) (decimal.Decimal, error) {
-    // Validate catalog item exists and belongs to organization
-    catalogItem := &catalogModels.CatalogItem{}
-    _, err := s.catalogRepo.GetByID(ctx, catalogItemID, catalogItem)
-    if err != nil {
-        return decimal.Zero, fmt.Errorf("catalog item not found: %w", err)
-    }
+	// Validate catalog item exists and belongs to organization
+	catalogItem := &catalogModels.CatalogItem{}
+	_, err := s.catalogRepo.GetByID(ctx, catalogItemID, catalogItem)
+	if err != nil {
+		return decimal.Zero, fmt.Errorf("catalog item not found: %w", err)
+	}
 
-    if catalogItem.OrganizationID != orgID {
-        return decimal.Zero, fmt.Errorf("catalog item does not belong to organization")
-    }
+	if catalogItem.OrganizationID != orgID {
+		return decimal.Zero, fmt.Errorf("catalog item does not belong to organization")
+	}
 
-    if catalogItem.ItemType != catalogModels.CatalogItemTypeProduct {
-        return decimal.Zero, fmt.Errorf("inventory is only available for products")
-    }
+	if catalogItem.ItemType != catalogModels.CatalogItemTypeProduct {
+		return decimal.Zero, fmt.Errorf("inventory is only available for products")
+	}
 
-    return s.inventoryRepo.GetTotalQuantity(ctx, catalogItemID)
+	return s.inventoryRepo.GetTotalQuantity(ctx, catalogItemID)
 }
 
 // CheckAvailability checks if required quantity is available
 func (s *inventoryService) CheckAvailability(ctx context.Context, catalogItemID string, requiredQuantity decimal.Decimal, userID, orgID string) (bool, decimal.Decimal, error) {
-    available, err := s.GetAvailableQuantity(ctx, catalogItemID, userID, orgID)
-    if err != nil {
-        return false, decimal.Zero, err
-    }
+	available, err := s.GetAvailableQuantity(ctx, catalogItemID, userID, orgID)
+	if err != nil {
+		return false, decimal.Zero, err
+	}
 
-    return available.GreaterThanOrEqual(requiredQuantity), available, nil
+	return available.GreaterThanOrEqual(requiredQuantity), available, nil
 }
 
 // ProcessExpiringLots processes lots that are expiring and marks them as expired
 func (s *inventoryService) ProcessExpiringLots(ctx context.Context, orgID string) ([]*catalogModels.InventoryLot, error) {
-    // Get lots expiring today or earlier
-    expiringLots, err := s.inventoryRepo.GetExpiringLots(ctx, orgID, time.Now())
-    if err != nil {
-        return nil, fmt.Errorf("failed to get expiring lots: %w", err)
-    }
+	// Get lots expiring today or earlier
+	expiringLots, err := s.inventoryRepo.GetExpiringLots(ctx, orgID, time.Now())
+	if err != nil {
+		return nil, fmt.Errorf("failed to get expiring lots: %w", err)
+	}
 
-    var processedLots []*catalogModels.InventoryLot
+	var processedLots []*catalogModels.InventoryLot
 
-    for _, lot := range expiringLots {
-        // Mark as expired
-        if err := s.inventoryRepo.MarkExpired(ctx, lot.ID); err != nil {
-            fmt.Printf("Warning: failed to mark lot %s as expired: %v\n", lot.ID, err)
-            continue
-        }
+	for _, lot := range expiringLots {
+		// Mark as expired
+		if err := s.inventoryRepo.MarkExpired(ctx, lot.ID); err != nil {
+			fmt.Printf("Warning: failed to mark lot %s as expired: %v\n", lot.ID, err)
+			continue
+		}
 
-        // Create audit log
-        auditLog := &inventoryRepo.InventoryAuditLog{
-            BaseModel:       *base.NewBaseModel("AUDIT", "small"),
-            LotID:           lot.ID,
-            Operation:       "expire",
-            QuantityBefore:  lot.AvailableQuantity.Add(lot.ReservedQuantity),
-            QuantityAfter:   lot.AvailableQuantity.Add(lot.ReservedQuantity),
-            QuantityChanged: decimal.Zero,
-            Reason:          "Automatic expiration processing",
-            UserID:          "system",
-            OrganizationID:  orgID,
-        }
+		// Create audit log
+		auditLog := &inventoryRepo.InventoryAuditLog{
+			BaseModel:       *base.NewBaseModel("AUDIT", "small"),
+			LotID:           lot.ID,
+			Operation:       "expire",
+			QuantityBefore:  lot.AvailableQuantity.Add(lot.ReservedQuantity),
+			QuantityAfter:   lot.AvailableQuantity.Add(lot.ReservedQuantity),
+			QuantityChanged: decimal.Zero,
+			Reason:          "Automatic expiration processing",
+			UserID:          "system",
+			OrganizationID:  orgID,
+		}
 
-        if err := s.inventoryRepo.CreateAuditLog(ctx, auditLog); err != nil {
-            fmt.Printf("Warning: failed to create audit log for expired lot %s: %v\n", lot.ID, err)
-        }
+		if err := s.inventoryRepo.CreateAuditLog(ctx, auditLog); err != nil {
+			fmt.Printf("Warning: failed to create audit log for expired lot %s: %v\n", lot.ID, err)
+		}
 
-        lot.Status = catalogModels.InventoryStatusExpired
-        processedLots = append(processedLots, lot)
-    }
+		lot.Status = catalogModels.InventoryStatusExpired
+		processedLots = append(processedLots, lot)
+	}
 
-    return processedLots, nil
+	return processedLots, nil
 }
 
 // MarkLotExpired manually marks a lot as expired
 func (s *inventoryService) MarkLotExpired(ctx context.Context, lotID, userID, orgID string) error {
-    // Get existing lot
-    lot, err := s.inventoryRepo.GetByID(ctx, lotID)
-    if err != nil {
-        return err
-    }
+	// Get existing lot
+	lot, err := s.inventoryRepo.GetByID(ctx, lotID)
+	if err != nil {
+		return err
+	}
 
-    // Check organization access
-    if lot.OrganizationID != orgID {
-        return fmt.Errorf("access denied: lot does not belong to organization")
-    }
+	// Check organization access
+	if lot.OrganizationID != orgID {
+		return fmt.Errorf("access denied: lot does not belong to organization")
+	}
 
-    // Check if lot can be expired
-    if lot.Status == catalogModels.InventoryStatusExpired {
-        return fmt.Errorf("lot is already expired")
-    }
+	// Check if lot can be expired
+	if lot.Status == catalogModels.InventoryStatusExpired {
+		return fmt.Errorf("lot is already expired")
+	}
 
-    if lot.Status == catalogModels.InventoryStatusSold {
-        return fmt.Errorf("cannot expire a sold lot")
-    }
+	if lot.Status == catalogModels.InventoryStatusSold {
+		return fmt.Errorf("cannot expire a sold lot")
+	}
 
-    // Mark as expired
-    if err := s.inventoryRepo.MarkExpired(ctx, lotID); err != nil {
-        return fmt.Errorf("failed to mark lot as expired: %w", err)
-    }
+	// Mark as expired
+	if err := s.inventoryRepo.MarkExpired(ctx, lotID); err != nil {
+		return fmt.Errorf("failed to mark lot as expired: %w", err)
+	}
 
-    // Create audit log
-    auditLog := &inventoryRepo.InventoryAuditLog{
-        BaseModel:       *base.NewBaseModel("AUDIT", "small"),
-        LotID:           lot.ID,
-        Operation:       "expire",
-        QuantityBefore:  lot.AvailableQuantity.Add(lot.ReservedQuantity),
-        QuantityAfter:   lot.AvailableQuantity.Add(lot.ReservedQuantity),
-        QuantityChanged: decimal.Zero,
-        Reason:          "Manual expiration",
-        UserID:          userID,
-        OrganizationID:  orgID,
-    }
+	// Create audit log
+	auditLog := &inventoryRepo.InventoryAuditLog{
+		BaseModel:       *base.NewBaseModel("AUDIT", "small"),
+		LotID:           lot.ID,
+		Operation:       "expire",
+		QuantityBefore:  lot.AvailableQuantity.Add(lot.ReservedQuantity),
+		QuantityAfter:   lot.AvailableQuantity.Add(lot.ReservedQuantity),
+		QuantityChanged: decimal.Zero,
+		Reason:          "Manual expiration",
+		UserID:          userID,
+		OrganizationID:  orgID,
+	}
 
-    if err := s.inventoryRepo.CreateAuditLog(ctx, auditLog); err != nil {
-        // Log error but don't fail the operation
-        fmt.Printf("Warning: failed to create audit log: %v\n", err)
-    }
+	if err := s.inventoryRepo.CreateAuditLog(ctx, auditLog); err != nil {
+		// Log error but don't fail the operation
+		fmt.Printf("Warning: failed to create audit log: %v\n", err)
+	}
 
-    return nil
+	return nil
 }
 
 // GetAuditTrail gets audit trail for a lot
 func (s *inventoryService) GetAuditTrail(ctx context.Context, lotID string, offset, limit int, userID, orgID string) (*AuditTrailResponse, error) {
-    // Get lot to check organization access
-    lot, err := s.inventoryRepo.GetByID(ctx, lotID)
-    if err != nil {
-        return nil, err
-    }
+	// Get lot to check organization access
+	lot, err := s.inventoryRepo.GetByID(ctx, lotID)
+	if err != nil {
+		return nil, err
+	}
 
-    // Check organization access
-    if lot.OrganizationID != orgID {
-        return nil, fmt.Errorf("access denied: lot does not belong to organization")
-    }
+	// Check organization access
+	if lot.OrganizationID != orgID {
+		return nil, fmt.Errorf("access denied: lot does not belong to organization")
+	}
 
-    // Set default pagination
-    if limit <= 0 {
-        limit = 20
-    }
-    if limit > 100 {
-        limit = 100
-    }
+	// Set default pagination
+	if limit <= 0 {
+		limit = 20
+	}
+	if limit > 100 {
+		limit = 100
+	}
 
-    // Get audit logs
-    logs, total, err := s.inventoryRepo.GetAuditLogs(ctx, lotID, offset, limit)
-    if err != nil {
-        return nil, fmt.Errorf("failed to get audit trail: %w", err)
-    }
+	// Get audit logs
+	logs, total, err := s.inventoryRepo.GetAuditLogs(ctx, lotID, offset, limit)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get audit trail: %w", err)
+	}
 
-    return &AuditTrailResponse{
-        Logs:   logs,
-        Total:  total,
-        Offset: offset,
-        Limit:  limit,
-    }, nil
+	return &AuditTrailResponse{
+		Logs:   logs,
+		Total:  total,
+		Offset: offset,
+		Limit:  limit,
+	}, nil
 }

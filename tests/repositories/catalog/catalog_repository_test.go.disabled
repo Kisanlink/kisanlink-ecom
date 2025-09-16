@@ -51,21 +51,27 @@ func (m *MockResult) RowsAffected() (int64, error) {
 }
 
 // Test helper functions
-func createTestCatalogItem() *catalogModels.CatalogItem {
-    item := &catalogModels.CatalogItem{
-        OrganizationID: "org-123",
-        ItemType:       catalogModels.CatalogItemTypeProduct,
-        Name:           "Test Product",
-        Description:    "Test Description",
-        BasePrice:      decimal.NewFromFloat(100.0),
-        Currency:       "INR",
-        Category:       "agriculture",
-        SKU:            "TEST-001",
-        IsActive:       true,
-        Visibility:     catalogModels.VisibilityTypeOrg,
-        Weight:         decimal.NewFromFloat(5.5),
-        Perishable:     true,
-        ShelfLifeDays:  30,
+func createTestProduct() *catalogModels.Product {
+    weight := decimal.NewFromFloat(5.5)
+    shelfLifeDays := 30
+    perishable := true
+
+    item := &catalogModels.Product{
+        CatalogItem: catalogModels.CatalogItem{
+            OrganizationID: "org-123",
+            ItemType:       catalogModels.CatalogItemTypeProduct,
+            Name:           "Test Product",
+            Description:    "Test Description",
+            BasePrice:      decimal.NewFromFloat(100.0),
+            Currency:       "INR",
+            Category:       "agriculture",
+            SKU:            "TEST-001",
+            IsActive:       true,
+            Visibility:     catalogModels.VisibilityOrg,
+        },
+        Weight:        &weight,
+        Perishable:    perishable,
+        ShelfLifeDays: &shelfLifeDays,
     }
     item.ID = "item-123"
     return item

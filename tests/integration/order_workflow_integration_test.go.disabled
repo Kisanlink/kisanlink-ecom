@@ -39,105 +39,7 @@ type OrderWorkflowIntegrationTestSuite struct {
     createdItemID  string
 }
 
-// MockAAAClient for integration testing
-type MockAAAClient struct {
-    users         map[string]*auth.UserContext
-    permissions   map[string]map[string]bool // userID -> resource:action -> allowed
-    organizations map[string][]string        // userID -> orgIDs
-}
 
-func NewMockAAAClient() *MockAAAClient {
-    return &MockAAAClient{
-        users:         make(map[string]*auth.UserContext),
-        permissions:   make(map[string]map[string]bool),
-        organizations: make(map[string][]string),
-    }
-}
-
-func (m *MockAAAClient) AddUser(userID string, userContext *auth.UserContext) {
-    m.users[userID] = userContext
-    if m.permissions[userID] == nil {
-        m.permissions[userID] = make(map[string]bool)
-    }
-}
-
-func (m *MockAAAClient) SetPermission(userID, resource, action string, allowed bool) {
-    if m.permissions[userID] == nil {
-        m.permissions[userID] = make(map[string]bool)
-    }
-    m.permissions[userID][resource+":"+action] = allowed
-}
-
-func (m *MockAAAClient) AddUserToOrganization(userID, orgID string) {
-    m.organizations[userID] = append(m.organizations[userID], orgID)
-}
-
-func (m *MockAAAClient) ValidateJWT(ctx context.Context, token string) (bool, error) {
-    return token != "", nil
-}
-
-func (m *MockAAAClient) GetUserFromToken(ctx context.Context, token string) (*auth.UserContext, error) {
-    // Extract user ID from token (simplified for testing)
-    userID := "user-123" // Default test user
-    if userContext, exists := m.users[userID]; exists {
-        return userContext, nil
-    }
-    return testutils.CreateTestUserContext(), nil
-}
-
-func (m *MockAAAClient) EvaluatePermission(ctx context.Context, userID, resource, action string) (bool, error) {
-    if userPerms, exists := m.permissions[userID]; exists {
-        if allowed, exists := userPerms[resource+":"+action]; exists {
-            return allowed, nil
-        }
-    }
-    return true, nil // Default allow for testing
-}
-
-func (m *MockAAAClient) ValidateUserOrganization(ctx context.Context, userID, orgID string) (bool, error) {
-    if orgs, exists := m.organizations[userID]; exists {
-        for _, org := range orgs {
-            if org == orgID {
-                return true, nil
-            }
-        }
-    }
-    return true, nil // Default allow for testing
-}
-
-// Implement other required methods as no-ops
-func (m *MockAAAClient) CreateUser(ctx context.Context, user *auth.AAAUser) (*auth.AAAUser, error) {
-    return user, nil
-}
-func (m *MockAAAClient) GetUser(ctx context.Context, userID string) (*auth.AAAUser, error) {
-    return &auth.AAAUser{ID: userID}, nil
-}
-func (m *MockAAAClient) UpdateUser(ctx context.Context, user *auth.AAAUser) (*auth.AAAUser, error) {
-    return user, nil
-}
-func (m *MockAAAClient) DeleteUser(ctx context.Context, userID string) error { return nil }
-func (m *MockAAAClient) AuthenticateUser(ctx context.Context, username, password string) (*auth.AuthenticationResponse, error) {
-    return testutils.CreateTestAuthenticationResponse(), nil
-}
-func (m *MockAAAClient) RefreshToken(ctx context.Context, refreshToken string) (*auth.AuthenticationResponse, error) {
-    return testutils.CreateTestAuthenticationResponse(), nil
-}
-func (m *MockAAAClient) GetUserRoles(ctx context.Context, userID string) ([]*auth.AAARole, error) {
-    return nil, nil
-}
-func (m *MockAAAClient) AssignRole(ctx context.Context, userID, roleID string) error { return nil }
-func (m *MockAAAClient) RemoveRole(ctx context.Context, userID, roleID string) error { return nil }
-func (m *MockAAAClient) GetUserPermissions(ctx context.Context, userID string) ([]string, error) {
-    return []string{}, nil
-}
-func (m *MockAAAClient) EvaluateResourcePermission(ctx context.Context, userID, resourceType, resourceID, action string) (bool, error) {
-    return true, nil
-}
-func (m *MockAAAClient) BulkEvaluatePermissions(ctx context.Context, userID string, permissions []auth.PermissionCheck) ([]auth.PermissionResult, error) {
-    return []auth.PermissionResult{}, nil
-}
-func (m *MockAAAClient) HealthCheck(ctx context.Context) error { return nil }
-func (m *MockAAAClient) Close() error                          { return nil }
 
 // SetupSuite initializes the test suite
 func (suite *OrderWorkflowIntegrationTestSuite) SetupSuite() {
@@ -145,7 +47,7 @@ func (suite *OrderWorkflowIntegrationTestSuite) SetupSuite() {
 
     // Initialize mock dependencies
     suite.mockDB = testutils.SetupMockDatabase()
-    suite.mockAAAClient = NewMockAAAClient()
+    suite.mockAAAClient = NewMockAAAClientWithService(NewMockAAAService())
 
     // Set up test users and permissions
     suite.setupTestUsers()

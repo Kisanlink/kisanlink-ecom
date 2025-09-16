@@ -2922,18 +2922,18 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-    Version:          "1.0",
-    Host:             "localhost:8080",
-    BasePath:         "/",
-    Schemes:          []string{},
-    Title:            "KisanLink E-commerce API",
-    Description:      "This is the KisanLink E-commerce service API.",
-    InfoInstanceName: "swagger",
-    SwaggerTemplate:  docTemplate,
-    LeftDelim:        "{{",
-    RightDelim:       "}}",
+	Version:          "1.0",
+	Host:             "localhost:8080",
+	BasePath:         "/",
+	Schemes:          []string{},
+	Title:            "KisanLink E-commerce API",
+	Description:      "This is the KisanLink E-commerce service API.",
+	InfoInstanceName: "swagger",
+	SwaggerTemplate:  docTemplate,
+	LeftDelim:        "{{",
+	RightDelim:       "}}",
 }
 
 func init() {
-    swag.Register(SwaggerInfo.InstanceName(), SwaggerInfo)
+	swag.Register(SwaggerInfo.InstanceName(), SwaggerInfo)
 }
