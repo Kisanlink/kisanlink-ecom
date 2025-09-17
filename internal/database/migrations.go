@@ -10,6 +10,7 @@ import (
 	// Import all entity models for migration
 	"kisanlink-ecom/entities/models/catalog"
 	"kisanlink-ecom/entities/models/discounts"
+	"kisanlink-ecom/entities/models/marketplace"
 	"kisanlink-ecom/entities/models/orders"
 	"kisanlink-ecom/entities/models/outbox"
 	"kisanlink-ecom/entities/models/pricing"
@@ -39,6 +40,11 @@ func RunAutoMigrations(dbManager *DatabaseManager) error {
 		&orders.Order{},
 		&orders.OrderItem{},
 		&orders.OrderStatusHistory{},
+
+		// Marketplace models
+		&marketplace.Listing{},
+		&marketplace.Bid{},
+		&marketplace.AuctionEvent{},
 
 		// Pricing models
 		&pricing.Price{},
@@ -143,6 +149,32 @@ func CreateIndexes(dbManager *DatabaseManager) error {
 		"CREATE INDEX IF NOT EXISTS idx_inventory_lots_product_org ON inventory_lots(product_id, organization_id)",
 		"CREATE INDEX IF NOT EXISTS idx_inventory_lots_lot_number ON inventory_lots(lot_number)",
 		"CREATE INDEX IF NOT EXISTS idx_inventory_lots_expiry_date ON inventory_lots(expiry_date)",
+
+		// Marketplace Listings - Core auction queries
+		"CREATE INDEX IF NOT EXISTS idx_marketplace_listings_status_expires ON marketplace_listings(status, expires_at)",
+		"CREATE INDEX IF NOT EXISTS idx_marketplace_listings_seller_status ON marketplace_listings(seller_id, status)",
+		"CREATE INDEX IF NOT EXISTS idx_marketplace_listings_org_status ON marketplace_listings(organization_id, status)",
+		"CREATE INDEX IF NOT EXISTS idx_marketplace_listings_product_status ON marketplace_listings(product_id, status)",
+		"CREATE INDEX IF NOT EXISTS idx_marketplace_listings_visibility_status ON marketplace_listings(visibility, status)",
+		"CREATE INDEX IF NOT EXISTS idx_marketplace_listings_auction_type ON marketplace_listings(auction_type, status)",
+		"CREATE INDEX IF NOT EXISTS idx_marketplace_listings_expires_status ON marketplace_listings(expires_at, status)",
+		"CREATE INDEX IF NOT EXISTS idx_marketplace_listings_asking_price ON marketplace_listings(asking_price)",
+		"CREATE INDEX IF NOT EXISTS idx_marketplace_listings_bid_count ON marketplace_listings(bid_count)",
+
+		// Marketplace Bids - Bidding operations and queries
+		"CREATE INDEX IF NOT EXISTS idx_marketplace_bids_listing_status ON marketplace_bids(listing_id, status)",
+		"CREATE INDEX IF NOT EXISTS idx_marketplace_bids_bidder_status ON marketplace_bids(bidder_id, status)",
+		"CREATE INDEX IF NOT EXISTS idx_marketplace_bids_listing_placed ON marketplace_bids(listing_id, placed_at)",
+		"CREATE INDEX IF NOT EXISTS idx_marketplace_bids_highest_bid ON marketplace_bids(listing_id, is_highest_bid)",
+		"CREATE INDEX IF NOT EXISTS idx_marketplace_bids_auto_bid ON marketplace_bids(listing_id, is_auto_bid)",
+		"CREATE INDEX IF NOT EXISTS idx_marketplace_bids_bid_amount ON marketplace_bids(listing_id, bid_amount)",
+		"CREATE INDEX IF NOT EXISTS idx_marketplace_bids_placed_at ON marketplace_bids(placed_at)",
+
+		// Auction Events - Event tracking and audit
+		"CREATE INDEX IF NOT EXISTS idx_auction_events_listing_type ON auction_events(listing_id, event_type)",
+		"CREATE INDEX IF NOT EXISTS idx_auction_events_listing_timestamp ON auction_events(listing_id, timestamp)",
+		"CREATE INDEX IF NOT EXISTS idx_auction_events_actor_type ON auction_events(actor_id, actor_type)",
+		"CREATE INDEX IF NOT EXISTS idx_auction_events_type_timestamp ON auction_events(event_type, timestamp)",
 
 		// Outbox Events - Event processing and status
 		"CREATE INDEX IF NOT EXISTS idx_outbox_events_status_created ON outbox_events(status, created_at)",
