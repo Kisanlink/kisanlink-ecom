@@ -325,7 +325,7 @@ func (suite *InventoryHandlerTestSuite) TestListInventoryLots_WithFilters() {
 	// Setup mock expectations
 	suite.mockService.On("ListInventoryLots", mock.Anything, mock.MatchedBy(func(filter *inventoryService.InventoryFilter) bool {
 		return filter.CatalogItemID == "prod_123" &&
-			filter.Status == catalogModels.InventoryStatusAvailable &&
+			filter.Status == catalogModels.LotStatusActive &&
 			filter.QualityGrade == "A"
 	}), suite.testUserID, suite.testOrgID).Return(mockResponse, nil)
 

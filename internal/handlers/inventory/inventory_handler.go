@@ -72,11 +72,11 @@ type InventoryAvailabilityResponse struct {
 // @Accept json
 // @Produce json
 // @Param request body CreateInventoryLotRequest true "Inventory lot creation request"
-// @Success 201 {object} common.Response{data=catalogModels.InventoryLot}
-// @Failure 400 {object} utils.ErrorResponse
-// @Failure 401 {object} utils.ErrorResponse
-// @Failure 403 {object} utils.ErrorResponse
-// @Failure 500 {object} utils.ErrorResponse
+// @Success 201 {object} common.Response
+// @Failure 400 {object} common.Response{error=common.ResponseError}
+// @Failure 401 {object} common.Response{error=common.ResponseError}
+// @Failure 403 {object} common.Response{error=common.ResponseError}
+// @Failure 500 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/inventory/lots [post]
 func (h *InventoryHandler) CreateInventoryLot(c *gin.Context) {
 	var req CreateInventoryLotRequest
@@ -158,12 +158,12 @@ func (h *InventoryHandler) CreateInventoryLot(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Inventory lot ID"
 // @Param request body UpdateInventoryLotRequest true "Inventory lot update request"
-// @Success 200 {object} utils.SuccessResponse{data=catalogModels.InventoryLot}
-// @Failure 400 {object} utils.ErrorResponse
-// @Failure 401 {object} utils.ErrorResponse
-// @Failure 403 {object} utils.ErrorResponse
-// @Failure 404 {object} utils.ErrorResponse
-// @Failure 500 {object} utils.ErrorResponse
+// @Success 200 {object} common.Response
+// @Failure 400 {object} common.Response{error=common.ResponseError}
+// @Failure 401 {object} common.Response{error=common.ResponseError}
+// @Failure 403 {object} common.Response{error=common.ResponseError}
+// @Failure 404 {object} common.Response{error=common.ResponseError}
+// @Failure 500 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/inventory/lots/{id} [patch]
 func (h *InventoryHandler) UpdateInventoryLot(c *gin.Context) {
 	lotID := c.Param("id")
@@ -252,11 +252,11 @@ func (h *InventoryHandler) UpdateInventoryLot(c *gin.Context) {
 // @Param quality_grade query string false "Filter by quality grade"
 // @Param offset query int false "Pagination offset" default(0)
 // @Param limit query int false "Pagination limit (max 100)" default(20)
-// @Success 200 {object} utils.SuccessResponse{data=inventoryService.InventoryListResponse}
-// @Failure 400 {object} utils.ErrorResponse
-// @Failure 401 {object} utils.ErrorResponse
-// @Failure 403 {object} utils.ErrorResponse
-// @Failure 500 {object} utils.ErrorResponse
+// @Success 200 {object} common.Response
+// @Failure 400 {object} common.Response{error=common.ResponseError}
+// @Failure 401 {object} common.Response{error=common.ResponseError}
+// @Failure 403 {object} common.Response{error=common.ResponseError}
+// @Failure 500 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/inventory/lots [get]
 func (h *InventoryHandler) ListInventoryLots(c *gin.Context) {
 	// Get user context
@@ -280,7 +280,7 @@ func (h *InventoryHandler) ListInventoryLots(c *gin.Context) {
 
 	// Parse status
 	if statusStr := c.Query("status"); statusStr != "" {
-		filter.Status = catalogModels.InventoryStatus(statusStr)
+		filter.Status = catalogModels.LotStatus(statusStr)
 	}
 
 	// Parse expiring_before date
@@ -328,12 +328,12 @@ func (h *InventoryHandler) ListInventoryLots(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "Inventory lot ID"
-// @Success 200 {object} utils.SuccessResponse{data=catalogModels.InventoryLot}
-// @Failure 400 {object} utils.ErrorResponse
-// @Failure 401 {object} utils.ErrorResponse
-// @Failure 403 {object} utils.ErrorResponse
-// @Failure 404 {object} utils.ErrorResponse
-// @Failure 500 {object} utils.ErrorResponse
+// @Success 200 {object} common.Response
+// @Failure 400 {object} common.Response{error=common.ResponseError}
+// @Failure 401 {object} common.Response{error=common.ResponseError}
+// @Failure 403 {object} common.Response{error=common.ResponseError}
+// @Failure 404 {object} common.Response{error=common.ResponseError}
+// @Failure 500 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/inventory/lots/{id} [get]
 func (h *InventoryHandler) GetInventoryLot(c *gin.Context) {
 	lotID := c.Param("id")
@@ -378,12 +378,12 @@ func (h *InventoryHandler) GetInventoryLot(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Inventory lot ID"
 // @Param request body AdjustInventoryRequest true "Inventory adjustment request"
-// @Success 200 {object} utils.SuccessResponse{data=catalogModels.InventoryLot}
-// @Failure 400 {object} utils.ErrorResponse
-// @Failure 401 {object} utils.ErrorResponse
-// @Failure 403 {object} utils.ErrorResponse
-// @Failure 404 {object} utils.ErrorResponse
-// @Failure 500 {object} utils.ErrorResponse
+// @Success 200 {object} common.Response
+// @Failure 400 {object} common.Response{error=common.ResponseError}
+// @Failure 401 {object} common.Response{error=common.ResponseError}
+// @Failure 403 {object} common.Response{error=common.ResponseError}
+// @Failure 404 {object} common.Response{error=common.ResponseError}
+// @Failure 500 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/inventory/lots/{id}/adjust [patch]
 func (h *InventoryHandler) AdjustInventoryQuantity(c *gin.Context) {
 	lotID := c.Param("id")
@@ -436,12 +436,12 @@ func (h *InventoryHandler) AdjustInventoryQuantity(c *gin.Context) {
 // @Produce json
 // @Param catalog_item_id path string true "Catalog item ID"
 // @Param required_quantity query number false "Required quantity to check" default(1)
-// @Success 200 {object} utils.SuccessResponse{data=InventoryAvailabilityResponse}
-// @Failure 400 {object} utils.ErrorResponse
-// @Failure 401 {object} utils.ErrorResponse
-// @Failure 403 {object} utils.ErrorResponse
-// @Failure 404 {object} utils.ErrorResponse
-// @Failure 500 {object} utils.ErrorResponse
+// @Success 200 {object} common.Response
+// @Failure 400 {object} common.Response{error=common.ResponseError}
+// @Failure 401 {object} common.Response{error=common.ResponseError}
+// @Failure 403 {object} common.Response{error=common.ResponseError}
+// @Failure 404 {object} common.Response{error=common.ResponseError}
+// @Failure 500 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/inventory/availability/{catalog_item_id} [get]
 func (h *InventoryHandler) CheckInventoryAvailability(c *gin.Context) {
 	catalogItemID := c.Param("catalog_item_id")
@@ -518,12 +518,12 @@ func (h *InventoryHandler) CheckInventoryAvailability(c *gin.Context) {
 // @Param id path string true "Inventory lot ID"
 // @Param offset query int false "Pagination offset" default(0)
 // @Param limit query int false "Pagination limit (max 100)" default(20)
-// @Success 200 {object} utils.SuccessResponse{data=inventoryService.AuditTrailResponse}
-// @Failure 400 {object} utils.ErrorResponse
-// @Failure 401 {object} utils.ErrorResponse
-// @Failure 403 {object} utils.ErrorResponse
-// @Failure 404 {object} utils.ErrorResponse
-// @Failure 500 {object} utils.ErrorResponse
+// @Success 200 {object} common.Response
+// @Failure 400 {object} common.Response{error=common.ResponseError}
+// @Failure 401 {object} common.Response{error=common.ResponseError}
+// @Failure 403 {object} common.Response{error=common.ResponseError}
+// @Failure 404 {object} common.Response{error=common.ResponseError}
+// @Failure 500 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/inventory/lots/{id}/audit [get]
 func (h *InventoryHandler) GetInventoryAuditTrail(c *gin.Context) {
 	lotID := c.Param("id")

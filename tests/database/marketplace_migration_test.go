@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"kisanlink-ecom/entities/models/marketplace"
-	"kisanlink-ecom/internal/config"
 	"kisanlink-ecom/internal/database"
 	"kisanlink-ecom/migrations"
+	"kisanlink-ecom/tests/testutils"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/db"
 	"github.com/shopspring/decimal"
@@ -21,27 +21,8 @@ func TestMarketplaceMigration(t *testing.T) {
 		t.Skip("Skipping integration test")
 	}
 
-	// Create test database configuration
-	cfg := config.MultiDatabaseConfig{
-		PostgreSQL: config.PostgreSQLConfig{
-			Host:            "localhost",
-			Port:            5432,
-			Database:        "kisanlink_ecom_test",
-			Username:        "postgres",
-			Password:        "password",
-			SSLMode:         "disable",
-			MaxOpenConns:    10,
-			MaxIdleConns:    5,
-			ConnMaxLifetime: 300,
-		},
-		DynamoDB: config.DynamoDBConfig{
-			Region:          "us-east-1",
-			Table:           "kisanlink_ecom_test",
-			AccessKeyID:     "test",
-			SecretAccessKey: "test",
-			DisableSSL:      true,
-		},
-	}
+	// Create test database configuration from environment variables
+	cfg := testutils.LoadTestDatabaseConfig()
 
 	// Create database manager
 	dbManager, err := database.NewDatabaseManager(cfg)
@@ -165,27 +146,8 @@ func TestMarketplaceAutoMigration(t *testing.T) {
 		t.Skip("Skipping integration test")
 	}
 
-	// Create test database configuration
-	cfg := config.MultiDatabaseConfig{
-		PostgreSQL: config.PostgreSQLConfig{
-			Host:            "localhost",
-			Port:            5432,
-			Database:        "kisanlink_ecom_test",
-			Username:        "postgres",
-			Password:        "password",
-			SSLMode:         "disable",
-			MaxOpenConns:    10,
-			MaxIdleConns:    5,
-			ConnMaxLifetime: 300,
-		},
-		DynamoDB: config.DynamoDBConfig{
-			Region:          "us-east-1",
-			Table:           "kisanlink_ecom_test",
-			AccessKeyID:     "test",
-			SecretAccessKey: "test",
-			DisableSSL:      true,
-		},
-	}
+	// Create test database configuration from environment variables
+	cfg := testutils.LoadTestDatabaseConfig()
 
 	// Create database manager
 	dbManager, err := database.NewDatabaseManager(cfg)

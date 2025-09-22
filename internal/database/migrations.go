@@ -3,23 +3,15 @@ package database
 import (
 	"context"
 	"fmt"
+	"kisanlink-ecom/entities/models"
 	"log"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/db"
-
-	// Import all entity models for migration
-	"kisanlink-ecom/entities/models/catalog"
-	"kisanlink-ecom/entities/models/discounts"
-	"kisanlink-ecom/entities/models/marketplace"
-	"kisanlink-ecom/entities/models/orders"
-	"kisanlink-ecom/entities/models/outbox"
-	"kisanlink-ecom/entities/models/pricing"
-	"kisanlink-ecom/entities/models/taxation"
 )
 
-// RunAutoMigrations runs auto-migrations for all models using kisanlink-db
+// RunAutoMigrations runs auto-migrations for all models using the simple GORM-only migrator
 func RunAutoMigrations(dbManager *DatabaseManager) error {
-	log.Println("Starting auto-migration using kisanlink-db...")
+	log.Println("Starting simple GORM auto-migration...")
 
 	// Get the PostgreSQL manager
 	pgManager := dbManager.GetManager(db.BackendGorm)
@@ -27,51 +19,52 @@ func RunAutoMigrations(dbManager *DatabaseManager) error {
 		return fmt.Errorf("PostgreSQL manager not available")
 	}
 
-	// Define all models to migrate
-	models := []interface{}{
-		// Catalog models
-		&catalog.CatalogItem{},
-		&catalog.Product{},
-		&catalog.Service{},
-		&catalog.Labour{},
-		&catalog.InventoryLot{},
-
-		// Order models
-		&orders.Order{},
-		&orders.OrderItem{},
-		&orders.OrderStatusHistory{},
-
-		// Marketplace models
-		&marketplace.Listing{},
-		&marketplace.Bid{},
-		&marketplace.AuctionEvent{},
-
-		// Pricing models
-		&pricing.Price{},
-		&pricing.PriceTier{},
-		&pricing.PriceRule{},
-
-		// Taxation models
-		&taxation.TaxRate{},
-		&taxation.TaxRule{},
-		&taxation.TaxExemption{},
-
-		// Discount models
-		&discounts.Discount{},
-		&discounts.DiscountRule{},
-		&discounts.DiscountUsage{},
-
-		// Outbox events
-		&outbox.OutboxEvent{},
+	// Create simple migrator
+	migrator, err := NewSimpleMigrator(pgManager)
+	if err != nil {
+		return fmt.Errorf("failed to create simple migrator: %w", err)
 	}
+
+	// Run migration with simple retry logic
+	if err := migrator.RunMigrations(); err != nil {
+		log.Printf("Migration failed: %v", err)
+
+		// If we're in development, offer force clean option
+		if migrator.isDevelopmentEnvironment() {
+			log.Println("Development environment detected. Attempting force clean migration...")
+			if forceErr := migrator.ForceCleanMigration(); forceErr != nil {
+				return fmt.Errorf("all migration attempts failed - original: %w, force: %v", err, forceErr)
+			}
+			log.Println("Force clean migration completed successfully")
+		} else {
+			return fmt.Errorf("migration failed: %w", err)
+		}
+	}
+
+	log.Println("Simple auto-migration completed successfully")
+	return nil
+}
+
+// RunAutoMigrationsLegacy runs the legacy auto-migration for backward compatibility
+func RunAutoMigrationsLegacy(dbManager *DatabaseManager) error {
+	log.Println("Starting legacy auto-migration using kisanlink-db...")
+
+	// Get the PostgreSQL manager
+	pgManager := dbManager.GetManager(db.BackendGorm)
+	if pgManager == nil {
+		return fmt.Errorf("PostgreSQL manager not available")
+	}
+
+	// Get all models from the registry
+	allModels := models.AllModels()
 
 	// Run auto-migration using kisanlink-db
 	ctx := context.Background()
-	if err := pgManager.AutoMigrateModels(ctx, models...); err != nil {
+	if err := pgManager.AutoMigrateModels(ctx, allModels...); err != nil {
 		return fmt.Errorf("auto-migration failed: %w", err)
 	}
 
-	log.Printf("Successfully migrated %d models", len(models))
+	log.Printf("Successfully migrated %d models", len(allModels))
 	return nil
 }
 
@@ -91,9 +84,15 @@ func CreateIndexes(dbManager *DatabaseManager) error {
 	}
 
 	// Get the raw database connection for executing raw SQL
-	db, err := postgresManager.GetDB(context.Background(), false)
+	database, err := postgresManager.GetDB(context.Background(), false)
 	if err != nil {
 		return fmt.Errorf("failed to get database connection: %w", err)
+	}
+
+	// Create catalog-specific performance indexes first
+	if err := CreateCatalogIndexes(pgManager); err != nil {
+		log.Printf("Warning: Failed to create catalog indexes: %v", err)
+		// Continue with other indexes
 	}
 
 	// Define performance indexes for common query patterns
@@ -185,7 +184,7 @@ func CreateIndexes(dbManager *DatabaseManager) error {
 	// Execute each index creation statement
 	successCount := 0
 	for i, indexSQL := range indexes {
-		if err := db.Exec(indexSQL).Error; err != nil {
+		if err := database.Exec(indexSQL).Error; err != nil {
 			log.Printf("Warning: Failed to create index %d: %v", i+1, err)
 			log.Printf("SQL: %s", indexSQL)
 			// Continue with other indexes instead of failing completely

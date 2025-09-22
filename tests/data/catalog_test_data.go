@@ -194,24 +194,25 @@ func GetTestInventoryLot() *catalogModels.InventoryLot {
 	expiryDate := time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)
 	lotPrice := decimal.NewFromFloat(25.50)
 
+	catalogItemID := "prod_123"
 	return &catalogModels.InventoryLot{
-		BaseModel:         *base.NewBaseModel("LOT", "large"),
-		CatalogItemID:     "prod_123",
-		OrganizationID:    "org_456",
-		LotNumber:         "LOT-2024-001",
-		BatchNumber:       "BATCH-001",
-		InitialQuantity:   decimal.NewFromFloat(100.0),
-		AvailableQuantity: decimal.NewFromFloat(85.0),
-		ReservedQuantity:  decimal.NewFromFloat(10.0),
-		SoldQuantity:      decimal.NewFromFloat(5.0),
-		QualityGrade:      "A",
-		HarvestDate:       &harvestDate,
-		ExpiryDate:        &expiryDate,
-		WarehouseLocation: "Warehouse A, Section 1",
-		StorageConditions: "Temperature controlled, humidity 60%",
-		LotPrice:          &lotPrice,
-		Status:            catalogModels.InventoryStatusAvailable,
-		Metadata:          `{"supplier": "Farm ABC", "notes": "Premium quality"}`,
+		BaseModel:      *base.NewBaseModel("LOT", "large"),
+		CatalogItemID:  &catalogItemID,
+		OrganizationID: "org_456",
+		LotNumber:      "LOT-2024-001",
+		BatchNumber:    "BATCH-001",
+		Quantity:       decimal.NewFromFloat(100.0),
+		AvailableQty:   decimal.NewFromFloat(85.0),
+		ReservedQty:    decimal.NewFromFloat(10.0),
+		UnitOfMeasure:  "kg",
+		QualityGrade:   "A",
+		HarvestDate:    &harvestDate,
+		ExpiryDate:     &expiryDate,
+		Warehouse:      "Warehouse A",
+		Zone:           "Section 1",
+		UnitCost:       lotPrice,
+		Status:         catalogModels.LotStatusActive,
+		Metadata:       `{"supplier": "Farm ABC", "notes": "Premium quality"}`,
 	}
 }
 
@@ -219,21 +220,22 @@ func GetTestInventoryLot() *catalogModels.InventoryLot {
 func GetTestInventoryLots() []*catalogModels.InventoryLot {
 	lot1 := GetTestInventoryLot()
 
+	catalogItemID2 := "prod_456"
 	lot2 := &catalogModels.InventoryLot{
-		BaseModel:         *base.NewBaseModel("LOT", "large"),
-		CatalogItemID:     "prod_456",
-		OrganizationID:    "org_456",
-		LotNumber:         "LOT-2024-002",
-		BatchNumber:       "BATCH-002",
-		InitialQuantity:   decimal.NewFromFloat(50.0),
-		AvailableQuantity: decimal.NewFromFloat(50.0),
-		ReservedQuantity:  decimal.Zero,
-		SoldQuantity:      decimal.Zero,
-		QualityGrade:      "B",
-		Status:            catalogModels.InventoryStatusAvailable,
-		WarehouseLocation: "Warehouse B, Section 2",
-		StorageConditions: "Ambient storage",
-		Metadata:          `{"supplier": "Farm XYZ"}`,
+		BaseModel:      *base.NewBaseModel("LOT", "large"),
+		CatalogItemID:  &catalogItemID2,
+		OrganizationID: "org_456",
+		LotNumber:      "LOT-2024-002",
+		BatchNumber:    "BATCH-002",
+		Quantity:       decimal.NewFromFloat(50.0),
+		AvailableQty:   decimal.NewFromFloat(50.0),
+		ReservedQty:    decimal.Zero,
+		UnitOfMeasure:  "kg",
+		QualityGrade:   "B",
+		Status:         catalogModels.LotStatusActive,
+		Warehouse:      "Warehouse B",
+		Zone:           "Section 2",
+		Metadata:       `{"supplier": "Farm XYZ"}`,
 	}
 
 	return []*catalogModels.InventoryLot{lot1, lot2}

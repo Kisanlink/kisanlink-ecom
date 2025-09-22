@@ -41,32 +41,212 @@ definitions:
       - password
       - username
     type: object
+  catalog.BulkOperationResponse:
+    properties:
+      error_messages:
+        example:
+          - Item not found
+          - Permission denied
+        items:
+          type: string
+        type: array
+      failure_count:
+        example: 2
+        type: integer
+      failure_items:
+        example:
+          - 123e4567-e89b-12d3-a456-426614174002
+          - 123e4567-e89b-12d3-a456-426614174003
+        items:
+          type: string
+        type: array
+      success_count:
+        example: 8
+        type: integer
+      success_items:
+        example:
+          - 123e4567-e89b-12d3-a456-426614174000
+          - 123e4567-e89b-12d3-a456-426614174001
+        items:
+          type: string
+        type: array
+      total_items:
+        example: 10
+        type: integer
+    type: object
+  catalog.BulkPriceUpdateItem:
+    properties:
+      base_price:
+        minimum: 0
+        type: number
+      currency:
+        type: string
+      id:
+        type: string
+    required:
+      - base_price
+      - id
+    type: object
+  catalog.BulkPriceUpdateRequest:
+    properties:
+      effective_date:
+        type: string
+      reason:
+        maxLength: 500
+        type: string
+      updates:
+        items:
+          $ref: "#/definitions/catalog.BulkPriceUpdateItem"
+        maxItems: 100
+        minItems: 1
+        type: array
+    required:
+      - updates
+    type: object
+  catalog.BulkPublishRequest:
+    properties:
+      effective_date:
+        type: string
+      item_ids:
+        items:
+          type: string
+        maxItems: 100
+        minItems: 1
+        type: array
+      visibility:
+        enum:
+          - PRIVATE
+          - ORG
+          - NETWORK
+          - PUBLIC
+        type: string
+    required:
+      - item_ids
+    type: object
+  catalog.BulkUpdateItem:
+    properties:
+      id:
+        type: string
+      updates:
+        $ref: "#/definitions/internal_handlers_catalog.UpdateCatalogItemRequest"
+    required:
+      - id
+      - updates
+    type: object
+  catalog.BulkUpdateRequest:
+    properties:
+      atomic:
+        type: boolean
+      items:
+        items:
+          $ref: "#/definitions/catalog.BulkUpdateItem"
+        maxItems: 100
+        minItems: 1
+        type: array
+    required:
+      - items
+    type: object
+  catalog.CatalogItemResponse:
+    properties:
+      attributes:
+        additionalProperties: true
+        type: object
+      base_price:
+        example: 25.5
+        type: number
+      category:
+        example: vegetables
+        type: string
+      created_at:
+        example: "2024-01-15T10:30:00Z"
+        type: string
+      currency:
+        example: INR
+        type: string
+      description:
+        example: Fresh organic tomatoes grown without pesticides
+        type: string
+      id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        type: string
+      images:
+        example:
+          - https://example.com/tomato1.jpg
+          - https://example.com/tomato2.jpg
+        items:
+          type: string
+        type: array
+      is_active:
+        example: true
+        type: boolean
+      item_type:
+        example: PRODUCT
+        type: string
+      name:
+        example: Organic Tomatoes
+        type: string
+      organization_id:
+        example: 123e4567-e89b-12d3-a456-426614174001
+        type: string
+      sku:
+        example: TOM-ORG-001
+        type: string
+      subcategory:
+        example: tomatoes
+        type: string
+      tags:
+        example:
+          - organic
+          - fresh
+          - local
+        items:
+          type: string
+        type: array
+      unit_of_measure:
+        example: kg
+        type: string
+      updated_at:
+        example: "2024-01-15T10:30:00Z"
+        type: string
+      visibility:
+        example: ORG
+        type: string
+    type: object
   catalog.CatalogItemType:
     enum:
       - PRODUCT
       - SERVICE
       - LABOUR
+      - CONTRACT
     type: string
     x-enum-varnames:
       - CatalogItemTypeProduct
       - CatalogItemTypeService
       - CatalogItemTypeLabour
+      - CatalogItemTypeContract
   catalog.CreateCatalogItemRequest:
     properties:
       attributes:
         additionalProperties: true
         type: object
       base_price:
-        minimum: 0
+        example: 25.5
         type: number
       category:
+        example: vegetables
         maxLength: 100
         type: string
       currency:
+        example: INR
         type: string
       description:
+        example: Fresh organic tomatoes grown without pesticides
+        maxLength: 2000
         type: string
       images:
+        example:
+          - https://example.com/tomato1.jpg
+          - https://example.com/tomato2.jpg
         items:
           type: string
         type: array
@@ -77,20 +257,31 @@ definitions:
           - PRODUCT
           - SERVICE
           - LABOUR
+          - CONTRACT
+        example: PRODUCT
       name:
+        example: Organic Tomatoes
         maxLength: 255
+        minLength: 1
         type: string
       sku:
+        example: TOM-ORG-001
         maxLength: 100
         type: string
       subcategory:
+        example: tomatoes
         maxLength: 100
         type: string
       tags:
+        example:
+          - organic
+          - fresh
+          - local
         items:
           type: string
         type: array
       unit_of_measure:
+        example: kg
         maxLength: 50
         type: string
       visibility:
@@ -101,10 +292,265 @@ definitions:
           - ORG
           - NETWORK
           - PUBLIC
+        example: ORG
     required:
       - base_price
       - item_type
       - name
+    type: object
+  catalog.CreateLabourRequest:
+    properties:
+      attributes:
+        additionalProperties: true
+        type: object
+      base_price:
+        example: 25.5
+        type: number
+      category:
+        example: vegetables
+        maxLength: 100
+        type: string
+      currency:
+        example: INR
+        type: string
+      description:
+        example: Fresh organic tomatoes grown without pesticides
+        maxLength: 2000
+        type: string
+      hourly_rate:
+        example: 75
+        minimum: 0
+        type: number
+      images:
+        example:
+          - https://example.com/tomato1.jpg
+          - https://example.com/tomato2.jpg
+        items:
+          type: string
+        type: array
+      item_type:
+        allOf:
+          - $ref: "#/definitions/catalog.CatalogItemType"
+        enum:
+          - PRODUCT
+          - SERVICE
+          - LABOUR
+          - CONTRACT
+        example: PRODUCT
+      name:
+        example: Organic Tomatoes
+        maxLength: 255
+        minLength: 1
+        type: string
+      skill_level:
+        example: experienced
+        maxLength: 50
+        type: string
+      sku:
+        example: TOM-ORG-001
+        maxLength: 100
+        type: string
+      subcategory:
+        example: tomatoes
+        maxLength: 100
+        type: string
+      tags:
+        example:
+          - organic
+          - fresh
+          - local
+        items:
+          type: string
+        type: array
+      unit_of_measure:
+        example: kg
+        maxLength: 50
+        type: string
+      visibility:
+        allOf:
+          - $ref: "#/definitions/catalog.VisibilityType"
+        enum:
+          - PRIVATE
+          - ORG
+          - NETWORK
+          - PUBLIC
+        example: ORG
+    required:
+      - base_price
+      - item_type
+      - name
+    type: object
+  catalog.CreateServiceRequest:
+    properties:
+      attributes:
+        additionalProperties: true
+        type: object
+      base_price:
+        example: 25.5
+        type: number
+      category:
+        example: vegetables
+        maxLength: 100
+        type: string
+      currency:
+        example: INR
+        type: string
+      description:
+        example: Fresh organic tomatoes grown without pesticides
+        maxLength: 2000
+        type: string
+      duration_minutes:
+        example: 120
+        minimum: 0
+        type: integer
+      images:
+        example:
+          - https://example.com/tomato1.jpg
+          - https://example.com/tomato2.jpg
+        items:
+          type: string
+        type: array
+      item_type:
+        allOf:
+          - $ref: "#/definitions/catalog.CatalogItemType"
+        enum:
+          - PRODUCT
+          - SERVICE
+          - LABOUR
+          - CONTRACT
+        example: PRODUCT
+      name:
+        example: Organic Tomatoes
+        maxLength: 255
+        minLength: 1
+        type: string
+      service_area:
+        additionalProperties: true
+        type: object
+      sku:
+        example: TOM-ORG-001
+        maxLength: 100
+        type: string
+      subcategory:
+        example: tomatoes
+        maxLength: 100
+        type: string
+      tags:
+        example:
+          - organic
+          - fresh
+          - local
+        items:
+          type: string
+        type: array
+      unit_of_measure:
+        example: kg
+        maxLength: 50
+        type: string
+      visibility:
+        allOf:
+          - $ref: "#/definitions/catalog.VisibilityType"
+        enum:
+          - PRIVATE
+          - ORG
+          - NETWORK
+          - PUBLIC
+        example: ORG
+    required:
+      - base_price
+      - item_type
+      - name
+    type: object
+  catalog.LabourResponse:
+    properties:
+      attributes:
+        additionalProperties: true
+        type: object
+      base_price:
+        example: 25.5
+        type: number
+      category:
+        example: vegetables
+        type: string
+      created_at:
+        example: "2024-01-15T10:30:00Z"
+        type: string
+      currency:
+        example: INR
+        type: string
+      description:
+        example: Fresh organic tomatoes grown without pesticides
+        type: string
+      hourly_rate:
+        example: 75
+        type: number
+      id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        type: string
+      images:
+        example:
+          - https://example.com/tomato1.jpg
+          - https://example.com/tomato2.jpg
+        items:
+          type: string
+        type: array
+      is_active:
+        example: true
+        type: boolean
+      item_type:
+        example: PRODUCT
+        type: string
+      name:
+        example: Organic Tomatoes
+        type: string
+      organization_id:
+        example: 123e4567-e89b-12d3-a456-426614174001
+        type: string
+      skill_level:
+        example: experienced
+        type: string
+      sku:
+        example: TOM-ORG-001
+        type: string
+      subcategory:
+        example: tomatoes
+        type: string
+      tags:
+        example:
+          - organic
+          - fresh
+          - local
+        items:
+          type: string
+        type: array
+      unit_of_measure:
+        example: kg
+        type: string
+      updated_at:
+        example: "2024-01-15T10:30:00Z"
+        type: string
+      visibility:
+        example: ORG
+        type: string
+    type: object
+  catalog.PriceUpdateRequest:
+    properties:
+      base_price:
+        minimum: 0
+        type: number
+      currency:
+        type: string
+      effective_date:
+        type: string
+      promotion_end_date:
+        type: string
+      promotional:
+        type: boolean
+      reason:
+        maxLength: 500
+        type: string
+    required:
+      - base_price
     type: object
   catalog.ProductResponse:
     properties:
@@ -112,98 +558,178 @@ definitions:
         additionalProperties: true
         type: object
       base_price:
+        example: 25.5
         type: number
       category:
+        example: vegetables
         type: string
       created_at:
+        example: "2024-01-15T10:30:00Z"
         type: string
       currency:
+        example: INR
         type: string
       description:
+        example: Fresh organic tomatoes grown without pesticides
         type: string
       dimensions:
         additionalProperties: true
         type: object
       id:
+        example: 123e4567-e89b-12d3-a456-426614174000
         type: string
       images:
+        example:
+          - https://example.com/tomato1.jpg
+          - https://example.com/tomato2.jpg
         items:
           type: string
         type: array
       is_active:
+        example: true
         type: boolean
       item_type:
+        example: PRODUCT
         type: string
       name:
+        example: Organic Tomatoes
         type: string
       organization_id:
+        example: 123e4567-e89b-12d3-a456-426614174001
         type: string
       perishable:
+        example: true
         type: boolean
       shelf_life_days:
+        example: 7
         type: integer
       sku:
+        example: TOM-ORG-001
         type: string
       subcategory:
+        example: tomatoes
         type: string
       tags:
+        example:
+          - organic
+          - fresh
+          - local
         items:
           type: string
         type: array
       unit_of_measure:
+        example: kg
         type: string
       updated_at:
+        example: "2024-01-15T10:30:00Z"
         type: string
       visibility:
+        example: ORG
         type: string
       weight:
+        example: 2.5
         type: number
     type: object
-  catalog.UpdateCatalogItemRequest:
+  catalog.PublishRequest:
     properties:
-      attributes:
-        additionalProperties: true
-        type: object
-      base_price:
-        minimum: 0
-        type: number
-      category:
-        maxLength: 100
+      effective_date:
         type: string
-      currency:
-        type: string
-      description:
-        type: string
-      images:
-        items:
-          type: string
-        type: array
-      is_active:
-        type: boolean
-      name:
-        maxLength: 255
-        type: string
-      sku:
-        maxLength: 100
-        type: string
-      subcategory:
-        maxLength: 100
-        type: string
-      tags:
-        items:
-          type: string
-        type: array
-      unit_of_measure:
-        maxLength: 50
+      notes:
+        maxLength: 500
         type: string
       visibility:
-        allOf:
-          - $ref: "#/definitions/catalog.VisibilityType"
         enum:
           - PRIVATE
           - ORG
           - NETWORK
           - PUBLIC
+        type: string
+    type: object
+  catalog.ServiceResponse:
+    properties:
+      attributes:
+        additionalProperties: true
+        type: object
+      base_price:
+        example: 25.5
+        type: number
+      category:
+        example: vegetables
+        type: string
+      created_at:
+        example: "2024-01-15T10:30:00Z"
+        type: string
+      currency:
+        example: INR
+        type: string
+      description:
+        example: Fresh organic tomatoes grown without pesticides
+        type: string
+      duration_minutes:
+        example: 120
+        type: integer
+      id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        type: string
+      images:
+        example:
+          - https://example.com/tomato1.jpg
+          - https://example.com/tomato2.jpg
+        items:
+          type: string
+        type: array
+      is_active:
+        example: true
+        type: boolean
+      item_type:
+        example: PRODUCT
+        type: string
+      name:
+        example: Organic Tomatoes
+        type: string
+      organization_id:
+        example: 123e4567-e89b-12d3-a456-426614174001
+        type: string
+      service_area:
+        additionalProperties: true
+        type: object
+      sku:
+        example: TOM-ORG-001
+        type: string
+      subcategory:
+        example: tomatoes
+        type: string
+      tags:
+        example:
+          - organic
+          - fresh
+          - local
+        items:
+          type: string
+        type: array
+      unit_of_measure:
+        example: kg
+        type: string
+      updated_at:
+        example: "2024-01-15T10:30:00Z"
+        type: string
+      visibility:
+        example: ORG
+        type: string
+    type: object
+  catalog.UnpublishRequest:
+    properties:
+      effective_date:
+        type: string
+      handle_active_orders:
+        enum:
+          - fulfill
+          - cancel
+          - transfer
+        type: string
+      reason:
+        maxLength: 500
+        type: string
     type: object
   catalog.VisibilityType:
     enum:
@@ -217,6 +743,32 @@ definitions:
       - VisibilityOrg
       - VisibilityNetwork
       - VisibilityPublic
+  common.APIError:
+    properties:
+      code:
+        type: string
+      context:
+        additionalProperties: true
+        type: object
+      details:
+        type: string
+      fields:
+        additionalProperties:
+          type: string
+        type: object
+      message:
+        type: string
+    type: object
+  common.APIResponse:
+    properties:
+      data: {}
+      error:
+        $ref: "#/definitions/common.APIError"
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
   common.HealthResponse:
     properties:
       message:
@@ -274,19 +826,29 @@ definitions:
   entities_requests_orders.Address:
     properties:
       city:
+        example: Rural City
         maxLength: 100
+        minLength: 1
         type: string
       country:
+        example: India
         maxLength: 100
+        minLength: 1
         type: string
       postal_code:
+        example: "411001"
         maxLength: 20
+        minLength: 1
         type: string
       state:
+        example: Maharashtra
         maxLength: 100
+        minLength: 1
         type: string
       street:
+        example: 123 Farm Road
         maxLength: 255
+        minLength: 1
         type: string
     required:
       - city
@@ -295,69 +857,1532 @@ definitions:
       - state
       - street
     type: object
-  handlers.CreatePermissionRequest:
+  health.Alert:
     properties:
-      description:
-        maxLength: 500
+      component:
+        type: string
+      level:
+        type: string
+      message:
+        type: string
+      resolved:
+        type: boolean
+      timestamp:
+        type: string
+    type: object
+  health.ComponentHealth:
+    properties:
+      details:
+        additionalProperties: true
+        type: object
+      duration:
+        description: Duration in milliseconds
+        type: integer
+      last_checked:
+        type: string
+      message:
         type: string
       name:
-        maxLength: 100
-        minLength: 1
         type: string
+      status:
+        $ref: "#/definitions/health.HealthStatus"
+    type: object
+  health.DashboardMetrics:
+    properties:
+      active_connections:
+        type: integer
+      avg_response_time_ms:
+        type: number
+      cpu_usage_percent:
+        type: number
+      error_rate:
+        type: number
+      memory_usage_percent:
+        type: number
+      requests_per_minute:
+        type: number
+    type: object
+  health.DatabaseMetrics:
+    properties:
+      connections:
+        type: integer
+      errors:
+        type: integer
+      latency_ms:
+        type: integer
+      status:
+        type: string
+    type: object
+  health.DependencyStatus:
+    properties:
+      last_checked:
+        type: string
+      latency_ms:
+        type: integer
+      message:
+        type: string
+      name:
+        type: string
+      status:
+        type: string
+      type:
+        type: string
+    type: object
+  health.DetailedHealthResponse:
+    properties:
+      dependencies:
+        additionalProperties:
+          $ref: "#/definitions/health.HealthCheck"
+        type: object
+      message:
+        type: string
+      status:
+        type: string
+      timestamp:
+        type: string
+      version:
+        type: string
+    type: object
+  health.GC:
+    properties:
+      last_gc:
+        type: string
+      next_gc_bytes:
+        type: integer
+      num_gc:
+        type: integer
+      pause_total_ns:
+        type: integer
+    type: object
+  health.HTTPMetrics:
+    properties:
+      avg_response_time_ms:
+        type: number
+      error_rate:
+        type: number
+      requests_per_sec:
+        type: number
+      requests_total:
+        type: integer
+    type: object
+  health.HealthCheck:
+    properties:
+      latency:
+        type: string
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  health.HealthResult:
+    properties:
+      healthy:
+        type: boolean
+      message:
+        type: string
+    type: object
+  health.HealthStatus:
+    enum:
+      - healthy
+      - unhealthy
+      - degraded
+      - unknown
+    type: string
+    x-enum-varnames:
+      - StatusHealthy
+      - StatusUnhealthy
+      - StatusDegraded
+      - StatusUnknown
+  health.Memory:
+    properties:
+      alloc_bytes:
+        type: integer
+      heap_alloc_bytes:
+        type: integer
+      heap_inuse_bytes:
+        type: integer
+      heap_released_bytes:
+        type: integer
+      heap_sys_bytes:
+        type: integer
+      num_gc:
+        type: integer
+      sys_bytes:
+        type: integer
+      total_alloc_bytes:
+        type: integer
+    type: object
+  health.MetricsResponse:
+    properties:
+      database:
+        $ref: "#/definitions/health.DatabaseMetrics"
+      http:
+        $ref: "#/definitions/health.HTTPMetrics"
+      system:
+        $ref: "#/definitions/health.SystemMetrics"
+    type: object
+  health.ServiceStatus:
+    properties:
+      environment:
+        type: string
+      name:
+        type: string
+      status:
+        type: string
+      uptime:
+        type: string
+      version:
+        type: string
+    type: object
+  health.StatusDashboard:
+    properties:
+      alerts:
+        items:
+          $ref: "#/definitions/health.Alert"
+        type: array
+      dependencies:
+        items:
+          $ref: "#/definitions/health.DependencyStatus"
+        type: array
+      last_updated:
+        type: string
+      metrics:
+        $ref: "#/definitions/health.DashboardMetrics"
+      service:
+        $ref: "#/definitions/health.ServiceStatus"
+    type: object
+  health.SystemHealth:
+    properties:
+      components:
+        additionalProperties:
+          $ref: "#/definitions/health.ComponentHealth"
+        type: object
+      duration:
+        description: Duration in milliseconds
+        type: integer
+      status:
+        $ref: "#/definitions/health.HealthStatus"
+      timestamp:
+        type: string
+      version:
+        type: string
+    type: object
+  health.SystemMetrics:
+    properties:
+      gc_stats:
+        $ref: "#/definitions/health.GC"
+      go_version:
+        type: string
+      memory_usage:
+        $ref: "#/definitions/health.Memory"
+      num_cpu:
+        type: integer
+      num_goroutines:
+        type: integer
+      uptime:
+        type: string
+    type: object
+  integrations.ApprovalStep:
+    properties:
+      assigned_to:
+        example: tech_reviewer_1
+        type: string
+      completed_at:
+        type: string
+      notes:
+        type: string
+      status:
+        example: PENDING
+        type: string
+      step_id:
+        example: step_1
+        type: string
+      step_name:
+        example: Technical Review
+        type: string
+    type: object
+  integrations.CatalogExportItem:
+    properties:
+      attributes:
+        additionalProperties: true
+        type: object
+      base_price:
+        description: Pricing
+        example: 25.5
+        type: number
+      category:
+        example: Seeds
+        type: string
+      change_type:
+        description: Delta sync metadata
+        example: UPDATED
+        type: string
+      created_at:
+        description: Change tracking
+        example: "2024-01-15T09:00:00Z"
+        type: string
+      currency:
+        example: INR
+        type: string
+      description:
+        example: Premium organic tomato seeds
+        type: string
+      duration_minutes:
+        description: Service-specific fields
+        example: 120
+        type: integer
+      external_id:
+        example: ext_789
+        type: string
+      global_id:
+        example: global_456
+        type: string
+      hourly_rate:
+        example: 75
+        type: number
+      id:
+        description: Item identification
+        example: item_123
+        type: string
+      images:
+        items:
+          type: string
+        type: array
+      is_active:
+        description: Availability & Visibility
+        example: true
+        type: boolean
+      item_type:
+        description: Item classification
+        example: PRODUCT
+        type: string
+      name:
+        description: Basic information
+        example: Organic Tomato Seeds
+        type: string
+      organization_id:
+        description: Organization scoping
+        example: org_123
+        type: string
+      perishable:
+        example: false
+        type: boolean
+      service_area:
+        example: Maharashtra
+        type: string
+      shelf_life_days:
+        example: 730
+        type: integer
+      skill_level:
+        description: Labour-specific fields
+        example: Expert
+        type: string
+      sku:
+        example: OTS-001
+        type: string
+      subcategory:
+        example: Vegetable Seeds
+        type: string
+      tags:
+        description: Metadata
+        example:
+          - organic
+          - certified
+        items:
+          type: string
+        type: array
+      unit_of_measure:
+        example: packet
+        type: string
+      updated_at:
+        example: "2024-01-15T10:00:00Z"
+        type: string
+      version:
+        example: 2
+        type: integer
+      visibility:
+        example: NETWORK
+        type: string
+      weight:
+        description: Product-specific fields
+        example: 0.1
+        type: number
+    type: object
+  integrations.CatalogExportResponse:
+    properties:
+      changed_since:
+        description: Delta sync information
+        example: "2024-01-15T10:00:00Z"
+        type: string
+      export_id:
+        description: Export metadata
+        example: export_123
+        type: string
+      filters:
+        allOf:
+          - $ref: "#/definitions/integrations.ExportFilters"
+        description: Filtering applied
+      generated_at:
+        example: "2024-01-15T10:30:00Z"
+        type: string
+      has_next_page:
+        example: true
+        type: boolean
+      items:
+        description: Catalog items
+        items:
+          $ref: "#/definitions/integrations.CatalogExportItem"
+        type: array
+      items_in_page:
+        example: 50
+        type: integer
+      next_watermark:
+        example: "2024-01-15T10:30:00Z"
+        type: string
+      page:
+        example: 1
+        type: integer
+      page_size:
+        example: 50
+        type: integer
+      total_items:
+        description: Data summary
+        example: 150
+        type: integer
+      watermark:
+        example: "2024-01-15T10:30:00Z"
+        type: string
+    type: object
+  integrations.CatalogItemProposal:
+    properties:
+      attributes:
+        additionalProperties: true
+        type: object
+      base_price:
+        description: Pricing
+        example: 25.5
+        type: number
+      category:
+        example: Seeds
+        type: string
+      currency:
+        example: INR
+        type: string
+      description:
+        example: Premium organic tomato seeds, certified by NPOP
+        type: string
+      duration_minutes:
+        description: Service-specific fields
+        example: 120
+        type: integer
+      external_id:
+        description: Item identification
+        example: ext_789
+        type: string
+      hourly_rate:
+        example: 75
+        type: number
+      images:
+        items:
+          type: string
+        type: array
+      is_active:
+        description: Availability
+        example: true
+        type: boolean
+      item_type:
+        enum:
+          - PRODUCT
+          - SERVICE
+          - LABOUR
+        example: PRODUCT
+        type: string
+      name:
+        description: Basic information
+        example: Organic Tomato Seeds
+        type: string
+      perishable:
+        example: false
+        type: boolean
+      service_area:
+        example: Maharashtra
+        type: string
+      shelf_life_days:
+        example: 730
+        type: integer
+      skill_level:
+        description: Labour-specific fields
+        example: Expert
+        type: string
+      sku:
+        example: OTS-001
+        type: string
+      subcategory:
+        example: Vegetable Seeds
+        type: string
+      tags:
+        description: Metadata
+        example:
+          - organic
+          - certified
+          - premium
+        items:
+          type: string
+        type: array
+      unit_of_measure:
+        example: packet
+        type: string
+      visibility:
+        enum:
+          - PRIVATE
+          - ORG
+          - NETWORK
+          - PUBLIC
+        example: NETWORK
+        type: string
+      weight:
+        description: Product-specific fields
+        example: 0.1
+        type: number
     required:
+      - base_price
+      - external_id
+      - item_type
       - name
     type: object
-  handlers.CreateRoleRequest:
+  integrations.CatalogProposalRequest:
     properties:
-      description:
-        maxLength: 500
+      catalog_item:
+        allOf:
+          - $ref: "#/definitions/integrations.CatalogItemProposal"
+        description: Catalog item data
+      notes:
+        example: New organic product line from certified supplier
         type: string
-      name:
-        maxLength: 100
-        minLength: 1
+      partner_id:
+        description: Partner identification
+        example: partner_123
+        type: string
+      partner_name:
+        example: FarmTech Solutions
+        type: string
+      priority:
+        enum:
+          - LOW
+          - MEDIUM
+          - HIGH
+          - URGENT
+        example: MEDIUM
+        type: string
+      proposal_id:
+        description: Proposal metadata
+        example: prop_456
+        type: string
+      proposal_type:
+        enum:
+          - CREATE
+          - UPDATE
+          - DELETE
+        example: CREATE
+        type: string
+      requires_approval:
+        description: Validation and approval
+        example: true
+        type: boolean
+      webhook_url:
+        description: Webhook for status updates
+        example: https://partner.example.com/webhooks/catalog
         type: string
     required:
-      - name
+      - catalog_item
+      - partner_id
+      - partner_name
+      - proposal_id
+      - proposal_type
     type: object
-  handlers.UpdatePermissionRequest:
+  integrations.CatalogProposalResponse:
     properties:
-      description:
-        maxLength: 500
+      approval_steps:
+        items:
+          $ref: "#/definitions/integrations.ApprovalStep"
+        type: array
+      estimated_review_time:
+        description: Processing details
+        example: 24
+        type: integer
+      priority:
+        example: MEDIUM
         type: string
-      name:
-        maxLength: 100
-        minLength: 1
+      proposal_id:
+        description: Proposal tracking
+        example: prop_456
         type: string
-    required:
-      - name
+      requires_approval:
+        description: Approval workflow
+        example: true
+        type: boolean
+      review_notes:
+        description: Feedback
+        example: Proposal looks good, pending final approval
+        type: string
+      reviewed_at:
+        example: "2024-01-15T11:00:00Z"
+        type: string
+      reviewer_id:
+        description: Review information
+        example: reviewer_123
+        type: string
+      status:
+        example: PENDING_REVIEW
+        type: string
+      submitted_at:
+        example: "2024-01-15T10:30:00Z"
+        type: string
+      tracking_url:
+        description: Tracking
+        example: https://api.kisanlink.com/api/v1/integrations/proposals/prop_456/status
+        type: string
+      webhook_url:
+        example: https://partner.example.com/webhooks/catalog
+        type: string
     type: object
-  handlers.UpdateRoleRequest:
+  integrations.ExportFilters:
     properties:
-      description:
-        maxLength: 500
+      category:
+        example: Seeds
         type: string
-      name:
-        maxLength: 100
-        minLength: 1
+      is_active:
+        example: true
+        type: boolean
+      item_type:
+        example: PRODUCT
+        type: string
+      organization_id:
+        example: org_123
+        type: string
+      visibility:
+        example: NETWORK
+        type: string
+    type: object
+  integrations.OrderAcknowledgementRequest:
+    properties:
+      acknowledged_at:
+        example: "2024-01-15T10:30:00Z"
+        type: string
+      assigned_to:
+        example: warehouse_team_1
+        type: string
+      estimated_processing_time:
+        description: Processing information
+        example: 24
+        type: integer
+      external_order_id:
+        example: ext_order_456
+        type: string
+      metadata:
+        additionalProperties: true
+        type: object
+      notes:
+        description: Additional metadata
+        example: Order received and queued for processing
+        type: string
+      order_id:
+        description: Order identification
+        example: order_123
+        type: string
+      partner_id:
+        description: Partner identification
+        example: partner_123
+        type: string
+      partner_name:
+        example: Logistics Partner
+        type: string
+      rejection_code:
+        example: INV_001
+        type: string
+      rejection_reason:
+        description: Rejection details (if status is REJECTED)
+        example: Insufficient inventory
+        type: string
+      status:
+        description: Acknowledgement details
+        enum:
+          - RECEIVED
+          - ACCEPTED
+          - REJECTED
+        example: ACCEPTED
+        type: string
+      webhook_url:
+        description: Webhook for status updates
+        example: https://partner.example.com/webhooks/orders
         type: string
     required:
-      - name
+      - acknowledged_at
+      - external_order_id
+      - order_id
+      - partner_id
+      - partner_name
+      - status
+    type: object
+  integrations.OrderAcknowledgementResponse:
+    properties:
+      acknowledgement_id:
+        description: Acknowledgement tracking
+        example: ack_789
+        type: string
+      assigned_to:
+        example: warehouse_team_1
+        type: string
+      estimated_processing_time:
+        description: Processing information
+        example: 24
+        type: integer
+      next_steps:
+        description: Next steps
+        example:
+          - Order will be processed within 24 hours
+        items:
+          type: string
+        type: array
+      order_id:
+        example: order_123
+        type: string
+      partner_id:
+        description: Partner information
+        example: partner_123
+        type: string
+      partner_name:
+        example: Logistics Partner
+        type: string
+      processed_at:
+        example: "2024-01-15T10:30:00Z"
+        type: string
+      status:
+        example: ACKNOWLEDGED
+        type: string
+      tracking_url:
+        description: Tracking
+        example: https://api.kisanlink.com/api/v1/orders/order_123/status
+        type: string
+      webhook_url:
+        example: https://partner.example.com/webhooks/orders
+        type: string
+    type: object
+  integrations.ProposalStatusResponse:
+    properties:
+      approval_steps:
+        description: Approval workflow
+        items:
+          $ref: "#/definitions/integrations.ApprovalStep"
+        type: array
+      approved_at:
+        example: "2024-01-15T11:30:00Z"
+        type: string
+      catalog_item_id:
+        description: Result
+        example: item_123
+        type: string
+      proposal_id:
+        example: prop_456
+        type: string
+      rejection_reason:
+        example: Duplicate item
+        type: string
+      review_notes:
+        example: Approved with minor modifications
+        type: string
+      reviewed_at:
+        example: "2024-01-15T11:00:00Z"
+        type: string
+      reviewer_id:
+        description: Review details
+        example: reviewer_123
+        type: string
+      status:
+        example: APPROVED
+        type: string
+      submitted_at:
+        example: "2024-01-15T10:30:00Z"
+        type: string
+    type: object
+  integrations.WebhookValidationResponse:
+    properties:
+      message:
+        example: Signature validated successfully
+        type: string
+      partner_id:
+        example: partner_123
+        type: string
+      timestamp:
+        example: "2024-01-15T10:30:00Z"
+        type: string
+      valid:
+        example: true
+        type: boolean
+    type: object
+  internal_handlers_catalog.UpdateCatalogItemRequest:
+    properties:
+      attributes:
+        additionalProperties: true
+        type: object
+      base_price:
+        type: number
+      category:
+        maxLength: 100
+        type: string
+      currency:
+        type: string
+      description:
+        type: string
+      images:
+        items:
+          type: string
+        type: array
+      is_active:
+        type: boolean
+      name:
+        maxLength: 255
+        type: string
+      sku:
+        maxLength: 100
+        type: string
+      subcategory:
+        maxLength: 100
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      unit_of_measure:
+        maxLength: 50
+        type: string
+      visibility:
+        enum:
+          - PRIVATE
+          - ORG
+          - NETWORK
+          - PUBLIC
+        type: string
+    type: object
+  internal_handlers_inventory.CreateInventoryLotRequest:
+    properties:
+      batch_number:
+        example: BATCH-001
+        type: string
+      catalog_item_id:
+        example: prod_123
+        type: string
+      expiry_date:
+        example: "2024-12-31"
+        type: string
+      harvest_date:
+        example: "2024-01-15"
+        type: string
+      initial_quantity:
+        example: 100.5
+        type: number
+      lot_number:
+        example: LOT-2024-001
+        type: string
+      lot_price:
+        example: 25.5
+        type: number
+      metadata:
+        example: '{"supplier": "Farm ABC"}'
+        type: string
+      quality_grade:
+        example: A
+        type: string
+      storage_conditions:
+        example: Temperature controlled, humidity 60%
+        type: string
+      warehouse_location:
+        example: Warehouse A, Section 1
+        type: string
+    required:
+      - catalog_item_id
+      - initial_quantity
+      - lot_number
+    type: object
+  internal_handlers_inventory.UpdateInventoryLotRequest:
+    properties:
+      expiry_date:
+        example: "2024-12-31"
+        type: string
+      harvest_date:
+        example: "2024-01-15"
+        type: string
+      lot_price:
+        example: 30
+        type: number
+      metadata:
+        example: '{"notes": "Quality improved"}'
+        type: string
+      quality_grade:
+        example: A+
+        type: string
+      storage_conditions:
+        example: Refrigerated, humidity 50%
+        type: string
+      warehouse_location:
+        example: Warehouse B, Section 2
+        type: string
+    type: object
+  internal_handlers_marketplace.AuctionSummary:
+    properties:
+      end_time:
+        example: "2024-01-14T15:00:00Z"
+        type: string
+      listing_id:
+        example: LST_1234567890
+        type: string
+      participants:
+        example: 8
+        type: integer
+      start_time:
+        example: "2024-01-14T10:00:00Z"
+        type: string
+      status:
+        allOf:
+          - $ref: "#/definitions/marketplace.ListingStatus"
+        example: CLOSED
+      title:
+        example: Auction for Product PROD_123
+        type: string
+      total_bids:
+        example: 12
+        type: integer
+      winner_id:
+        example: USER_456
+        type: string
+      winning_bid:
+        example: "1500.00"
+        type: string
+    type: object
+  internal_handlers_marketplace.FilteredBidStatistics:
+    properties:
+      average_bid:
+        example: "1200.00"
+        type: string
+      bid_range:
+        example: 800.00 - 1500.00
+        type: string
+      highest_bid:
+        example: "1500.00"
+        type: string
+      listing_id:
+        example: LST_1234567890
+        type: string
+      participant_info:
+        example: 8 unique bidders
+        type: string
+      total_bids:
+        example: 12
+        type: integer
+      visible_bids:
+        example: 8
+        type: integer
+    type: object
+  internal_handlers_marketplace.HistoricalBidData:
+    properties:
+      access_level:
+        example: FULL
+        type: string
+      bids:
+        items:
+          $ref: "#/definitions/marketplace.BidResponse"
+        type: array
+      data_available:
+        example: true
+        type: boolean
+      listing_id:
+        example: LST_1234567890
+        type: string
+      requested_by:
+        example: USER_123
+        type: string
+      time_range:
+        example: 2024-01-14T10:00:00Z to 2024-01-14T15:00:00Z
+        type: string
+      total_bids:
+        example: 12
+        type: integer
+    type: object
+  internal_handlers_marketplace.PlaceBidRequest:
+    properties:
+      auto_bid_limit:
+        example: "1500.00"
+        type: string
+      bid_amount:
+        example: "1200.00"
+        type: string
+      message:
+        example: Interested in bulk purchase
+        type: string
+      quantity:
+        example: "100.5"
+        type: string
+    required:
+      - bid_amount
+      - quantity
+    type: object
+  internal_handlers_marketplace.RevealedAuctionResults:
+    properties:
+      auction_end_time:
+        example: "2024-01-14T15:00:00Z"
+        type: string
+      listing_id:
+        example: LST_1234567890
+        type: string
+      results_available:
+        example: true
+        type: boolean
+      status:
+        allOf:
+          - $ref: "#/definitions/marketplace.ListingStatus"
+        example: CLOSED
+      total_bids:
+        example: 12
+        type: integer
+      winner_id:
+        example: USER_456
+        type: string
+      winning_bid:
+        example: "1500.00"
+        type: string
+    type: object
+  inventory.AdjustInventoryRequest:
+    properties:
+      adjustment:
+        example: 10.5
+        type: number
+      reason:
+        example: Stock correction after physical count
+        type: string
+    required:
+      - adjustment
+      - reason
+    type: object
+  marketplace.ActorType:
+    enum:
+      - USER
+      - SYSTEM
+      - ADMIN
+    type: string
+    x-enum-varnames:
+      - ActorTypeUser
+      - ActorTypeSystem
+      - ActorTypeAdmin
+  marketplace.AuctionEventType:
+    enum:
+      - LISTING_CREATED
+      - BID_PLACED
+      - BID_OUTBID
+      - AUTO_BID_TRIGGERED
+      - LISTING_CLOSED
+      - LISTING_EXPIRED
+      - LISTING_CANCELLED
+      - BID_REMOVED
+      - LISTING_UPDATED
+    type: string
+    x-enum-varnames:
+      - EventListingCreated
+      - EventBidPlaced
+      - EventBidOutbid
+      - EventAutoBidTriggered
+      - EventListingClosed
+      - EventListingExpired
+      - EventListingCancelled
+      - EventBidRemoved
+      - EventListingUpdated
+  marketplace.AuctionType:
+    enum:
+      - OPEN
+      - CLOSED
+    type: string
+    x-enum-comments:
+      AuctionTypeClosed: Bid prices hidden until auction ends
+      AuctionTypeOpen: All bid prices visible during auction
+    x-enum-descriptions:
+      - All bid prices visible during auction
+      - Bid prices hidden until auction ends
+    x-enum-varnames:
+      - AuctionTypeOpen
+      - AuctionTypeClosed
+  marketplace.AuditEventResponse:
+    properties:
+      actor_id:
+        example: USER_456
+        type: string
+      actor_type:
+        allOf:
+          - $ref: "#/definitions/marketplace.ActorType"
+        example: USER
+      event_id:
+        example: EVT_1234567890
+        type: string
+      event_type:
+        allOf:
+          - $ref: "#/definitions/marketplace.AuctionEventType"
+        example: BID_PLACED
+      id:
+        example: uuid-123
+        type: string
+      listing_id:
+        example: LST_1234567890
+        type: string
+      summary:
+        example: Bid placed on listing LST_1234567890 by USER_456
+        type: string
+      timestamp:
+        example: "2024-01-14T10:30:00Z"
+        type: string
+    type: object
+  marketplace.AuditLogResponse:
+    properties:
+      events:
+        items:
+          $ref: "#/definitions/marketplace.AuditEventResponse"
+        type: array
+      pagination:
+        $ref: "#/definitions/common.PaginationMeta"
+    type: object
+  marketplace.BidHistoryResponse:
+    properties:
+      bid_visibility:
+        example: FULL
+        type: string
+      bids:
+        items:
+          $ref: "#/definitions/marketplace.BidResponse"
+        type: array
+      can_view_bids:
+        example: true
+        type: boolean
+      highest_bid:
+        $ref: "#/definitions/marketplace.BidResponse"
+      last_updated:
+        example: "2024-01-14T10:30:00Z"
+        type: string
+      listing_id:
+        example: LST_1234567890
+        type: string
+      total_bids:
+        example: 5
+        type: integer
+    type: object
+  marketplace.BidListResponse:
+    properties:
+      bids:
+        items:
+          $ref: "#/definitions/marketplace.BidResponse"
+        type: array
+      pagination:
+        $ref: "#/definitions/common.PaginationMeta"
+    type: object
+  marketplace.BidResponse:
+    properties:
+      auto_bid_limit:
+        example: "1500.00"
+        type: string
+      bid_amount:
+        example: "1200.00"
+        type: string
+      bid_id:
+        example: BID_1234567890
+        type: string
+      bidder_id:
+        example: USER_456
+        type: string
+      currency:
+        example: INR
+        type: string
+      id:
+        example: uuid-123
+        type: string
+      is_auto_bid:
+        example: false
+        type: boolean
+      is_highest_bid:
+        example: true
+        type: boolean
+      is_own_bid:
+        example: false
+        type: boolean
+      listing_id:
+        example: LST_1234567890
+        type: string
+      message:
+        example: Interested in bulk purchase
+        type: string
+      outbid_at:
+        example: "2024-01-14T11:30:00Z"
+        type: string
+      placed_at:
+        example: "2024-01-14T10:30:00Z"
+        type: string
+      quantity:
+        example: "100.5"
+        type: string
+      status:
+        allOf:
+          - $ref: "#/definitions/marketplace.BidStatus"
+        example: ACTIVE
+    type: object
+  marketplace.BidStatus:
+    enum:
+      - ACTIVE
+      - OUTBID
+      - WINNING
+      - EXPIRED
+      - REMOVED
+    type: string
+    x-enum-varnames:
+      - BidStatusActive
+      - BidStatusOutbid
+      - BidStatusWinning
+      - BidStatusExpired
+      - BidStatusRemoved
+  marketplace.BidVisibility:
+    enum:
+      - FULL
+      - PARTIAL
+      - MINIMAL
+      - HIDDEN
+    type: string
+    x-enum-comments:
+      BidVisibilityFull: Show all bid details based on auction type
+      BidVisibilityHidden: No bid information visible
+      BidVisibilityMinimal: Show only bid count
+      BidVisibilityPartial: Show bid count and highest amount only
+    x-enum-descriptions:
+      - Show all bid details based on auction type
+      - Show bid count and highest amount only
+      - Show only bid count
+      - No bid information visible
+    x-enum-varnames:
+      - BidVisibilityFull
+      - BidVisibilityPartial
+      - BidVisibilityMinimal
+      - BidVisibilityHidden
+  marketplace.ForceCloseListingRequest:
+    properties:
+      reason:
+        example: Policy violation - fraudulent listing
+        type: string
+    required:
+      - reason
+    type: object
+  marketplace.ListingListResponse:
+    properties:
+      listings:
+        items:
+          $ref: "#/definitions/marketplace.ListingResponse"
+        type: array
+      pagination:
+        $ref: "#/definitions/common.PaginationMeta"
+    type: object
+  marketplace.ListingResponse:
+    properties:
+      asking_price:
+        example: "1500.00"
+        type: string
+      auction_type:
+        allOf:
+          - $ref: "#/definitions/marketplace.AuctionType"
+        example: OPEN
+      bid_count:
+        example: 5
+        type: integer
+      bid_visibility:
+        allOf:
+          - $ref: "#/definitions/marketplace.BidVisibility"
+        example: FULL
+      close_reason:
+        example: Auction completed
+        type: string
+      closed_at:
+        example: "2024-01-15T09:30:00Z"
+        type: string
+      created_at:
+        example: "2024-01-14T10:30:00Z"
+        type: string
+      currency:
+        example: INR
+        type: string
+      current_highest_bid_id:
+        example: BID_987654321
+        type: string
+      expires_at:
+        example: "2024-01-15T10:30:00Z"
+        type: string
+      id:
+        example: uuid-123
+        type: string
+      listing_duration_hours:
+        example: 24
+        type: integer
+      listing_id:
+        example: LST_1234567890
+        type: string
+      minimum_bid:
+        example: "1000.00"
+        type: string
+      organization_id:
+        example: ORG_789
+        type: string
+      pickup_location:
+        $ref: "#/definitions/marketplace.Location"
+      product_id:
+        example: PROD_123
+        type: string
+      quantity:
+        example: "100.5"
+        type: string
+      seller_id:
+        example: USER_456
+        type: string
+      status:
+        allOf:
+          - $ref: "#/definitions/marketplace.ListingStatus"
+        example: ACTIVE
+      terms_conditions:
+        example: Pickup within 7 days
+        type: string
+      time_remaining:
+        example: 23h 45m
+        type: string
+      updated_at:
+        example: "2024-01-14T10:30:00Z"
+        type: string
+      visibility:
+        allOf:
+          - $ref: "#/definitions/marketplace.ListingVisibility"
+        example: PUBLIC
+    type: object
+  marketplace.ListingStatus:
+    enum:
+      - ACTIVE
+      - CLOSED
+      - EXPIRED
+      - CANCELLED
+      - EXPIRED_NO_BIDS
+    type: string
+    x-enum-varnames:
+      - ListingStatusActive
+      - ListingStatusClosed
+      - ListingStatusExpired
+      - ListingStatusCancelled
+      - ListingStatusExpiredNoBids
+  marketplace.ListingVisibility:
+    enum:
+      - PRIVATE
+      - PUBLIC
+      - NETWORK
+      - ORGANIZATION
+    type: string
+    x-enum-comments:
+      VisibilityNetwork: Network/partner organizations
+      VisibilityOrganization: Same organization only
+      VisibilityPrivate: Only invited participants
+      VisibilityPublic: Open to all users
+    x-enum-descriptions:
+      - Only invited participants
+      - Open to all users
+      - Network/partner organizations
+      - Same organization only
+    x-enum-varnames:
+      - VisibilityPrivate
+      - VisibilityPublic
+      - VisibilityNetwork
+      - VisibilityOrganization
+  marketplace.Location:
+    properties:
+      address:
+        type: string
+      city:
+        type: string
+      country:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      postal_code:
+        type: string
+      state:
+        type: string
+    type: object
+  marketplace.MarketplaceStatsResponse:
+    properties:
+      active_listings:
+        example: 450
+        type: integer
+      average_bids_per_listing:
+        example: 4.5
+        type: number
+      average_listing_value:
+        example: "2000.00"
+        type: string
+      closed_listings:
+        example: 600
+        type: integer
+      expired_listings:
+        example: 200
+        type: integer
+      total_bids:
+        example: 5670
+        type: integer
+      total_listings:
+        example: 1250
+        type: integer
+      total_value:
+        example: "2500000.00"
+        type: string
+    type: object
+  marketplace.RemoveBidRequest:
+    properties:
+      reason:
+        example: Fraudulent bid detected
+        type: string
+    required:
+      - reason
+    type: object
+  orders.AddressResponse:
+    properties:
+      city:
+        example: Rural City
+        type: string
+      country:
+        example: India
+        type: string
+      postal_code:
+        example: "411001"
+        type: string
+      state:
+        example: Maharashtra
+        type: string
+      street:
+        example: 123 Farm Road
+        type: string
+    type: object
+  orders.BidInfo:
+    properties:
+      bid_amount:
+        type: number
+      bid_id:
+        type: string
+      bidder_id:
+        type: string
+      currency:
+        type: string
+      is_winning:
+        type: boolean
+      placed_at:
+        type: string
+    type: object
+  orders.BidOrderValidationRequest:
+    properties:
+      bid_id:
+        example: BID_1234567890
+        type: string
+    required:
+      - bid_id
+    type: object
+  orders.BidOrderValidationResponse:
+    properties:
+      bid_id:
+        example: BID_1234567890
+        type: string
+      buyer_id:
+        example: USER_0987654321
+        type: string
+      buyer_org_id:
+        example: ORG_0987654321
+        type: string
+      can_create_order:
+        type: boolean
+      currency:
+        example: INR
+        type: string
+      expires_at:
+        example: "2024-12-31T23:59:59Z"
+        type: string
+      listing_id:
+        example: LST_1234567890
+        type: string
+      product_id:
+        example: PROD_1234567890
+        type: string
+      product_name:
+        example: Organic Tomatoes
+        type: string
+      product_sku:
+        example: ORG-TOM-001
+        type: string
+      quantity:
+        example: 10.5
+        type: number
+      seller_id:
+        example: USER_1234567890
+        type: string
+      seller_org_id:
+        example: ORG_1234567890
+        type: string
+      valid:
+        type: boolean
+      validation_error:
+        type: string
+      winning_amount:
+        example: 150
+        type: number
+    type: object
+  orders.CreateOrderFromBidRequest:
+    properties:
+      bid_id:
+        example: BID_1234567890
+        type: string
+      notes:
+        example: Please deliver during business hours
+        maxLength: 1000
+        type: string
+      payment_method:
+        enum:
+          - credit_card
+          - debit_card
+          - bank_transfer
+          - upi
+          - cash_on_delivery
+        example: upi
+        type: string
+      shipping_address:
+        $ref: "#/definitions/entities_requests_orders.Address"
+    required:
+      - bid_id
+      - payment_method
+      - shipping_address
     type: object
   orders.CreateOrderItemRequest:
     properties:
       catalog_item_id:
+        example: 123e4567-e89b-12d3-a456-426614174002
         type: string
       catalog_item_type:
         enum:
           - product
           - service
           - labour
+        example: product
         type: string
       notes:
+        example: Organic variety preferred
+        maxLength: 500
         type: string
       quantity:
+        example: 10.5
         type: number
       unit_price:
+        example: 25.5
         minimum: 0
         type: number
     required:
@@ -369,6 +2394,7 @@ definitions:
   orders.CreateOrderRequest:
     properties:
       buyer_organization_id:
+        example: 123e4567-e89b-12d3-a456-426614174000
         type: string
       items:
         items:
@@ -379,8 +2405,11 @@ definitions:
         additionalProperties: true
         type: object
       notes:
+        example: Special delivery instructions
+        maxLength: 1000
         type: string
       seller_organization_id:
+        example: 123e4567-e89b-12d3-a456-426614174001
         type: string
       shipping_address:
         $ref: "#/definitions/entities_requests_orders.Address"
@@ -389,86 +2418,149 @@ definitions:
       - items
       - seller_organization_id
     type: object
-  orders.OrderItemResponse:
+  orders.ListingInfo:
     properties:
-      catalog_item_id:
+      closed_at:
         type: string
-      catalog_item_name:
+      listing_id:
         type: string
-      catalog_item_sku:
+      product_id:
         type: string
-      catalog_item_type:
+      product_name:
         type: string
-      created_at:
-        type: string
-      discount_amount:
-        type: number
-      discount_rate:
-        type: number
-      id:
-        type: string
-      metadata:
-        type: string
-      order_id:
+      product_sku:
         type: string
       quantity:
         type: number
+      seller_id:
+        type: string
+      seller_org_id:
+        type: string
+    type: object
+  orders.OrderFromBidResponse:
+    properties:
+      bid:
+        $ref: "#/definitions/orders.BidInfo"
+      listing:
+        $ref: "#/definitions/orders.ListingInfo"
+      message:
+        type: string
+      order:
+        $ref: "#/definitions/orders.OrderResponse"
+    type: object
+  orders.OrderItemResponse:
+    properties:
+      catalog_item_id:
+        example: 123e4567-e89b-12d3-a456-426614174005
+        type: string
+      catalog_item_name:
+        example: Organic Tomatoes
+        type: string
+      catalog_item_sku:
+        example: TOM-ORG-001
+        type: string
+      catalog_item_type:
+        example: product
+        type: string
+      created_at:
+        example: "2024-01-15T10:30:00Z"
+        type: string
+      discount_amount:
+        example: 0
+        type: number
+      discount_rate:
+        example: 0
+        type: number
+      id:
+        example: 123e4567-e89b-12d3-a456-426614174004
+        type: string
+      metadata:
+        additionalProperties: true
+        type: object
+      order_id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        type: string
+      quantity:
+        example: 10.5
+        type: number
       tax_amount:
+        example: 26.78
         type: number
       tax_rate:
+        example: 0.1
         type: number
       total_price:
+        example: 267.75
         type: number
       unit_price:
+        example: 25.5
         type: number
       updated_at:
+        example: "2024-01-15T10:30:00Z"
         type: string
     type: object
   orders.OrderResponse:
     properties:
       actual_delivery_date:
+        example: "2024-01-19T14:15:00Z"
         type: string
       buyer_organization_id:
+        example: 123e4567-e89b-12d3-a456-426614174001
         type: string
       buyer_user_id:
+        example: 123e4567-e89b-12d3-a456-426614174003
         type: string
       created_at:
+        example: "2024-01-15T10:30:00Z"
         type: string
       discount_amount:
+        example: 0
         type: number
       estimated_delivery_date:
+        example: "2024-01-20T10:30:00Z"
         type: string
       id:
+        example: 123e4567-e89b-12d3-a456-426614174000
         type: string
       items:
         items:
           $ref: "#/definitions/orders.OrderItemResponse"
         type: array
       metadata:
-        type: string
+        additionalProperties: true
+        type: object
       notes:
+        example: Special delivery instructions
         type: string
       order_number:
+        example: ORD-2024-001
         type: string
       seller_organization_id:
+        example: 123e4567-e89b-12d3-a456-426614174002
         type: string
       shipping_address:
-        type: string
+        $ref: "#/definitions/orders.AddressResponse"
       shipping_amount:
+        example: 50
         type: number
       status:
+        example: pending
         type: string
       status_history:
         items:
           $ref: "#/definitions/orders.OrderStatusHistoryResponse"
         type: array
       subtotal_amount:
+        example: 255
         type: number
       tax_amount:
+        example: 25.5
         type: number
       total_amount:
+        example: 330.5
         type: number
       updated_at:
+        example: "2024-01-15T10:30:00Z"
         type: string
     type: object
   orders.OrderStatus:
@@ -494,28 +2586,123 @@ definitions:
   orders.OrderStatusHistoryResponse:
     properties:
       changed_by_organization_id:
+        example: 123e4567-e89b-12d3-a456-426614174001
         type: string
       changed_by_user_id:
+        example: 123e4567-e89b-12d3-a456-426614174003
         type: string
       created_at:
+        example: "2024-01-15T10:35:00Z"
         type: string
       from_status:
+        example: pending
         type: string
       id:
+        example: 123e4567-e89b-12d3-a456-426614174006
         type: string
       metadata:
-        type: string
+        additionalProperties: true
+        type: object
       order_id:
+        example: 123e4567-e89b-12d3-a456-426614174000
         type: string
       reason:
+        example: Payment confirmed by bank
         type: string
       to_status:
+        example: confirmed
         type: string
+    type: object
+  orders.PaymentResponse:
+    properties:
+      amount:
+        example: 150
+        type: number
+      currency:
+        example: INR
+        type: string
+      message:
+        example: Payment completed successfully
+        type: string
+      order_id:
+        example: ORD_1234567890
+        type: string
+      payment_id:
+        example: PAY_1234567890
+        type: string
+      payment_method:
+        example: upi
+        type: string
+      processed_at:
+        example: "2024-12-31T23:59:59Z"
+        type: string
+      status:
+        example: COMPLETED
+        type: string
+    type: object
+  orders.ProcessPaymentRequest:
+    properties:
+      payment_method:
+        enum:
+          - credit_card
+          - debit_card
+          - bank_transfer
+          - upi
+          - cash_on_delivery
+          - digital_wallet
+          - net_banking
+        example: upi
+        type: string
+    required:
+      - payment_method
+    type: object
+  orders.UpdateOrderRequest:
+    properties:
+      buyer_organization_id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        type: string
+      items:
+        items:
+          $ref: "#/definitions/orders.CreateOrderItemRequest"
+        minItems: 1
+        type: array
+      metadata:
+        additionalProperties: true
+        type: object
+      notes:
+        example: Updated delivery instructions
+        maxLength: 1000
+        type: string
+      reason:
+        example: Payment confirmed
+        maxLength: 500
+        minLength: 1
+        type: string
+      seller_organization_id:
+        example: 123e4567-e89b-12d3-a456-426614174001
+        type: string
+      shipping_address:
+        $ref: "#/definitions/entities_requests_orders.Address"
+      status:
+        allOf:
+          - $ref: "#/definitions/orders.OrderStatus"
+        enum:
+          - pending
+          - confirmed
+          - paid
+          - shipped
+          - delivered
+          - completed
+          - cancelled
+          - refunded
+        example: confirmed
     type: object
   orders.UpdateOrderStatusRequest:
     properties:
       reason:
+        example: Payment confirmed by bank
         maxLength: 500
+        minLength: 1
         type: string
       status:
         allOf:
@@ -529,6 +2716,7 @@ definitions:
           - completed
           - cancelled
           - refunded
+        example: confirmed
     required:
       - reason
       - status
@@ -540,6 +2728,433 @@ info:
   title: KisanLink E-commerce API
   version: "1.0"
 paths:
+  /admin/v1/marketplace/audit-log:
+    get:
+      consumes:
+        - application/json
+      description:
+        Retrieve audit log of marketplace activities for compliance and
+        monitoring
+      parameters:
+        - description: Filter by listing ID
+          in: query
+          name: listing_id
+          type: string
+        - description: Filter by event type
+          enum:
+            - LISTING_CREATED
+            - BID_PLACED
+            - BID_OUTBID
+            - LISTING_CLOSED
+            - LISTING_EXPIRED
+          in: query
+          name: event_type
+          type: string
+        - description: Filter by actor ID
+          in: query
+          name: actor_id
+          type: string
+        - description: Filter events from this time (RFC3339 format)
+          in: query
+          name: time_from
+          type: string
+        - description: Filter events to this time (RFC3339 format)
+          in: query
+          name: time_to
+          type: string
+        - default: 1
+          description: Page number
+          in: query
+          name: page
+          type: integer
+        - default: 50
+          description: Items per page
+          in: query
+          name: limit
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Audit log retrieved successfully
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  data:
+                    $ref: "#/definitions/marketplace.AuditLogResponse"
+                type: object
+        "400":
+          description: Invalid request parameters
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "403":
+          description: Insufficient privileges
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+      security:
+        - BearerAuth: []
+      summary: Get marketplace audit log (Admin)
+      tags:
+        - Admin
+  /admin/v1/marketplace/bids/{id}:
+    delete:
+      consumes:
+        - application/json
+      description: Remove a fraudulent or policy-violating bid from the marketplace
+      parameters:
+        - description: Bid ID
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: Remove bid request
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/marketplace.RemoveBidRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Bid removed successfully
+          schema:
+            $ref: "#/definitions/common.APIResponse"
+        "400":
+          description: Invalid request data
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "403":
+          description: Insufficient privileges
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "404":
+          description: Bid not found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+      security:
+        - BearerAuth: []
+      summary: Remove a bid (Admin)
+      tags:
+        - Admin
+  /admin/v1/marketplace/listings:
+    get:
+      consumes:
+        - application/json
+      description:
+        Retrieve all marketplace listings with admin privileges - no visibility
+        restrictions
+      parameters:
+        - description: Filter by status
+          enum:
+            - ACTIVE
+            - CLOSED
+            - EXPIRED
+            - CANCELLED
+          in: query
+          name: status
+          type: string
+        - description: Filter by seller ID
+          in: query
+          name: seller_id
+          type: string
+        - description: Filter by organization ID
+          in: query
+          name: organization_id
+          type: string
+        - description: Filter by product ID
+          in: query
+          name: product_id
+          type: string
+        - description: Filter by visibility
+          enum:
+            - PRIVATE
+            - PUBLIC
+            - NETWORK
+            - ORGANIZATION
+          in: query
+          name: visibility
+          type: string
+        - description: Filter by auction type
+          enum:
+            - OPEN
+            - CLOSED
+          in: query
+          name: auction_type
+          type: string
+        - description: Filter by minimum price
+          in: query
+          name: min_price
+          type: string
+        - description: Filter by maximum price
+          in: query
+          name: max_price
+          type: string
+        - default: 1
+          description: Page number
+          in: query
+          name: page
+          type: integer
+        - default: 20
+          description: Items per page
+          in: query
+          name: limit
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Listings retrieved successfully
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  data:
+                    $ref: "#/definitions/marketplace.ListingListResponse"
+                type: object
+        "400":
+          description: Invalid request parameters
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "403":
+          description: Insufficient privileges
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+      security:
+        - BearerAuth: []
+      summary: Get all marketplace listings (Admin)
+      tags:
+        - Admin
+  /admin/v1/marketplace/listings/{id}/force-close:
+    post:
+      consumes:
+        - application/json
+      description: Force close a marketplace listing regardless of its current state
+      parameters:
+        - description: Listing ID
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: Force close request
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/marketplace.ForceCloseListingRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Listing force closed successfully
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  data:
+                    $ref: "#/definitions/marketplace.ListingResponse"
+                type: object
+        "400":
+          description: Invalid request data
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "403":
+          description: Insufficient privileges
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "404":
+          description: Listing not found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+      security:
+        - BearerAuth: []
+      summary: Force close a marketplace listing (Admin)
+      tags:
+        - Admin
+  /admin/v1/marketplace/stats:
+    get:
+      consumes:
+        - application/json
+      description: Retrieve comprehensive marketplace statistics and analytics
+      parameters:
+        - default: 30d
+          description: Time range for statistics
+          enum:
+            - 24h
+            - 7d
+            - 30d
+            - 90d
+            - 1y
+          in: query
+          name: time_range
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Statistics retrieved successfully
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  data:
+                    $ref: "#/definitions/marketplace.MarketplaceStatsResponse"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "403":
+          description: Insufficient privileges
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+      security:
+        - BearerAuth: []
+      summary: Get marketplace statistics (Admin)
+      tags:
+        - Admin
   /api/v1/auth/login:
     post:
       consumes:
@@ -655,6 +3270,1149 @@ paths:
       summary: User Registration
       tags:
         - Authentication
+  /api/v1/catalog:
+    get:
+      consumes:
+        - application/json
+      description: Retrieve a list of all catalog items with filtering and pagination
+      parameters:
+        - default: 1
+          description: Page number
+          in: query
+          name: page
+          type: integer
+        - default: 20
+          description: Items per page
+          in: query
+          name: limit
+          type: integer
+        - description: Filter by item type (PRODUCT, SERVICE, LABOUR)
+          in: query
+          name: item_type
+          type: string
+        - description: Filter by category
+          in: query
+          name: category
+          type: string
+        - description: Filter by subcategory
+          in: query
+          name: subcategory
+          type: string
+        - description: Filter by active status
+          in: query
+          name: is_active
+          type: boolean
+        - description: Filter by visibility (PRIVATE, ORG, NETWORK, PUBLIC)
+          in: query
+          name: visibility
+          type: string
+        - description: Minimum price filter
+          in: query
+          name: min_price
+          type: number
+        - description: Maximum price filter
+          in: query
+          name: max_price
+          type: number
+        - description: Search term
+          in: query
+          name: search
+          type: string
+        - collectionFormat: csv
+          description: Filter by tags
+          in: query
+          items:
+            type: string
+          name: tags
+          type: array
+        - description: Filter by organization ID
+          in: query
+          name: organization_id
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    items:
+                      $ref: "#/definitions/catalog.CatalogItemResponse"
+                    type: array
+                  meta:
+                    allOf:
+                      - $ref: "#/definitions/common.ResponseMeta"
+                      - properties:
+                          pagination:
+                            $ref: "#/definitions/common.PaginationMeta"
+                        type: object
+                type: object
+      summary: List all catalog items
+      tags:
+        - catalog
+  /api/v1/catalog/{type}:
+    get:
+      consumes:
+        - application/json
+      description:
+        Retrieve a list of catalog items filtered by type with additional
+        filtering and pagination
+      parameters:
+        - description: Item type (products, services, labour)
+          in: path
+          name: type
+          required: true
+          type: string
+        - default: 1
+          description: Page number
+          in: query
+          name: page
+          type: integer
+        - default: 20
+          description: Items per page
+          in: query
+          name: limit
+          type: integer
+        - description: Filter by category
+          in: query
+          name: category
+          type: string
+        - description: Filter by subcategory
+          in: query
+          name: subcategory
+          type: string
+        - description: Filter by active status
+          in: query
+          name: is_active
+          type: boolean
+        - description: Filter by visibility (PRIVATE, ORG, NETWORK, PUBLIC)
+          in: query
+          name: visibility
+          type: string
+        - description: Minimum price filter
+          in: query
+          name: min_price
+          type: number
+        - description: Maximum price filter
+          in: query
+          name: max_price
+          type: number
+        - description: Search term
+          in: query
+          name: search
+          type: string
+        - collectionFormat: csv
+          description: Filter by tags
+          in: query
+          items:
+            type: string
+          name: tags
+          type: array
+        - description: Filter by organization ID
+          in: query
+          name: organization_id
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    items:
+                      $ref: "#/definitions/catalog.CatalogItemResponse"
+                    type: array
+                  meta:
+                    allOf:
+                      - $ref: "#/definitions/common.ResponseMeta"
+                      - properties:
+                          pagination:
+                            $ref: "#/definitions/common.PaginationMeta"
+                        type: object
+                type: object
+      summary: List catalog items by type
+      tags:
+        - catalog
+  /api/v1/catalog/{type}/{id}:
+    delete:
+      consumes:
+        - application/json
+      description: Soft delete a catalog item by its type and ID
+      parameters:
+        - description: Bearer token
+          in: header
+          name: Authorization
+          required: true
+          type: string
+        - description: Item type (products, services, labour, contracts)
+          in: path
+          name: type
+          required: true
+          type: string
+        - description: Item ID
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: Force delete even with references (admin only)
+          in: query
+          name: force
+          type: boolean
+      produces:
+        - application/json
+      responses:
+        "204":
+          description: Catalog item deleted successfully
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "409":
+          description: Conflict
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Delete catalog item by type and ID
+      tags:
+        - catalog
+    get:
+      consumes:
+        - application/json
+      description: Retrieve a specific catalog item by its type and ID
+      parameters:
+        - description: Item type (products, services, labour, contracts)
+          in: path
+          name: type
+          required: true
+          type: string
+        - description: Item ID
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: ETag for conditional requests
+          in: header
+          name: If-None-Match
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    $ref: "#/definitions/catalog.CatalogItemResponse"
+                type: object
+        "304":
+          description: Not modified
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Get catalog item by type and ID
+      tags:
+        - catalog
+    put:
+      consumes:
+        - application/json
+      description: Update a catalog item by its type and ID
+      parameters:
+        - description: Bearer token
+          in: header
+          name: Authorization
+          required: true
+          type: string
+        - description: Item type (products, services, labour)
+          in: path
+          name: type
+          required: true
+          type: string
+        - description: Item ID
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: Item updates
+          in: body
+          name: item
+          required: true
+          schema:
+            $ref: "#/definitions/internal_handlers_catalog.UpdateCatalogItemRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    $ref: "#/definitions/catalog.CatalogItemResponse"
+                type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Update catalog item by type and ID
+      tags:
+        - catalog
+  /api/v1/catalog/{type}/{id}/price:
+    put:
+      consumes:
+        - application/json
+      description: Update the price of a catalog item with price history tracking
+      parameters:
+        - description: Bearer token
+          in: header
+          name: Authorization
+          required: true
+          type: string
+        - description: Item type (products, services, labour, contracts)
+          in: path
+          name: type
+          required: true
+          type: string
+        - description: Item ID
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: Price update data
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/catalog.PriceUpdateRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    $ref: "#/definitions/catalog.CatalogItemResponse"
+                type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Update catalog item price
+      tags:
+        - Catalog Management
+  /api/v1/catalog/{type}/{id}/publish:
+    post:
+      consumes:
+        - application/json
+      description:
+        Publish a catalog item to make it visible according to its visibility
+        settings
+      parameters:
+        - description: Bearer token
+          in: header
+          name: Authorization
+          required: true
+          type: string
+        - description: Item type (products, services, labour, contracts)
+          in: path
+          name: type
+          required: true
+          type: string
+        - description: Item ID
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: Publish options
+          in: body
+          name: request
+          schema:
+            $ref: "#/definitions/catalog.PublishRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    $ref: "#/definitions/catalog.CatalogItemResponse"
+                type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "409":
+          description: Conflict
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Publish catalog item
+      tags:
+        - Catalog Management
+  /api/v1/catalog/{type}/{id}/unpublish:
+    post:
+      consumes:
+        - application/json
+      description: Unpublish a catalog item to make it inactive
+      parameters:
+        - description: Bearer token
+          in: header
+          name: Authorization
+          required: true
+          type: string
+        - description: Item type (products, services, labour, contracts)
+          in: path
+          name: type
+          required: true
+          type: string
+        - description: Item ID
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: Unpublish options
+          in: body
+          name: request
+          schema:
+            $ref: "#/definitions/catalog.UnpublishRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    $ref: "#/definitions/catalog.CatalogItemResponse"
+                type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "409":
+          description: Conflict
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Unpublish catalog item
+      tags:
+        - Catalog Management
+  /api/v1/catalog/bulk/price-update:
+    post:
+      consumes:
+        - application/json
+      description: Update prices for multiple catalog items
+      parameters:
+        - description: Bearer token
+          in: header
+          name: Authorization
+          required: true
+          type: string
+        - description: Bulk price update data
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/catalog.BulkPriceUpdateRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    $ref: "#/definitions/catalog.BulkOperationResponse"
+                type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Bulk update prices
+      tags:
+        - Bulk Operations
+  /api/v1/catalog/bulk/publish:
+    post:
+      consumes:
+        - application/json
+      description: Publish multiple catalog items in a single operation
+      parameters:
+        - description: Bearer token
+          in: header
+          name: Authorization
+          required: true
+          type: string
+        - description: Bulk publish data
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/catalog.BulkPublishRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    $ref: "#/definitions/catalog.BulkOperationResponse"
+                type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Bulk publish catalog items
+      tags:
+        - Bulk Operations
+  /api/v1/catalog/bulk/update:
+    post:
+      consumes:
+        - application/json
+      description: Update multiple catalog items in a single operation
+      parameters:
+        - description: Bearer token
+          in: header
+          name: Authorization
+          required: true
+          type: string
+        - description: Idempotency key for safe retries
+          in: header
+          name: Idempotency-Key
+          type: string
+        - description: Bulk update data
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/catalog.BulkUpdateRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    $ref: "#/definitions/catalog.BulkOperationResponse"
+                type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Bulk update catalog items
+      tags:
+        - Bulk Operations
+  /api/v1/catalog/labour:
+    get:
+      consumes:
+        - application/json
+      description: Retrieve a list of labour offerings with filtering and pagination
+      parameters:
+        - default: 1
+          description: Page number
+          in: query
+          name: page
+          type: integer
+        - default: 20
+          description: Items per page
+          in: query
+          name: limit
+          type: integer
+        - description: Filter by category
+          in: query
+          name: category
+          type: string
+        - description: Filter by organization ID
+          in: query
+          name: org_id
+          type: string
+        - description: Filter by active status
+          in: query
+          name: is_active
+          type: boolean
+        - description: Search term
+          in: query
+          name: search
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    items:
+                      $ref: "#/definitions/catalog.LabourResponse"
+                    type: array
+                  meta:
+                    allOf:
+                      - $ref: "#/definitions/common.ResponseMeta"
+                      - properties:
+                          pagination:
+                            $ref: "#/definitions/common.PaginationMeta"
+                        type: object
+                type: object
+      summary: List labour offerings
+      tags:
+        - labour
+    post:
+      consumes:
+        - application/json
+      description: Create a new labour offering in the catalog
+      parameters:
+        - description: Bearer token
+          in: header
+          name: Authorization
+          required: true
+          type: string
+        - description: Labour information
+          in: body
+          name: labour
+          required: true
+          schema:
+            $ref: "#/definitions/catalog.CreateLabourRequest"
+      produces:
+        - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    $ref: "#/definitions/catalog.LabourResponse"
+                type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Create a new labour offering
+      tags:
+        - labour
+  /api/v1/catalog/labour/{id}:
+    delete:
+      consumes:
+        - application/json
+      description: Delete a labour offering from the catalog
+      parameters:
+        - description: Bearer token
+          in: header
+          name: Authorization
+          required: true
+          type: string
+        - description: Labour ID
+          in: path
+          name: id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    type: string
+                type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Delete a labour offering
+      tags:
+        - labour
+    get:
+      consumes:
+        - application/json
+      description: Retrieve a labour offering by its ID
+      parameters:
+        - description: Labour ID
+          in: path
+          name: id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    $ref: "#/definitions/catalog.LabourResponse"
+                type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Get labour by ID
+      tags:
+        - labour
+    put:
+      consumes:
+        - application/json
+      description: Update an existing labour offering
+      parameters:
+        - description: Bearer token
+          in: header
+          name: Authorization
+          required: true
+          type: string
+        - description: Labour ID
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: Labour updates
+          in: body
+          name: labour
+          required: true
+          schema:
+            $ref: "#/definitions/internal_handlers_catalog.UpdateCatalogItemRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    $ref: "#/definitions/catalog.LabourResponse"
+                type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Update a labour offering
+      tags:
+        - labour
   /api/v1/catalog/products:
     get:
       consumes:
@@ -890,7 +4648,7 @@ paths:
           name: product
           required: true
           schema:
-            $ref: "#/definitions/catalog.UpdateCatalogItemRequest"
+            $ref: "#/definitions/internal_handlers_catalog.UpdateCatalogItemRequest"
       produces:
         - application/json
       responses:
@@ -942,6 +4700,1926 @@ paths:
       summary: Update a product
       tags:
         - products
+  /api/v1/catalog/search:
+    get:
+      consumes:
+        - application/json
+      description: Search catalog items with advanced filtering
+      parameters:
+        - description: Search query
+          in: query
+          name: q
+          required: true
+          type: string
+        - default: 1
+          description: Page number
+          in: query
+          name: page
+          type: integer
+        - default: 20
+          description: Items per page
+          in: query
+          name: limit
+          type: integer
+        - description: Filter by item type (PRODUCT, SERVICE, LABOUR)
+          in: query
+          name: item_type
+          type: string
+        - description: Filter by category
+          in: query
+          name: category
+          type: string
+        - description: Filter by subcategory
+          in: query
+          name: subcategory
+          type: string
+        - description: Filter by active status
+          in: query
+          name: is_active
+          type: boolean
+        - description: Filter by visibility (PRIVATE, ORG, NETWORK, PUBLIC)
+          in: query
+          name: visibility
+          type: string
+        - description: Minimum price filter
+          in: query
+          name: min_price
+          type: number
+        - description: Maximum price filter
+          in: query
+          name: max_price
+          type: number
+        - collectionFormat: csv
+          description: Filter by tags
+          in: query
+          items:
+            type: string
+          name: tags
+          type: array
+        - description: Filter by organization ID
+          in: query
+          name: organization_id
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    items:
+                      $ref: "#/definitions/catalog.CatalogItemResponse"
+                    type: array
+                  meta:
+                    allOf:
+                      - $ref: "#/definitions/common.ResponseMeta"
+                      - properties:
+                          pagination:
+                            $ref: "#/definitions/common.PaginationMeta"
+                        type: object
+                type: object
+      summary: Search catalog items
+      tags:
+        - catalog
+  /api/v1/catalog/services:
+    get:
+      consumes:
+        - application/json
+      description: Retrieve a list of services with filtering and pagination
+      parameters:
+        - default: 1
+          description: Page number
+          in: query
+          name: page
+          type: integer
+        - default: 20
+          description: Items per page
+          in: query
+          name: limit
+          type: integer
+        - description: Filter by category
+          in: query
+          name: category
+          type: string
+        - description: Filter by organization ID
+          in: query
+          name: org_id
+          type: string
+        - description: Filter by active status
+          in: query
+          name: is_active
+          type: boolean
+        - description: Search term
+          in: query
+          name: search
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    items:
+                      $ref: "#/definitions/catalog.ServiceResponse"
+                    type: array
+                  meta:
+                    allOf:
+                      - $ref: "#/definitions/common.ResponseMeta"
+                      - properties:
+                          pagination:
+                            $ref: "#/definitions/common.PaginationMeta"
+                        type: object
+                type: object
+      summary: List services
+      tags:
+        - services
+    post:
+      consumes:
+        - application/json
+      description: Create a new service in the catalog
+      parameters:
+        - description: Bearer token
+          in: header
+          name: Authorization
+          required: true
+          type: string
+        - description: Service information
+          in: body
+          name: service
+          required: true
+          schema:
+            $ref: "#/definitions/catalog.CreateServiceRequest"
+      produces:
+        - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    $ref: "#/definitions/catalog.ServiceResponse"
+                type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Create a new service
+      tags:
+        - services
+  /api/v1/catalog/services/{id}:
+    delete:
+      consumes:
+        - application/json
+      description: Delete a service from the catalog
+      parameters:
+        - description: Bearer token
+          in: header
+          name: Authorization
+          required: true
+          type: string
+        - description: Service ID
+          in: path
+          name: id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    type: string
+                type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Delete a service
+      tags:
+        - services
+    get:
+      consumes:
+        - application/json
+      description: Retrieve a service by its ID
+      parameters:
+        - description: Service ID
+          in: path
+          name: id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    $ref: "#/definitions/catalog.ServiceResponse"
+                type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Get service by ID
+      tags:
+        - services
+    put:
+      consumes:
+        - application/json
+      description: Update an existing service
+      parameters:
+        - description: Bearer token
+          in: header
+          name: Authorization
+          required: true
+          type: string
+        - description: Service ID
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: Service updates
+          in: body
+          name: service
+          required: true
+          schema:
+            $ref: "#/definitions/internal_handlers_catalog.UpdateCatalogItemRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    $ref: "#/definitions/catalog.ServiceResponse"
+                type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Update a service
+      tags:
+        - services
+  /api/v1/integrations/catalog/exports:
+    get:
+      consumes:
+        - application/json
+      description: Export catalog items with delta synchronization for partner systems
+      parameters:
+        - description: Bearer token
+          in: header
+          name: Authorization
+          required: true
+          type: string
+        - description: Partner ID for access control
+          in: query
+          name: partner_id
+          required: true
+          type: string
+        - description: Delta sync watermark (RFC3339 format)
+          in: query
+          name: since_watermark
+          type: string
+        - description: Filter by organization ID
+          in: query
+          name: organization_id
+          type: string
+        - description: Filter by item type
+          enum:
+            - PRODUCT
+            - SERVICE
+            - LABOUR
+          in: query
+          name: item_type
+          type: string
+        - description: Filter by category
+          in: query
+          name: category
+          type: string
+        - description: Filter by visibility
+          enum:
+            - PRIVATE
+            - ORG
+            - NETWORK
+            - PUBLIC
+          in: query
+          name: visibility
+          type: string
+        - description: Filter by active status
+          in: query
+          name: is_active
+          type: boolean
+        - default: 1
+          description: Page number
+          in: query
+          name: page
+          type: integer
+        - default: 50
+          description: Items per page
+          in: query
+          name: page_size
+          type: integer
+        - default: JSON
+          description: Output format
+          enum:
+            - JSON
+            - CSV
+            - XML
+          in: query
+          name: format
+          type: string
+        - default: true
+          description: Include metadata in response
+          in: query
+          name: include_metadata
+          type: boolean
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    $ref: "#/definitions/integrations.CatalogExportResponse"
+                type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Export catalog with delta synchronization
+      tags:
+        - integrations
+  /api/v1/integrations/catalog/proposals:
+    post:
+      consumes:
+        - application/json
+      description:
+        Submit a catalog proposal from partner systems for federated catalog
+        updates
+      parameters:
+        - description: Bearer token
+          in: header
+          name: Authorization
+          required: true
+          type: string
+        - description: Webhook signature for validation
+          in: header
+          name: X-Webhook-Signature
+          type: string
+        - description: Webhook timestamp
+          in: header
+          name: X-Webhook-Timestamp
+          type: string
+        - description: Catalog proposal data
+          in: body
+          name: proposal
+          required: true
+          schema:
+            $ref: "#/definitions/integrations.CatalogProposalRequest"
+      produces:
+        - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    $ref: "#/definitions/integrations.CatalogProposalResponse"
+                type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Submit catalog proposal
+      tags:
+        - integrations
+  /api/v1/integrations/orders/acknowledgements:
+    post:
+      consumes:
+        - application/json
+      description: Acknowledge order intake from downstream systems for order confirmations
+      parameters:
+        - description: Bearer token
+          in: header
+          name: Authorization
+          required: true
+          type: string
+        - description: Webhook signature for validation
+          in: header
+          name: X-Webhook-Signature
+          type: string
+        - description: Webhook timestamp
+          in: header
+          name: X-Webhook-Timestamp
+          type: string
+        - description: Order acknowledgement data
+          in: body
+          name: acknowledgement
+          required: true
+          schema:
+            $ref: "#/definitions/integrations.OrderAcknowledgementRequest"
+      produces:
+        - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    $ref: "#/definitions/integrations.OrderAcknowledgementResponse"
+                type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Acknowledge order
+      tags:
+        - integrations
+  /api/v1/integrations/partners:
+    get:
+      consumes:
+        - application/json
+      description: List all registered integration partners
+      parameters:
+        - description: Bearer token
+          in: header
+          name: Authorization
+          required: true
+          type: string
+        - default: 1
+          description: Page number
+          in: query
+          name: page
+          type: integer
+        - default: 20
+          description: Items per page
+          in: query
+          name: limit
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    items:
+                      additionalProperties: true
+                      type: object
+                    type: array
+                type: object
+      summary: List integration partners
+      tags:
+        - integrations
+  /api/v1/integrations/proposals/{proposal_id}/status:
+    get:
+      consumes:
+        - application/json
+      description: Get the status of a catalog proposal
+      parameters:
+        - description: Bearer token
+          in: header
+          name: Authorization
+          required: true
+          type: string
+        - description: Proposal ID
+          in: path
+          name: proposal_id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    $ref: "#/definitions/integrations.ProposalStatusResponse"
+                type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Get proposal status
+      tags:
+        - integrations
+  /api/v1/integrations/webhooks/validate:
+    post:
+      consumes:
+        - application/json
+      description: Validate webhook signature for secure partner integrations
+      parameters:
+        - description: Webhook signature
+          in: header
+          name: X-Webhook-Signature
+          required: true
+          type: string
+        - description: Webhook timestamp
+          in: header
+          name: X-Webhook-Timestamp
+          required: true
+          type: string
+        - description: Partner ID
+          in: query
+          name: partner_id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    $ref: "#/definitions/integrations.WebhookValidationResponse"
+                type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Validate webhook signature
+      tags:
+        - integrations
+  /api/v1/inventory/availability/{catalog_item_id}:
+    get:
+      consumes:
+        - application/json
+      description: Check real-time inventory availability for a catalog item
+      parameters:
+        - description: Catalog item ID
+          in: path
+          name: catalog_item_id
+          required: true
+          type: string
+        - default: 1
+          description: Required quantity to check
+          in: query
+          name: required_quantity
+          type: number
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/common.Response"
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Check inventory availability
+      tags:
+        - inventory
+  /api/v1/inventory/lots:
+    get:
+      consumes:
+        - application/json
+      description: List inventory lots with organization filtering and pagination
+      parameters:
+        - description: Filter by catalog item ID
+          in: query
+          name: catalog_item_id
+          type: string
+        - description: Filter by status (available, reserved, sold, expired, damaged)
+          in: query
+          name: status
+          type: string
+        - description: Filter lots expiring before date (YYYY-MM-DD)
+          in: query
+          name: expiring_before
+          type: string
+        - description: Filter by quality grade
+          in: query
+          name: quality_grade
+          type: string
+        - default: 0
+          description: Pagination offset
+          in: query
+          name: offset
+          type: integer
+        - default: 20
+          description: Pagination limit (max 100)
+          in: query
+          name: limit
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/common.Response"
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: List inventory lots
+      tags:
+        - inventory
+    post:
+      consumes:
+        - application/json
+      description: Create a new inventory lot with product validation
+      parameters:
+        - description: Inventory lot creation request
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/internal_handlers_inventory.CreateInventoryLotRequest"
+      produces:
+        - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: "#/definitions/common.Response"
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Create inventory lot
+      tags:
+        - inventory
+  /api/v1/inventory/lots/{id}:
+    get:
+      consumes:
+        - application/json
+      description: Get inventory lot by ID
+      parameters:
+        - description: Inventory lot ID
+          in: path
+          name: id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/common.Response"
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Get inventory lot
+      tags:
+        - inventory
+    patch:
+      consumes:
+        - application/json
+      description: Update inventory lot metadata (not quantities)
+      parameters:
+        - description: Inventory lot ID
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: Inventory lot update request
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/internal_handlers_inventory.UpdateInventoryLotRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/common.Response"
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Update inventory lot
+      tags:
+        - inventory
+  /api/v1/inventory/lots/{id}/adjust:
+    patch:
+      consumes:
+        - application/json
+      description: Adjust inventory quantity for a specific lot with audit trail
+      parameters:
+        - description: Inventory lot ID
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: Inventory adjustment request
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: "#/definitions/inventory.AdjustInventoryRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/common.Response"
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Adjust inventory quantity
+      tags:
+        - inventory
+  /api/v1/inventory/lots/{id}/audit:
+    get:
+      consumes:
+        - application/json
+      description: Get audit trail for an inventory lot with pagination
+      parameters:
+        - description: Inventory lot ID
+          in: path
+          name: id
+          required: true
+          type: string
+        - default: 0
+          description: Pagination offset
+          in: query
+          name: offset
+          type: integer
+        - default: 20
+          description: Pagination limit (max 100)
+          in: query
+          name: limit
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/common.Response"
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Get inventory audit trail
+      tags:
+        - inventory
+  /api/v1/marketplace/bids/{id}:
+    get:
+      consumes:
+        - application/json
+      description: Retrieve details of a specific bid by its ID
+      parameters:
+        - description: Organization ID
+          in: header
+          name: X-Organization-ID
+          required: true
+          type: string
+        - description: Bid ID
+          in: path
+          name: id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Bid retrieved successfully
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  data:
+                    $ref: "#/definitions/marketplace.BidResponse"
+                type: object
+        "400":
+          description: Invalid request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "403":
+          description: Access denied
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "404":
+          description: Bid not found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+      security:
+        - BearerAuth: []
+      summary: Get a specific bid
+      tags:
+        - Marketplace
+  /api/v1/marketplace/bids/my-bids:
+    get:
+      consumes:
+        - application/json
+      description: Retrieve bids placed by the authenticated user across all listings
+      parameters:
+        - description: Filter by bid status
+          enum:
+            - ACTIVE
+            - OUTBID
+            - WINNING
+            - EXPIRED
+            - REMOVED
+          in: query
+          name: status
+          type: string
+        - description: Filter by listing ID
+          in: query
+          name: listing_id
+          type: string
+        - description: Filter by highest bid status
+          in: query
+          name: is_highest_bid
+          type: boolean
+        - default: 1
+          description: Page number
+          in: query
+          name: page
+          type: integer
+        - default: 20
+          description: Items per page
+          in: query
+          name: limit
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Bids retrieved successfully
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  data:
+                    $ref: "#/definitions/marketplace.BidListResponse"
+                type: object
+        "400":
+          description: Invalid request parameters
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+      security:
+        - BearerAuth: []
+      summary: Get my bids
+      tags:
+        - Marketplace
+  /api/v1/marketplace/listings/{id}/bids:
+    get:
+      consumes:
+        - application/json
+      description:
+        Retrieve bids for a specific marketplace listing with visibility
+        filtering
+      parameters:
+        - description: Organization ID
+          in: header
+          name: X-Organization-ID
+          required: true
+          type: string
+        - description: Listing ID
+          in: path
+          name: id
+          required: true
+          type: string
+        - default: 1
+          description: Page number
+          in: query
+          name: page
+          type: integer
+        - default: 20
+          description: Items per page
+          in: query
+          name: limit
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Bids retrieved successfully
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  data:
+                    $ref: "#/definitions/marketplace.BidHistoryResponse"
+                type: object
+        "400":
+          description: Invalid request parameters
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "403":
+          description: Access denied
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "404":
+          description: Listing not found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+      security:
+        - BearerAuth: []
+      summary: Get bids for a marketplace listing
+      tags:
+        - Marketplace
+    post:
+      consumes:
+        - application/json
+      description: Place a new bid on an active marketplace listing
+      parameters:
+        - description: Organization ID
+          in: header
+          name: X-Organization-ID
+          required: true
+          type: string
+        - description: Listing ID
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: Bid placement request
+          in: body
+          name: bid
+          required: true
+          schema:
+            $ref: "#/definitions/internal_handlers_marketplace.PlaceBidRequest"
+      produces:
+        - application/json
+      responses:
+        "201":
+          description: Bid placed successfully
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  data:
+                    $ref: "#/definitions/marketplace.BidResponse"
+                type: object
+        "400":
+          description: Invalid request data
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "403":
+          description: Access denied
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "404":
+          description: Listing not found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "409":
+          description: Bid conflict (too low, auction ended, etc.)
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+      security:
+        - BearerAuth: []
+      summary: Place a bid on a marketplace listing
+      tags:
+        - Marketplace
+  /api/v1/marketplace/listings/{id}/historical-bids:
+    get:
+      consumes:
+        - application/json
+      description: Retrieve historical bid data with proper access control and filtering
+      parameters:
+        - description: Organization ID
+          in: header
+          name: X-Organization-ID
+          required: true
+          type: string
+        - description: Listing ID
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: Start time filter (RFC3339 format)
+          in: query
+          name: start_time
+          type: string
+        - description: End time filter (RFC3339 format)
+          in: query
+          name: end_time
+          type: string
+        - description: Filter by specific bidder ID
+          in: query
+          name: bidder_id
+          type: string
+        - default: true
+          description: Include auto bids
+          in: query
+          name: include_auto_bids
+          type: boolean
+        - default: desc
+          description: Sort order (asc/desc)
+          in: query
+          name: sort_order
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Historical bid data retrieved successfully
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  data:
+                    $ref: "#/definitions/internal_handlers_marketplace.HistoricalBidData"
+                type: object
+        "400":
+          description: Invalid request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "403":
+          description: Access denied
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "404":
+          description: Listing not found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+      security:
+        - BearerAuth: []
+      summary: Get historical bid data
+      tags:
+        - Marketplace
+  /api/v1/marketplace/listings/{id}/results:
+    get:
+      consumes:
+        - application/json
+      description:
+        Retrieve auction results with visibility filtering based on auction
+        configuration
+      parameters:
+        - description: Organization ID
+          in: header
+          name: X-Organization-ID
+          required: true
+          type: string
+        - description: Listing ID
+          in: path
+          name: id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Auction results retrieved successfully
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  data:
+                    $ref: "#/definitions/internal_handlers_marketplace.RevealedAuctionResults"
+                type: object
+        "400":
+          description: Invalid request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "403":
+          description: Access denied
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "404":
+          description: Listing not found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+      security:
+        - BearerAuth: []
+      summary: Get auction results
+      tags:
+        - Marketplace
+  /api/v1/marketplace/listings/{id}/statistics:
+    get:
+      consumes:
+        - application/json
+      description: Retrieve bid statistics with visibility filtering applied
+      parameters:
+        - description: Organization ID
+          in: header
+          name: X-Organization-ID
+          required: true
+          type: string
+        - description: Listing ID
+          in: path
+          name: id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Bid statistics retrieved successfully
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  data:
+                    $ref: "#/definitions/internal_handlers_marketplace.FilteredBidStatistics"
+                type: object
+        "400":
+          description: Invalid request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "403":
+          description: Access denied
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "404":
+          description: Listing not found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+      security:
+        - BearerAuth: []
+      summary: Get bid statistics
+      tags:
+        - Marketplace
+  /api/v1/marketplace/listings/{id}/summary:
+    get:
+      consumes:
+        - application/json
+      description: Retrieve a high-level summary of auction results
+      parameters:
+        - description: Organization ID
+          in: header
+          name: X-Organization-ID
+          required: true
+          type: string
+        - description: Listing ID
+          in: path
+          name: id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Auction summary retrieved successfully
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  data:
+                    $ref: "#/definitions/internal_handlers_marketplace.AuctionSummary"
+                type: object
+        "400":
+          description: Invalid request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "403":
+          description: Access denied
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "404":
+          description: Listing not found
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.APIResponse"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.APIError"
+                type: object
+      security:
+        - BearerAuth: []
+      summary: Get auction summary
+      tags:
+        - Marketplace
   /api/v1/orders:
     get:
       consumes:
@@ -1053,50 +6731,6 @@ paths:
       tags:
         - orders
   /api/v1/orders/{id}:
-    delete:
-      consumes:
-        - application/json
-      description: Delete an order (cancel if not shipped)
-      parameters:
-        - description: Order ID
-          in: path
-          name: id
-          required: true
-          type: string
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: Order deleted successfully
-          schema:
-            type: object
-        "400":
-          description: Invalid order ID
-          schema:
-            type: object
-        "401":
-          description: Unauthorized
-          schema:
-            type: object
-        "403":
-          description: Forbidden
-          schema:
-            type: object
-        "404":
-          description: Order not found
-          schema:
-            type: object
-        "409":
-          description: Order cannot be cancelled
-          schema:
-            type: object
-        "500":
-          description: Internal server error
-          schema:
-            type: object
-      summary: Delete Order
-      tags:
-        - Orders
     get:
       consumes:
         - application/json
@@ -1134,8 +6768,13 @@ paths:
     put:
       consumes:
         - application/json
-      description: Update an existing order's status
+      description: Update order details including status
       parameters:
+        - description: Bearer token
+          in: header
+          name: Authorization
+          required: true
+          type: string
         - description: Order ID
           in: path
           name: id
@@ -1143,44 +6782,61 @@ paths:
           type: string
         - description: Order update data
           in: body
-          name: request
+          name: order
           required: true
           schema:
-            $ref: "#/definitions/orders.UpdateOrderStatusRequest"
+            $ref: "#/definitions/orders.UpdateOrderRequest"
       produces:
         - application/json
       responses:
         "200":
-          description: Order updated successfully
+          description: OK
           schema:
-            type: object
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    $ref: "#/definitions/orders.OrderResponse"
+                type: object
         "400":
-          description: Invalid request
+          description: Bad Request
           schema:
-            type: object
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
         "401":
           description: Unauthorized
           schema:
-            type: object
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
         "403":
           description: Forbidden
           schema:
-            type: object
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
         "404":
-          description: Order not found
+          description: Not Found
           schema:
-            type: object
-        "409":
-          description: Invalid status transition
-          schema:
-            type: object
-        "500":
-          description: Internal server error
-          schema:
-            type: object
-      summary: Update Order
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Update an order
       tags:
-        - Orders
+        - orders
   /api/v1/orders/{id}/cancel:
     post:
       consumes:
@@ -1246,6 +6902,128 @@ paths:
                     $ref: "#/definitions/common.ResponseError"
                 type: object
       summary: Cancel an order
+      tags:
+        - orders
+  /api/v1/orders/{id}/payment:
+    post:
+      consumes:
+        - application/json
+      description: Process payment for an existing order
+      parameters:
+        - description: Bearer token
+          in: header
+          name: Authorization
+          required: true
+          type: string
+        - description: Order ID
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: Payment processing request
+          in: body
+          name: payment
+          required: true
+          schema:
+            $ref: "#/definitions/orders.ProcessPaymentRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    $ref: "#/definitions/orders.PaymentResponse"
+                type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Process payment for an order
+      tags:
+        - orders
+  /api/v1/orders/{id}/payment/status:
+    get:
+      consumes:
+        - application/json
+      description: Retrieve the payment status for an order
+      parameters:
+        - description: Bearer token
+          in: header
+          name: Authorization
+          required: true
+          type: string
+        - description: Order ID
+          in: path
+          name: id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    $ref: "#/definitions/orders.PaymentResponse"
+                type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Get payment status for an order
       tags:
         - orders
   /api/v1/orders/{id}/status:
@@ -1321,157 +7099,124 @@ paths:
       summary: Update order status
       tags:
         - orders
-  /api/v1/permissions:
-    get:
-      consumes:
-        - application/json
-      description: Retrieve a list of all permissions
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: Permissions retrieved successfully
-          schema:
-            type: object
-        "500":
-          description: Internal server error
-          schema:
-            type: object
-      summary: Get All Permissions
-      tags:
-        - Permissions
+  /api/v1/orders/from-bid:
     post:
       consumes:
         - application/json
-      description: Create a new permission with specific resource and action
+      description: Create an order from a marketplace winning bid
       parameters:
-        - description: Permission data
+        - description: Bearer token
+          in: header
+          name: Authorization
+          required: true
+          type: string
+        - description: Order from bid information
           in: body
-          name: request
+          name: order
           required: true
           schema:
-            $ref: "#/definitions/handlers.CreatePermissionRequest"
+            $ref: "#/definitions/orders.CreateOrderFromBidRequest"
       produces:
         - application/json
       responses:
         "201":
-          description: Permission created successfully
+          description: Created
           schema:
-            type: object
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    $ref: "#/definitions/orders.OrderFromBidResponse"
+                type: object
         "400":
-          description: Invalid request
+          description: Bad Request
           schema:
-            type: object
-        "500":
-          description: Internal server error
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
           schema:
-            type: object
-      summary: Create Permission
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Create an order from a winning bid
       tags:
-        - Permissions
-  /api/v1/permissions/{id}:
-    delete:
+        - orders
+  /api/v1/orders/validate-bid:
+    post:
       consumes:
         - application/json
-      description: Delete a permission
+      description: Validate that a bid can be used to create an order
       parameters:
-        - description: Permission ID
-          in: path
-          name: id
+        - description: Bearer token
+          in: header
+          name: Authorization
           required: true
           type: string
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: Permission deleted successfully
-          schema:
-            type: object
-        "400":
-          description: Invalid permission ID
-          schema:
-            type: object
-        "404":
-          description: Permission not found
-          schema:
-            type: object
-        "500":
-          description: Internal server error
-          schema:
-            type: object
-      summary: Delete Permission
-      tags:
-        - Permissions
-    get:
-      consumes:
-        - application/json
-      description: Retrieve a specific permission by their ID
-      parameters:
-        - description: Permission ID
-          in: path
-          name: id
-          required: true
-          type: string
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: Permission retrieved successfully
-          schema:
-            type: object
-        "400":
-          description: Invalid permission ID
-          schema:
-            type: object
-        "404":
-          description: Permission not found
-          schema:
-            type: object
-        "500":
-          description: Internal server error
-          schema:
-            type: object
-      summary: Get Permission by ID
-      tags:
-        - Permissions
-    put:
-      consumes:
-        - application/json
-      description: Update an existing permission's information
-      parameters:
-        - description: Permission ID
-          in: path
-          name: id
-          required: true
-          type: string
-        - description: Permission update data
+        - description: Bid validation request
           in: body
-          name: request
+          name: validation
           required: true
           schema:
-            $ref: "#/definitions/handlers.UpdatePermissionRequest"
+            $ref: "#/definitions/orders.BidOrderValidationRequest"
       produces:
         - application/json
       responses:
         "200":
-          description: Permission updated successfully
+          description: OK
           schema:
-            type: object
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  data:
+                    $ref: "#/definitions/orders.BidOrderValidationResponse"
+                type: object
         "400":
-          description: Invalid request
+          description: Bad Request
           schema:
-            type: object
-        "404":
-          description: Permission not found
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "401":
+          description: Unauthorized
           schema:
-            type: object
-        "500":
-          description: Internal server error
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+        "403":
+          description: Forbidden
           schema:
-            type: object
-      summary: Update Permission
+            allOf:
+              - $ref: "#/definitions/common.Response"
+              - properties:
+                  error:
+                    $ref: "#/definitions/common.ResponseError"
+                type: object
+      summary: Validate a bid for order creation
       tags:
-        - Permissions
+        - orders
   /api/v1/products:
     get:
       consumes:
@@ -1636,7 +7381,7 @@ paths:
           name: request
           required: true
           schema:
-            $ref: "#/definitions/catalog.UpdateCatalogItemRequest"
+            $ref: "#/definitions/internal_handlers_catalog.UpdateCatalogItemRequest"
       produces:
         - application/json
       responses:
@@ -1667,157 +7412,6 @@ paths:
       summary: Update Product
       tags:
         - Products
-  /api/v1/roles:
-    get:
-      consumes:
-        - application/json
-      description: Retrieve a list of all roles
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: Roles retrieved successfully
-          schema:
-            type: object
-        "500":
-          description: Internal server error
-          schema:
-            type: object
-      summary: Get All Roles
-      tags:
-        - Roles
-    post:
-      consumes:
-        - application/json
-      description: Create a new role with hierarchical structure
-      parameters:
-        - description: Role data
-          in: body
-          name: request
-          required: true
-          schema:
-            $ref: "#/definitions/handlers.CreateRoleRequest"
-      produces:
-        - application/json
-      responses:
-        "201":
-          description: Role created successfully
-          schema:
-            type: object
-        "400":
-          description: Invalid request
-          schema:
-            type: object
-        "500":
-          description: Internal server error
-          schema:
-            type: object
-      summary: Create Role
-      tags:
-        - Roles
-  /api/v1/roles/{id}:
-    delete:
-      consumes:
-        - application/json
-      description: Delete a role
-      parameters:
-        - description: Role ID
-          in: path
-          name: id
-          required: true
-          type: string
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: Role deleted successfully
-          schema:
-            type: object
-        "400":
-          description: Invalid role ID
-          schema:
-            type: object
-        "404":
-          description: Role not found
-          schema:
-            type: object
-        "500":
-          description: Internal server error
-          schema:
-            type: object
-      summary: Delete Role
-      tags:
-        - Roles
-    get:
-      consumes:
-        - application/json
-      description: Retrieve a specific role by their ID
-      parameters:
-        - description: Role ID
-          in: path
-          name: id
-          required: true
-          type: string
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: Role retrieved successfully
-          schema:
-            type: object
-        "400":
-          description: Invalid role ID
-          schema:
-            type: object
-        "404":
-          description: Role not found
-          schema:
-            type: object
-        "500":
-          description: Internal server error
-          schema:
-            type: object
-      summary: Get Role by ID
-      tags:
-        - Roles
-    put:
-      consumes:
-        - application/json
-      description: Update an existing role's information
-      parameters:
-        - description: Role ID
-          in: path
-          name: id
-          required: true
-          type: string
-        - description: Role update data
-          in: body
-          name: request
-          required: true
-          schema:
-            $ref: "#/definitions/handlers.UpdateRoleRequest"
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: Role updated successfully
-          schema:
-            type: object
-        "400":
-          description: Invalid request
-          schema:
-            type: object
-        "404":
-          description: Role not found
-          schema:
-            type: object
-        "500":
-          description: Internal server error
-          schema:
-            type: object
-      summary: Update Role
-      tags:
-        - Roles
   /health:
     get:
       description: Check if the service is running
@@ -1829,6 +7423,169 @@ paths:
           schema:
             $ref: "#/definitions/common.HealthResponse"
       summary: Health check
+      tags:
+        - health
+  /health/components:
+    get:
+      description: Returns health status of all registered components
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Components health status
+          schema:
+            additionalProperties:
+              $ref: "#/definitions/health.ComponentHealth"
+            type: object
+      summary: Get health status of all components
+      tags:
+        - health
+  /health/components/{component}:
+    get:
+      description: Returns health status of a specific component by name
+      parameters:
+        - description: Component name
+          in: path
+          name: component
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Component health status
+          schema:
+            $ref: "#/definitions/health.ComponentHealth"
+        "404":
+          description: Component not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get health status of a specific component
+      tags:
+        - health
+  /health/detailed:
+    get:
+      description: Check if the service and its dependencies are healthy
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/health.DetailedHealthResponse"
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: "#/definitions/health.DetailedHealthResponse"
+      summary: Detailed health check
+      tags:
+        - health
+  /health/live:
+    get:
+      description: Returns liveness probe status for Kubernetes
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Service is alive
+          schema:
+            additionalProperties: true
+            type: object
+        "503":
+          description: Service is not alive
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get liveness probe status
+      tags:
+        - health
+  /health/ready:
+    get:
+      description: Returns readiness probe status for Kubernetes
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Service is ready
+          schema:
+            additionalProperties: true
+            type: object
+        "503":
+          description: Service is not ready
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get readiness probe status
+      tags:
+        - health
+  /metrics:
+    get:
+      description:
+        Get comprehensive system metrics including memory, database, and
+        HTTP stats
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/health.MetricsResponse"
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: "#/definitions/health.MetricsResponse"
+      summary: Get system metrics
+      tags:
+        - health
+  /metrics/prometheus:
+    get:
+      description: Get metrics in Prometheus format for scraping
+      produces:
+        - text/plain
+      responses:
+        "200":
+          description: Prometheus metrics
+          schema:
+            type: string
+      summary: Get Prometheus metrics
+      tags:
+        - health
+  /ready:
+    get:
+      description: Check if the service is ready to accept traffic
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/common.HealthResponse"
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: "#/definitions/common.HealthResponse"
+      summary: Readiness check
+      tags:
+        - health
+  /status:
+    get:
+      description:
+        Get comprehensive status dashboard with service health, dependencies,
+        and alerts
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/health.StatusDashboard"
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: "#/definitions/health.StatusDashboard"
+      summary: Get status dashboard
       tags:
         - health
 swagger: "2.0"

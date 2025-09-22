@@ -1,62 +1,97 @@
 package catalog
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/base"
 	"github.com/shopspring/decimal"
+	"gorm.io/gorm"
 )
 
-// InventoryStatus represents the status of an inventory lot
-type InventoryStatus string
+// LotStatus represents the status of an inventory lot
+type LotStatus string
 
 const (
-	InventoryStatusAvailable InventoryStatus = "available"
-	InventoryStatusReserved  InventoryStatus = "reserved"
-	InventoryStatusSold      InventoryStatus = "sold"
-	InventoryStatusExpired   InventoryStatus = "expired"
-	InventoryStatusDamaged   InventoryStatus = "damaged"
+	LotStatusActive   LotStatus = "active"
+	LotStatusReserved LotStatus = "reserved"
+	LotStatusSold     LotStatus = "sold"
+	LotStatusExpired  LotStatus = "expired"
+	LotStatusDamaged  LotStatus = "damaged"
+	LotStatusReturned LotStatus = "returned"
 )
 
-// InventoryLot represents product inventory authority
+// InventoryLot represents a specific lot/batch of inventory
 type InventoryLot struct {
 	base.BaseModel
 
-	// Product Reference
-	CatalogItemID  string `json:"catalog_item_id" gorm:"type:varchar(255);not null;index"`
-	OrganizationID string `json:"organization_id" gorm:"type:varchar(255);not null;index"`
+	// Tenant isolation
+	OrganizationID string `json:"organization_id" gorm:"type:varchar(255);not null;index:idx_tenant"`
 
-	// Lot Information
-	LotNumber   string `json:"lot_number" gorm:"type:varchar(100);not null"`
-	BatchNumber string `json:"batch_number" gorm:"type:varchar(100)"`
+	// Parent catalog item or variant
+	CatalogItemID *string `json:"catalog_item_id" gorm:"type:varchar(255);index:idx_catalog_item"`
+	VariantID     *string `json:"variant_id" gorm:"type:varchar(255);index:idx_variant"`
 
-	// Quantity Management
-	InitialQuantity   decimal.Decimal `json:"initial_quantity" gorm:"type:decimal(12,3);not null"`
-	AvailableQuantity decimal.Decimal `json:"available_quantity" gorm:"type:decimal(12,3);not null"`
-	ReservedQuantity  decimal.Decimal `json:"reserved_quantity" gorm:"type:decimal(12,3);default:0"`
-	SoldQuantity      decimal.Decimal `json:"sold_quantity" gorm:"type:decimal(12,3);default:0"`
+	// Lot identification
+	LotNumber    string `json:"lot_number" gorm:"type:varchar(100);not null;uniqueIndex:idx_org_lot_number"`
+	BatchNumber  string `json:"batch_number" gorm:"type:varchar(100);index:idx_batch"`
+	SerialNumber string `json:"serial_number" gorm:"type:varchar(100);uniqueIndex:idx_serial,where:serial_number IS NOT NULL AND serial_number != ''"`
 
-	// Quality & Compliance
-	QualityGrade string     `json:"quality_grade" gorm:"type:varchar(50)"`
-	HarvestDate  *time.Time `json:"harvest_date" gorm:"type:date"`
-	ExpiryDate   *time.Time `json:"expiry_date" gorm:"type:date"`
+	// Quantity and units
+	Quantity      decimal.Decimal `json:"quantity" gorm:"type:decimal(12,3);not null;check:quantity > 0"`
+	ReservedQty   decimal.Decimal `json:"reserved_qty" gorm:"type:decimal(12,3);not null;default:0;check:reserved_qty >= 0"`
+	AvailableQty  decimal.Decimal `json:"available_qty" gorm:"type:decimal(12,3);not null;check:available_qty >= 0"`
+	UnitOfMeasure string          `json:"unit_of_measure" gorm:"type:varchar(50);not null"`
 
-	// Location
-	WarehouseLocation string `json:"warehouse_location" gorm:"type:varchar(255)"`
-	StorageConditions string `json:"storage_conditions" gorm:"type:jsonb"`
+	// Status and condition
+	Status    LotStatus `json:"status" gorm:"type:varchar(20);not null;default:'active';index:idx_status;check:status IN ('active', 'reserved', 'sold', 'expired', 'damaged', 'returned')"`
+	Condition string    `json:"condition" gorm:"type:varchar(50)"` // new, used, refurbished, damaged
 
-	// Pricing Override
-	LotPrice *decimal.Decimal `json:"lot_price" gorm:"type:decimal(12,2)"` // Override catalog base price
+	// Dates
+	ManufacturedDate *time.Time `json:"manufactured_date" gorm:"type:timestamp"`
+	ExpiryDate       *time.Time `json:"expiry_date" gorm:"type:timestamp;index:idx_expiry"`
+	ReceivedDate     *time.Time `json:"received_date" gorm:"type:timestamp"`
 
-	// Status
-	Status InventoryStatus `json:"status" gorm:"type:varchar(20);default:'available'"`
+	// Location and storage
+	Location  string `json:"location" gorm:"type:varchar(255);index:idx_location"`
+	Warehouse string `json:"warehouse" gorm:"type:varchar(255);index:idx_warehouse"`
+	Zone      string `json:"zone" gorm:"type:varchar(100)"`
+	Aisle     string `json:"aisle" gorm:"type:varchar(50)"`
+	Shelf     string `json:"shelf" gorm:"type:varchar(50)"`
+	Bin       string `json:"bin" gorm:"type:varchar(50)"`
+
+	// Cost and pricing
+	UnitCost  decimal.Decimal `json:"unit_cost" gorm:"type:decimal(12,2);check:unit_cost >= 0"`
+	TotalCost decimal.Decimal `json:"total_cost" gorm:"type:decimal(12,2);check:total_cost >= 0"`
+	Currency  string          `json:"currency" gorm:"type:varchar(3);not null;default:'INR'"`
+
+	// Supplier information
+	SupplierID      string `json:"supplier_id" gorm:"type:varchar(255);index:idx_supplier"`
+	PurchaseOrderID string `json:"purchase_order_id" gorm:"type:varchar(255);index:idx_po"`
+
+	// Quality and compliance
+	QualityGrade    string `json:"quality_grade" gorm:"type:varchar(50)"`     // A, B, C, Premium, Standard
+	CertificationID string `json:"certification_id" gorm:"type:varchar(100)"` // Organic, Fair Trade, etc.
+	TestResults     string `json:"test_results" gorm:"type:jsonb"`            // Lab test results
+
+	// Tracking and traceability
+	OriginLocation string     `json:"origin_location" gorm:"type:varchar(255)"` // Farm, factory location
+	HarvestDate    *time.Time `json:"harvest_date" gorm:"type:timestamp"`       // For agricultural products
+	ProcessingDate *time.Time `json:"processing_date" gorm:"type:timestamp"`
 
 	// Metadata
-	Metadata string `json:"metadata" gorm:"type:jsonb"`
+	Notes    string `json:"notes" gorm:"type:text"`
+	Metadata string `json:"metadata" gorm:"type:jsonb;index:idx_inventory_lots_metadata"`
+
+	// Audit fields
+	CreatedBy string `json:"created_by" gorm:"type:varchar(255);not null"`
+	UpdatedBy string `json:"updated_by" gorm:"type:varchar(255);not null"`
+
+	// Soft delete support
+	DeletedAt gorm.DeletedAt `json:"-" gorm:"index:idx_inventory_lots_deleted"`
 
 	// Relationships
 	CatalogItem *CatalogItem `json:"catalog_item,omitempty" gorm:"foreignKey:CatalogItemID"`
+	Variant     *Variant     `json:"variant,omitempty" gorm:"foreignKey:VariantID"`
 }
 
 // TableName returns the table name for GORM
@@ -65,95 +100,91 @@ func (InventoryLot) TableName() string {
 }
 
 // NewInventoryLot creates a new inventory lot
-func NewInventoryLot(catalogItemID, orgID, lotNumber string, initialQuantity decimal.Decimal) *InventoryLot {
+func NewInventoryLot(orgID, lotNumber string, quantity decimal.Decimal, unitOfMeasure string) *InventoryLot {
 	return &InventoryLot{
-		BaseModel:         *base.NewBaseModel("LOT", "large"),
-		CatalogItemID:     catalogItemID,
-		OrganizationID:    orgID,
-		LotNumber:         lotNumber,
-		InitialQuantity:   initialQuantity,
-		AvailableQuantity: initialQuantity,
-		ReservedQuantity:  decimal.Zero,
-		SoldQuantity:      decimal.Zero,
-		Status:            InventoryStatusAvailable,
+		BaseModel:      *base.NewBaseModel("LOT", "large"),
+		OrganizationID: orgID,
+		LotNumber:      lotNumber,
+		Quantity:       quantity,
+		AvailableQty:   quantity,
+		ReservedQty:    decimal.Zero,
+		UnitOfMeasure:  unitOfMeasure,
+		Status:         LotStatusActive,
+		Currency:       "INR",
 	}
 }
 
-// CanReserve checks if the lot can reserve the requested quantity
-func (i *InventoryLot) CanReserve(quantity decimal.Decimal) bool {
-	return i.Status == InventoryStatusAvailable && i.AvailableQuantity.GreaterThanOrEqual(quantity)
-}
-
-// Reserve reserves the specified quantity
-func (i *InventoryLot) Reserve(quantity decimal.Decimal) error {
-	if !i.CanReserve(quantity) {
-		return fmt.Errorf("insufficient available quantity: requested %s, available %s",
-			quantity.String(), i.AvailableQuantity.String())
-	}
-
-	i.AvailableQuantity = i.AvailableQuantity.Sub(quantity)
-	i.ReservedQuantity = i.ReservedQuantity.Add(quantity)
-
-	if i.AvailableQuantity.IsZero() {
-		i.Status = InventoryStatusReserved
-	}
-
-	return nil
-}
-
-// Release releases the specified reserved quantity back to available
-func (i *InventoryLot) Release(quantity decimal.Decimal) error {
-	if i.ReservedQuantity.LessThan(quantity) {
-		return fmt.Errorf("insufficient reserved quantity: requested %s, reserved %s",
-			quantity.String(), i.ReservedQuantity.String())
-	}
-
-	i.ReservedQuantity = i.ReservedQuantity.Sub(quantity)
-	i.AvailableQuantity = i.AvailableQuantity.Add(quantity)
-
-	if i.Status == InventoryStatusReserved && i.AvailableQuantity.GreaterThan(decimal.Zero) {
-		i.Status = InventoryStatusAvailable
-	}
-
-	return nil
-}
-
-// Sell converts reserved quantity to sold
-func (i *InventoryLot) Sell(quantity decimal.Decimal) error {
-	if i.ReservedQuantity.LessThan(quantity) {
-		return fmt.Errorf("insufficient reserved quantity: requested %s, reserved %s",
-			quantity.String(), i.ReservedQuantity.String())
-	}
-
-	i.ReservedQuantity = i.ReservedQuantity.Sub(quantity)
-	i.SoldQuantity = i.SoldQuantity.Add(quantity)
-
-	// Check if lot is completely sold
-	totalRemaining := i.AvailableQuantity.Add(i.ReservedQuantity)
-	if totalRemaining.IsZero() {
-		i.Status = InventoryStatusSold
-	} else if i.AvailableQuantity.GreaterThan(decimal.Zero) {
-		i.Status = InventoryStatusAvailable
-	}
-
-	return nil
+// IsAvailable checks if the lot has available quantity
+func (l *InventoryLot) IsAvailable() bool {
+	return l.Status == LotStatusActive && l.AvailableQty.GreaterThan(decimal.Zero)
 }
 
 // IsExpired checks if the lot has expired
-func (i *InventoryLot) IsExpired() bool {
-	if i.ExpiryDate == nil {
+func (l *InventoryLot) IsExpired() bool {
+	if l.ExpiryDate == nil {
 		return false
 	}
-	return time.Now().After(*i.ExpiryDate)
+	return time.Now().After(*l.ExpiryDate)
 }
 
-// GetEffectivePrice returns the effective price (lot price or catalog base price)
-func (i *InventoryLot) GetEffectivePrice() decimal.Decimal {
-	if i.LotPrice != nil {
-		return *i.LotPrice
+// ReserveQuantity reserves a specific quantity from the lot
+func (l *InventoryLot) ReserveQuantity(qty decimal.Decimal) bool {
+	if l.AvailableQty.LessThan(qty) {
+		return false
 	}
-	if i.CatalogItem != nil {
-		return i.CatalogItem.BasePrice
+
+	l.AvailableQty = l.AvailableQty.Sub(qty)
+	l.ReservedQty = l.ReservedQty.Add(qty)
+	return true
+}
+
+// ReleaseReservation releases a reserved quantity back to available
+func (l *InventoryLot) ReleaseReservation(qty decimal.Decimal) bool {
+	if l.ReservedQty.LessThan(qty) {
+		return false
 	}
-	return decimal.Zero
+
+	l.ReservedQty = l.ReservedQty.Sub(qty)
+	l.AvailableQty = l.AvailableQty.Add(qty)
+	return true
+}
+
+// ConsumeQuantity consumes quantity from reserved stock
+func (l *InventoryLot) ConsumeQuantity(qty decimal.Decimal) bool {
+	if l.ReservedQty.LessThan(qty) {
+		return false
+	}
+
+	l.ReservedQty = l.ReservedQty.Sub(qty)
+	l.Quantity = l.Quantity.Sub(qty)
+
+	// Update status if lot is empty
+	if l.Quantity.IsZero() {
+		l.Status = LotStatusSold
+	}
+
+	return true
+}
+
+// GetTotalValue returns the total value of the lot
+func (l *InventoryLot) GetTotalValue() decimal.Decimal {
+	return l.UnitCost.Mul(l.Quantity)
+}
+
+// GetLocationString returns the full location string
+func (l *InventoryLot) GetLocationString() string {
+	location := l.Warehouse
+	if l.Zone != "" {
+		location += " - " + l.Zone
+	}
+	if l.Aisle != "" {
+		location += " - " + l.Aisle
+	}
+	if l.Shelf != "" {
+		location += " - " + l.Shelf
+	}
+	if l.Bin != "" {
+		location += " - " + l.Bin
+	}
+	return location
 }

@@ -14,6 +14,7 @@ import (
 	catalogService "kisanlink-ecom/internal/services/catalog"
 	integrationService "kisanlink-ecom/internal/services/integrations"
 	inventoryService "kisanlink-ecom/internal/services/inventory"
+	marketplaceService "kisanlink-ecom/internal/services/marketplace"
 	orderService "kisanlink-ecom/internal/services/orders"
 	userService "kisanlink-ecom/internal/services/user"
 
@@ -30,6 +31,7 @@ func SetupSecureRouter(
 	orderSvc orderService.OrderServiceInterface,
 	userSvc *userService.UserService,
 	integrationSvc integrationService.IntegrationServiceInterface,
+	marketplaceSvc *marketplaceService.MarketplaceServices,
 ) *gin.Engine {
 	// Set Gin mode
 	gin.SetMode(gin.ReleaseMode)
@@ -366,6 +368,9 @@ func SetupSecureRouter(
 				c.JSON(200, gin.H{"message": "All caches cleared"})
 			})
 		}
+
+		// Marketplace routes with full security
+		SetupMarketplaceRoutes(v1, aaaClient, marketplaceSvc)
 	}
 
 	// API documentation (public access)

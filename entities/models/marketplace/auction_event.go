@@ -103,31 +103,31 @@ func (ae *AuctionEvent) GetEventData() (map[string]interface{}, error) {
 
 // ListingCreatedEventData represents data for listing creation events
 type ListingCreatedEventData struct {
-	ProductID       string  `json:"product_id"`
-	AskingPrice     float64 `json:"asking_price"`
-	MinimumBid      float64 `json:"minimum_bid"`
-	DurationHours   int     `json:"duration_hours"`
-	Visibility      string  `json:"visibility"`
-	AuctionType     string  `json:"auction_type"`
-	BidVisibility   string  `json:"bid_visibility"`
+	ProductID     string  `json:"product_id"`
+	AskingPrice   float64 `json:"asking_price"`
+	MinimumBid    float64 `json:"minimum_bid"`
+	DurationHours int     `json:"duration_hours"`
+	Visibility    string  `json:"visibility"`
+	AuctionType   string  `json:"auction_type"`
+	BidVisibility string  `json:"bid_visibility"`
 }
 
 // BidPlacedEventData represents data for bid placement events
 type BidPlacedEventData struct {
-	BidID           string  `json:"bid_id"`
-	BidderID        string  `json:"bidder_id"`
-	BidAmount       float64 `json:"bid_amount"`
+	BidID           string   `json:"bid_id"`
+	BidderID        string   `json:"bidder_id"`
+	BidAmount       float64  `json:"bid_amount"`
 	PreviousHighest *float64 `json:"previous_highest,omitempty"`
-	IsAutoBid       bool    `json:"is_auto_bid"`
-	Message         string  `json:"message,omitempty"`
+	IsAutoBid       bool     `json:"is_auto_bid"`
+	Message         string   `json:"message,omitempty"`
 }
 
 // BidOutbidEventData represents data for bid outbid events
 type BidOutbidEventData struct {
-	OutbidBidID     string  `json:"outbid_bid_id"`
-	OutbidBidderID  string  `json:"outbid_bidder_id"`
-	OutbidAmount    float64 `json:"outbid_amount"`
-	NewHighestBidID string  `json:"new_highest_bid_id"`
+	OutbidBidID      string  `json:"outbid_bid_id"`
+	OutbidBidderID   string  `json:"outbid_bidder_id"`
+	OutbidAmount     float64 `json:"outbid_amount"`
+	NewHighestBidID  string  `json:"new_highest_bid_id"`
 	NewHighestAmount float64 `json:"new_highest_amount"`
 }
 
@@ -142,12 +142,12 @@ type AutoBidTriggeredEventData struct {
 
 // ListingClosedEventData represents data for listing closure events
 type ListingClosedEventData struct {
-	CloseReason     string  `json:"close_reason"`
-	WinningBidID    *string `json:"winning_bid_id,omitempty"`
-	WinningBidderID *string `json:"winning_bidder_id,omitempty"`
+	CloseReason     string   `json:"close_reason"`
+	WinningBidID    *string  `json:"winning_bid_id,omitempty"`
+	WinningBidderID *string  `json:"winning_bidder_id,omitempty"`
 	WinningAmount   *float64 `json:"winning_amount,omitempty"`
-	TotalBids       int     `json:"total_bids"`
-	FinalStatus     string  `json:"final_status"`
+	TotalBids       int      `json:"total_bids"`
+	FinalStatus     string   `json:"final_status"`
 }
 
 // ListingExpiredEventData represents data for listing expiry events
@@ -162,12 +162,12 @@ type ListingExpiredEventData struct {
 
 // BidRemovedEventData represents data for bid removal events
 type BidRemovedEventData struct {
-	RemovedBidID     string  `json:"removed_bid_id"`
-	RemovedBidderID  string  `json:"removed_bidder_id"`
-	RemovedAmount    float64 `json:"removed_amount"`
-	RemovalReason    string  `json:"removal_reason"`
-	WasHighestBid    bool    `json:"was_highest_bid"`
-	NewHighestBidID  *string `json:"new_highest_bid_id,omitempty"`
+	RemovedBidID     string   `json:"removed_bid_id"`
+	RemovedBidderID  string   `json:"removed_bidder_id"`
+	RemovedAmount    float64  `json:"removed_amount"`
+	RemovalReason    string   `json:"removal_reason"`
+	WasHighestBid    bool     `json:"was_highest_bid"`
+	NewHighestBidID  *string  `json:"new_highest_bid_id,omitempty"`
 	NewHighestAmount *float64 `json:"new_highest_amount,omitempty"`
 }
 
@@ -243,12 +243,12 @@ func CreateListingClosedEvent(listingID, actorID string, actorType ActorType, cl
 
 // EventFilter represents filters for event queries
 type EventFilter struct {
-	ListingID   string            `json:"listing_id,omitempty"`
-	EventType   *AuctionEventType `json:"event_type,omitempty"`
-	ActorID     string            `json:"actor_id,omitempty"`
-	ActorType   *ActorType        `json:"actor_type,omitempty"`
-	TimeFrom    *time.Time        `json:"time_from,omitempty"`
-	TimeTo      *time.Time        `json:"time_to,omitempty"`
+	ListingID string            `json:"listing_id,omitempty"`
+	EventType *AuctionEventType `json:"event_type,omitempty"`
+	ActorID   string            `json:"actor_id,omitempty"`
+	ActorType *ActorType        `json:"actor_type,omitempty"`
+	TimeFrom  *time.Time        `json:"time_from,omitempty"`
+	TimeTo    *time.Time        `json:"time_to,omitempty"`
 }
 
 // EventSummary represents a summary view of an auction event

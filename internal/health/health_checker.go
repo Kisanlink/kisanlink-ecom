@@ -32,7 +32,7 @@ type ComponentHealth struct {
 	Status      HealthStatus           `json:"status"`
 	Message     string                 `json:"message,omitempty"`
 	LastChecked time.Time              `json:"last_checked"`
-	Duration    time.Duration          `json:"duration"`
+	Duration    int64                  `json:"duration"` // Duration in milliseconds
 	Details     map[string]interface{} `json:"details,omitempty"`
 }
 
@@ -41,7 +41,7 @@ type SystemHealth struct {
 	Status     HealthStatus               `json:"status"`
 	Version    string                     `json:"version"`
 	Timestamp  time.Time                  `json:"timestamp"`
-	Duration   time.Duration              `json:"duration"`
+	Duration   int64                      `json:"duration"` // Duration in milliseconds
 	Components map[string]ComponentHealth `json:"components"`
 }
 
@@ -172,7 +172,7 @@ func (hm *HealthManager) CheckHealth(ctx context.Context) SystemHealth {
 		Status:     overallStatus,
 		Version:    hm.version,
 		Timestamp:  time.Now(),
-		Duration:   time.Since(start),
+		Duration:   time.Since(start).Milliseconds(),
 		Components: components,
 	}
 }
@@ -285,10 +285,11 @@ func (dhc *DatabaseHealthChecker) Check(ctx context.Context) ComponentHealth {
 
 	// For now, we'll do a simple health check without ping
 	// In a real implementation, you might query a health table or check connection
-	health.Duration = time.Since(start)
+	duration := time.Since(start)
+	health.Duration = duration.Milliseconds()
 	health.Status = StatusHealthy
 	health.Message = "Database is healthy"
-	health.Details["response_time_ms"] = health.Duration.Milliseconds()
+	health.Details["response_time_ms"] = health.Duration
 
 	return health
 }
@@ -324,10 +325,11 @@ func (chc *CacheHealthChecker) Check(ctx context.Context) ComponentHealth {
 	// For now, we'll do a simple health check without ping
 	// We could check cache stats or attempt a simple operation
 	stats := chc.cache.Stats()
-	health.Duration = time.Since(start)
+	duration := time.Since(start)
+	health.Duration = duration.Milliseconds()
 	health.Status = StatusHealthy
 	health.Message = "Cache is healthy"
-	health.Details["response_time_ms"] = health.Duration.Milliseconds()
+	health.Details["response_time_ms"] = health.Duration
 	health.Details["cache_stats"] = stats
 
 	return health
@@ -361,7 +363,7 @@ func (cbhc *CircuitBreakerHealthChecker) Check(ctx context.Context) ComponentHea
 
 	// Get circuit breaker statistics
 	stats := resilience.GetCircuitBreakerStats()
-	health.Duration = time.Since(start)
+	health.Duration = time.Since(start).Milliseconds()
 
 	health.Details["total_breakers"] = stats.TotalBreakers
 	health.Details["closed_breakers"] = stats.ClosedBreakers
@@ -417,10 +419,10 @@ func (eshc *ExternalServiceHealthChecker) Check(ctx context.Context) ComponentHe
 	}
 
 	err := eshc.checkFunc(ctx)
-	health.Duration = time.Since(start)
+	health.Duration = time.Since(start).Milliseconds()
 
 	health.Details["service_name"] = eshc.serviceName
-	health.Details["response_time_ms"] = health.Duration.Milliseconds()
+	health.Details["response_time_ms"] = health.Duration
 
 	if err != nil {
 		health.Status = StatusUnhealthy

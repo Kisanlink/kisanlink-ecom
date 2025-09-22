@@ -57,7 +57,7 @@ func (m *MockInventoryRepository) ListByCatalogItem(ctx context.Context, catalog
 	return args.Get(0).([]*catalogModels.InventoryLot), args.Get(1).(int64), args.Error(2)
 }
 
-func (m *MockInventoryRepository) ListByStatus(ctx context.Context, orgID string, status catalogModels.InventoryStatus, offset, limit int) ([]*catalogModels.InventoryLot, int64, error) {
+func (m *MockInventoryRepository) ListByStatus(ctx context.Context, orgID string, status catalogModels.LotStatus, offset, limit int) ([]*catalogModels.InventoryLot, int64, error) {
 	args := m.Called(ctx, orgID, status, offset, limit)
 	return args.Get(0).([]*catalogModels.InventoryLot), args.Get(1).(int64), args.Error(2)
 }
@@ -134,15 +134,15 @@ func (m *MockCatalogRepository) GetByID(ctx context.Context, id string, model in
 
 // Test helper functions
 func createTestInventoryLot() *catalogModels.InventoryLot {
+	catalogItemID := "item123"
 	return &catalogModels.InventoryLot{
-		CatalogItemID:     "item123",
-		OrganizationID:    "org123",
-		LotNumber:         "LOT001",
-		InitialQuantity:   decimal.NewFromFloat(100),
-		AvailableQuantity: decimal.NewFromFloat(100),
-		ReservedQuantity:  decimal.Zero,
-		SoldQuantity:      decimal.Zero,
-		Status:            catalogModels.InventoryStatusAvailable,
+		CatalogItemID:  &catalogItemID,
+		OrganizationID: "org123",
+		LotNumber:      "LOT001",
+		Quantity:       decimal.NewFromFloat(100),
+		AvailableQty:   decimal.NewFromFloat(100),
+		ReservedQty:    decimal.Zero,
+		Status:         catalogModels.LotStatusActive,
 	}
 }
 
@@ -188,11 +188,11 @@ func TestInventoryService_CreateInventoryLot_Success(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.NotNil(t, lot)
-	assert.Equal(t, "item123", lot.CatalogItemID)
+	assert.Equal(t, "item123", *lot.CatalogItemID)
 	assert.Equal(t, "org123", lot.OrganizationID)
 	assert.Equal(t, "LOT001", lot.LotNumber)
-	assert.Equal(t, decimal.NewFromFloat(100), lot.InitialQuantity)
-	assert.Equal(t, decimal.NewFromFloat(100), lot.AvailableQuantity)
+	assert.Equal(t, decimal.NewFromFloat(100), lot.Quantity)
+	assert.Equal(t, decimal.NewFromFloat(100), lot.AvailableQty)
 
 	mockInventoryRepo.AssertExpectations(t)
 	mockCatalogRepo.AssertExpectations(t)
@@ -365,21 +365,35 @@ func TestInventoryService_ReleaseInventory_Success_WithAuditTrail(t *testing.T) 
 	service := inventoryService.NewInventoryService(mockInventoryRepo, mockCatalogRepo)
 
 	quantity := decimal.NewFromFloat(30)
+	catalogItemID := "item123"
 	lot1 := &catalogModels.InventoryLot{
-		CatalogItemID:    "item123",
-		ReservedQuantity: decimal.NewFromFloat(50),
+		CatalogItemID: &catalogItemID,
+		ReservedQty:   decimal.NewFromFloat(50),
 	}
 	lot1.ID = "lot1"
 	lotsWithReserved := []*catalogModels.InventoryLot{lot1}
 
 	// Mock catalog item validation
-	mockCatalogRepo.On("GetByID", mock.Anything, "item123", mock.AnythingOfType("*catalog.CatalogItem")).Return(mock.Anything, nil)
+	mockCatalogRepo.On("GetByID", mock.Anything, "item123", mock.AnythingOfType("*catalog.CatalogItem")).Return(mock.Anything, nil).Run(func(args mock.Arguments) {
+		item := args.Get(2).(*catalogModels.CatalogItem)
+		item.OrganizationID = "org123"
+		item.ItemType = catalogModels.CatalogItemTypeProduct
+	})
 
-	// Mock getting lots with reserved quantity
-	mockInventoryRepo.On("ListByCatalogItem", mock.Anything, "item123", 0, 1000).Return(lotsWithReserved, int64(1), nil).Twice()
+	// Mock getting lots with reserved quantity - first call returns original state
+	mockInventoryRepo.On("ListByCatalogItem", mock.Anything, "item123", 0, 1000).Return(lotsWithReserved, int64(1), nil).Once()
 
 	// Mock release operation
 	mockInventoryRepo.On("ReleaseQuantity", mock.Anything, "item123", quantity).Return(nil)
+
+	// Second call returns updated state after release
+	updatedLot := &catalogModels.InventoryLot{
+		CatalogItemID: &catalogItemID,
+		ReservedQty:   decimal.NewFromFloat(20), // Reduced from 50 to 20
+	}
+	updatedLot.ID = "lot1"
+	updatedLots := []*catalogModels.InventoryLot{updatedLot}
+	mockInventoryRepo.On("ListByCatalogItem", mock.Anything, "item123", 0, 1000).Return(updatedLots, int64(1), nil).Once()
 
 	// Mock audit log creation
 	mockInventoryRepo.On("CreateAuditLog", mock.Anything, mock.AnythingOfType("*inventory.InventoryAuditLog")).Return(nil)
@@ -399,15 +413,20 @@ func TestInventoryService_ReleaseInventory_InsufficientReserved(t *testing.T) {
 	service := inventoryService.NewInventoryService(mockInventoryRepo, mockCatalogRepo)
 
 	quantity := decimal.NewFromFloat(100) // More than reserved
+	catalogItemID2 := "item123"
 	lot1 := &catalogModels.InventoryLot{
-		CatalogItemID:    "item123",
-		ReservedQuantity: decimal.NewFromFloat(50), // Only 50 reserved
+		CatalogItemID: &catalogItemID2,
+		ReservedQty:   decimal.NewFromFloat(50), // Only 50 reserved
 	}
 	lot1.ID = "lot1"
 	lotsWithReserved := []*catalogModels.InventoryLot{lot1}
 
 	// Mock catalog item validation
-	mockCatalogRepo.On("GetByID", mock.Anything, "item123", mock.AnythingOfType("*catalog.CatalogItem")).Return(mock.Anything, nil)
+	mockCatalogRepo.On("GetByID", mock.Anything, "item123", mock.AnythingOfType("*catalog.CatalogItem")).Return(mock.Anything, nil).Run(func(args mock.Arguments) {
+		item := args.Get(2).(*catalogModels.CatalogItem)
+		item.OrganizationID = "org123"
+		item.ItemType = catalogModels.CatalogItemTypeProduct
+	})
 
 	// Mock getting lots with reserved quantity
 	mockInventoryRepo.On("ListByCatalogItem", mock.Anything, "item123", 0, 1000).Return(lotsWithReserved, int64(1), nil)
@@ -429,22 +448,37 @@ func TestInventoryService_SellInventory_Success_WithAuditTrail(t *testing.T) {
 	service := inventoryService.NewInventoryService(mockInventoryRepo, mockCatalogRepo)
 
 	quantity := decimal.NewFromFloat(30)
+	catalogItemID3 := "item123"
 	lot1 := &catalogModels.InventoryLot{
-		CatalogItemID:    "item123",
-		ReservedQuantity: decimal.NewFromFloat(50),
-		SoldQuantity:     decimal.NewFromFloat(10),
+		CatalogItemID: &catalogItemID3,
+		ReservedQty:   decimal.NewFromFloat(50),
+		Quantity:      decimal.NewFromFloat(100), // Total quantity
 	}
 	lot1.ID = "lot1"
 	lotsWithReserved := []*catalogModels.InventoryLot{lot1}
 
 	// Mock catalog item validation
-	mockCatalogRepo.On("GetByID", mock.Anything, "item123", mock.AnythingOfType("*catalog.CatalogItem")).Return(mock.Anything, nil)
+	mockCatalogRepo.On("GetByID", mock.Anything, "item123", mock.AnythingOfType("*catalog.CatalogItem")).Return(mock.Anything, nil).Run(func(args mock.Arguments) {
+		item := args.Get(2).(*catalogModels.CatalogItem)
+		item.OrganizationID = "org123"
+		item.ItemType = catalogModels.CatalogItemTypeProduct
+	})
 
-	// Mock getting lots with reserved quantity
-	mockInventoryRepo.On("ListByCatalogItem", mock.Anything, "item123", 0, 1000).Return(lotsWithReserved, int64(1), nil).Twice()
+	// Mock getting lots with reserved quantity - first call returns original state
+	mockInventoryRepo.On("ListByCatalogItem", mock.Anything, "item123", 0, 1000).Return(lotsWithReserved, int64(1), nil).Once()
 
 	// Mock sell operation
 	mockInventoryRepo.On("SellQuantity", mock.Anything, "item123", quantity).Return(nil)
+
+	// Second call returns updated state after sell
+	updatedLot := &catalogModels.InventoryLot{
+		CatalogItemID: &catalogItemID3,
+		ReservedQty:   decimal.NewFromFloat(30),  // Reduced from 50 to 30
+		Quantity:      decimal.NewFromFloat(120), // Increased to trigger audit log
+	}
+	updatedLot.ID = "lot1"
+	updatedLots := []*catalogModels.InventoryLot{updatedLot}
+	mockInventoryRepo.On("ListByCatalogItem", mock.Anything, "item123", 0, 1000).Return(updatedLots, int64(1), nil).Once()
 
 	// Mock audit log creation
 	mockInventoryRepo.On("CreateAuditLog", mock.Anything, mock.AnythingOfType("*inventory.InventoryAuditLog")).Return(nil)
@@ -480,8 +514,8 @@ func TestInventoryService_AdjustInventory_PositiveAdjustment(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.NotNil(t, updatedLot)
-	assert.Equal(t, decimal.NewFromFloat(125), updatedLot.AvailableQuantity) // 100 + 25
-	assert.Equal(t, decimal.NewFromFloat(125), updatedLot.InitialQuantity)   // 100 + 25
+	assert.Equal(t, decimal.NewFromFloat(125), updatedLot.AvailableQty) // 100 + 25
+	assert.Equal(t, decimal.NewFromFloat(125), updatedLot.Quantity)     // 100 + 25
 
 	mockInventoryRepo.AssertExpectations(t)
 }
@@ -508,8 +542,8 @@ func TestInventoryService_AdjustInventory_NegativeAdjustment_Valid(t *testing.T)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, updatedLot)
-	assert.Equal(t, decimal.NewFromFloat(75), updatedLot.AvailableQuantity) // 100 - 25
-	assert.Equal(t, decimal.NewFromFloat(75), updatedLot.InitialQuantity)   // 100 - 25
+	assert.Equal(t, decimal.NewFromFloat(75), updatedLot.AvailableQty) // 100 - 25
+	assert.Equal(t, decimal.NewFromFloat(75), updatedLot.Quantity)     // 100 - 25
 
 	mockInventoryRepo.AssertExpectations(t)
 }
@@ -577,7 +611,7 @@ func TestInventoryService_ProcessExpiringLots_AutomatedStatusUpdate(t *testing.T
 	service := inventoryService.NewInventoryService(mockInventoryRepo, mockCatalogRepo)
 
 	lot1 := &catalogModels.InventoryLot{
-		Status:         catalogModels.InventoryStatusAvailable,
+		Status:         catalogModels.LotStatusActive,
 		ExpiryDate:     &time.Time{}, // Expired
 		OrganizationID: "org123",
 	}
@@ -598,7 +632,7 @@ func TestInventoryService_ProcessExpiringLots_AutomatedStatusUpdate(t *testing.T
 	assert.NoError(t, err)
 	assert.NotNil(t, processedLots)
 	assert.Len(t, processedLots, 1)
-	assert.Equal(t, catalogModels.InventoryStatusExpired, processedLots[0].Status)
+	assert.Equal(t, catalogModels.LotStatusExpired, processedLots[0].Status)
 
 	mockInventoryRepo.AssertExpectations(t)
 }

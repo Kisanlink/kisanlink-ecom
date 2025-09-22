@@ -14,6 +14,7 @@ import (
 	catalogService "kisanlink-ecom/internal/services/catalog"
 	integrationService "kisanlink-ecom/internal/services/integrations"
 	inventoryService "kisanlink-ecom/internal/services/inventory"
+	marketplaceService "kisanlink-ecom/internal/services/marketplace"
 	orderService "kisanlink-ecom/internal/services/orders"
 	userService "kisanlink-ecom/internal/services/user"
 
@@ -30,6 +31,7 @@ func SetupRouter(
 	orderSvc orderService.OrderServiceInterface,
 	userSvc *userService.UserService,
 	integrationSvc integrationService.IntegrationServiceInterface,
+	marketplaceSvc *marketplaceService.MarketplaceServices,
 ) *gin.Engine {
 	// Set Gin mode
 	gin.SetMode(gin.ReleaseMode)
@@ -110,10 +112,48 @@ func SetupRouter(
 				catalogGroup.GET("", catalogHandler.ListCatalogItems)
 				catalogGroup.GET("/search", catalogHandler.SearchCatalog)
 				catalogGroup.GET("/:type", catalogHandler.ListCatalogItemsByType)
+				catalogGroup.GET("/:type/:id", catalogHandler.GetCatalogItemByTypeAndID)
 				catalogGroup.PUT("/:type/:id",
 					conditionalAuthMiddleware(aaaClient),
 					catalogHandler.UpdateCatalogItemByTypeAndID,
 				)
+				catalogGroup.DELETE("/:type/:id",
+					conditionalAuthMiddleware(aaaClient),
+					catalogHandler.DeleteCatalogItemByTypeAndID,
+				)
+
+				// Publish/Unpublish operations
+				catalogGroup.POST("/:type/:id/publish",
+					conditionalAuthMiddleware(aaaClient),
+					catalogHandler.PublishCatalogItem,
+				)
+				catalogGroup.POST("/:type/:id/unpublish",
+					conditionalAuthMiddleware(aaaClient),
+					catalogHandler.UnpublishCatalogItem,
+				)
+
+				// Price update operations
+				catalogGroup.PUT("/:type/:id/price",
+					conditionalAuthMiddleware(aaaClient),
+					catalogHandler.UpdateCatalogItemPrice,
+				)
+
+				// Bulk operations
+				bulkGroup := catalogGroup.Group("/bulk")
+				{
+					bulkGroup.POST("/update",
+						conditionalAuthMiddleware(aaaClient),
+						catalogHandler.BulkUpdateCatalogItems,
+					)
+					bulkGroup.POST("/publish",
+						conditionalAuthMiddleware(aaaClient),
+						catalogHandler.BulkPublishCatalogItems,
+					)
+					bulkGroup.POST("/price-update",
+						conditionalAuthMiddleware(aaaClient),
+						catalogHandler.BulkUpdatePrices,
+					)
+				}
 
 				// Products
 				products := catalogGroup.Group("/products")
@@ -342,6 +382,26 @@ func SetupRouter(
 					// TODO: Add proper authorization middleware
 					orderHandler.CancelOrder,
 				)
+				ordersGroup.POST("/from-bid",
+					conditionalAuthMiddleware(aaaClient),
+					// TODO: Add proper authorization middleware
+					orderHandler.CreateOrderFromBid,
+				)
+				ordersGroup.POST("/validate-bid",
+					conditionalAuthMiddleware(aaaClient),
+					// TODO: Add proper authorization middleware
+					orderHandler.ValidateBidForOrder,
+				)
+				ordersGroup.POST("/:id/payment",
+					conditionalAuthMiddleware(aaaClient),
+					// TODO: Add proper authorization middleware
+					orderHandler.ProcessPaymentForOrder,
+				)
+				ordersGroup.GET("/:id/payment/status",
+					conditionalAuthMiddleware(aaaClient),
+					// TODO: Add proper authorization middleware
+					orderHandler.GetPaymentStatus,
+				)
 			} else {
 				// Fallback handlers when service is not available
 				ordersGroup.POST("", func(c *gin.Context) {
@@ -360,6 +420,18 @@ func SetupRouter(
 					c.JSON(503, gin.H{"error": "Service unavailable"})
 				})
 				ordersGroup.POST("/:id/cancel", func(c *gin.Context) {
+					c.JSON(503, gin.H{"error": "Service unavailable"})
+				})
+				ordersGroup.POST("/from-bid", func(c *gin.Context) {
+					c.JSON(503, gin.H{"error": "Service unavailable"})
+				})
+				ordersGroup.POST("/validate-bid", func(c *gin.Context) {
+					c.JSON(503, gin.H{"error": "Service unavailable"})
+				})
+				ordersGroup.POST("/:id/payment", func(c *gin.Context) {
+					c.JSON(503, gin.H{"error": "Service unavailable"})
+				})
+				ordersGroup.GET("/:id/payment/status", func(c *gin.Context) {
 					c.JSON(503, gin.H{"error": "Service unavailable"})
 				})
 			}
@@ -514,6 +586,9 @@ func SetupRouter(
 				})
 			}
 		}
+
+		// Marketplace routes
+		SetupMarketplaceRoutesConditional(v1, aaaClient, marketplaceSvc)
 	}
 
 	// Swagger documentation using Scalar API Reference (like aaa-service)

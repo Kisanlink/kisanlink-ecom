@@ -68,12 +68,12 @@ type UpdateInventoryLotRequest struct {
 
 // InventoryFilter represents filters for listing inventory lots
 type InventoryFilter struct {
-	CatalogItemID  string                        `json:"catalog_item_id"`
-	Status         catalogModels.InventoryStatus `json:"status"`
-	ExpiringBefore *time.Time                    `json:"expiring_before"`
-	QualityGrade   string                        `json:"quality_grade"`
-	Offset         int                           `json:"offset"`
-	Limit          int                           `json:"limit"`
+	CatalogItemID  string                  `json:"catalog_item_id"`
+	Status         catalogModels.LotStatus `json:"status"`
+	ExpiringBefore *time.Time              `json:"expiring_before"`
+	QualityGrade   string                  `json:"quality_grade"`
+	Offset         int                     `json:"offset"`
+	Limit          int                     `json:"limit"`
 }
 
 // InventoryListResponse represents a paginated list of inventory lots
@@ -142,14 +142,17 @@ func (s *inventoryService) CreateInventoryLot(ctx context.Context, req *CreateIn
 	}
 
 	// Create inventory lot
-	lot := catalogModels.NewInventoryLot(req.CatalogItemID, orgID, req.LotNumber, req.InitialQuantity)
+	lot := catalogModels.NewInventoryLot(orgID, req.LotNumber, req.InitialQuantity, "kg") // Default unit
 	lot.BatchNumber = req.BatchNumber
 	lot.QualityGrade = req.QualityGrade
 	lot.HarvestDate = req.HarvestDate
 	lot.ExpiryDate = req.ExpiryDate
-	lot.WarehouseLocation = req.WarehouseLocation
-	lot.StorageConditions = req.StorageConditions
-	lot.LotPrice = req.LotPrice
+	lot.CatalogItemID = &req.CatalogItemID
+	lot.Warehouse = req.WarehouseLocation
+	lot.Condition = req.StorageConditions
+	if req.LotPrice != nil {
+		lot.UnitCost = *req.LotPrice
+	}
 	lot.Metadata = req.Metadata
 	lot.CreatedBy = userID
 
@@ -269,13 +272,13 @@ func (s *inventoryService) UpdateInventoryLot(ctx context.Context, lotID string,
 		lot.ExpiryDate = req.ExpiryDate
 	}
 	if req.WarehouseLocation != nil {
-		lot.WarehouseLocation = *req.WarehouseLocation
+		lot.Warehouse = *req.WarehouseLocation
 	}
 	if req.StorageConditions != nil {
-		lot.StorageConditions = *req.StorageConditions
+		lot.Condition = *req.StorageConditions
 	}
 	if req.LotPrice != nil {
-		lot.LotPrice = req.LotPrice
+		lot.UnitCost = *req.LotPrice
 	}
 	if req.Metadata != nil {
 		lot.Metadata = *req.Metadata
@@ -293,8 +296,8 @@ func (s *inventoryService) UpdateInventoryLot(ctx context.Context, lotID string,
 		BaseModel:       *base.NewBaseModel("AUDIT", "small"),
 		LotID:           lot.ID,
 		Operation:       "update",
-		QuantityBefore:  lot.AvailableQuantity.Add(lot.ReservedQuantity).Add(lot.SoldQuantity),
-		QuantityAfter:   lot.AvailableQuantity.Add(lot.ReservedQuantity).Add(lot.SoldQuantity),
+		QuantityBefore:  lot.AvailableQty.Add(lot.ReservedQty).Add(lot.Quantity),
+		QuantityAfter:   lot.AvailableQty.Add(lot.ReservedQty).Add(lot.Quantity),
 		QuantityChanged: decimal.Zero,
 		Reason:          "Inventory lot metadata update",
 		UserID:          userID,
@@ -323,7 +326,7 @@ func (s *inventoryService) DeleteInventoryLot(ctx context.Context, lotID, userID
 	}
 
 	// Check if lot has reserved or sold quantities
-	if lot.ReservedQuantity.GreaterThan(decimal.Zero) || lot.SoldQuantity.GreaterThan(decimal.Zero) {
+	if lot.ReservedQty.GreaterThan(decimal.Zero) || lot.Quantity.GreaterThan(decimal.Zero) {
 		return fmt.Errorf("cannot delete lot with reserved or sold quantities")
 	}
 
@@ -337,9 +340,9 @@ func (s *inventoryService) DeleteInventoryLot(ctx context.Context, lotID, userID
 		BaseModel:       *base.NewBaseModel("AUDIT", "small"),
 		LotID:           lot.ID,
 		Operation:       "delete",
-		QuantityBefore:  lot.AvailableQuantity,
+		QuantityBefore:  lot.AvailableQty,
 		QuantityAfter:   decimal.Zero,
-		QuantityChanged: lot.AvailableQuantity.Neg(),
+		QuantityChanged: lot.AvailableQty.Neg(),
 		Reason:          "Inventory lot deletion",
 		UserID:          userID,
 		OrganizationID:  orgID,
@@ -392,8 +395,8 @@ func (s *inventoryService) ReserveInventory(ctx context.Context, catalogItemID s
 	lotsBeforeReservation, _, err := s.inventoryRepo.ListByCatalogItem(ctx, catalogItemID, 0, 1000)
 	if err == nil {
 		for _, lot := range lotsBeforeReservation {
-			if lot.Status == catalogModels.InventoryStatusAvailable && lot.AvailableQuantity.GreaterThan(decimal.Zero) {
-				originalLots[lot.ID] = lot.AvailableQuantity
+			if lot.Status == catalogModels.LotStatusActive && lot.AvailableQty.GreaterThan(decimal.Zero) {
+				originalLots[lot.ID] = lot.AvailableQty
 			}
 		}
 	}
@@ -407,14 +410,14 @@ func (s *inventoryService) ReserveInventory(ctx context.Context, catalogItemID s
 	// Create detailed audit logs for affected lots
 	for _, lot := range affectedLots {
 		originalAvailable := originalLots[lot.ID]
-		quantityReserved := originalAvailable.Sub(lot.AvailableQuantity)
+		quantityReserved := originalAvailable.Sub(lot.AvailableQty)
 
 		auditLog := &inventoryRepo.InventoryAuditLog{
 			BaseModel:       *base.NewBaseModel("AUDIT", "small"),
 			LotID:           lot.ID,
 			Operation:       "reserve",
 			QuantityBefore:  originalAvailable,
-			QuantityAfter:   lot.AvailableQuantity,
+			QuantityAfter:   lot.AvailableQty,
 			QuantityChanged: quantityReserved.Neg(), // Negative because it's a reduction
 			Reason:          fmt.Sprintf("Inventory reservation for catalog item %s", catalogItemID),
 			UserID:          userID,
@@ -461,7 +464,7 @@ func (s *inventoryService) ReleaseInventory(ctx context.Context, catalogItemID s
 	// Filter to only lots with reserved quantity
 	var filteredLots []*catalogModels.InventoryLot
 	for _, lot := range lotsWithReserved {
-		if lot.ReservedQuantity.GreaterThan(decimal.Zero) {
+		if lot.ReservedQty.GreaterThan(decimal.Zero) {
 			filteredLots = append(filteredLots, lot)
 		}
 	}
@@ -470,8 +473,8 @@ func (s *inventoryService) ReleaseInventory(ctx context.Context, catalogItemID s
 	totalReserved := decimal.Zero
 	originalReserved := make(map[string]decimal.Decimal)
 	for _, lot := range lotsWithReserved {
-		totalReserved = totalReserved.Add(lot.ReservedQuantity)
-		originalReserved[lot.ID] = lot.ReservedQuantity
+		totalReserved = totalReserved.Add(lot.ReservedQty)
+		originalReserved[lot.ID] = lot.ReservedQty
 	}
 
 	if totalReserved.LessThan(quantity) {
@@ -489,15 +492,15 @@ func (s *inventoryService) ReleaseInventory(ctx context.Context, catalogItemID s
 	if err == nil {
 		for _, lot := range updatedLots {
 			originalQty := originalReserved[lot.ID]
-			if originalQty.GreaterThan(lot.ReservedQuantity) {
-				quantityReleased := originalQty.Sub(lot.ReservedQuantity)
+			if originalQty.GreaterThan(lot.ReservedQty) {
+				quantityReleased := originalQty.Sub(lot.ReservedQty)
 
 				auditLog := &inventoryRepo.InventoryAuditLog{
 					BaseModel:       *base.NewBaseModel("AUDIT", "small"),
 					LotID:           lot.ID,
 					Operation:       "release",
 					QuantityBefore:  originalQty,
-					QuantityAfter:   lot.ReservedQuantity,
+					QuantityAfter:   lot.ReservedQty,
 					QuantityChanged: quantityReleased.Neg(), // Negative because reserved quantity decreased
 					Reason:          fmt.Sprintf("Inventory release for catalog item %s", catalogItemID),
 					UserID:          userID,
@@ -546,7 +549,7 @@ func (s *inventoryService) SellInventory(ctx context.Context, catalogItemID stri
 	// Filter to only lots with reserved quantity
 	var filteredLots []*catalogModels.InventoryLot
 	for _, lot := range lotsWithReserved {
-		if lot.ReservedQuantity.GreaterThan(decimal.Zero) {
+		if lot.ReservedQty.GreaterThan(decimal.Zero) {
 			filteredLots = append(filteredLots, lot)
 		}
 	}
@@ -556,9 +559,9 @@ func (s *inventoryService) SellInventory(ctx context.Context, catalogItemID stri
 	originalReserved := make(map[string]decimal.Decimal)
 	originalSold := make(map[string]decimal.Decimal)
 	for _, lot := range lotsWithReserved {
-		totalReserved = totalReserved.Add(lot.ReservedQuantity)
-		originalReserved[lot.ID] = lot.ReservedQuantity
-		originalSold[lot.ID] = lot.SoldQuantity
+		totalReserved = totalReserved.Add(lot.ReservedQty)
+		originalReserved[lot.ID] = lot.ReservedQty
+		originalSold[lot.ID] = lot.Quantity
 	}
 
 	if totalReserved.LessThan(quantity) {
@@ -578,15 +581,15 @@ func (s *inventoryService) SellInventory(ctx context.Context, catalogItemID stri
 			originalReservedQty := originalReserved[lot.ID]
 			originalSoldQty := originalSold[lot.ID]
 
-			if lot.SoldQuantity.GreaterThan(originalSoldQty) {
-				quantitySold := lot.SoldQuantity.Sub(originalSoldQty)
+			if lot.Quantity.GreaterThan(originalSoldQty) {
+				quantitySold := lot.Quantity.Sub(originalSoldQty)
 
 				auditLog := &inventoryRepo.InventoryAuditLog{
 					BaseModel:       *base.NewBaseModel("AUDIT", "small"),
 					LotID:           lot.ID,
 					Operation:       "sell",
 					QuantityBefore:  originalReservedQty,
-					QuantityAfter:   lot.ReservedQuantity,
+					QuantityAfter:   lot.ReservedQty,
 					QuantityChanged: quantitySold,
 					Reason:          fmt.Sprintf("Inventory sale for catalog item %s", catalogItemID),
 					UserID:          userID,
@@ -618,23 +621,23 @@ func (s *inventoryService) AdjustInventory(ctx context.Context, lotID string, ad
 	}
 
 	// Store original quantities for audit
-	originalTotal := lot.AvailableQuantity.Add(lot.ReservedQuantity).Add(lot.SoldQuantity)
+	originalTotal := lot.AvailableQty.Add(lot.ReservedQty).Add(lot.Quantity)
 
 	// Apply adjustment to available quantity
-	newAvailable := lot.AvailableQuantity.Add(adjustment)
+	newAvailable := lot.AvailableQty.Add(adjustment)
 	if newAvailable.LessThan(decimal.Zero) {
 		return nil, fmt.Errorf("adjustment would result in negative available quantity")
 	}
 
-	lot.AvailableQuantity = newAvailable
-	lot.InitialQuantity = lot.InitialQuantity.Add(adjustment)
+	lot.AvailableQty = newAvailable
+	lot.Quantity = lot.Quantity.Add(adjustment)
 	lot.UpdatedBy = userID
 
 	// Update status if necessary
-	if lot.AvailableQuantity.IsZero() && lot.ReservedQuantity.IsZero() {
-		lot.Status = catalogModels.InventoryStatusSold
-	} else if lot.AvailableQuantity.GreaterThan(decimal.Zero) {
-		lot.Status = catalogModels.InventoryStatusAvailable
+	if lot.AvailableQty.IsZero() && lot.ReservedQty.IsZero() {
+		lot.Status = catalogModels.LotStatusSold
+	} else if lot.AvailableQty.GreaterThan(decimal.Zero) {
+		lot.Status = catalogModels.LotStatusActive
 	}
 
 	// Save changes
@@ -643,7 +646,7 @@ func (s *inventoryService) AdjustInventory(ctx context.Context, lotID string, ad
 	}
 
 	// Create audit log
-	newTotal := lot.AvailableQuantity.Add(lot.ReservedQuantity).Add(lot.SoldQuantity)
+	newTotal := lot.AvailableQty.Add(lot.ReservedQty).Add(lot.Quantity)
 	auditLog := &inventoryRepo.InventoryAuditLog{
 		BaseModel:       *base.NewBaseModel("AUDIT", "small"),
 		LotID:           lot.ID,
@@ -736,8 +739,8 @@ func (s *inventoryService) ProcessExpiringLots(ctx context.Context, orgID string
 			BaseModel:       *base.NewBaseModel("AUDIT", "small"),
 			LotID:           lot.ID,
 			Operation:       "expire",
-			QuantityBefore:  lot.AvailableQuantity.Add(lot.ReservedQuantity),
-			QuantityAfter:   lot.AvailableQuantity.Add(lot.ReservedQuantity),
+			QuantityBefore:  lot.AvailableQty.Add(lot.ReservedQty),
+			QuantityAfter:   lot.AvailableQty.Add(lot.ReservedQty),
 			QuantityChanged: decimal.Zero,
 			Reason:          "Automatic expiration processing",
 			UserID:          "system",
@@ -748,7 +751,7 @@ func (s *inventoryService) ProcessExpiringLots(ctx context.Context, orgID string
 			fmt.Printf("Warning: failed to create audit log for expired lot %s: %v\n", lot.ID, err)
 		}
 
-		lot.Status = catalogModels.InventoryStatusExpired
+		lot.Status = catalogModels.LotStatusExpired
 		processedLots = append(processedLots, lot)
 	}
 
@@ -769,11 +772,11 @@ func (s *inventoryService) MarkLotExpired(ctx context.Context, lotID, userID, or
 	}
 
 	// Check if lot can be expired
-	if lot.Status == catalogModels.InventoryStatusExpired {
+	if lot.Status == catalogModels.LotStatusExpired {
 		return fmt.Errorf("lot is already expired")
 	}
 
-	if lot.Status == catalogModels.InventoryStatusSold {
+	if lot.Status == catalogModels.LotStatusSold {
 		return fmt.Errorf("cannot expire a sold lot")
 	}
 
@@ -787,8 +790,8 @@ func (s *inventoryService) MarkLotExpired(ctx context.Context, lotID, userID, or
 		BaseModel:       *base.NewBaseModel("AUDIT", "small"),
 		LotID:           lot.ID,
 		Operation:       "expire",
-		QuantityBefore:  lot.AvailableQuantity.Add(lot.ReservedQuantity),
-		QuantityAfter:   lot.AvailableQuantity.Add(lot.ReservedQuantity),
+		QuantityBefore:  lot.AvailableQty.Add(lot.ReservedQty),
+		QuantityAfter:   lot.AvailableQty.Add(lot.ReservedQty),
 		QuantityChanged: decimal.Zero,
 		Reason:          "Manual expiration",
 		UserID:          userID,

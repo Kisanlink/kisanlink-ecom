@@ -31,6 +31,8 @@ type CatalogServiceInterface interface {
 	DeleteLabour(ctx context.Context, labourID string, userID string) error
 	ListLabour(ctx context.Context, limit, offset int, category, status string) ([]*catalogModels.CatalogItem, error)
 	GetCatalogItemByID(ctx context.Context, id string) (*catalogModels.CatalogItem, error)
+	UpdateCatalogItem(ctx context.Context, catalogItem *catalogModels.CatalogItem, userID string) (*catalogModels.CatalogItem, error)
+	DeleteContract(ctx context.Context, contractID string, userID string) error
 	ListCatalogItems(ctx context.Context, filter *catalogRequests.CatalogFilter, offset, limit int) ([]*catalogModels.CatalogItem, int, error)
 	SearchCatalog(ctx context.Context, query string, filter *catalogRequests.CatalogFilter, offset, limit int) ([]*catalogModels.CatalogItem, int, error)
 	GetInventoryLevel(ctx context.Context, itemID string) (float64, error)
@@ -988,4 +990,43 @@ func (s *CatalogService) createLabourFromRequest(req *catalogRequests.CreateLabo
 	labour.SetUpdatedBy(userID)
 
 	return labour
+}
+
+// UpdateCatalogItem updates a catalog item based on its type
+func (s *CatalogService) UpdateCatalogItem(ctx context.Context, catalogItem *catalogModels.CatalogItem, userID string) (*catalogModels.CatalogItem, error) {
+	if catalogItem == nil {
+		return nil, fmt.Errorf("catalog item cannot be nil")
+	}
+
+	// Set updated by
+	catalogItem.SetUpdatedBy(userID)
+
+	// Update the catalog item
+	if err := s.catalogRepo.Update(ctx, catalogItem); err != nil {
+		return nil, fmt.Errorf("failed to update catalog item: %w", err)
+	}
+
+	return catalogItem, nil
+}
+
+// DeleteContract deletes a contract (placeholder implementation)
+func (s *CatalogService) DeleteContract(ctx context.Context, contractID string, userID string) error {
+	// For now, treat contracts as regular catalog items
+	// In the future, this might need special handling
+	catalogItem := &catalogModels.CatalogItem{}
+	result, err := s.catalogRepo.GetByID(ctx, contractID, catalogItem)
+	if err != nil {
+		return fmt.Errorf("contract not found: %w", err)
+	}
+	catalogItem = result.(*catalogModels.CatalogItem)
+
+	// Set deleted by
+	catalogItem.SetUpdatedBy(userID)
+
+	// Soft delete the contract
+	if err := s.catalogRepo.Delete(ctx, contractID, catalogItem); err != nil {
+		return fmt.Errorf("failed to delete contract: %w", err)
+	}
+
+	return nil
 }

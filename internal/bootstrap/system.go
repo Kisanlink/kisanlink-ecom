@@ -152,6 +152,26 @@ func initializeInfrastructure(config *SystemConfig, components *SystemComponents
 	return nil
 }
 
+// RunDatabaseMigrations runs database migrations during system initialization
+func RunDatabaseMigrations(dbManager db.DBManager, dryRun bool) error {
+	log.Println("Running database migrations during system initialization...")
+
+	// Create migration manager
+	migrationManager, err := database.NewMigrationManager(dbManager)
+	if err != nil {
+		return fmt.Errorf("failed to create migration manager: %w", err)
+	}
+
+	// Execute migrations
+	if dryRun {
+		log.Println("Running migrations in dry-run mode...")
+		return migrationManager.ExecuteCommand(database.CommandDryRun)
+	} else {
+		log.Println("Running migrations...")
+		return migrationManager.ExecuteCommand(database.CommandMigrate)
+	}
+}
+
 // initializeObservability initializes observability components
 func initializeObservability(config *SystemConfig, components *SystemComponents) error {
 	// Update telemetry config with system information
@@ -213,7 +233,7 @@ func initializeHealthChecks(config *SystemConfig, components *SystemComponents) 
 			Status:      health.StatusHealthy,
 			Message:     "System resources are healthy",
 			LastChecked: time.Now(),
-			Duration:    10 * time.Millisecond,
+			Duration:    int64(10 * time.Millisecond),
 			Details: map[string]interface{}{
 				"cpu_usage":    "< 80%",
 				"memory_usage": "< 80%",

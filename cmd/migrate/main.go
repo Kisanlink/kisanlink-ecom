@@ -1,31 +1,45 @@
 package main
 
 import (
-	"flag"
-	"fmt"
 	"log"
 	"os"
 
-	"kisanlink-ecom/migrations"
+	"kisanlink-ecom/internal/config"
+	"kisanlink-ecom/internal/database"
+
+	"github.com/Kisanlink/kisanlink-db/pkg/db"
 )
 
 func main() {
-	var (
-		seedRBAC = flag.Bool("seed-rbac", false, "Seed e-commerce RBAC data to AAA service")
-	)
-	flag.Parse()
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	if *seedRBAC {
-		// Run RBAC seeding
-		if err := migrations.SeedEcommerceRBAC(); err != nil {
-			log.Printf("RBAC seeding failed: %v", err)
-			os.Exit(1)
-		}
-		fmt.Println("RBAC seeding completed successfully!")
-		return
+	// Load configuration
+	cfg, err := config.Load()
+	if err != nil {
+		log.Fatalf("Failed to load configuration: %v", err)
 	}
 
-	// Default behavior - just show help
-	fmt.Println("Use --seed-rbac to seed e-commerce RBAC data to AAA service")
-	fmt.Println("Database migrations are handled separately")
+	// Create database manager
+	dbManager, err := database.NewManager(cfg)
+	if err != nil {
+		log.Fatalf("Failed to create database manager: %v", err)
+	}
+	defer dbManager.Close()
+
+	// Get PostgreSQL manager
+	pgManager := dbManager.GetManager(db.BackendGorm)
+	if pgManager == nil {
+		log.Fatalf("PostgreSQL manager not available")
+	}
+
+	// Handle migration CLI commands
+	args := os.Args[1:]
+	if len(args) == 0 {
+		database.PrintUsage()
+		os.Exit(1)
+	}
+
+	if err := database.RunMigrationCLI(pgManager, args); err != nil {
+		log.Fatalf("Migration command failed: %v", err)
+	}
 }

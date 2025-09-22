@@ -17,6 +17,8 @@ import (
 // OrderServiceInterface defines the interface for order operations
 type OrderServiceInterface interface {
 	CreateOrder(ctx context.Context, req *orderRequests.CreateOrderRequest, userID string, orgID string) (*orderModels.Order, error)
+	CreateOrderFromBid(ctx context.Context, req *orderRequests.CreateOrderFromBidRequest, userID string, orgID string) (*orderModels.Order, error)
+	ValidateBidForOrder(ctx context.Context, bidID string, userID string, orgID string) (*BidOrderValidation, error)
 	GetOrderByID(ctx context.Context, id string, userID string, orgID string) (*orderModels.Order, error)
 	GetOrderByNumber(ctx context.Context, orderNumber string) (*orderModels.Order, error)
 	UpdateOrder(ctx context.Context, id string, req *orderRequests.UpdateOrderRequest, userID string, orgID string) (*orderModels.Order, error)
@@ -29,13 +31,23 @@ type OrderServiceInterface interface {
 	FulfillOrder(ctx context.Context, id string, userID string, orgID string) error
 	GetOrderAnalytics(ctx context.Context, orgID string, startDate, endDate time.Time) (*OrderAnalytics, error)
 	ValidateOrderPermissions(ctx context.Context, orderID string, userID string, orgID string, action string) error
+	ProcessPaymentForOrder(ctx context.Context, orderID string, paymentMethod string, userID string, orgID string) (*PaymentResult, error)
+	GetPaymentStatus(ctx context.Context, orderID string, userID string, orgID string) (*PaymentResult, error)
+	HandlePaymentFailure(ctx context.Context, orderID string, reason string, userID string, orgID string) error
 }
 
 // OrderService provides business logic for order operations
 type OrderService struct {
-	orderRepo    *orders.OrderRepository
-	catalogSvc   catalog.CatalogServiceInterface
-	inventorySvc inventory.InventoryService
+	orderRepo      *orders.OrderRepository
+	catalogSvc     catalog.CatalogServiceInterface
+	inventorySvc   inventory.InventoryService
+	marketplaceSvc MarketplaceServiceInterface
+}
+
+// MarketplaceServiceInterface defines the interface for marketplace operations needed by order service
+type MarketplaceServiceInterface interface {
+	GetBid(ctx context.Context, bidID string, viewerID string) (interface{}, error)
+	GetListing(ctx context.Context, listingID string, viewerID string, viewerOrgID string) (interface{}, error)
 }
 
 // NewOrderService creates a new order service
@@ -45,6 +57,11 @@ func NewOrderService(orderRepo *orders.OrderRepository, catalogSvc catalog.Catal
 		catalogSvc:   catalogSvc,
 		inventorySvc: inventorySvc,
 	}
+}
+
+// SetMarketplaceService sets the marketplace service dependency
+func (s *OrderService) SetMarketplaceService(marketplaceSvc MarketplaceServiceInterface) {
+	s.marketplaceSvc = marketplaceSvc
 }
 
 // CreateOrder creates a new order with business logic validation
@@ -598,6 +615,179 @@ func (s *OrderService) validateUpdateOrderRequest(req *orderRequests.UpdateOrder
 	return nil
 }
 
+// validatePaymentMethod validates payment method for auction orders
+func (s *OrderService) validatePaymentMethod(paymentMethod string) error {
+	validMethods := map[string]bool{
+		"credit_card":      true,
+		"debit_card":       true,
+		"bank_transfer":    true,
+		"upi":              true,
+		"cash_on_delivery": true,
+		"digital_wallet":   true,
+		"net_banking":      true,
+	}
+
+	if paymentMethod == "" {
+		return fmt.Errorf("payment method is required")
+	}
+
+	if !validMethods[paymentMethod] {
+		return fmt.Errorf("invalid payment method: %s", paymentMethod)
+	}
+
+	return nil
+}
+
+// processPaymentForAuctionOrder processes payment for an auction-derived order
+func (s *OrderService) processPaymentForAuctionOrder(ctx context.Context, order *orderModels.Order, paymentMethod string) (*PaymentResult, error) {
+	// Validate payment method
+	if err := s.validatePaymentMethod(paymentMethod); err != nil {
+		return nil, fmt.Errorf("payment validation failed: %w", err)
+	}
+
+	// Create payment request
+	paymentReq := &PaymentRequest{
+		OrderID:       order.ID,
+		OrderNumber:   order.OrderNumber,
+		Amount:        order.TotalAmount,
+		Currency:      "INR", // Default currency
+		PaymentMethod: paymentMethod,
+		BuyerID:       order.BuyerUserID,
+		SellerID:      "", // Will be extracted from order metadata
+		Description:   fmt.Sprintf("Payment for auction order %s", order.OrderNumber),
+		Metadata: map[string]interface{}{
+			"source":     "marketplace_auction",
+			"order_type": "auction_order",
+		},
+	}
+
+	// Extract seller information from order metadata
+	if metadata, err := order.GetMetadata(); err == nil {
+		if bidID, exists := metadata["bid_id"]; exists {
+			paymentReq.Metadata["bid_id"] = bidID
+		}
+		if listingID, exists := metadata["listing_id"]; exists {
+			paymentReq.Metadata["listing_id"] = listingID
+		}
+	}
+
+	// Process payment based on method
+	switch paymentMethod {
+	case "cash_on_delivery":
+		return s.processCashOnDeliveryPayment(ctx, paymentReq)
+	case "upi", "digital_wallet":
+		return s.processDigitalPayment(ctx, paymentReq)
+	case "credit_card", "debit_card":
+		return s.processCardPayment(ctx, paymentReq)
+	case "bank_transfer", "net_banking":
+		return s.processBankTransferPayment(ctx, paymentReq)
+	default:
+		return nil, fmt.Errorf("payment method %s not implemented", paymentMethod)
+	}
+}
+
+// processCashOnDeliveryPayment handles cash on delivery payments
+func (s *OrderService) processCashOnDeliveryPayment(ctx context.Context, req *PaymentRequest) (*PaymentResult, error) {
+	// For COD, we just mark the payment as pending and update order status
+	result := &PaymentResult{
+		PaymentID:     generatePaymentID(),
+		OrderID:       req.OrderID,
+		Status:        PaymentStatusPending,
+		Amount:        req.Amount,
+		Currency:      req.Currency,
+		PaymentMethod: req.PaymentMethod,
+		ProcessedAt:   time.Now(),
+		Message:       "Cash on delivery payment scheduled",
+		Metadata: map[string]interface{}{
+			"cod_instructions": "Payment will be collected upon delivery",
+			"requires_cash":    true,
+		},
+	}
+
+	return result, nil
+}
+
+// processDigitalPayment handles UPI and digital wallet payments
+func (s *OrderService) processDigitalPayment(ctx context.Context, req *PaymentRequest) (*PaymentResult, error) {
+	// In a real implementation, this would integrate with payment gateways like Razorpay, Paytm, etc.
+	// For now, we'll simulate the payment process
+
+	result := &PaymentResult{
+		PaymentID:     generatePaymentID(),
+		OrderID:       req.OrderID,
+		Status:        PaymentStatusPending,
+		Amount:        req.Amount,
+		Currency:      req.Currency,
+		PaymentMethod: req.PaymentMethod,
+		ProcessedAt:   time.Now(),
+		Message:       "Digital payment initiated",
+		Metadata: map[string]interface{}{
+			"payment_gateway":       "simulated",
+			"requires_confirmation": true,
+		},
+	}
+
+	// Simulate payment processing delay
+	// In real implementation, this would be handled asynchronously via webhooks
+	result.Status = PaymentStatusCompleted
+	result.Message = "Digital payment completed successfully"
+	result.Metadata["transaction_id"] = fmt.Sprintf("TXN_%d", time.Now().Unix())
+
+	return result, nil
+}
+
+// processCardPayment handles credit/debit card payments
+func (s *OrderService) processCardPayment(ctx context.Context, req *PaymentRequest) (*PaymentResult, error) {
+	// In a real implementation, this would integrate with payment gateways
+	result := &PaymentResult{
+		PaymentID:     generatePaymentID(),
+		OrderID:       req.OrderID,
+		Status:        PaymentStatusPending,
+		Amount:        req.Amount,
+		Currency:      req.Currency,
+		PaymentMethod: req.PaymentMethod,
+		ProcessedAt:   time.Now(),
+		Message:       "Card payment processing",
+		Metadata: map[string]interface{}{
+			"payment_gateway": "simulated",
+			"card_type":       "unknown",
+		},
+	}
+
+	// Simulate payment processing
+	result.Status = PaymentStatusCompleted
+	result.Message = "Card payment completed successfully"
+	result.Metadata["authorization_code"] = fmt.Sprintf("AUTH_%d", time.Now().Unix())
+
+	return result, nil
+}
+
+// processBankTransferPayment handles bank transfer and net banking payments
+func (s *OrderService) processBankTransferPayment(ctx context.Context, req *PaymentRequest) (*PaymentResult, error) {
+	result := &PaymentResult{
+		PaymentID:     generatePaymentID(),
+		OrderID:       req.OrderID,
+		Status:        PaymentStatusPending,
+		Amount:        req.Amount,
+		Currency:      req.Currency,
+		PaymentMethod: req.PaymentMethod,
+		ProcessedAt:   time.Now(),
+		Message:       "Bank transfer initiated",
+		Metadata: map[string]interface{}{
+			"requires_manual_verification": true,
+			"settlement_time":              "1-3 business days",
+		},
+	}
+
+	return result, nil
+}
+
+// generatePaymentID generates a unique payment ID
+func generatePaymentID() string {
+	timestamp := time.Now().UnixNano()
+	return fmt.Sprintf("PAY_%d", timestamp)
+}
+
 // validateAddress validates an address structure
 func (s *OrderService) validateAddress(addr *orderRequests.Address) error {
 	if addr == nil {
@@ -699,6 +889,204 @@ func (s *OrderService) GetOrderAnalytics(ctx context.Context, orgID string, star
 	return nil, fmt.Errorf("not implemented")
 }
 
+// ProcessPaymentForOrder processes payment for an existing order
+func (s *OrderService) ProcessPaymentForOrder(ctx context.Context, orderID string, paymentMethod string, userID string, orgID string) (*PaymentResult, error) {
+	// Validate input parameters
+	if orderID == "" {
+		return nil, fmt.Errorf("order ID is required")
+	}
+	if paymentMethod == "" {
+		return nil, fmt.Errorf("payment method is required")
+	}
+	if userID == "" {
+		return nil, fmt.Errorf("user ID is required")
+	}
+	if orgID == "" {
+		return nil, fmt.Errorf("organization ID is required")
+	}
+
+	// Validate permissions
+	if err := s.ValidateOrderPermissions(ctx, orderID, userID, orgID, "update"); err != nil {
+		return nil, fmt.Errorf("permission denied: %w", err)
+	}
+
+	// Get the order
+	order, err := s.orderRepo.GetOrderByID(ctx, orderID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get order: %w", err)
+	}
+
+	// Validate order status for payment processing
+	if order.Status != orderModels.OrderStatusPending && order.Status != orderModels.OrderStatusConfirmed {
+		return nil, fmt.Errorf("order status %s does not allow payment processing", order.Status)
+	}
+
+	// Process payment
+	paymentResult, err := s.processPaymentForAuctionOrder(ctx, order, paymentMethod)
+	if err != nil {
+		return nil, fmt.Errorf("payment processing failed: %w", err)
+	}
+
+	// Update order metadata with payment information
+	metadata, _ := order.GetMetadata()
+	if metadata == nil {
+		metadata = make(map[string]interface{})
+	}
+
+	metadata["payment_id"] = paymentResult.PaymentID
+	metadata["payment_status"] = string(paymentResult.Status)
+	metadata["payment_method"] = paymentResult.PaymentMethod
+	metadata["payment_processed_at"] = paymentResult.ProcessedAt.Format(time.RFC3339)
+
+	if err := order.SetMetadata(metadata); err != nil {
+		fmt.Printf("Warning: failed to update order metadata for payment: %v\n", err)
+	}
+
+	// Update order status based on payment result
+	if paymentResult.Status == PaymentStatusCompleted {
+		if err := s.UpdateOrderStatus(ctx, orderID, &orderRequests.UpdateOrderStatusRequest{
+			Status: orderModels.OrderStatusPaid,
+			Reason: "Payment completed successfully",
+		}, userID, orgID); err != nil {
+			fmt.Printf("Warning: failed to update order status to paid: %v\n", err)
+		}
+	} else if paymentResult.Status == PaymentStatusFailed {
+		if err := s.UpdateOrderStatus(ctx, orderID, &orderRequests.UpdateOrderStatusRequest{
+			Status: orderModels.OrderStatusPending,
+			Reason: "Payment failed, order reverted to pending",
+		}, userID, orgID); err != nil {
+			fmt.Printf("Warning: failed to update order status after payment failure: %v\n", err)
+		}
+	}
+
+	// Save updated order
+	if err := s.orderRepo.Update(ctx, order); err != nil {
+		fmt.Printf("Warning: failed to save order after payment processing: %v\n", err)
+	}
+
+	return paymentResult, nil
+}
+
+// GetPaymentStatus retrieves the payment status for an order
+func (s *OrderService) GetPaymentStatus(ctx context.Context, orderID string, userID string, orgID string) (*PaymentResult, error) {
+	// Validate input parameters
+	if orderID == "" {
+		return nil, fmt.Errorf("order ID is required")
+	}
+	if userID == "" {
+		return nil, fmt.Errorf("user ID is required")
+	}
+	if orgID == "" {
+		return nil, fmt.Errorf("organization ID is required")
+	}
+
+	// Validate permissions
+	if err := s.ValidateOrderPermissions(ctx, orderID, userID, orgID, "read"); err != nil {
+		return nil, fmt.Errorf("permission denied: %w", err)
+	}
+
+	// Get the order
+	order, err := s.orderRepo.GetOrderByID(ctx, orderID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get order: %w", err)
+	}
+
+	// Extract payment information from metadata
+	metadata, err := order.GetMetadata()
+	if err != nil || metadata == nil {
+		return nil, fmt.Errorf("no payment information found for order")
+	}
+
+	paymentID, _ := metadata["payment_id"].(string)
+	paymentStatusStr, _ := metadata["payment_status"].(string)
+	paymentMethod, _ := metadata["payment_method"].(string)
+	paymentProcessedAtStr, _ := metadata["payment_processed_at"].(string)
+
+	if paymentID == "" {
+		return nil, fmt.Errorf("no payment found for order")
+	}
+
+	// Parse processed time
+	var processedAt time.Time
+	if paymentProcessedAtStr != "" {
+		if parsedTime, err := time.Parse(time.RFC3339, paymentProcessedAtStr); err == nil {
+			processedAt = parsedTime
+		}
+	}
+
+	// Build payment result
+	paymentResult := &PaymentResult{
+		PaymentID:     paymentID,
+		OrderID:       orderID,
+		Status:        PaymentStatus(paymentStatusStr),
+		Amount:        order.TotalAmount,
+		Currency:      "INR", // Default currency
+		PaymentMethod: paymentMethod,
+		ProcessedAt:   processedAt,
+		Message:       fmt.Sprintf("Payment status: %s", paymentStatusStr),
+		Metadata:      metadata,
+	}
+
+	return paymentResult, nil
+}
+
+// HandlePaymentFailure handles payment failure scenarios
+func (s *OrderService) HandlePaymentFailure(ctx context.Context, orderID string, reason string, userID string, orgID string) error {
+	// Validate input parameters
+	if orderID == "" {
+		return fmt.Errorf("order ID is required")
+	}
+	if reason == "" {
+		return fmt.Errorf("failure reason is required")
+	}
+	if userID == "" {
+		return fmt.Errorf("user ID is required")
+	}
+	if orgID == "" {
+		return fmt.Errorf("organization ID is required")
+	}
+
+	// Validate permissions
+	if err := s.ValidateOrderPermissions(ctx, orderID, userID, orgID, "update"); err != nil {
+		return fmt.Errorf("permission denied: %w", err)
+	}
+
+	// Get the order
+	order, err := s.orderRepo.GetOrderByID(ctx, orderID)
+	if err != nil {
+		return fmt.Errorf("failed to get order: %w", err)
+	}
+
+	// Update order metadata with failure information
+	metadata, _ := order.GetMetadata()
+	if metadata == nil {
+		metadata = make(map[string]interface{})
+	}
+
+	metadata["payment_status"] = string(PaymentStatusFailed)
+	metadata["payment_failure_reason"] = reason
+	metadata["payment_failed_at"] = time.Now().Format(time.RFC3339)
+
+	if err := order.SetMetadata(metadata); err != nil {
+		return fmt.Errorf("failed to update order metadata: %w", err)
+	}
+
+	// Update order status to reflect payment failure
+	if err := s.UpdateOrderStatus(ctx, orderID, &orderRequests.UpdateOrderStatusRequest{
+		Status: orderModels.OrderStatusPending,
+		Reason: fmt.Sprintf("Payment failed: %s", reason),
+	}, userID, orgID); err != nil {
+		return fmt.Errorf("failed to update order status: %w", err)
+	}
+
+	// Save updated order
+	if err := s.orderRepo.Update(ctx, order); err != nil {
+		return fmt.Errorf("failed to save order: %w", err)
+	}
+
+	return nil
+}
+
 // OrderAnalytics represents order analytics data
 type OrderAnalytics struct {
 	TotalOrders       int     `json:"total_orders"`
@@ -706,6 +1094,65 @@ type OrderAnalytics struct {
 	AverageOrderValue float64 `json:"average_order_value"`
 	Currency          string  `json:"currency"`
 	Period            string  `json:"period"`
+}
+
+// BidOrderValidation represents the validation result for creating an order from a bid
+type BidOrderValidation struct {
+	Valid           bool            `json:"valid"`
+	BidID           string          `json:"bid_id"`
+	ListingID       string          `json:"listing_id"`
+	ProductID       string          `json:"product_id"`
+	WinningAmount   decimal.Decimal `json:"winning_amount"`
+	Quantity        decimal.Decimal `json:"quantity"`
+	Currency        string          `json:"currency"`
+	SellerID        string          `json:"seller_id"`
+	BuyerID         string          `json:"buyer_id"`
+	SellerOrgID     string          `json:"seller_org_id"`
+	BuyerOrgID      string          `json:"buyer_org_id"`
+	ProductName     string          `json:"product_name"`
+	ProductSKU      string          `json:"product_sku"`
+	ExpiresAt       time.Time       `json:"expires_at"`
+	CanCreateOrder  bool            `json:"can_create_order"`
+	ValidationError string          `json:"validation_error,omitempty"`
+}
+
+// PaymentStatus represents the status of a payment
+type PaymentStatus string
+
+const (
+	PaymentStatusPending   PaymentStatus = "PENDING"
+	PaymentStatusCompleted PaymentStatus = "COMPLETED"
+	PaymentStatusFailed    PaymentStatus = "FAILED"
+	PaymentStatusCancelled PaymentStatus = "CANCELLED"
+	PaymentStatusRefunded  PaymentStatus = "REFUNDED"
+)
+
+// PaymentRequest represents a payment processing request
+type PaymentRequest struct {
+	OrderID       string                 `json:"order_id"`
+	OrderNumber   string                 `json:"order_number"`
+	Amount        decimal.Decimal        `json:"amount"`
+	Currency      string                 `json:"currency"`
+	PaymentMethod string                 `json:"payment_method"`
+	BuyerID       string                 `json:"buyer_id"`
+	SellerID      string                 `json:"seller_id"`
+	Description   string                 `json:"description"`
+	Metadata      map[string]interface{} `json:"metadata"`
+}
+
+// PaymentResult represents the result of a payment processing attempt
+type PaymentResult struct {
+	PaymentID     string                 `json:"payment_id"`
+	OrderID       string                 `json:"order_id"`
+	Status        PaymentStatus          `json:"status"`
+	Amount        decimal.Decimal        `json:"amount"`
+	Currency      string                 `json:"currency"`
+	PaymentMethod string                 `json:"payment_method"`
+	ProcessedAt   time.Time              `json:"processed_at"`
+	Message       string                 `json:"message"`
+	ErrorCode     string                 `json:"error_code,omitempty"`
+	ErrorMessage  string                 `json:"error_message,omitempty"`
+	Metadata      map[string]interface{} `json:"metadata"`
 }
 
 // validateOrderItems validates order items and checks inventory availability
@@ -828,6 +1275,258 @@ func (s *OrderService) releaseInventoryForOrder(ctx context.Context, items []ord
 	}
 
 	return nil
+}
+
+// CreateOrderFromBid creates an order from a winning bid
+func (s *OrderService) CreateOrderFromBid(ctx context.Context, req *orderRequests.CreateOrderFromBidRequest, userID string, orgID string) (*orderModels.Order, error) {
+	// Validate input parameters
+	if req == nil {
+		return nil, fmt.Errorf("request cannot be nil")
+	}
+	if req.BidID == "" {
+		return nil, fmt.Errorf("bid ID is required")
+	}
+	if userID == "" {
+		return nil, fmt.Errorf("user ID is required")
+	}
+	if orgID == "" {
+		return nil, fmt.Errorf("organization ID is required")
+	}
+
+	// Validate the bid for order creation
+	validation, err := s.ValidateBidForOrder(ctx, req.BidID, userID, orgID)
+	if err != nil {
+		return nil, fmt.Errorf("bid validation failed: %w", err)
+	}
+
+	if !validation.Valid || !validation.CanCreateOrder {
+		return nil, fmt.Errorf("bid is not valid for order creation: %s", validation.ValidationError)
+	}
+
+	// Create order request from bid information
+	createOrderReq := &orderRequests.CreateOrderRequest{
+		BuyerOrganizationID:  validation.BuyerOrgID,
+		SellerOrganizationID: validation.SellerOrgID,
+		Items: []orderRequests.CreateOrderItemRequest{
+			{
+				CatalogItemID:   validation.ProductID,
+				CatalogItemType: "product", // Assuming marketplace items are products
+				Quantity:        validation.Quantity,
+				UnitPrice:       validation.WinningAmount,
+			},
+		},
+		ShippingAddress: req.ShippingAddress,
+		Notes:           req.Notes,
+	}
+
+	// Create the order using existing order creation logic
+	order, err := s.CreateOrder(ctx, createOrderReq, userID, orgID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create order from bid: %w", err)
+	}
+
+	// Add bid-specific metadata to the order
+	bidMetadata := map[string]interface{}{
+		"source":            "marketplace_bid",
+		"bid_id":            req.BidID,
+		"listing_id":        validation.ListingID,
+		"winning_amount":    validation.WinningAmount.String(),
+		"payment_method":    req.PaymentMethod,
+		"auction_closed_at": validation.ExpiresAt.Format(time.RFC3339),
+	}
+
+	// Process payment for the auction order
+	paymentResult, err := s.processPaymentForAuctionOrder(ctx, order, req.PaymentMethod)
+	if err != nil {
+		// Log payment error but don't fail order creation
+		fmt.Printf("Warning: payment processing failed for order %s: %v\n", order.ID, err)
+
+		// Add payment failure information to metadata
+		bidMetadata["payment_status"] = "FAILED"
+		bidMetadata["payment_error"] = err.Error()
+	} else {
+		// Add payment success information to metadata
+		bidMetadata["payment_id"] = paymentResult.PaymentID
+		bidMetadata["payment_status"] = string(paymentResult.Status)
+		bidMetadata["payment_processed_at"] = paymentResult.ProcessedAt.Format(time.RFC3339)
+
+		// Update order status based on payment result
+		if paymentResult.Status == PaymentStatusCompleted {
+			// Update order status to paid
+			if err := s.UpdateOrderStatus(ctx, order.ID, &orderRequests.UpdateOrderStatusRequest{
+				Status: orderModels.OrderStatusPaid,
+				Reason: "Payment completed successfully",
+			}, userID, orgID); err != nil {
+				fmt.Printf("Warning: failed to update order status to paid for order %s: %v\n", order.ID, err)
+			}
+		} else if paymentResult.Status == PaymentStatusPending {
+			// Update order status to confirmed (awaiting payment)
+			if err := s.UpdateOrderStatus(ctx, order.ID, &orderRequests.UpdateOrderStatusRequest{
+				Status: orderModels.OrderStatusConfirmed,
+				Reason: "Order confirmed, payment pending",
+			}, userID, orgID); err != nil {
+				fmt.Printf("Warning: failed to update order status to confirmed for order %s: %v\n", order.ID, err)
+			}
+		}
+	}
+
+	// Update metadata with payment information
+	if err := order.SetMetadata(bidMetadata); err != nil {
+		// Log error but don't fail order creation
+		fmt.Printf("Warning: failed to set updated metadata on order %s: %v\n", order.ID, err)
+	}
+
+	// Update the order in the repository to save metadata
+	if err := s.orderRepo.Update(ctx, order); err != nil {
+		// Log error but don't fail order creation
+		fmt.Printf("Warning: failed to update order metadata for order %s: %v\n", order.ID, err)
+	}
+
+	return order, nil
+}
+
+// ValidateBidForOrder validates that a bid can be used to create an order
+func (s *OrderService) ValidateBidForOrder(ctx context.Context, bidID string, userID string, orgID string) (*BidOrderValidation, error) {
+	// Initialize validation result
+	validation := &BidOrderValidation{
+		Valid:          false,
+		BidID:          bidID,
+		CanCreateOrder: false,
+	}
+
+	// Check if marketplace service is available
+	if s.marketplaceSvc == nil {
+		validation.ValidationError = "marketplace service not available"
+		return validation, fmt.Errorf("marketplace service not configured")
+	}
+
+	// Get bid information from marketplace service
+	bidInterface, err := s.marketplaceSvc.GetBid(ctx, bidID, userID)
+	if err != nil {
+		validation.ValidationError = fmt.Sprintf("failed to get bid: %v", err)
+		return validation, fmt.Errorf("failed to get bid from marketplace: %w", err)
+	}
+
+	// Type assert to marketplace bid (we'll need to handle this more gracefully in production)
+	bid, ok := bidInterface.(map[string]interface{})
+	if !ok {
+		validation.ValidationError = "invalid bid data format"
+		return validation, fmt.Errorf("invalid bid data format")
+	}
+
+	// Extract bid information
+	bidderID, _ := bid["bidder_id"].(string)
+	listingID, _ := bid["listing_id"].(string)
+	bidAmountStr, _ := bid["bid_amount"].(string)
+	quantityStr, _ := bid["quantity"].(string)
+	currency, _ := bid["currency"].(string)
+	status, _ := bid["status"].(string)
+	isWinning, _ := bid["is_winning"].(bool)
+
+	// Validate that the user is the bidder
+	if bidderID != userID {
+		validation.ValidationError = "user is not the bidder"
+		return validation, fmt.Errorf("user %s is not the bidder %s", userID, bidderID)
+	}
+
+	// Validate that the bid is in winning status
+	if status != "WINNING" && !isWinning {
+		validation.ValidationError = "bid is not in winning status"
+		return validation, fmt.Errorf("bid status is %s, not winning", status)
+	}
+
+	// Parse bid amount and quantity
+	bidAmount, err := decimal.NewFromString(bidAmountStr)
+	if err != nil {
+		validation.ValidationError = "invalid bid amount format"
+		return validation, fmt.Errorf("invalid bid amount: %w", err)
+	}
+
+	quantity, err := decimal.NewFromString(quantityStr)
+	if err != nil {
+		validation.ValidationError = "invalid quantity format"
+		return validation, fmt.Errorf("invalid quantity: %w", err)
+	}
+
+	// Get listing information
+	listingInterface, err := s.marketplaceSvc.GetListing(ctx, listingID, userID, orgID)
+	if err != nil {
+		validation.ValidationError = fmt.Sprintf("failed to get listing: %v", err)
+		return validation, fmt.Errorf("failed to get listing from marketplace: %w", err)
+	}
+
+	listing, ok := listingInterface.(map[string]interface{})
+	if !ok {
+		validation.ValidationError = "invalid listing data format"
+		return validation, fmt.Errorf("invalid listing data format")
+	}
+
+	// Extract listing information
+	productID, _ := listing["product_id"].(string)
+	sellerID, _ := listing["seller_id"].(string)
+	sellerOrgID, _ := listing["organization_id"].(string)
+	listingStatus, _ := listing["status"].(string)
+	expiresAtStr, _ := listing["expires_at"].(string)
+
+	// Validate that the listing is closed
+	if listingStatus != "CLOSED" {
+		validation.ValidationError = "listing is not closed"
+		return validation, fmt.Errorf("listing status is %s, not closed", listingStatus)
+	}
+
+	// Parse expires_at time
+	expiresAt, err := time.Parse(time.RFC3339, expiresAtStr)
+	if err != nil {
+		validation.ValidationError = "invalid expires_at format"
+		return validation, fmt.Errorf("invalid expires_at: %w", err)
+	}
+
+	// Get product information from catalog service
+	catalogItem, err := s.catalogSvc.GetCatalogItemByID(ctx, productID)
+	if err != nil {
+		validation.ValidationError = fmt.Sprintf("failed to get product: %v", err)
+		return validation, fmt.Errorf("failed to get product from catalog: %w", err)
+	}
+
+	// Validate that the product belongs to the seller organization
+	if catalogItem.OrganizationID != sellerOrgID {
+		validation.ValidationError = "product does not belong to seller organization"
+		return validation, fmt.Errorf("product organization mismatch")
+	}
+
+	// Check if an order already exists for this bid
+	existingOrders, _, err := s.orderRepo.ListOrders(ctx, &orderRequests.ListOrdersRequest{
+		BuyerOrganizationID: &orgID,
+		PageSize:            100,
+	}, 0, 100)
+	if err == nil {
+		for _, existingOrder := range existingOrders {
+			if metadata, err := existingOrder.GetMetadata(); err == nil {
+				if existingBidID, exists := metadata["bid_id"]; exists && existingBidID == bidID {
+					validation.ValidationError = "order already exists for this bid"
+					return validation, fmt.Errorf("order already exists for bid %s", bidID)
+				}
+			}
+		}
+	}
+
+	// All validations passed
+	validation.Valid = true
+	validation.CanCreateOrder = true
+	validation.ListingID = listingID
+	validation.ProductID = productID
+	validation.WinningAmount = bidAmount
+	validation.Quantity = quantity
+	validation.Currency = currency
+	validation.SellerID = sellerID
+	validation.BuyerID = bidderID
+	validation.SellerOrgID = sellerOrgID
+	validation.BuyerOrgID = orgID
+	validation.ProductName = catalogItem.Name
+	validation.ProductSKU = catalogItem.SKU
+	validation.ExpiresAt = expiresAt
+
+	return validation, nil
 }
 
 // sellInventoryForOrder converts reserved inventory to sold (e.g., when order is completed)

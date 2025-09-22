@@ -520,3 +520,40 @@ func (_m *CatalogServiceInterface) UpdateService(ctx context.Context, service *c
 
 	return r0, r1
 }
+
+// UpdateCatalogItem provides a mock function with given fields: ctx, catalogItem, userID
+func (_m *CatalogServiceInterface) UpdateCatalogItem(ctx context.Context, catalogItem *catalog.CatalogItem, userID string) (*catalog.CatalogItem, error) {
+	ret := _m.Called(ctx, catalogItem, userID)
+
+	var r0 *catalog.CatalogItem
+	if rf, ok := ret.Get(0).(func(context.Context, *catalog.CatalogItem, string) *catalog.CatalogItem); ok {
+		r0 = rf(ctx, catalogItem, userID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*catalog.CatalogItem)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, *catalog.CatalogItem, string) error); ok {
+		r1 = rf(ctx, catalogItem, userID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// DeleteContract provides a mock function with given fields: ctx, contractID, userID
+func (_m *CatalogServiceInterface) DeleteContract(ctx context.Context, contractID string, userID string) error {
+	ret := _m.Called(ctx, contractID, userID)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
+		r0 = rf(ctx, contractID, userID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}

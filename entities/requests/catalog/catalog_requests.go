@@ -3,20 +3,21 @@ package catalog
 import (
 	"fmt"
 	"kisanlink-ecom/entities/models/catalog"
+	"time"
 
 	"github.com/shopspring/decimal"
 )
 
 // CreateCatalogItemRequest represents the request to create a catalog item
 type CreateCatalogItemRequest struct {
-	ItemType      catalog.CatalogItemType `json:"item_type" binding:"required,oneof=PRODUCT SERVICE LABOUR" validate:"required,oneof=PRODUCT SERVICE LABOUR" example:"PRODUCT"`
+	ItemType      catalog.CatalogItemType `json:"item_type" binding:"required,oneof=PRODUCT SERVICE LABOUR CONTRACT" validate:"required,oneof=PRODUCT SERVICE LABOUR CONTRACT" example:"PRODUCT"`
 	Category      string                  `json:"category" binding:"omitempty,max=100" validate:"omitempty,max=100" example:"vegetables"`
 	Subcategory   string                  `json:"subcategory" binding:"omitempty,max=100" validate:"omitempty,max=100" example:"tomatoes"`
 	Name          string                  `json:"name" binding:"required,max=255" validate:"required,min=1,max=255" example:"Organic Tomatoes"`
 	Description   string                  `json:"description" binding:"omitempty" validate:"omitempty,max=2000" example:"Fresh organic tomatoes grown without pesticides"`
 	SKU           string                  `json:"sku" binding:"omitempty,max=100" validate:"omitempty,max=100" example:"TOM-ORG-001"`
 	UnitOfMeasure string                  `json:"unit_of_measure" binding:"omitempty,max=50" validate:"omitempty,max=50" example:"kg"`
-	BasePrice     decimal.Decimal         `json:"base_price" binding:"required" validate:"required,gt=0" example:"25.50"`
+	BasePrice     decimal.Decimal         `json:"base_price" binding:"required" validate:"required" example:"25.50"`
 	Currency      string                  `json:"currency" binding:"omitempty,len=3" validate:"omitempty,len=3" example:"INR"`
 	Visibility    catalog.VisibilityType  `json:"visibility" binding:"omitempty,oneof=PRIVATE ORG NETWORK PUBLIC" validate:"omitempty,oneof=PRIVATE ORG NETWORK PUBLIC" example:"ORG"`
 	Tags          []string                `json:"tags" binding:"omitempty" validate:"omitempty,dive,max=50" example:"organic,fresh,local"`
@@ -32,7 +33,7 @@ type UpdateCatalogItemRequest struct {
 	Description   *string                 `json:"description" validate:"omitempty,max=2000" example:"Premium fresh organic tomatoes"`
 	SKU           *string                 `json:"sku" binding:"omitempty,max=100" validate:"omitempty,max=100" example:"TOM-ORG-002"`
 	UnitOfMeasure *string                 `json:"unit_of_measure" binding:"omitempty,max=50" validate:"omitempty,max=50" example:"kg"`
-	BasePrice     *decimal.Decimal        `json:"base_price" binding:"omitempty" validate:"omitempty,gt=0" example:"30.00"`
+	BasePrice     *decimal.Decimal        `json:"base_price" binding:"omitempty" validate:"omitempty" example:"30.00"`
 	Currency      *string                 `json:"currency" binding:"omitempty,len=3" validate:"omitempty,len=3" example:"INR"`
 	IsActive      *bool                   `json:"is_active" example:"true"`
 	Visibility    *catalog.VisibilityType `json:"visibility" binding:"omitempty,oneof=PRIVATE ORG NETWORK PUBLIC" validate:"omitempty,oneof=PRIVATE ORG NETWORK PUBLIC" example:"NETWORK"`
@@ -43,7 +44,7 @@ type UpdateCatalogItemRequest struct {
 
 // CatalogFilter represents filters for catalog queries
 type CatalogFilter struct {
-	ItemType       *catalog.CatalogItemType `form:"item_type" binding:"omitempty,oneof=PRODUCT SERVICE LABOUR" validate:"omitempty,oneof=PRODUCT SERVICE LABOUR" example:"PRODUCT"`
+	ItemType       *catalog.CatalogItemType `form:"item_type" binding:"omitempty,oneof=PRODUCT SERVICE LABOUR CONTRACT" validate:"omitempty,oneof=PRODUCT SERVICE LABOUR CONTRACT" example:"PRODUCT"`
 	Category       *string                  `form:"category" validate:"omitempty,max=100" example:"vegetables"`
 	Subcategory    *string                  `form:"subcategory" validate:"omitempty,max=100" example:"tomatoes"`
 	IsActive       *bool                    `form:"is_active" example:"true"`
@@ -76,6 +77,16 @@ type CreateLabourRequest struct {
 	CreateCatalogItemRequest
 	SkillLevel string           `json:"skill_level" binding:"omitempty,max=50" validate:"omitempty,max=50" example:"experienced"`
 	HourlyRate *decimal.Decimal `json:"hourly_rate" binding:"omitempty" validate:"omitempty,gte=0" example:"75.00"`
+}
+
+// CreateContractRequest represents the request to create a contract
+type CreateContractRequest struct {
+	CreateCatalogItemRequest
+	Term      string `json:"term" binding:"required,max=100" validate:"required,max=100" example:"fixed"`
+	Duration  int    `json:"duration" binding:"required,gt=0" validate:"required,gt=0" example:"12"`
+	StartDate string `json:"start_date" binding:"omitempty" validate:"omitempty" example:"2024-01-01"`
+	EndDate   string `json:"end_date" binding:"omitempty" validate:"omitempty" example:"2024-12-31"`
+	Terms     string `json:"terms" binding:"omitempty" validate:"omitempty,max=5000" example:"Contract terms and conditions"`
 }
 
 // ListCatalogItemsRequest represents the request to list catalog items
@@ -115,10 +126,20 @@ type UpdateLabourRequest struct {
 	HourlyRate *decimal.Decimal `json:"hourly_rate" binding:"omitempty" validate:"omitempty,gte=0" example:"100.00"`
 }
 
+// UpdateContractRequest represents the request to update a contract
+type UpdateContractRequest struct {
+	UpdateCatalogItemRequest
+	Term      *string `json:"term" binding:"omitempty,max=100" validate:"omitempty,max=100" example:"renewable"`
+	Duration  *int    `json:"duration" binding:"omitempty,gt=0" validate:"omitempty,gt=0" example:"24"`
+	StartDate *string `json:"start_date" binding:"omitempty" validate:"omitempty" example:"2024-02-01"`
+	EndDate   *string `json:"end_date" binding:"omitempty" validate:"omitempty" example:"2025-01-31"`
+	Terms     *string `json:"terms" binding:"omitempty" validate:"omitempty,max=5000" example:"Updated contract terms"`
+}
+
 // SearchCatalogRequest represents the request to search catalog items
 type SearchCatalogRequest struct {
 	Query     string                   `form:"q" binding:"required" validate:"required,min=1,max=255" example:"organic tomatoes"`
-	ItemType  *catalog.CatalogItemType `form:"item_type" binding:"omitempty,oneof=PRODUCT SERVICE LABOUR" validate:"omitempty,oneof=PRODUCT SERVICE LABOUR" example:"PRODUCT"`
+	ItemType  *catalog.CatalogItemType `form:"item_type" binding:"omitempty,oneof=PRODUCT SERVICE LABOUR CONTRACT" validate:"omitempty,oneof=PRODUCT SERVICE LABOUR CONTRACT" example:"PRODUCT"`
 	Category  *string                  `form:"category" validate:"omitempty,max=100" example:"vegetables"`
 	MinPrice  *decimal.Decimal         `form:"min_price" binding:"omitempty" validate:"omitempty,gte=0" example:"10.00"`
 	MaxPrice  *decimal.Decimal         `form:"max_price" binding:"omitempty" validate:"omitempty,gte=0" example:"100.00"`
@@ -233,6 +254,41 @@ func ValidateCreateLabourRequest(req *CreateLabourRequest) error {
 
 	if req.HourlyRate != nil && req.HourlyRate.LessThan(decimal.Zero) {
 		return fmt.Errorf("hourly_rate must be greater than or equal to 0")
+	}
+
+	return nil
+}
+
+// ValidateCreateContractRequest validates a create contract request
+func ValidateCreateContractRequest(req *CreateContractRequest) error {
+	if req.ItemType != catalog.CatalogItemTypeContract {
+		return fmt.Errorf("item_type must be CONTRACT for contract creation")
+	}
+
+	if req.Duration <= 0 {
+		return fmt.Errorf("duration must be greater than 0")
+	}
+
+	// Validate date formats if provided
+	if req.StartDate != "" {
+		if _, err := time.Parse("2006-01-02", req.StartDate); err != nil {
+			return fmt.Errorf("start_date must be in YYYY-MM-DD format")
+		}
+	}
+
+	if req.EndDate != "" {
+		if _, err := time.Parse("2006-01-02", req.EndDate); err != nil {
+			return fmt.Errorf("end_date must be in YYYY-MM-DD format")
+		}
+	}
+
+	// Validate date consistency
+	if req.StartDate != "" && req.EndDate != "" {
+		startDate, _ := time.Parse("2006-01-02", req.StartDate)
+		endDate, _ := time.Parse("2006-01-02", req.EndDate)
+		if endDate.Before(startDate) {
+			return fmt.Errorf("end_date must be after start_date")
+		}
 	}
 
 	return nil

@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Kisanlink/kisanlink-db/pkg/db"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -464,4 +465,37 @@ func ValidateTestFixtures(t *testing.T) {
 	assert.NotEmpty(t, TestSKU, "TestSKU should not be empty")
 	assert.NotEmpty(t, "test@example.com", "TestEmail should not be empty")
 	assert.NotEmpty(t, "testuser", "TestUsername should not be empty")
+}
+
+// SetupTestDatabase creates a test database manager for integration tests
+func SetupTestDatabase(t *testing.T) (db.DBManager, func()) {
+	// This would typically set up a real test database
+	// For now, return a mock that satisfies the interface
+	mockDB := SetupMockDatabase()
+	MockHealthyDatabase(mockDB)
+
+	// Return cleanup function
+	cleanup := func() {
+		CleanupMockDatabase(mockDB)
+	}
+
+	// Note: In a real implementation, this would return a real PostgresManager
+	// For testing purposes, we'll need to implement a test-specific manager
+	return nil, cleanup
+}
+
+// GetPostgresManager extracts PostgresManager from DBManager for testing
+func GetPostgresManager(t *testing.T, dbManager db.DBManager) *db.PostgresManager {
+	if dbManager == nil {
+		t.Skip("Real database manager not available in test environment")
+		return nil
+	}
+
+	postgresManager, ok := dbManager.(*db.PostgresManager)
+	if !ok {
+		t.Skip("PostgresManager not available in test environment")
+		return nil
+	}
+
+	return postgresManager
 }

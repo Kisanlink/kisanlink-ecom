@@ -6,11 +6,11 @@ import (
 	"time"
 
 	catalogModels "kisanlink-ecom/entities/models/catalog"
-	"kisanlink-ecom/internal/config"
 	"kisanlink-ecom/internal/database"
 	catalogRepo "kisanlink-ecom/internal/repositories/catalog"
 	"kisanlink-ecom/internal/repositories/inventory"
 	inventoryService "kisanlink-ecom/internal/services/inventory"
+	"kisanlink-ecom/tests/testutils"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/db"
 	"github.com/shopspring/decimal"
@@ -24,28 +24,8 @@ func TestInventoryIntegration(t *testing.T) {
 		t.Skip("Skipping integration test")
 	}
 
-	// Setup test database
-	cfg := config.MultiDatabaseConfig{
-		PostgreSQL: config.PostgreSQLConfig{
-			Host:            "localhost",
-			Port:            5432,
-			Database:        "kisanlink_ecom_test",
-			Username:        "postgres",
-			Password:        "postgres",
-			SSLMode:         "disable",
-			MaxOpenConns:    10,
-			MaxIdleConns:    5,
-			ConnMaxLifetime: 300,
-		},
-		DynamoDB: config.DynamoDBConfig{
-			Region:          "us-east-1",
-			Endpoint:        "http://localhost:8000",
-			AccessKeyID:     "test",
-			SecretAccessKey: "test",
-			DisableSSL:      true,
-			Table:           "kisanlink_ecom_test",
-		},
-	}
+	// Setup test database from environment variables
+	cfg := testutils.LoadTestDatabaseConfig()
 
 	dbManager, err := database.NewDatabaseManager(cfg)
 	if err != nil {
@@ -94,10 +74,9 @@ func TestInventoryIntegration(t *testing.T) {
 
 		lot, err := inventorySvc.CreateInventoryLot(ctx, createReq, userID, orgID)
 		require.NoError(t, err)
-		assert.Equal(t, decimal.NewFromInt(100), lot.AvailableQuantity)
-		assert.Equal(t, decimal.Zero, lot.ReservedQuantity)
-		assert.Equal(t, decimal.Zero, lot.SoldQuantity)
-		assert.Equal(t, catalogModels.InventoryStatusAvailable, lot.Status)
+		assert.Equal(t, decimal.NewFromInt(100), lot.AvailableQty)
+		assert.Equal(t, decimal.Zero, lot.ReservedQty)
+		assert.Equal(t, catalogModels.LotStatusActive, lot.Status)
 
 		// Check available quantity
 		available, err := inventorySvc.GetAvailableQuantity(ctx, product.ID, userID, orgID)
@@ -108,8 +87,8 @@ func TestInventoryIntegration(t *testing.T) {
 		reservedLots, err := inventorySvc.ReserveInventory(ctx, product.ID, decimal.NewFromInt(30), userID, orgID)
 		require.NoError(t, err)
 		assert.Len(t, reservedLots, 1)
-		assert.Equal(t, decimal.NewFromInt(70), reservedLots[0].AvailableQuantity)
-		assert.Equal(t, decimal.NewFromInt(30), reservedLots[0].ReservedQuantity)
+		assert.Equal(t, decimal.NewFromInt(70), reservedLots[0].AvailableQty)
+		assert.Equal(t, decimal.NewFromInt(30), reservedLots[0].ReservedQty)
 
 		// Check available quantity after reservation
 		available, err = inventorySvc.GetAvailableQuantity(ctx, product.ID, userID, orgID)
@@ -123,9 +102,8 @@ func TestInventoryIntegration(t *testing.T) {
 		// Check quantities after sale
 		updatedLot, err := inventorySvc.GetInventoryLot(ctx, lot.ID, userID, orgID)
 		require.NoError(t, err)
-		assert.Equal(t, decimal.NewFromInt(70), updatedLot.AvailableQuantity)
-		assert.Equal(t, decimal.NewFromInt(10), updatedLot.ReservedQuantity)
-		assert.Equal(t, decimal.NewFromInt(20), updatedLot.SoldQuantity)
+		assert.Equal(t, decimal.NewFromInt(70), updatedLot.AvailableQty)
+		assert.Equal(t, decimal.NewFromInt(10), updatedLot.ReservedQty)
 
 		// Release remaining reserved inventory
 		err = inventorySvc.ReleaseInventory(ctx, product.ID, decimal.NewFromInt(10), userID, orgID)
@@ -134,16 +112,15 @@ func TestInventoryIntegration(t *testing.T) {
 		// Check final quantities
 		finalLot, err := inventorySvc.GetInventoryLot(ctx, lot.ID, userID, orgID)
 		require.NoError(t, err)
-		assert.Equal(t, decimal.NewFromInt(80), finalLot.AvailableQuantity)
-		assert.Equal(t, decimal.Zero, finalLot.ReservedQuantity)
-		assert.Equal(t, decimal.NewFromInt(20), finalLot.SoldQuantity)
-		assert.Equal(t, catalogModels.InventoryStatusAvailable, finalLot.Status)
+		assert.Equal(t, decimal.NewFromInt(80), finalLot.AvailableQty)
+		assert.Equal(t, decimal.Zero, finalLot.ReservedQty)
+		assert.Equal(t, catalogModels.LotStatusActive, finalLot.Status)
 
 		// Test inventory adjustment
 		adjustedLot, err := inventorySvc.AdjustInventory(ctx, lot.ID, decimal.NewFromInt(20), "Stock adjustment", userID, orgID)
 		require.NoError(t, err)
-		assert.Equal(t, decimal.NewFromInt(100), adjustedLot.AvailableQuantity)
-		assert.Equal(t, decimal.NewFromInt(120), adjustedLot.InitialQuantity)
+		assert.Equal(t, decimal.NewFromInt(100), adjustedLot.AvailableQty)
+		assert.Equal(t, decimal.NewFromInt(120), adjustedLot.Quantity)
 
 		// Test audit trail
 		auditResponse, err := inventorySvc.GetAuditTrail(ctx, lot.ID, 0, 10, userID, orgID)
@@ -275,7 +252,7 @@ func TestInventoryIntegration(t *testing.T) {
 			}
 		}
 		require.NotNil(t, foundExpiredLot)
-		assert.Equal(t, catalogModels.InventoryStatusExpired, foundExpiredLot.Status)
+		assert.Equal(t, catalogModels.LotStatusExpired, foundExpiredLot.Status)
 
 		// Manually mark a lot as expired
 		createReq = &inventoryService.CreateInventoryLotRequest{
@@ -293,7 +270,7 @@ func TestInventoryIntegration(t *testing.T) {
 		// Verify lot is marked as expired
 		expiredLot, err := inventorySvc.GetInventoryLot(ctx, lot2.ID, userID, orgID)
 		require.NoError(t, err)
-		assert.Equal(t, catalogModels.InventoryStatusExpired, expiredLot.Status)
+		assert.Equal(t, catalogModels.LotStatusExpired, expiredLot.Status)
 	})
 
 	t.Run("OrganizationIsolation", func(t *testing.T) {

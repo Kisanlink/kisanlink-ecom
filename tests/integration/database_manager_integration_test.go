@@ -7,6 +7,7 @@ import (
 
 	"kisanlink-ecom/internal/config"
 	"kisanlink-ecom/internal/database"
+	"kisanlink-ecom/tests/testutils"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -19,27 +20,8 @@ func TestDatabaseManagerIntegration(t *testing.T) {
 	}
 
 	t.Run("ValidConfiguration", func(t *testing.T) {
-		cfg := config.MultiDatabaseConfig{
-			PostgreSQL: config.PostgreSQLConfig{
-				Host:            "localhost",
-				Port:            5432,
-				Database:        "kisanlink_ecom_test",
-				Username:        "postgres",
-				Password:        "postgres",
-				SSLMode:         "disable",
-				MaxOpenConns:    10,
-				MaxIdleConns:    5,
-				ConnMaxLifetime: 300,
-			},
-			DynamoDB: config.DynamoDBConfig{
-				Region:          "us-east-1",
-				Endpoint:        "http://localhost:8000", // Local DynamoDB
-				AccessKeyID:     "test",
-				SecretAccessKey: "test",
-				DisableSSL:      true,
-				Table:           "kisanlink_ecom_test",
-			},
-		}
+		// Load configuration from environment variables
+		cfg := testutils.LoadTestDatabaseConfig()
 
 		dbManager, err := database.NewDatabaseManager(cfg)
 		if err != nil {

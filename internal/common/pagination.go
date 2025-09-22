@@ -21,6 +21,12 @@ type PaginationParams struct {
 	Limit int `json:"limit"`
 }
 
+// PaginationRequest represents pagination parameters for repository operations
+type PaginationRequest struct {
+	Limit  int `json:"limit"`
+	Offset int `json:"offset"`
+}
+
 // SortParams represents sorting parameters from the request
 type SortParams struct {
 	SortBy    string `json:"sort_by"`

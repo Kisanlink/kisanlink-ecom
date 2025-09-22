@@ -189,19 +189,19 @@ func CreateMarketplaceSchema(dbManager db.DBManager) error {
 func verifyMarketplaceTables(gormDB interface{}) error {
 	// This is a simplified verification - in a real implementation,
 	// you might want to check table structure, constraints, etc.
-	
+
 	tables := []string{
 		"marketplace_listings",
-		"marketplace_bids", 
+		"marketplace_bids",
 		"auction_events",
 	}
 
 	// For now, just log that verification would happen here
 	log.Printf("Verifying marketplace tables: %v", tables)
-	
+
 	// In a real implementation, you would query the database to verify
 	// table existence and structure
-	
+
 	return nil
 }
 
@@ -222,7 +222,7 @@ func DropMarketplaceSchema(dbManager db.DBManager) error {
 	// Drop tables in reverse order to handle foreign key constraints
 	dropStatements := []string{
 		"DROP TABLE IF EXISTS auction_events CASCADE",
-		"DROP TABLE IF EXISTS marketplace_bids CASCADE", 
+		"DROP TABLE IF EXISTS marketplace_bids CASCADE",
 		"DROP TABLE IF EXISTS marketplace_listings CASCADE",
 	}
 

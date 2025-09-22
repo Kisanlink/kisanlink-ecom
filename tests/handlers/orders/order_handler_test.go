@@ -47,6 +47,43 @@ func (m *MockOrderService) UpdateOrderStatus(ctx context.Context, id string, req
 	return args.Error(0)
 }
 
+func (m *MockOrderService) CreateOrderFromBid(ctx context.Context, req *orderRequests.CreateOrderFromBidRequest, userID, orgID string) (*orderModels.Order, error) {
+	args := m.Called(ctx, req, userID, orgID)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*orderModels.Order), args.Error(1)
+}
+
+func (m *MockOrderService) ValidateBidForOrder(ctx context.Context, bidID, userID, orgID string) (*orderService.BidOrderValidation, error) {
+	args := m.Called(ctx, bidID, userID, orgID)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*orderService.BidOrderValidation), args.Error(1)
+}
+
+func (m *MockOrderService) ProcessPaymentForOrder(ctx context.Context, orderID, paymentMethod, userID, orgID string) (*orderService.PaymentResult, error) {
+	args := m.Called(ctx, orderID, paymentMethod, userID, orgID)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*orderService.PaymentResult), args.Error(1)
+}
+
+func (m *MockOrderService) GetPaymentStatus(ctx context.Context, orderID, userID, orgID string) (*orderService.PaymentResult, error) {
+	args := m.Called(ctx, orderID, userID, orgID)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*orderService.PaymentResult), args.Error(1)
+}
+
+func (m *MockOrderService) HandlePaymentFailure(ctx context.Context, orderID, reason, userID, orgID string) error {
+	args := m.Called(ctx, orderID, reason, userID, orgID)
+	return args.Error(0)
+}
+
 func (m *MockOrderService) GetOrderByNumber(ctx context.Context, orderNumber string) (*orderModels.Order, error) {
 	args := m.Called(ctx, orderNumber)
 	if args.Get(0) == nil {
@@ -746,6 +783,401 @@ func TestOrderHandler_CreateOrder_ConcurrentRequests(t *testing.T) {
 		router.ServeHTTP(w, httpReq)
 		assert.Equal(t, http.StatusCreated, w.Code)
 	}
+
+	mockService.AssertExpectations(t)
+}
+
+// Test CreateOrderFromBid handler with comprehensive scenarios
+func TestOrderHandler_CreateOrderFromBid_Success(t *testing.T) {
+	mockService := &MockOrderService{}
+	handler := orders.NewOrderHandler(mockService)
+	router := setupTestRouter()
+
+	router.POST("/orders/from-bid", func(c *gin.Context) {
+		setupAuthenticatedContext(c)
+		handler.CreateOrderFromBid(c)
+	})
+
+	req := &orderRequests.CreateOrderFromBidRequest{
+		BidID: "BID_1234567890",
+		ShippingAddress: &orderRequests.Address{
+			Street:     "123 Farm Road",
+			City:       "Rural City",
+			State:      "Maharashtra",
+			PostalCode: "411001",
+			Country:    "India",
+		},
+		PaymentMethod: "upi",
+		Notes:         "Please deliver during business hours",
+	}
+
+	expectedOrder := createTestOrder()
+	expectedOrder.Notes = req.Notes
+
+	mockService.On("CreateOrderFromBid", mock.Anything, req, "user-1", "buyer-org-1").Return(expectedOrder, nil)
+
+	reqBody, _ := json.Marshal(req)
+	w := httptest.NewRecorder()
+	httpReq, _ := http.NewRequest("POST", "/orders/from-bid", bytes.NewBuffer(reqBody))
+	httpReq.Header.Set("Content-Type", "application/json")
+
+	router.ServeHTTP(w, httpReq)
+
+	assert.Equal(t, http.StatusCreated, w.Code)
+
+	var response map[string]interface{}
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	assert.NoError(t, err)
+	assert.True(t, response["success"].(bool))
+
+	data := response["data"].(map[string]interface{})
+	assert.Equal(t, expectedOrder.ID, data["order_id"])
+	assert.Equal(t, expectedOrder.OrderNumber, data["order_number"])
+	assert.Equal(t, req.BidID, data["bid_id"])
+
+	mockService.AssertExpectations(t)
+}
+
+func TestOrderHandler_CreateOrderFromBid_InvalidJSON(t *testing.T) {
+	mockService := &MockOrderService{}
+	handler := orders.NewOrderHandler(mockService)
+	router := setupTestRouter()
+
+	router.POST("/orders/from-bid", func(c *gin.Context) {
+		setupAuthenticatedContext(c)
+		handler.CreateOrderFromBid(c)
+	})
+
+	w := httptest.NewRecorder()
+	httpReq, _ := http.NewRequest("POST", "/orders/from-bid", bytes.NewBufferString("invalid json"))
+	httpReq.Header.Set("Content-Type", "application/json")
+
+	router.ServeHTTP(w, httpReq)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+
+	var response map[string]interface{}
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	assert.NoError(t, err)
+	assert.False(t, response["success"].(bool))
+	assert.Equal(t, "INVALID_REQUEST", response["error"].(map[string]interface{})["code"])
+
+	mockService.AssertExpectations(t)
+}
+
+func TestOrderHandler_CreateOrderFromBid_ServiceError(t *testing.T) {
+	mockService := &MockOrderService{}
+	handler := orders.NewOrderHandler(mockService)
+	router := setupTestRouter()
+
+	router.POST("/orders/from-bid", func(c *gin.Context) {
+		setupAuthenticatedContext(c)
+		handler.CreateOrderFromBid(c)
+	})
+
+	req := &orderRequests.CreateOrderFromBidRequest{
+		BidID: "BID_1234567890",
+		ShippingAddress: &orderRequests.Address{
+			Street:     "123 Farm Road",
+			City:       "Rural City",
+			State:      "Maharashtra",
+			PostalCode: "411001",
+			Country:    "India",
+		},
+		PaymentMethod: "upi",
+	}
+
+	mockService.On("CreateOrderFromBid", mock.Anything, req, "user-1", "buyer-org-1").Return(nil, errors.New("bid validation failed"))
+
+	reqBody, _ := json.Marshal(req)
+	w := httptest.NewRecorder()
+	httpReq, _ := http.NewRequest("POST", "/orders/from-bid", bytes.NewBuffer(reqBody))
+	httpReq.Header.Set("Content-Type", "application/json")
+
+	router.ServeHTTP(w, httpReq)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+
+	var response map[string]interface{}
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	assert.NoError(t, err)
+	assert.False(t, response["success"].(bool))
+	assert.Equal(t, "CREATE_FROM_BID_FAILED", response["error"].(map[string]interface{})["code"])
+
+	mockService.AssertExpectations(t)
+}
+
+// Test ValidateBidForOrder handler with comprehensive scenarios
+func TestOrderHandler_ValidateBidForOrder_Success(t *testing.T) {
+	mockService := &MockOrderService{}
+	handler := orders.NewOrderHandler(mockService)
+	router := setupTestRouter()
+
+	router.POST("/orders/validate-bid", func(c *gin.Context) {
+		setupAuthenticatedContext(c)
+		handler.ValidateBidForOrder(c)
+	})
+
+	req := &orderRequests.BidOrderValidationRequest{
+		BidID: "BID_1234567890",
+	}
+
+	expectedValidation := &orderService.BidOrderValidation{
+		Valid:          true,
+		BidID:          "BID_1234567890",
+		ListingID:      "LST_1234567890",
+		ProductID:      "PROD_1234567890",
+		WinningAmount:  decimal.NewFromFloat(150.00),
+		Quantity:       decimal.NewFromFloat(10.5),
+		Currency:       "INR",
+		SellerID:       "USER_1234567890",
+		BuyerID:        "user-1",
+		SellerOrgID:    "ORG_1234567890",
+		BuyerOrgID:     "buyer-org-1",
+		ProductName:    "Organic Tomatoes",
+		ProductSKU:     "ORG-TOM-001",
+		ExpiresAt:      time.Now().Add(24 * time.Hour),
+		CanCreateOrder: true,
+	}
+
+	mockService.On("ValidateBidForOrder", mock.Anything, req.BidID, "user-1", "buyer-org-1").Return(expectedValidation, nil)
+
+	reqBody, _ := json.Marshal(req)
+	w := httptest.NewRecorder()
+	httpReq, _ := http.NewRequest("POST", "/orders/validate-bid", bytes.NewBuffer(reqBody))
+	httpReq.Header.Set("Content-Type", "application/json")
+
+	router.ServeHTTP(w, httpReq)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	var response map[string]interface{}
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	assert.NoError(t, err)
+	assert.True(t, response["success"].(bool))
+
+	data := response["data"].(map[string]interface{})
+	assert.True(t, data["valid"].(bool))
+	assert.Equal(t, expectedValidation.BidID, data["bid_id"])
+	assert.Equal(t, expectedValidation.ListingID, data["listing_id"])
+	assert.True(t, data["can_create_order"].(bool))
+
+	mockService.AssertExpectations(t)
+}
+
+func TestOrderHandler_ValidateBidForOrder_ValidationFailed(t *testing.T) {
+	mockService := &MockOrderService{}
+	handler := orders.NewOrderHandler(mockService)
+	router := setupTestRouter()
+
+	router.POST("/orders/validate-bid", func(c *gin.Context) {
+		setupAuthenticatedContext(c)
+		handler.ValidateBidForOrder(c)
+	})
+
+	req := &orderRequests.BidOrderValidationRequest{
+		BidID: "BID_1234567890",
+	}
+
+	mockService.On("ValidateBidForOrder", mock.Anything, req.BidID, "user-1", "buyer-org-1").Return(nil, errors.New("bid is not in winning status"))
+
+	reqBody, _ := json.Marshal(req)
+	w := httptest.NewRecorder()
+	httpReq, _ := http.NewRequest("POST", "/orders/validate-bid", bytes.NewBuffer(reqBody))
+	httpReq.Header.Set("Content-Type", "application/json")
+
+	router.ServeHTTP(w, httpReq)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+
+	var response map[string]interface{}
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	assert.NoError(t, err)
+	assert.False(t, response["success"].(bool))
+	assert.Equal(t, "BID_VALIDATION_FAILED", response["error"].(map[string]interface{})["code"])
+
+	mockService.AssertExpectations(t)
+}
+
+func TestOrderHandler_ValidateBidForOrder_InvalidJSON(t *testing.T) {
+	mockService := &MockOrderService{}
+	handler := orders.NewOrderHandler(mockService)
+	router := setupTestRouter()
+
+	router.POST("/orders/validate-bid", func(c *gin.Context) {
+		setupAuthenticatedContext(c)
+		handler.ValidateBidForOrder(c)
+	})
+
+	w := httptest.NewRecorder()
+	httpReq, _ := http.NewRequest("POST", "/orders/validate-bid", bytes.NewBufferString("invalid json"))
+	httpReq.Header.Set("Content-Type", "application/json")
+
+	router.ServeHTTP(w, httpReq)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+
+	var response map[string]interface{}
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	assert.NoError(t, err)
+	assert.False(t, response["success"].(bool))
+	assert.Equal(t, "INVALID_REQUEST", response["error"].(map[string]interface{})["code"])
+
+	mockService.AssertExpectations(t)
+}
+
+// Test ProcessPaymentForOrder handler with comprehensive scenarios
+func TestOrderHandler_ProcessPaymentForOrder_Success(t *testing.T) {
+	mockService := &MockOrderService{}
+	handler := orders.NewOrderHandler(mockService)
+	router := setupTestRouter()
+
+	router.POST("/orders/:id/payment", func(c *gin.Context) {
+		setupAuthenticatedContext(c)
+		handler.ProcessPaymentForOrder(c)
+	})
+
+	req := &orderRequests.ProcessPaymentRequest{
+		PaymentMethod: "upi",
+	}
+
+	expectedPaymentResult := &orderService.PaymentResult{
+		PaymentID:     "PAY_1234567890",
+		OrderID:       "order-123",
+		Status:        orderService.PaymentStatusCompleted,
+		Amount:        decimal.NewFromFloat(150.00),
+		Currency:      "INR",
+		PaymentMethod: "upi",
+		ProcessedAt:   time.Now(),
+		Message:       "Payment completed successfully",
+	}
+
+	mockService.On("ProcessPaymentForOrder", mock.Anything, "order-123", req.PaymentMethod, "user-1", "buyer-org-1").Return(expectedPaymentResult, nil)
+
+	reqBody, _ := json.Marshal(req)
+	w := httptest.NewRecorder()
+	httpReq, _ := http.NewRequest("POST", "/orders/order-123/payment", bytes.NewBuffer(reqBody))
+	httpReq.Header.Set("Content-Type", "application/json")
+
+	router.ServeHTTP(w, httpReq)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	var response map[string]interface{}
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	assert.NoError(t, err)
+	assert.True(t, response["success"].(bool))
+
+	data := response["data"].(map[string]interface{})
+	assert.Equal(t, expectedPaymentResult.PaymentID, data["payment_id"])
+	assert.Equal(t, expectedPaymentResult.OrderID, data["order_id"])
+	assert.Equal(t, string(expectedPaymentResult.Status), data["status"])
+
+	mockService.AssertExpectations(t)
+}
+
+func TestOrderHandler_ProcessPaymentForOrder_InvalidPaymentMethod(t *testing.T) {
+	mockService := &MockOrderService{}
+	handler := orders.NewOrderHandler(mockService)
+	router := setupTestRouter()
+
+	router.POST("/orders/:id/payment", func(c *gin.Context) {
+		setupAuthenticatedContext(c)
+		handler.ProcessPaymentForOrder(c)
+	})
+
+	req := &orderRequests.ProcessPaymentRequest{
+		PaymentMethod: "invalid_method",
+	}
+
+	mockService.On("ProcessPaymentForOrder", mock.Anything, "order-123", req.PaymentMethod, "user-1", "buyer-org-1").Return(nil, errors.New("invalid payment method"))
+
+	reqBody, _ := json.Marshal(req)
+	w := httptest.NewRecorder()
+	httpReq, _ := http.NewRequest("POST", "/orders/order-123/payment", bytes.NewBuffer(reqBody))
+	httpReq.Header.Set("Content-Type", "application/json")
+
+	router.ServeHTTP(w, httpReq)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+
+	var response map[string]interface{}
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	assert.NoError(t, err)
+	assert.False(t, response["success"].(bool))
+	assert.Equal(t, "PAYMENT_PROCESSING_FAILED", response["error"].(map[string]interface{})["code"])
+
+	mockService.AssertExpectations(t)
+}
+
+// Test GetPaymentStatus handler with comprehensive scenarios
+func TestOrderHandler_GetPaymentStatus_Success(t *testing.T) {
+	mockService := &MockOrderService{}
+	handler := orders.NewOrderHandler(mockService)
+	router := setupTestRouter()
+
+	router.GET("/orders/:id/payment/status", func(c *gin.Context) {
+		setupAuthenticatedContext(c)
+		handler.GetPaymentStatus(c)
+	})
+
+	expectedPaymentResult := &orderService.PaymentResult{
+		PaymentID:     "PAY_1234567890",
+		OrderID:       "order-123",
+		Status:        orderService.PaymentStatusCompleted,
+		Amount:        decimal.NewFromFloat(150.00),
+		Currency:      "INR",
+		PaymentMethod: "upi",
+		ProcessedAt:   time.Now(),
+		Message:       "Payment status: COMPLETED",
+	}
+
+	mockService.On("GetPaymentStatus", mock.Anything, "order-123", "user-1", "buyer-org-1").Return(expectedPaymentResult, nil)
+
+	w := httptest.NewRecorder()
+	httpReq, _ := http.NewRequest("GET", "/orders/order-123/payment/status", nil)
+
+	router.ServeHTTP(w, httpReq)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	var response map[string]interface{}
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	assert.NoError(t, err)
+	assert.True(t, response["success"].(bool))
+
+	data := response["data"].(map[string]interface{})
+	assert.Equal(t, expectedPaymentResult.PaymentID, data["payment_id"])
+	assert.Equal(t, expectedPaymentResult.OrderID, data["order_id"])
+	assert.Equal(t, string(expectedPaymentResult.Status), data["status"])
+
+	mockService.AssertExpectations(t)
+}
+
+func TestOrderHandler_GetPaymentStatus_NoPaymentFound(t *testing.T) {
+	mockService := &MockOrderService{}
+	handler := orders.NewOrderHandler(mockService)
+	router := setupTestRouter()
+
+	router.GET("/orders/:id/payment/status", func(c *gin.Context) {
+		setupAuthenticatedContext(c)
+		handler.GetPaymentStatus(c)
+	})
+
+	mockService.On("GetPaymentStatus", mock.Anything, "order-123", "user-1", "buyer-org-1").Return(nil, errors.New("no payment found for order"))
+
+	w := httptest.NewRecorder()
+	httpReq, _ := http.NewRequest("GET", "/orders/order-123/payment/status", nil)
+
+	router.ServeHTTP(w, httpReq)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+
+	var response map[string]interface{}
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	assert.NoError(t, err)
+	assert.False(t, response["success"].(bool))
+	assert.Equal(t, "PAYMENT_STATUS_FAILED", response["error"].(map[string]interface{})["code"])
 
 	mockService.AssertExpectations(t)
 }

@@ -24,7 +24,7 @@ type InventoryRepository interface {
 	// Listing and filtering
 	ListByOrganization(ctx context.Context, orgID string, offset, limit int) ([]*catalogModels.InventoryLot, int64, error)
 	ListByCatalogItem(ctx context.Context, catalogItemID string, offset, limit int) ([]*catalogModels.InventoryLot, int64, error)
-	ListByStatus(ctx context.Context, orgID string, status catalogModels.InventoryStatus, offset, limit int) ([]*catalogModels.InventoryLot, int64, error)
+	ListByStatus(ctx context.Context, orgID string, status catalogModels.LotStatus, offset, limit int) ([]*catalogModels.InventoryLot, int64, error)
 
 	// Inventory operations
 	GetAvailableQuantity(ctx context.Context, catalogItemID string) (decimal.Decimal, error)
@@ -206,7 +206,7 @@ func (r *inventoryRepository) ListByCatalogItem(ctx context.Context, catalogItem
 }
 
 // ListByStatus lists inventory lots by status with pagination
-func (r *inventoryRepository) ListByStatus(ctx context.Context, orgID string, status catalogModels.InventoryStatus, offset, limit int) ([]*catalogModels.InventoryLot, int64, error) {
+func (r *inventoryRepository) ListByStatus(ctx context.Context, orgID string, status catalogModels.LotStatus, offset, limit int) ([]*catalogModels.InventoryLot, int64, error) {
 	filter := base.NewFilter()
 	filter.Group.Conditions = []base.FilterCondition{
 		{
@@ -261,12 +261,12 @@ func (r *inventoryRepository) GetAvailableQuantity(ctx context.Context, catalogI
 				{
 					Field:    "status",
 					Operator: base.OpEqual,
-					Value:    string(catalogModels.InventoryStatusAvailable),
+					Value:    string(catalogModels.LotStatusActive),
 				},
 				{
 					Field:    "status",
 					Operator: base.OpEqual,
-					Value:    string(catalogModels.InventoryStatusReserved),
+					Value:    string(catalogModels.LotStatusReserved),
 				},
 			},
 		},
@@ -280,7 +280,7 @@ func (r *inventoryRepository) GetAvailableQuantity(ctx context.Context, catalogI
 	// Sum up available quantities
 	total := decimal.Zero
 	for _, lot := range lots {
-		total = total.Add(lot.AvailableQuantity)
+		total = total.Add(lot.AvailableQty)
 	}
 
 	return total, nil
@@ -304,12 +304,12 @@ func (r *inventoryRepository) GetTotalQuantity(ctx context.Context, catalogItemI
 				{
 					Field:    "status",
 					Operator: base.OpEqual,
-					Value:    string(catalogModels.InventoryStatusAvailable),
+					Value:    string(catalogModels.LotStatusActive),
 				},
 				{
 					Field:    "status",
 					Operator: base.OpEqual,
-					Value:    string(catalogModels.InventoryStatusReserved),
+					Value:    string(catalogModels.LotStatusReserved),
 				},
 			},
 		},
@@ -323,7 +323,7 @@ func (r *inventoryRepository) GetTotalQuantity(ctx context.Context, catalogItemI
 	// Sum up available and reserved quantities
 	total := decimal.Zero
 	for _, lot := range lots {
-		total = total.Add(lot.AvailableQuantity).Add(lot.ReservedQuantity)
+		total = total.Add(lot.AvailableQty).Add(lot.ReservedQty)
 	}
 
 	return total, nil
@@ -346,7 +346,7 @@ func (r *inventoryRepository) ReserveQuantity(ctx context.Context, catalogItemID
 		{
 			Field:    "status",
 			Operator: base.OpEqual,
-			Value:    string(catalogModels.InventoryStatusAvailable),
+			Value:    string(catalogModels.LotStatusActive),
 		},
 		{
 			Field:    "available_quantity",
@@ -377,13 +377,13 @@ func (r *inventoryRepository) ReserveQuantity(ctx context.Context, catalogItemID
 		}
 
 		quantityToReserve := remainingToReserve
-		if lot.AvailableQuantity.LessThan(quantityToReserve) {
-			quantityToReserve = lot.AvailableQuantity
+		if lot.AvailableQty.LessThan(quantityToReserve) {
+			quantityToReserve = lot.AvailableQty
 		}
 
 		// Reserve quantity from this lot
-		if err := lot.Reserve(quantityToReserve); err != nil {
-			return nil, fmt.Errorf("failed to reserve from lot %s: %w", lot.ID, err)
+		if !lot.ReserveQuantity(quantityToReserve) {
+			return nil, fmt.Errorf("failed to reserve from lot %s: insufficient quantity", lot.ID)
 		}
 
 		// Update lot in database
@@ -441,13 +441,13 @@ func (r *inventoryRepository) ReleaseQuantity(ctx context.Context, catalogItemID
 		}
 
 		quantityToRelease := remainingToRelease
-		if lot.ReservedQuantity.LessThan(quantityToRelease) {
-			quantityToRelease = lot.ReservedQuantity
+		if lot.ReservedQty.LessThan(quantityToRelease) {
+			quantityToRelease = lot.ReservedQty
 		}
 
 		// Release quantity from this lot
-		if err := lot.Release(quantityToRelease); err != nil {
-			return fmt.Errorf("failed to release from lot %s: %w", lot.ID, err)
+		if !lot.ReleaseReservation(quantityToRelease) {
+			return fmt.Errorf("failed to release from lot %s: insufficient reserved quantity", lot.ID)
 		}
 
 		// Update lot in database
@@ -508,13 +508,13 @@ func (r *inventoryRepository) SellQuantity(ctx context.Context, catalogItemID st
 		}
 
 		quantityToSell := remainingToSell
-		if lot.ReservedQuantity.LessThan(quantityToSell) {
-			quantityToSell = lot.ReservedQuantity
+		if lot.ReservedQty.LessThan(quantityToSell) {
+			quantityToSell = lot.ReservedQty
 		}
 
 		// Sell quantity from this lot
-		if err := lot.Sell(quantityToSell); err != nil {
-			return fmt.Errorf("failed to sell from lot %s: %w", lot.ID, err)
+		if !lot.ConsumeQuantity(quantityToSell) {
+			return fmt.Errorf("failed to sell from lot %s: insufficient reserved quantity", lot.ID)
 		}
 
 		// Update lot in database
@@ -556,12 +556,12 @@ func (r *inventoryRepository) GetExpiringLots(ctx context.Context, orgID string,
 				{
 					Field:    "status",
 					Operator: base.OpNotEqual,
-					Value:    string(catalogModels.InventoryStatusExpired),
+					Value:    string(catalogModels.LotStatusExpired),
 				},
 				{
 					Field:    "status",
 					Operator: base.OpNotEqual,
-					Value:    string(catalogModels.InventoryStatusSold),
+					Value:    string(catalogModels.LotStatusSold),
 				},
 			},
 		},
@@ -590,7 +590,7 @@ func (r *inventoryRepository) MarkExpired(ctx context.Context, lotID string) err
 	}
 
 	// Update status
-	lot.Status = catalogModels.InventoryStatusExpired
+	lot.Status = catalogModels.LotStatusExpired
 
 	// Save the updated lot
 	if err := r.dbManager.Update(ctx, &lot); err != nil {

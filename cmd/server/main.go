@@ -23,6 +23,7 @@ import (
 	catalogService "kisanlink-ecom/internal/services/catalog"
 	integrationService "kisanlink-ecom/internal/services/integrations"
 	inventoryService "kisanlink-ecom/internal/services/inventory"
+	"kisanlink-ecom/internal/services/marketplace"
 	orderService "kisanlink-ecom/internal/services/orders"
 	userService "kisanlink-ecom/internal/services/user"
 )
@@ -142,7 +143,7 @@ func main() {
 	log.Println("Integration service initialized")
 
 	// Setup router with services and database manager for health checks
-	router := routes.SetupRouter(aaaClient, catalogSvc, inventorySvc, orderSvc, userSvc, integrationSvc)
+	router := routes.SetupRouter(aaaClient, catalogSvc, inventorySvc, orderSvc, userSvc, integrationSvc, &marketplace.MarketplaceServices{})
 
 	// Add database manager to context for health checks
 	router.Use(func(c *gin.Context) {

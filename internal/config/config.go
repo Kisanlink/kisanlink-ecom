@@ -44,8 +44,8 @@ type DatabaseConfig struct {
 
 	// For DynamoDB
 	Region    string `env:"DB_DYNAMO_REGION" envDefault:"us-east-1"`
-	AccessKey string `env:"AWS_ACCESS_KEY_ID"`
-	SecretKey string `env:"AWS_SECRET_ACCESS_KEY"`
+	AccessKey string `env:"DYNAMODB_ACCESS_KEY_ID"`
+	SecretKey string `env:"DYNAMODB_SECRET_ACCESS_KEY"`
 
 	// For other NoSQL databases
 	ConnectionString string `env:"DB_CONNECTION_STRING"`

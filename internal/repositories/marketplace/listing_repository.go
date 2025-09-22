@@ -10,6 +10,7 @@ import (
 
 	"github.com/Kisanlink/kisanlink-db/pkg/base"
 	"github.com/Kisanlink/kisanlink-db/pkg/db"
+	"github.com/shopspring/decimal"
 )
 
 // ListingRepository interface defines the contract for listing data operations
@@ -29,11 +30,13 @@ type ListingRepository interface {
 
 	// Seller operations
 	GetSellerListings(ctx context.Context, sellerID string, filter *marketplace.ListingFilter, pagination *common.PaginationRequest) ([]*marketplace.Listing, int, error)
+	GetUserListings(ctx context.Context, userID string, filter *marketplace.ListingFilter, pagination *common.PaginationRequest) ([]*marketplace.Listing, int, error)
 
 	// Expiry and status management
 	GetExpiredListings(ctx context.Context, limit int) ([]*marketplace.Listing, error)
 	GetListingsByStatus(ctx context.Context, status marketplace.ListingStatus, limit int) ([]*marketplace.Listing, error)
 	UpdateListingStatus(ctx context.Context, listingID string, status marketplace.ListingStatus, reason string) error
+	UpdateStatus(ctx context.Context, listingID string, status marketplace.ListingStatus, reason string) error
 
 	// Bid count management
 	IncrementBidCount(ctx context.Context, listingID string) error
@@ -42,6 +45,19 @@ type ListingRepository interface {
 	// Admin operations
 	GetAllListings(ctx context.Context, filter *marketplace.ListingFilter, pagination *common.PaginationRequest) ([]*marketplace.Listing, int, error)
 	ForceCloseListing(ctx context.Context, listingID string, reason string, adminID string) error
+
+	// Analytics methods
+	CountListings(ctx context.Context, startTime, endTime time.Time) (int, error)
+	CountListingsByStatus(ctx context.Context, status marketplace.ListingStatus, startTime, endTime time.Time) (int, error)
+	CountUserListings(ctx context.Context, userID string, startTime, endTime time.Time) (int, error)
+	CountUserListingsByStatus(ctx context.Context, userID string, status marketplace.ListingStatus, startTime, endTime time.Time) (int, error)
+	GetTotalListingValue(ctx context.Context, startTime, endTime time.Time) (float64, error)
+	GetUserTotalEarned(ctx context.Context, userID string, startTime, endTime time.Time) (decimal.Decimal, error)
+	CountOrganizationUsers(ctx context.Context, orgID string, startTime, endTime time.Time) (int, error)
+	CountOrganizationListings(ctx context.Context, orgID string, startTime, endTime time.Time) (int, error)
+	GetOrganizationTotalVolume(ctx context.Context, orgID string, startTime, endTime time.Time) (decimal.Decimal, error)
+	CountOrganizationListingsByStatus(ctx context.Context, orgID string, status marketplace.ListingStatus, startTime, endTime time.Time) (int, error)
+	GetCategoryStatistics(ctx context.Context, startTime, endTime time.Time) (map[string]int, error)
 }
 
 // listingRepository implements the ListingRepository interface
@@ -127,7 +143,7 @@ func (r *listingRepository) GetActiveListings(ctx context.Context, viewerOrgID s
 	// Add expiry filter (not expired)
 	dbFilter.Group.Conditions = append(dbFilter.Group.Conditions, base.FilterCondition{
 		Field:    "expires_at",
-		Operator: base.OpGreater,
+		Operator: base.OpGreaterThan,
 		Value:    time.Now(),
 	})
 
@@ -196,6 +212,11 @@ func (r *listingRepository) GetSellerListings(ctx context.Context, sellerID stri
 	return r.executeListQuery(ctx, dbFilter, pagination)
 }
 
+// GetUserListings retrieves listings for a specific user (alias for GetSellerListings)
+func (r *listingRepository) GetUserListings(ctx context.Context, userID string, filter *marketplace.ListingFilter, pagination *common.PaginationRequest) ([]*marketplace.Listing, int, error) {
+	return r.GetSellerListings(ctx, userID, filter, pagination)
+}
+
 // GetExpiredListings retrieves listings that have expired but not yet processed
 func (r *listingRepository) GetExpiredListings(ctx context.Context, limit int) ([]*marketplace.Listing, error) {
 	filter := base.NewFilter()
@@ -207,7 +228,7 @@ func (r *listingRepository) GetExpiredListings(ctx context.Context, limit int) (
 		},
 		{
 			Field:    "expires_at",
-			Operator: base.OpLess,
+			Operator: base.OpLessThan,
 			Value:    time.Now(),
 		},
 	}
@@ -260,6 +281,11 @@ func (r *listingRepository) UpdateListingStatus(ctx context.Context, listingID s
 	}
 
 	return nil
+}
+
+// UpdateStatus is an alias for UpdateListingStatus to match the interface
+func (r *listingRepository) UpdateStatus(ctx context.Context, listingID string, status marketplace.ListingStatus, reason string) error {
+	return r.UpdateListingStatus(ctx, listingID, status, reason)
 }
 
 // IncrementBidCount increments the bid count for a listing
@@ -411,7 +437,7 @@ func (r *listingRepository) buildBaseFilter(filter *marketplace.ListingFilter) *
 	if filter.ExpiresAfter != nil {
 		dbFilter.Group.Conditions = append(dbFilter.Group.Conditions, base.FilterCondition{
 			Field:    "expires_at",
-			Operator: base.OpGreater,
+			Operator: base.OpGreaterThan,
 			Value:    *filter.ExpiresAfter,
 		})
 	}
@@ -419,7 +445,7 @@ func (r *listingRepository) buildBaseFilter(filter *marketplace.ListingFilter) *
 	if filter.ExpiresBefore != nil {
 		dbFilter.Group.Conditions = append(dbFilter.Group.Conditions, base.FilterCondition{
 			Field:    "expires_at",
-			Operator: base.OpLess,
+			Operator: base.OpLessThan,
 			Value:    *filter.ExpiresBefore,
 		})
 	}
@@ -481,4 +507,189 @@ func (r *listingRepository) executeListQuery(ctx context.Context, filter *base.F
 	}
 
 	return listings, int(total), nil
+}
+
+// Analytics method implementations
+
+// CountListings counts total listings in a time range
+func (r *listingRepository) CountListings(ctx context.Context, startTime, endTime time.Time) (int, error) {
+	filter := base.NewFilter()
+	filter.Group.Conditions = []base.FilterCondition{
+		{
+			Field:    "created_at",
+			Operator: base.OpGreaterEqual,
+			Value:    startTime,
+		},
+		{
+			Field:    "created_at",
+			Operator: base.OpLessEqual,
+			Value:    endTime,
+		},
+	}
+
+	count, err := r.dbManager.Count(ctx, filter, &marketplace.Listing{})
+	if err != nil {
+		return 0, fmt.Errorf("failed to count listings: %w", err)
+	}
+
+	return int(count), nil
+}
+
+// CountListingsByStatus counts listings by status in a time range
+func (r *listingRepository) CountListingsByStatus(ctx context.Context, status marketplace.ListingStatus, startTime, endTime time.Time) (int, error) {
+	filter := base.NewFilter()
+	filter.Group.Conditions = []base.FilterCondition{
+		{
+			Field:    "status",
+			Operator: base.OpEqual,
+			Value:    string(status),
+		},
+		{
+			Field:    "created_at",
+			Operator: base.OpGreaterEqual,
+			Value:    startTime,
+		},
+		{
+			Field:    "created_at",
+			Operator: base.OpLessEqual,
+			Value:    endTime,
+		},
+	}
+
+	count, err := r.dbManager.Count(ctx, filter, &marketplace.Listing{})
+	if err != nil {
+		return 0, fmt.Errorf("failed to count listings by status: %w", err)
+	}
+
+	return int(count), nil
+}
+
+// CountUserListings counts listings for a specific user in a time range
+func (r *listingRepository) CountUserListings(ctx context.Context, userID string, startTime, endTime time.Time) (int, error) {
+	filter := base.NewFilter()
+	filter.Group.Conditions = []base.FilterCondition{
+		{
+			Field:    "seller_id",
+			Operator: base.OpEqual,
+			Value:    userID,
+		},
+		{
+			Field:    "created_at",
+			Operator: base.OpGreaterEqual,
+			Value:    startTime,
+		},
+		{
+			Field:    "created_at",
+			Operator: base.OpLessEqual,
+			Value:    endTime,
+		},
+	}
+
+	count, err := r.dbManager.Count(ctx, filter, &marketplace.Listing{})
+	if err != nil {
+		return 0, fmt.Errorf("failed to count user listings: %w", err)
+	}
+
+	return int(count), nil
+}
+
+// CountUserListingsByStatus counts listings for a specific user by status in a time range
+func (r *listingRepository) CountUserListingsByStatus(ctx context.Context, userID string, status marketplace.ListingStatus, startTime, endTime time.Time) (int, error) {
+	filter := base.NewFilter()
+	filter.Group.Conditions = []base.FilterCondition{
+		{
+			Field:    "seller_id",
+			Operator: base.OpEqual,
+			Value:    userID,
+		},
+		{
+			Field:    "status",
+			Operator: base.OpEqual,
+			Value:    string(status),
+		},
+		{
+			Field:    "created_at",
+			Operator: base.OpGreaterEqual,
+			Value:    startTime,
+		},
+		{
+			Field:    "created_at",
+			Operator: base.OpLessEqual,
+			Value:    endTime,
+		},
+	}
+
+	count, err := r.dbManager.Count(ctx, filter, &marketplace.Listing{})
+	if err != nil {
+		return 0, fmt.Errorf("failed to count user listings by status: %w", err)
+	}
+
+	return int(count), nil
+}
+
+// GetTotalListingValue calculates total value of listings in a time range
+func (r *listingRepository) GetTotalListingValue(ctx context.Context, startTime, endTime time.Time) (float64, error) {
+	filter := base.NewFilter()
+	filter.Group.Conditions = []base.FilterCondition{
+		{
+			Field:    "created_at",
+			Operator: base.OpGreaterEqual,
+			Value:    startTime,
+		},
+		{
+			Field:    "created_at",
+			Operator: base.OpLessEqual,
+			Value:    endTime,
+		},
+	}
+
+	var listings []*marketplace.Listing
+	if err := r.dbManager.List(ctx, filter, &listings); err != nil {
+		return 0, fmt.Errorf("failed to get listings for value calculation: %w", err)
+	}
+
+	var totalValue float64
+	for _, listing := range listings {
+		if value, err := listing.AskingPrice.Float64(); !err {
+			totalValue += value
+		}
+	}
+
+	return totalValue, nil
+}
+
+// GetUserTotalEarned gets total amount earned by a user in a time range
+func (r *listingRepository) GetUserTotalEarned(ctx context.Context, userID string, startTime, endTime time.Time) (decimal.Decimal, error) {
+	// Stub implementation - return zero for now
+	return decimal.Zero, nil
+}
+
+// CountOrganizationUsers counts unique users for an organization in a time range
+func (r *listingRepository) CountOrganizationUsers(ctx context.Context, orgID string, startTime, endTime time.Time) (int, error) {
+	// Stub implementation - return 0 for now
+	return 0, nil
+}
+
+// CountOrganizationListings counts listings for an organization in a time range
+func (r *listingRepository) CountOrganizationListings(ctx context.Context, orgID string, startTime, endTime time.Time) (int, error) {
+	// Stub implementation - return 0 for now
+	return 0, nil
+}
+
+// GetOrganizationTotalVolume gets total volume for an organization in a time range
+func (r *listingRepository) GetOrganizationTotalVolume(ctx context.Context, orgID string, startTime, endTime time.Time) (decimal.Decimal, error) {
+	// Stub implementation - return zero for now
+	return decimal.Zero, nil
+}
+
+// CountOrganizationListingsByStatus counts listings by status for an organization in a time range
+func (r *listingRepository) CountOrganizationListingsByStatus(ctx context.Context, orgID string, status marketplace.ListingStatus, startTime, endTime time.Time) (int, error) {
+	// Stub implementation - return 0 for now
+	return 0, nil
+}
+
+// GetCategoryStatistics gets category statistics in a time range
+func (r *listingRepository) GetCategoryStatistics(ctx context.Context, startTime, endTime time.Time) (map[string]int, error) {
+	// Stub implementation - return empty map for now
+	return make(map[string]int), nil
 }

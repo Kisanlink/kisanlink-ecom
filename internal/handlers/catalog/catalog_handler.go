@@ -537,3 +537,171 @@ func (h *CatalogHandler) updateLabour(c *gin.Context, id string, req *catalogReq
 		TraceID: common.GetTraceID(c),
 	})
 }
+
+// GetCatalogItemByTypeAndID godoc
+// @Summary Get catalog item by type and ID
+// @Description Retrieve a specific catalog item by its type and ID
+// @Tags catalog
+// @Accept json
+// @Produce json
+// @Param type path string true "Item type (products, services, labour, contracts)"
+// @Param id path string true "Item ID"
+// @Param If-None-Match header string false "ETag for conditional requests"
+// @Success 200 {object} common.Response{data=catalog.CatalogItemResponse}
+// @Success 304 "Not modified"
+// @Failure 400 {object} common.Response{error=common.ResponseError}
+// @Failure 404 {object} common.Response{error=common.ResponseError}
+// @Router /api/v1/catalog/{type}/{id} [get]
+func (h *CatalogHandler) GetCatalogItemByTypeAndID(c *gin.Context) {
+	typeParam := c.Param("type")
+	id := c.Param("id")
+
+	if typeParam == "" {
+		common.BadRequest(c, "MISSING_TYPE", "Catalog type is required", nil)
+		return
+	}
+	if id == "" {
+		common.BadRequest(c, "MISSING_ID", "Item ID is required", nil)
+		return
+	}
+
+	// Get catalog item
+	item, err := h.catalogService.GetCatalogItemByID(c.Request.Context(), id)
+	if err != nil {
+		common.NotFound(c, "ITEM_NOT_FOUND", "Catalog item not found", map[string]interface{}{
+			"item_id": id,
+		})
+		return
+	}
+
+	// Validate type matches
+	expectedType := ""
+	switch strings.ToLower(typeParam) {
+	case "products":
+		expectedType = "PRODUCT"
+	case "services":
+		expectedType = "SERVICE"
+	case "labour":
+		expectedType = "LABOUR"
+	case "contracts":
+		expectedType = "CONTRACT"
+	default:
+		common.BadRequest(c, "INVALID_TYPE", "Invalid catalog type", nil)
+		return
+	}
+
+	if string(item.ItemType) != expectedType {
+		common.BadRequest(c, "TYPE_MISMATCH", "Item type does not match requested type", map[string]interface{}{
+			"requested_type": typeParam,
+			"actual_type":    item.ItemType,
+		})
+		return
+	}
+
+	common.Success(c, item, &common.ResponseMeta{
+		TraceID: common.GetTraceID(c),
+	})
+}
+
+// DeleteCatalogItemByTypeAndID godoc
+// @Summary Delete catalog item by type and ID
+// @Description Soft delete a catalog item by its type and ID
+// @Tags catalog
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer token"
+// @Param type path string true "Item type (products, services, labour, contracts)"
+// @Param id path string true "Item ID"
+// @Param force query bool false "Force delete even with references (admin only)"
+// @Success 204 "Catalog item deleted successfully"
+// @Failure 400 {object} common.Response{error=common.ResponseError}
+// @Failure 401 {object} common.Response{error=common.ResponseError}
+// @Failure 403 {object} common.Response{error=common.ResponseError}
+// @Failure 404 {object} common.Response{error=common.ResponseError}
+// @Failure 409 {object} common.Response{error=common.ResponseError}
+// @Router /api/v1/catalog/{type}/{id} [delete]
+func (h *CatalogHandler) DeleteCatalogItemByTypeAndID(c *gin.Context) {
+	typeParam := c.Param("type")
+	id := c.Param("id")
+
+	if typeParam == "" {
+		common.BadRequest(c, "MISSING_TYPE", "Catalog type is required", nil)
+		return
+	}
+	if id == "" {
+		common.BadRequest(c, "MISSING_ID", "Item ID is required", nil)
+		return
+	}
+
+	// Get user ID from context
+	userID, exists := c.Get("subjectID")
+	if !exists {
+		common.Unauthorized(c, "MISSING_USER", "User ID not found in context", nil)
+		return
+	}
+
+	// Route to appropriate handler based on type
+	switch strings.ToLower(typeParam) {
+	case "products":
+		h.deleteProduct(c, id, userID.(string))
+	case "services":
+		h.deleteService(c, id, userID.(string))
+	case "labour":
+		h.deleteLabour(c, id, userID.(string))
+	case "contracts":
+		h.deleteContract(c, id, userID.(string))
+	default:
+		common.BadRequest(c, "INVALID_TYPE", "Invalid catalog type. Must be 'products', 'services', 'labour', or 'contracts'", nil)
+		return
+	}
+}
+
+// Helper methods for deleting different catalog item types
+
+func (h *CatalogHandler) deleteProduct(c *gin.Context, id string, userID string) {
+	err := h.catalogService.DeleteProduct(c.Request.Context(), id, userID)
+	if err != nil {
+		common.InternalServerError(c, "DELETE_FAILED", "Failed to delete product", map[string]interface{}{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.Status(204)
+}
+
+func (h *CatalogHandler) deleteService(c *gin.Context, id string, userID string) {
+	err := h.catalogService.DeleteService(c.Request.Context(), id, userID)
+	if err != nil {
+		common.InternalServerError(c, "DELETE_FAILED", "Failed to delete service", map[string]interface{}{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.Status(204)
+}
+
+func (h *CatalogHandler) deleteLabour(c *gin.Context, id string, userID string) {
+	err := h.catalogService.DeleteLabour(c.Request.Context(), id, userID)
+	if err != nil {
+		common.InternalServerError(c, "DELETE_FAILED", "Failed to delete labour", map[string]interface{}{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.Status(204)
+}
+
+func (h *CatalogHandler) deleteContract(c *gin.Context, id string, userID string) {
+	err := h.catalogService.DeleteContract(c.Request.Context(), id, userID)
+	if err != nil {
+		common.InternalServerError(c, "DELETE_FAILED", "Failed to delete contract", map[string]interface{}{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.Status(204)
+}

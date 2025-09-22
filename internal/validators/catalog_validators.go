@@ -14,28 +14,30 @@ import (
 
 // CatalogValidator provides validation for catalog-related operations
 type CatalogValidator struct {
-	validator *validator.Validate
-	sanitizer *utils.Sanitizer
+	validator          *validator.Validate
+	sanitizer          *utils.Sanitizer
+	attributeValidator *AttributeValidator
 }
 
 // NewCatalogValidator creates a new catalog validator
 func NewCatalogValidator() *CatalogValidator {
 	validate := validator.New()
 	sanitizer := utils.NewSanitizer(utils.DefaultSanitizerConfig())
+	attributeValidator := NewAttributeValidator()
 
 	// Register custom catalog validators
 	validate.RegisterValidation("catalog_item_type", validateCatalogItemType)
 	validate.RegisterValidation("visibility_type", validateVisibilityType)
 	validate.RegisterValidation("category_name", validateCategoryName)
-	validate.RegisterValidation("product_sku", validateProductSKU)
 	validate.RegisterValidation("price_positive", validatePricePositive)
 	validate.RegisterValidation("unit_of_measure", validateUnitOfMeasure)
 	validate.RegisterValidation("image_urls", validateImageURLs)
 	validate.RegisterValidation("tags_list", validateTagsList)
 
 	return &CatalogValidator{
-		validator: validate,
-		sanitizer: sanitizer,
+		validator:          validate,
+		sanitizer:          sanitizer,
+		attributeValidator: attributeValidator,
 	}
 }
 
@@ -54,7 +56,12 @@ func (cv *CatalogValidator) ValidateCreateCatalogItemRequest(req *catalogRequest
 	}
 
 	// Additional business logic validation
-	return cv.validateCreateCatalogItemBusinessRules(req)
+	if err := cv.validateCreateCatalogItemBusinessRules(req); err != nil {
+		return err
+	}
+
+	// Validate type-specific attributes
+	return cv.validateTypeSpecificAttributes(req.ItemType, req.Attributes)
 }
 
 // ValidateUpdateCatalogItemRequest validates and sanitizes an update catalog item request
@@ -72,7 +79,19 @@ func (cv *CatalogValidator) ValidateUpdateCatalogItemRequest(req *catalogRequest
 	}
 
 	// Additional business logic validation
-	return cv.validateUpdateCatalogItemBusinessRules(req)
+	if err := cv.validateUpdateCatalogItemBusinessRules(req); err != nil {
+		return err
+	}
+
+	// Validate type-specific attributes if provided
+	// Note: For updates, we need the item type from the existing item to validate attributes
+	// This validation should be done at the service layer where we have access to the existing item
+	if req.Attributes != nil {
+		// For now, we'll skip attribute validation in update requests
+		// This should be handled in the service layer with the full context
+	}
+
+	return nil
 }
 
 // ValidateCatalogFilter validates and sanitizes catalog filter parameters
@@ -297,6 +316,8 @@ func (cv *CatalogValidator) validateCreateCatalogItemBusinessRules(req *catalogR
 		return cv.validateServiceSpecificRules(req)
 	case catalogModels.CatalogItemTypeLabour:
 		return cv.validateLabourSpecificRules(req)
+	case catalogModels.CatalogItemTypeContract:
+		return cv.validateContractSpecificRules(req)
 	default:
 		return fmt.Errorf("invalid item type: %s", req.ItemType)
 	}
@@ -370,6 +391,29 @@ func (cv *CatalogValidator) validateLabourSpecificRules(req *catalogRequests.Cre
 	return nil
 }
 
+func (cv *CatalogValidator) validateContractSpecificRules(req *catalogRequests.CreateCatalogItemRequest) error {
+	// Contracts should have descriptions and terms
+	if req.Description == "" {
+		return fmt.Errorf("description is required for contracts")
+	}
+
+	// Contracts should have attributes with term and duration
+	if req.Attributes == nil {
+		return fmt.Errorf("attributes with term and duration are required for contracts")
+	}
+
+	// Check if term and duration are present in attributes
+	if term, exists := req.Attributes["term"]; !exists || term == "" {
+		return fmt.Errorf("term is required in attributes for contracts")
+	}
+
+	if duration, exists := req.Attributes["duration"]; !exists || duration == nil {
+		return fmt.Errorf("duration is required in attributes for contracts")
+	}
+
+	return nil
+}
+
 // Helper method to format validation errors
 func (cv *CatalogValidator) formatValidationError(err error) error {
 	if validationErrors, ok := err.(validator.ValidationErrors); ok {
@@ -395,7 +439,7 @@ func (cv *CatalogValidator) formatFieldError(err validator.FieldError) string {
 	case "max":
 		return fmt.Sprintf("%s must be at most %s characters", field, param)
 	case "catalog_item_type":
-		return fmt.Sprintf("%s must be PRODUCT, SERVICE, or LABOUR", field)
+		return fmt.Sprintf("%s must be PRODUCT, SERVICE, LABOUR, or CONTRACT", field)
 	case "visibility_type":
 		return fmt.Sprintf("%s must be PRIVATE, ORG, NETWORK, or PUBLIC", field)
 	case "category_name":
@@ -425,7 +469,8 @@ func validateCatalogItemType(fl validator.FieldLevel) bool {
 	value := fl.Field().String()
 	return value == string(catalogModels.CatalogItemTypeProduct) ||
 		value == string(catalogModels.CatalogItemTypeService) ||
-		value == string(catalogModels.CatalogItemTypeLabour)
+		value == string(catalogModels.CatalogItemTypeLabour) ||
+		value == string(catalogModels.CatalogItemTypeContract)
 }
 
 func validateVisibilityType(fl validator.FieldLevel) bool {
@@ -443,15 +488,6 @@ func validateCategoryName(fl validator.FieldLevel) bool {
 	}
 	// Allow alphanumeric, spaces, hyphens, underscores
 	return utils.IsSafeString(value) && !utils.ContainsHTML(value)
-}
-
-func validateProductSKU(fl validator.FieldLevel) bool {
-	value := fl.Field().String()
-	if value == "" {
-		return true // Optional field
-	}
-	// SKU should be alphanumeric with hyphens and underscores
-	return len(value) <= 50 && !utils.ContainsHTML(value) && !utils.ContainsSQLKeywords(value)
 }
 
 func validatePricePositive(fl validator.FieldLevel) bool {
@@ -501,4 +537,30 @@ func validateTagsList(fl validator.FieldLevel) bool {
 		}
 	}
 	return true
+}
+
+// validateTypeSpecificAttributes validates attributes based on catalog item type
+func (cv *CatalogValidator) validateTypeSpecificAttributes(itemType catalogModels.CatalogItemType, attributes map[string]interface{}) error {
+	if attributes == nil {
+		return nil
+	}
+
+	switch itemType {
+	case catalogModels.CatalogItemTypeProduct:
+		return cv.attributeValidator.ValidateProductAttributes(attributes)
+	case catalogModels.CatalogItemTypeService:
+		return cv.attributeValidator.ValidateServiceAttributes(attributes)
+	case catalogModels.CatalogItemTypeLabour:
+		return cv.attributeValidator.ValidateLabourAttributes(attributes)
+	case catalogModels.CatalogItemTypeContract:
+		return cv.attributeValidator.ValidateContractAttributes(attributes)
+	default:
+		return fmt.Errorf("unsupported catalog item type: %s", itemType)
+	}
+}
+
+// ValidateAttributesForType validates attributes for a specific catalog type
+// This method can be used by services when they have the item type context
+func (cv *CatalogValidator) ValidateAttributesForType(itemType catalogModels.CatalogItemType, attributes map[string]interface{}) error {
+	return cv.validateTypeSpecificAttributes(itemType, attributes)
 }

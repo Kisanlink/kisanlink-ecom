@@ -15,6 +15,757 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/admin/v1/marketplace/audit-log": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve audit log of marketplace activities for compliance and monitoring",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get marketplace audit log (Admin)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by listing ID",
+                        "name": "listing_id",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "LISTING_CREATED",
+                            "BID_PLACED",
+                            "BID_OUTBID",
+                            "LISTING_CLOSED",
+                            "LISTING_EXPIRED"
+                        ],
+                        "type": "string",
+                        "description": "Filter by event type",
+                        "name": "event_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by actor ID",
+                        "name": "actor_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter events from this time (RFC3339 format)",
+                        "name": "time_from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter events to this time (RFC3339 format)",
+                        "name": "time_to",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 50,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Audit log retrieved successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/marketplace.AuditLogResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request parameters",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Insufficient privileges",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/v1/marketplace/bids/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Remove a fraudulent or policy-violating bid from the marketplace",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Remove a bid (Admin)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bid ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Remove bid request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/marketplace.RemoveBidRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Bid removed successfully",
+                        "schema": {
+                            "$ref": "#/definitions/common.APIResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Insufficient privileges",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Bid not found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/v1/marketplace/listings": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve all marketplace listings with admin privileges - no visibility restrictions",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get all marketplace listings (Admin)",
+                "parameters": [
+                    {
+                        "enum": [
+                            "ACTIVE",
+                            "CLOSED",
+                            "EXPIRED",
+                            "CANCELLED"
+                        ],
+                        "type": "string",
+                        "description": "Filter by status",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by seller ID",
+                        "name": "seller_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by organization ID",
+                        "name": "organization_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by product ID",
+                        "name": "product_id",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "PRIVATE",
+                            "PUBLIC",
+                            "NETWORK",
+                            "ORGANIZATION"
+                        ],
+                        "type": "string",
+                        "description": "Filter by visibility",
+                        "name": "visibility",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "OPEN",
+                            "CLOSED"
+                        ],
+                        "type": "string",
+                        "description": "Filter by auction type",
+                        "name": "auction_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by minimum price",
+                        "name": "min_price",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by maximum price",
+                        "name": "max_price",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listings retrieved successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/marketplace.ListingListResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request parameters",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Insufficient privileges",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/v1/marketplace/listings/{id}/force-close": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Force close a marketplace listing regardless of its current state",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Force close a marketplace listing (Admin)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Listing ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Force close request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/marketplace.ForceCloseListingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listing force closed successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/marketplace.ListingResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Insufficient privileges",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Listing not found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/v1/marketplace/stats": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve comprehensive marketplace statistics and analytics",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get marketplace statistics (Admin)",
+                "parameters": [
+                    {
+                        "enum": [
+                            "24h",
+                            "7d",
+                            "30d",
+                            "90d",
+                            "1y"
+                        ],
+                        "type": "string",
+                        "default": "30d",
+                        "description": "Time range for statistics",
+                        "name": "time_range",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Statistics retrieved successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/marketplace.MarketplaceStatsResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Insufficient privileges",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/auth/login": {
             "post": {
                 "description": "Authenticate user and return access token",
@@ -200,6 +951,1031 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/catalog": {
+            "get": {
+                "description": "Retrieve a list of all catalog items with filtering and pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "catalog"
+                ],
+                "summary": "List all catalog items",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by item type (PRODUCT, SERVICE, LABOUR)",
+                        "name": "item_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by category",
+                        "name": "category",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by subcategory",
+                        "name": "subcategory",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filter by active status",
+                        "name": "is_active",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by visibility (PRIVATE, ORG, NETWORK, PUBLIC)",
+                        "name": "visibility",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Minimum price filter",
+                        "name": "min_price",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Maximum price filter",
+                        "name": "max_price",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search term",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Filter by tags",
+                        "name": "tags",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by organization ID",
+                        "name": "organization_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/catalog.CatalogItemResponse"
+                                            }
+                                        },
+                                        "meta": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/common.ResponseMeta"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "pagination": {
+                                                            "$ref": "#/definitions/common.PaginationMeta"
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/catalog/bulk/price-update": {
+            "post": {
+                "description": "Update prices for multiple catalog items",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bulk Operations"
+                ],
+                "summary": "Bulk update prices",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Bulk price update data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/catalog.BulkPriceUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/catalog.BulkOperationResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/catalog/bulk/publish": {
+            "post": {
+                "description": "Publish multiple catalog items in a single operation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bulk Operations"
+                ],
+                "summary": "Bulk publish catalog items",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Bulk publish data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/catalog.BulkPublishRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/catalog.BulkOperationResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/catalog/bulk/update": {
+            "post": {
+                "description": "Update multiple catalog items in a single operation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bulk Operations"
+                ],
+                "summary": "Bulk update catalog items",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Idempotency key for safe retries",
+                        "name": "Idempotency-Key",
+                        "in": "header"
+                    },
+                    {
+                        "description": "Bulk update data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/catalog.BulkUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/catalog.BulkOperationResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/catalog/labour": {
+            "get": {
+                "description": "Retrieve a list of labour offerings with filtering and pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "labour"
+                ],
+                "summary": "List labour offerings",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by category",
+                        "name": "category",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by organization ID",
+                        "name": "org_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filter by active status",
+                        "name": "is_active",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search term",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/catalog.LabourResponse"
+                                            }
+                                        },
+                                        "meta": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/common.ResponseMeta"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "pagination": {
+                                                            "$ref": "#/definitions/common.PaginationMeta"
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new labour offering in the catalog",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "labour"
+                ],
+                "summary": "Create a new labour offering",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Labour information",
+                        "name": "labour",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/catalog.CreateLabourRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/catalog.LabourResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/catalog/labour/{id}": {
+            "get": {
+                "description": "Retrieve a labour offering by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "labour"
+                ],
+                "summary": "Get labour by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Labour ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/catalog.LabourResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing labour offering",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "labour"
+                ],
+                "summary": "Update a labour offering",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Labour ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Labour updates",
+                        "name": "labour",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handlers_catalog.UpdateCatalogItemRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/catalog.LabourResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a labour offering from the catalog",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "labour"
+                ],
+                "summary": "Delete a labour offering",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Labour ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "allOf": [
                                 {
@@ -511,7 +2287,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/catalog.UpdateCatalogItemRequest"
+                            "$ref": "#/definitions/internal_handlers_catalog.UpdateCatalogItemRequest"
                         }
                     }
                 ],
@@ -730,6 +2506,4404 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/catalog/search": {
+            "get": {
+                "description": "Search catalog items with advanced filtering",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "catalog"
+                ],
+                "summary": "Search catalog items",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search query",
+                        "name": "q",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by item type (PRODUCT, SERVICE, LABOUR)",
+                        "name": "item_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by category",
+                        "name": "category",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by subcategory",
+                        "name": "subcategory",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filter by active status",
+                        "name": "is_active",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by visibility (PRIVATE, ORG, NETWORK, PUBLIC)",
+                        "name": "visibility",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Minimum price filter",
+                        "name": "min_price",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Maximum price filter",
+                        "name": "max_price",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Filter by tags",
+                        "name": "tags",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by organization ID",
+                        "name": "organization_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/catalog.CatalogItemResponse"
+                                            }
+                                        },
+                                        "meta": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/common.ResponseMeta"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "pagination": {
+                                                            "$ref": "#/definitions/common.PaginationMeta"
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/catalog/services": {
+            "get": {
+                "description": "Retrieve a list of services with filtering and pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "services"
+                ],
+                "summary": "List services",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by category",
+                        "name": "category",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by organization ID",
+                        "name": "org_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filter by active status",
+                        "name": "is_active",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search term",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/catalog.ServiceResponse"
+                                            }
+                                        },
+                                        "meta": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/common.ResponseMeta"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "pagination": {
+                                                            "$ref": "#/definitions/common.PaginationMeta"
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new service in the catalog",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "services"
+                ],
+                "summary": "Create a new service",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Service information",
+                        "name": "service",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/catalog.CreateServiceRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/catalog.ServiceResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/catalog/services/{id}": {
+            "get": {
+                "description": "Retrieve a service by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "services"
+                ],
+                "summary": "Get service by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Service ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/catalog.ServiceResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing service",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "services"
+                ],
+                "summary": "Update a service",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Service ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Service updates",
+                        "name": "service",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handlers_catalog.UpdateCatalogItemRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/catalog.ServiceResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a service from the catalog",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "services"
+                ],
+                "summary": "Delete a service",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Service ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/catalog/{type}": {
+            "get": {
+                "description": "Retrieve a list of catalog items filtered by type with additional filtering and pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "catalog"
+                ],
+                "summary": "List catalog items by type",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Item type (products, services, labour)",
+                        "name": "type",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by category",
+                        "name": "category",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by subcategory",
+                        "name": "subcategory",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filter by active status",
+                        "name": "is_active",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by visibility (PRIVATE, ORG, NETWORK, PUBLIC)",
+                        "name": "visibility",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Minimum price filter",
+                        "name": "min_price",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Maximum price filter",
+                        "name": "max_price",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search term",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Filter by tags",
+                        "name": "tags",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by organization ID",
+                        "name": "organization_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/catalog.CatalogItemResponse"
+                                            }
+                                        },
+                                        "meta": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/common.ResponseMeta"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "pagination": {
+                                                            "$ref": "#/definitions/common.PaginationMeta"
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/catalog/{type}/{id}": {
+            "get": {
+                "description": "Retrieve a specific catalog item by its type and ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "catalog"
+                ],
+                "summary": "Get catalog item by type and ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Item type (products, services, labour, contracts)",
+                        "name": "type",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Item ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ETag for conditional requests",
+                        "name": "If-None-Match",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/catalog.CatalogItemResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "304": {
+                        "description": "Not modified"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update a catalog item by its type and ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "catalog"
+                ],
+                "summary": "Update catalog item by type and ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Item type (products, services, labour)",
+                        "name": "type",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Item ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Item updates",
+                        "name": "item",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handlers_catalog.UpdateCatalogItemRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/catalog.CatalogItemResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Soft delete a catalog item by its type and ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "catalog"
+                ],
+                "summary": "Delete catalog item by type and ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Item type (products, services, labour, contracts)",
+                        "name": "type",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Item ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Force delete even with references (admin only)",
+                        "name": "force",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Catalog item deleted successfully"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/catalog/{type}/{id}/price": {
+            "put": {
+                "description": "Update the price of a catalog item with price history tracking",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Catalog Management"
+                ],
+                "summary": "Update catalog item price",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Item type (products, services, labour, contracts)",
+                        "name": "type",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Item ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Price update data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/catalog.PriceUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/catalog.CatalogItemResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/catalog/{type}/{id}/publish": {
+            "post": {
+                "description": "Publish a catalog item to make it visible according to its visibility settings",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Catalog Management"
+                ],
+                "summary": "Publish catalog item",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Item type (products, services, labour, contracts)",
+                        "name": "type",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Item ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Publish options",
+                        "name": "request",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/catalog.PublishRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/catalog.CatalogItemResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/catalog/{type}/{id}/unpublish": {
+            "post": {
+                "description": "Unpublish a catalog item to make it inactive",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Catalog Management"
+                ],
+                "summary": "Unpublish catalog item",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Item type (products, services, labour, contracts)",
+                        "name": "type",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Item ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Unpublish options",
+                        "name": "request",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/catalog.UnpublishRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/catalog.CatalogItemResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/integrations/catalog/exports": {
+            "get": {
+                "description": "Export catalog items with delta synchronization for partner systems",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "integrations"
+                ],
+                "summary": "Export catalog with delta synchronization",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Partner ID for access control",
+                        "name": "partner_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Delta sync watermark (RFC3339 format)",
+                        "name": "since_watermark",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by organization ID",
+                        "name": "organization_id",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "PRODUCT",
+                            "SERVICE",
+                            "LABOUR"
+                        ],
+                        "type": "string",
+                        "description": "Filter by item type",
+                        "name": "item_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by category",
+                        "name": "category",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "PRIVATE",
+                            "ORG",
+                            "NETWORK",
+                            "PUBLIC"
+                        ],
+                        "type": "string",
+                        "description": "Filter by visibility",
+                        "name": "visibility",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filter by active status",
+                        "name": "is_active",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 50,
+                        "description": "Items per page",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "JSON",
+                            "CSV",
+                            "XML"
+                        ],
+                        "type": "string",
+                        "default": "JSON",
+                        "description": "Output format",
+                        "name": "format",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Include metadata in response",
+                        "name": "include_metadata",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/integrations.CatalogExportResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/integrations/catalog/proposals": {
+            "post": {
+                "description": "Submit a catalog proposal from partner systems for federated catalog updates",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "integrations"
+                ],
+                "summary": "Submit catalog proposal",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Webhook signature for validation",
+                        "name": "X-Webhook-Signature",
+                        "in": "header"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Webhook timestamp",
+                        "name": "X-Webhook-Timestamp",
+                        "in": "header"
+                    },
+                    {
+                        "description": "Catalog proposal data",
+                        "name": "proposal",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/integrations.CatalogProposalRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/integrations.CatalogProposalResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/integrations/orders/acknowledgements": {
+            "post": {
+                "description": "Acknowledge order intake from downstream systems for order confirmations",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "integrations"
+                ],
+                "summary": "Acknowledge order",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Webhook signature for validation",
+                        "name": "X-Webhook-Signature",
+                        "in": "header"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Webhook timestamp",
+                        "name": "X-Webhook-Timestamp",
+                        "in": "header"
+                    },
+                    {
+                        "description": "Order acknowledgement data",
+                        "name": "acknowledgement",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/integrations.OrderAcknowledgementRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/integrations.OrderAcknowledgementResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/integrations/partners": {
+            "get": {
+                "description": "List all registered integration partners",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "integrations"
+                ],
+                "summary": "List integration partners",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "additionalProperties": true
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/integrations/proposals/{proposal_id}/status": {
+            "get": {
+                "description": "Get the status of a catalog proposal",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "integrations"
+                ],
+                "summary": "Get proposal status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Proposal ID",
+                        "name": "proposal_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/integrations.ProposalStatusResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/integrations/webhooks/validate": {
+            "post": {
+                "description": "Validate webhook signature for secure partner integrations",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "integrations"
+                ],
+                "summary": "Validate webhook signature",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Webhook signature",
+                        "name": "X-Webhook-Signature",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Webhook timestamp",
+                        "name": "X-Webhook-Timestamp",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Partner ID",
+                        "name": "partner_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/integrations.WebhookValidationResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/inventory/availability/{catalog_item_id}": {
+            "get": {
+                "description": "Check real-time inventory availability for a catalog item",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "Check inventory availability",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Catalog item ID",
+                        "name": "catalog_item_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "default": 1,
+                        "description": "Required quantity to check",
+                        "name": "required_quantity",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/inventory/lots": {
+            "get": {
+                "description": "List inventory lots with organization filtering and pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "List inventory lots",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by catalog item ID",
+                        "name": "catalog_item_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by status (available, reserved, sold, expired, damaged)",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter lots expiring before date (YYYY-MM-DD)",
+                        "name": "expiring_before",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by quality grade",
+                        "name": "quality_grade",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Pagination offset",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Pagination limit (max 100)",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new inventory lot with product validation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "Create inventory lot",
+                "parameters": [
+                    {
+                        "description": "Inventory lot creation request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handlers_inventory.CreateInventoryLotRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/inventory/lots/{id}": {
+            "get": {
+                "description": "Get inventory lot by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "Get inventory lot",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Inventory lot ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update inventory lot metadata (not quantities)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "Update inventory lot",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Inventory lot ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Inventory lot update request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handlers_inventory.UpdateInventoryLotRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/inventory/lots/{id}/adjust": {
+            "patch": {
+                "description": "Adjust inventory quantity for a specific lot with audit trail",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "Adjust inventory quantity",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Inventory lot ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Inventory adjustment request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/inventory.AdjustInventoryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/inventory/lots/{id}/audit": {
+            "get": {
+                "description": "Get audit trail for an inventory lot with pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inventory"
+                ],
+                "summary": "Get inventory audit trail",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Inventory lot ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Pagination offset",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Pagination limit (max 100)",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/marketplace/bids/my-bids": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve bids placed by the authenticated user across all listings",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Marketplace"
+                ],
+                "summary": "Get my bids",
+                "parameters": [
+                    {
+                        "enum": [
+                            "ACTIVE",
+                            "OUTBID",
+                            "WINNING",
+                            "EXPIRED",
+                            "REMOVED"
+                        ],
+                        "type": "string",
+                        "description": "Filter by bid status",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by listing ID",
+                        "name": "listing_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filter by highest bid status",
+                        "name": "is_highest_bid",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Bids retrieved successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/marketplace.BidListResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request parameters",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/marketplace/bids/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve details of a specific bid by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Marketplace"
+                ],
+                "summary": "Get a specific bid",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Organization ID",
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bid ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Bid retrieved successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/marketplace.BidResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Access denied",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Bid not found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/marketplace/listings/{id}/bids": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve bids for a specific marketplace listing with visibility filtering",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Marketplace"
+                ],
+                "summary": "Get bids for a marketplace listing",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Organization ID",
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Listing ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Bids retrieved successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/marketplace.BidHistoryResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request parameters",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Access denied",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Listing not found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Place a new bid on an active marketplace listing",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Marketplace"
+                ],
+                "summary": "Place a bid on a marketplace listing",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Organization ID",
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Listing ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Bid placement request",
+                        "name": "bid",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handlers_marketplace.PlaceBidRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Bid placed successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/marketplace.BidResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Access denied",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Listing not found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "409": {
+                        "description": "Bid conflict (too low, auction ended, etc.)",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/marketplace/listings/{id}/historical-bids": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve historical bid data with proper access control and filtering",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Marketplace"
+                ],
+                "summary": "Get historical bid data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Organization ID",
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Listing ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start time filter (RFC3339 format)",
+                        "name": "start_time",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End time filter (RFC3339 format)",
+                        "name": "end_time",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by specific bidder ID",
+                        "name": "bidder_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Include auto bids",
+                        "name": "include_auto_bids",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "desc",
+                        "description": "Sort order (asc/desc)",
+                        "name": "sort_order",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Historical bid data retrieved successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/internal_handlers_marketplace.HistoricalBidData"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Access denied",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Listing not found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/marketplace/listings/{id}/results": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve auction results with visibility filtering based on auction configuration",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Marketplace"
+                ],
+                "summary": "Get auction results",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Organization ID",
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Listing ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Auction results retrieved successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/internal_handlers_marketplace.RevealedAuctionResults"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Access denied",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Listing not found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/marketplace/listings/{id}/statistics": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve bid statistics with visibility filtering applied",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Marketplace"
+                ],
+                "summary": "Get bid statistics",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Organization ID",
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Listing ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Bid statistics retrieved successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/internal_handlers_marketplace.FilteredBidStatistics"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Access denied",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Listing not found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/marketplace/listings/{id}/summary": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve a high-level summary of auction results",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Marketplace"
+                ],
+                "summary": "Get auction summary",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Organization ID",
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Listing ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Auction summary retrieved successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/internal_handlers_marketplace.AuctionSummary"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Access denied",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Listing not found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/orders": {
             "get": {
                 "description": "Retrieve a list of orders with filtering and pagination",
@@ -922,6 +7096,220 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/orders/from-bid": {
+            "post": {
+                "description": "Create an order from a marketplace winning bid",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Create an order from a winning bid",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Order from bid information",
+                        "name": "order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/orders.CreateOrderFromBidRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/orders.OrderFromBidResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/orders/validate-bid": {
+            "post": {
+                "description": "Validate that a bid can be used to create an order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Validate a bid for order creation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Bid validation request",
+                        "name": "validation",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/orders.BidOrderValidationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/orders.BidOrderValidationResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/orders/{id}": {
             "get": {
                 "description": "Retrieve an order by its ID",
@@ -984,7 +7372,7 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "Update an existing order's status",
+                "description": "Update order details including status",
                 "consumes": [
                     "application/json"
                 ],
@@ -992,10 +7380,17 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Orders"
+                    "orders"
                 ],
-                "summary": "Update Order",
+                "summary": "Update an order",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Order ID",
@@ -1005,121 +7400,103 @@ const docTemplate = `{
                     },
                     {
                         "description": "Order update data",
-                        "name": "request",
+                        "name": "order",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/orders.UpdateOrderStatusRequest"
+                            "$ref": "#/definitions/orders.UpdateOrderRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Order updated successfully",
+                        "description": "OK",
                         "schema": {
-                            "type": "object"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/orders.OrderResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
-                        "description": "Invalid request",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "object"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "type": "object"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "type": "object"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "404": {
-                        "description": "Order not found",
+                        "description": "Not Found",
                         "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "409": {
-                        "description": "Invalid status transition",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Delete an order (cancel if not shipped)",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Orders"
-                ],
-                "summary": "Delete Order",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Order ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Order deleted successfully",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid order ID",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "404": {
-                        "description": "Order not found",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "409": {
-                        "description": "Order cannot be cancelled",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "type": "object"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -1229,6 +7606,225 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/orders/{id}/payment": {
+            "post": {
+                "description": "Process payment for an existing order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Process payment for an order",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Payment processing request",
+                        "name": "payment",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/orders.ProcessPaymentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/orders.PaymentResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/orders/{id}/payment/status": {
+            "get": {
+                "description": "Retrieve the payment status for an order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Get payment status for an order",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/orders.PaymentResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "allOf": [
                                 {
@@ -1375,234 +7971,6 @@ const docTemplate = `{
                                     }
                                 }
                             ]
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/permissions": {
-            "get": {
-                "description": "Retrieve a list of all permissions",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Permissions"
-                ],
-                "summary": "Get All Permissions",
-                "responses": {
-                    "200": {
-                        "description": "Permissions retrieved successfully",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Create a new permission with specific resource and action",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Permissions"
-                ],
-                "summary": "Create Permission",
-                "parameters": [
-                    {
-                        "description": "Permission data",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/handlers.CreatePermissionRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Permission created successfully",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/permissions/{id}": {
-            "get": {
-                "description": "Retrieve a specific permission by their ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Permissions"
-                ],
-                "summary": "Get Permission by ID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Permission ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Permission retrieved successfully",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid permission ID",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "404": {
-                        "description": "Permission not found",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "Update an existing permission's information",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Permissions"
-                ],
-                "summary": "Update Permission",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Permission ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Permission update data",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/handlers.UpdatePermissionRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Permission updated successfully",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "404": {
-                        "description": "Permission not found",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Delete a permission",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Permissions"
-                ],
-                "summary": "Delete Permission",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Permission ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Permission deleted successfully",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid permission ID",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "404": {
-                        "description": "Permission not found",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "type": "object"
                         }
                     }
                 }
@@ -1797,7 +8165,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/catalog.UpdateCatalogItemRequest"
+                            "$ref": "#/definitions/internal_handlers_catalog.UpdateCatalogItemRequest"
                         }
                     }
                 ],
@@ -1901,234 +8269,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/roles": {
-            "get": {
-                "description": "Retrieve a list of all roles",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Roles"
-                ],
-                "summary": "Get All Roles",
-                "responses": {
-                    "200": {
-                        "description": "Roles retrieved successfully",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Create a new role with hierarchical structure",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Roles"
-                ],
-                "summary": "Create Role",
-                "parameters": [
-                    {
-                        "description": "Role data",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/handlers.CreateRoleRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Role created successfully",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/roles/{id}": {
-            "get": {
-                "description": "Retrieve a specific role by their ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Roles"
-                ],
-                "summary": "Get Role by ID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Role ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Role retrieved successfully",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid role ID",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "404": {
-                        "description": "Role not found",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "Update an existing role's information",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Roles"
-                ],
-                "summary": "Update Role",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Role ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Role update data",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/handlers.UpdateRoleRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Role updated successfully",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "404": {
-                        "description": "Role not found",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Delete a role",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Roles"
-                ],
-                "summary": "Delete Role",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Role ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Role deleted successfully",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid role ID",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "404": {
-                        "description": "Role not found",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                }
-            }
-        },
         "/health": {
             "get": {
                 "description": "Check if the service is running",
@@ -2144,6 +8284,247 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/common.HealthResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/health/components": {
+            "get": {
+                "description": "Returns health status of all registered components",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "health"
+                ],
+                "summary": "Get health status of all components",
+                "responses": {
+                    "200": {
+                        "description": "Components health status",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "$ref": "#/definitions/health.ComponentHealth"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/health/components/{component}": {
+            "get": {
+                "description": "Returns health status of a specific component by name",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "health"
+                ],
+                "summary": "Get health status of a specific component",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Component name",
+                        "name": "component",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Component health status",
+                        "schema": {
+                            "$ref": "#/definitions/health.ComponentHealth"
+                        }
+                    },
+                    "404": {
+                        "description": "Component not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/health/detailed": {
+            "get": {
+                "description": "Check if the service and its dependencies are healthy",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "health"
+                ],
+                "summary": "Detailed health check",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/health.DetailedHealthResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/health.DetailedHealthResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/health/live": {
+            "get": {
+                "description": "Returns liveness probe status for Kubernetes",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "health"
+                ],
+                "summary": "Get liveness probe status",
+                "responses": {
+                    "200": {
+                        "description": "Service is alive",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "503": {
+                        "description": "Service is not alive",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/health/ready": {
+            "get": {
+                "description": "Returns readiness probe status for Kubernetes",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "health"
+                ],
+                "summary": "Get readiness probe status",
+                "responses": {
+                    "200": {
+                        "description": "Service is ready",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "503": {
+                        "description": "Service is not ready",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/metrics": {
+            "get": {
+                "description": "Get comprehensive system metrics including memory, database, and HTTP stats",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "health"
+                ],
+                "summary": "Get system metrics",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/health.MetricsResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/health.MetricsResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/metrics/prometheus": {
+            "get": {
+                "description": "Get metrics in Prometheus format for scraping",
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "health"
+                ],
+                "summary": "Get Prometheus metrics",
+                "responses": {
+                    "200": {
+                        "description": "Prometheus metrics",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/ready": {
+            "get": {
+                "description": "Check if the service is ready to accept traffic",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "health"
+                ],
+                "summary": "Readiness check",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.HealthResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/common.HealthResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/status": {
+            "get": {
+                "description": "Get comprehensive status dashboard with service health, dependencies, and alerts",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "health"
+                ],
+                "summary": "Get status dashboard",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/health.StatusDashboard"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/health.StatusDashboard"
                         }
                     }
                 }
@@ -2206,17 +8587,260 @@ const docTemplate = `{
                 }
             }
         },
+        "catalog.BulkOperationResponse": {
+            "type": "object",
+            "properties": {
+                "error_messages": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "Item not found",
+                        "Permission denied"
+                    ]
+                },
+                "failure_count": {
+                    "type": "integer",
+                    "example": 2
+                },
+                "failure_items": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "123e4567-e89b-12d3-a456-426614174002",
+                        "123e4567-e89b-12d3-a456-426614174003"
+                    ]
+                },
+                "success_count": {
+                    "type": "integer",
+                    "example": 8
+                },
+                "success_items": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "123e4567-e89b-12d3-a456-426614174000",
+                        "123e4567-e89b-12d3-a456-426614174001"
+                    ]
+                },
+                "total_items": {
+                    "type": "integer",
+                    "example": 10
+                }
+            }
+        },
+        "catalog.BulkPriceUpdateItem": {
+            "type": "object",
+            "required": [
+                "base_price",
+                "id"
+            ],
+            "properties": {
+                "base_price": {
+                    "type": "number",
+                    "minimum": 0
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "catalog.BulkPriceUpdateRequest": {
+            "type": "object",
+            "required": [
+                "updates"
+            ],
+            "properties": {
+                "effective_date": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "updates": {
+                    "type": "array",
+                    "maxItems": 100,
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/catalog.BulkPriceUpdateItem"
+                    }
+                }
+            }
+        },
+        "catalog.BulkPublishRequest": {
+            "type": "object",
+            "required": [
+                "item_ids"
+            ],
+            "properties": {
+                "effective_date": {
+                    "type": "string"
+                },
+                "item_ids": {
+                    "type": "array",
+                    "maxItems": 100,
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "visibility": {
+                    "type": "string",
+                    "enum": [
+                        "PRIVATE",
+                        "ORG",
+                        "NETWORK",
+                        "PUBLIC"
+                    ]
+                }
+            }
+        },
+        "catalog.BulkUpdateItem": {
+            "type": "object",
+            "required": [
+                "id",
+                "updates"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "updates": {
+                    "$ref": "#/definitions/internal_handlers_catalog.UpdateCatalogItemRequest"
+                }
+            }
+        },
+        "catalog.BulkUpdateRequest": {
+            "type": "object",
+            "required": [
+                "items"
+            ],
+            "properties": {
+                "atomic": {
+                    "type": "boolean"
+                },
+                "items": {
+                    "type": "array",
+                    "maxItems": 100,
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/catalog.BulkUpdateItem"
+                    }
+                }
+            }
+        },
+        "catalog.CatalogItemResponse": {
+            "type": "object",
+            "properties": {
+                "attributes": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "base_price": {
+                    "type": "number",
+                    "example": 25.5
+                },
+                "category": {
+                    "type": "string",
+                    "example": "vegetables"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2024-01-15T10:30:00Z"
+                },
+                "currency": {
+                    "type": "string",
+                    "example": "INR"
+                },
+                "description": {
+                    "type": "string",
+                    "example": "Fresh organic tomatoes grown without pesticides"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "https://example.com/tomato1.jpg",
+                        "https://example.com/tomato2.jpg"
+                    ]
+                },
+                "is_active": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "item_type": {
+                    "type": "string",
+                    "example": "PRODUCT"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Organic Tomatoes"
+                },
+                "organization_id": {
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174001"
+                },
+                "sku": {
+                    "type": "string",
+                    "example": "TOM-ORG-001"
+                },
+                "subcategory": {
+                    "type": "string",
+                    "example": "tomatoes"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "organic",
+                        "fresh",
+                        "local"
+                    ]
+                },
+                "unit_of_measure": {
+                    "type": "string",
+                    "example": "kg"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2024-01-15T10:30:00Z"
+                },
+                "visibility": {
+                    "type": "string",
+                    "example": "ORG"
+                }
+            }
+        },
         "catalog.CatalogItemType": {
             "type": "string",
             "enum": [
                 "PRODUCT",
                 "SERVICE",
-                "LABOUR"
+                "LABOUR",
+                "CONTRACT"
             ],
             "x-enum-varnames": [
                 "CatalogItemTypeProduct",
                 "CatalogItemTypeService",
-                "CatalogItemTypeLabour"
+                "CatalogItemTypeLabour",
+                "CatalogItemTypeContract"
             ]
         },
         "catalog.CreateCatalogItemRequest": {
@@ -2233,57 +8857,77 @@ const docTemplate = `{
                 },
                 "base_price": {
                     "type": "number",
-                    "minimum": 0
+                    "example": 25.5
                 },
                 "category": {
                     "type": "string",
-                    "maxLength": 100
+                    "maxLength": 100,
+                    "example": "vegetables"
                 },
                 "currency": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "INR"
                 },
                 "description": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 2000,
+                    "example": "Fresh organic tomatoes grown without pesticides"
                 },
                 "images": {
                     "type": "array",
                     "items": {
                         "type": "string"
-                    }
+                    },
+                    "example": [
+                        "https://example.com/tomato1.jpg",
+                        "https://example.com/tomato2.jpg"
+                    ]
                 },
                 "item_type": {
                     "enum": [
                         "PRODUCT",
                         "SERVICE",
-                        "LABOUR"
+                        "LABOUR",
+                        "CONTRACT"
                     ],
                     "allOf": [
                         {
                             "$ref": "#/definitions/catalog.CatalogItemType"
                         }
-                    ]
+                    ],
+                    "example": "PRODUCT"
                 },
                 "name": {
                     "type": "string",
-                    "maxLength": 255
+                    "maxLength": 255,
+                    "minLength": 1,
+                    "example": "Organic Tomatoes"
                 },
                 "sku": {
                     "type": "string",
-                    "maxLength": 100
+                    "maxLength": 100,
+                    "example": "TOM-ORG-001"
                 },
                 "subcategory": {
                     "type": "string",
-                    "maxLength": 100
+                    "maxLength": 100,
+                    "example": "tomatoes"
                 },
                 "tags": {
                     "type": "array",
                     "items": {
                         "type": "string"
-                    }
+                    },
+                    "example": [
+                        "organic",
+                        "fresh",
+                        "local"
+                    ]
                 },
                 "unit_of_measure": {
                     "type": "string",
-                    "maxLength": 50
+                    "maxLength": 50,
+                    "example": "kg"
                 },
                 "visibility": {
                     "enum": [
@@ -2296,7 +8940,357 @@ const docTemplate = `{
                         {
                             "$ref": "#/definitions/catalog.VisibilityType"
                         }
+                    ],
+                    "example": "ORG"
+                }
+            }
+        },
+        "catalog.CreateLabourRequest": {
+            "type": "object",
+            "required": [
+                "base_price",
+                "item_type",
+                "name"
+            ],
+            "properties": {
+                "attributes": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "base_price": {
+                    "type": "number",
+                    "example": 25.5
+                },
+                "category": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "example": "vegetables"
+                },
+                "currency": {
+                    "type": "string",
+                    "example": "INR"
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 2000,
+                    "example": "Fresh organic tomatoes grown without pesticides"
+                },
+                "hourly_rate": {
+                    "type": "number",
+                    "minimum": 0,
+                    "example": 75
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "https://example.com/tomato1.jpg",
+                        "https://example.com/tomato2.jpg"
                     ]
+                },
+                "item_type": {
+                    "enum": [
+                        "PRODUCT",
+                        "SERVICE",
+                        "LABOUR",
+                        "CONTRACT"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/catalog.CatalogItemType"
+                        }
+                    ],
+                    "example": "PRODUCT"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 1,
+                    "example": "Organic Tomatoes"
+                },
+                "skill_level": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "example": "experienced"
+                },
+                "sku": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "example": "TOM-ORG-001"
+                },
+                "subcategory": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "example": "tomatoes"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "organic",
+                        "fresh",
+                        "local"
+                    ]
+                },
+                "unit_of_measure": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "example": "kg"
+                },
+                "visibility": {
+                    "enum": [
+                        "PRIVATE",
+                        "ORG",
+                        "NETWORK",
+                        "PUBLIC"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/catalog.VisibilityType"
+                        }
+                    ],
+                    "example": "ORG"
+                }
+            }
+        },
+        "catalog.CreateServiceRequest": {
+            "type": "object",
+            "required": [
+                "base_price",
+                "item_type",
+                "name"
+            ],
+            "properties": {
+                "attributes": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "base_price": {
+                    "type": "number",
+                    "example": 25.5
+                },
+                "category": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "example": "vegetables"
+                },
+                "currency": {
+                    "type": "string",
+                    "example": "INR"
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 2000,
+                    "example": "Fresh organic tomatoes grown without pesticides"
+                },
+                "duration_minutes": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "example": 120
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "https://example.com/tomato1.jpg",
+                        "https://example.com/tomato2.jpg"
+                    ]
+                },
+                "item_type": {
+                    "enum": [
+                        "PRODUCT",
+                        "SERVICE",
+                        "LABOUR",
+                        "CONTRACT"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/catalog.CatalogItemType"
+                        }
+                    ],
+                    "example": "PRODUCT"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 1,
+                    "example": "Organic Tomatoes"
+                },
+                "service_area": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "sku": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "example": "TOM-ORG-001"
+                },
+                "subcategory": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "example": "tomatoes"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "organic",
+                        "fresh",
+                        "local"
+                    ]
+                },
+                "unit_of_measure": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "example": "kg"
+                },
+                "visibility": {
+                    "enum": [
+                        "PRIVATE",
+                        "ORG",
+                        "NETWORK",
+                        "PUBLIC"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/catalog.VisibilityType"
+                        }
+                    ],
+                    "example": "ORG"
+                }
+            }
+        },
+        "catalog.LabourResponse": {
+            "type": "object",
+            "properties": {
+                "attributes": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "base_price": {
+                    "type": "number",
+                    "example": 25.5
+                },
+                "category": {
+                    "type": "string",
+                    "example": "vegetables"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2024-01-15T10:30:00Z"
+                },
+                "currency": {
+                    "type": "string",
+                    "example": "INR"
+                },
+                "description": {
+                    "type": "string",
+                    "example": "Fresh organic tomatoes grown without pesticides"
+                },
+                "hourly_rate": {
+                    "type": "number",
+                    "example": 75
+                },
+                "id": {
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "https://example.com/tomato1.jpg",
+                        "https://example.com/tomato2.jpg"
+                    ]
+                },
+                "is_active": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "item_type": {
+                    "type": "string",
+                    "example": "PRODUCT"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Organic Tomatoes"
+                },
+                "organization_id": {
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174001"
+                },
+                "skill_level": {
+                    "type": "string",
+                    "example": "experienced"
+                },
+                "sku": {
+                    "type": "string",
+                    "example": "TOM-ORG-001"
+                },
+                "subcategory": {
+                    "type": "string",
+                    "example": "tomatoes"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "organic",
+                        "fresh",
+                        "local"
+                    ]
+                },
+                "unit_of_measure": {
+                    "type": "string",
+                    "example": "kg"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2024-01-15T10:30:00Z"
+                },
+                "visibility": {
+                    "type": "string",
+                    "example": "ORG"
+                }
+            }
+        },
+        "catalog.PriceUpdateRequest": {
+            "type": "object",
+            "required": [
+                "base_price"
+            ],
+            "properties": {
+                "base_price": {
+                    "type": "number",
+                    "minimum": 0
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "effective_date": {
+                    "type": "string"
+                },
+                "promotion_end_date": {
+                    "type": "string"
+                },
+                "promotional": {
+                    "type": "boolean"
+                },
+                "reason": {
+                    "type": "string",
+                    "maxLength": 500
                 }
             }
         },
@@ -2308,78 +9302,126 @@ const docTemplate = `{
                     "additionalProperties": true
                 },
                 "base_price": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 25.5
                 },
                 "category": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "vegetables"
                 },
                 "created_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2024-01-15T10:30:00Z"
                 },
                 "currency": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "INR"
                 },
                 "description": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Fresh organic tomatoes grown without pesticides"
                 },
                 "dimensions": {
                     "type": "object",
                     "additionalProperties": true
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
                 },
                 "images": {
                     "type": "array",
                     "items": {
                         "type": "string"
-                    }
+                    },
+                    "example": [
+                        "https://example.com/tomato1.jpg",
+                        "https://example.com/tomato2.jpg"
+                    ]
                 },
                 "is_active": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": true
                 },
                 "item_type": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "PRODUCT"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Organic Tomatoes"
                 },
                 "organization_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174001"
                 },
                 "perishable": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": true
                 },
                 "shelf_life_days": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 7
                 },
                 "sku": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "TOM-ORG-001"
                 },
                 "subcategory": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "tomatoes"
                 },
                 "tags": {
                     "type": "array",
                     "items": {
                         "type": "string"
-                    }
+                    },
+                    "example": [
+                        "organic",
+                        "fresh",
+                        "local"
+                    ]
                 },
                 "unit_of_measure": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "kg"
                 },
                 "updated_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2024-01-15T10:30:00Z"
                 },
                 "visibility": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ORG"
                 },
                 "weight": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 2.5
                 }
             }
         },
-        "catalog.UpdateCatalogItemRequest": {
+        "catalog.PublishRequest": {
+            "type": "object",
+            "properties": {
+                "effective_date": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "visibility": {
+                    "type": "string",
+                    "enum": [
+                        "PRIVATE",
+                        "ORG",
+                        "NETWORK",
+                        "PUBLIC"
+                    ]
+                }
+            }
+        },
+        "catalog.ServiceResponse": {
             "type": "object",
             "properties": {
                 "attributes": {
@@ -2388,61 +9430,112 @@ const docTemplate = `{
                 },
                 "base_price": {
                     "type": "number",
-                    "minimum": 0
+                    "example": 25.5
                 },
                 "category": {
                     "type": "string",
-                    "maxLength": 100
+                    "example": "vegetables"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2024-01-15T10:30:00Z"
                 },
                 "currency": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "INR"
                 },
                 "description": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Fresh organic tomatoes grown without pesticides"
+                },
+                "duration_minutes": {
+                    "type": "integer",
+                    "example": 120
+                },
+                "id": {
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
                 },
                 "images": {
                     "type": "array",
                     "items": {
                         "type": "string"
-                    }
+                    },
+                    "example": [
+                        "https://example.com/tomato1.jpg",
+                        "https://example.com/tomato2.jpg"
+                    ]
                 },
                 "is_active": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": true
+                },
+                "item_type": {
+                    "type": "string",
+                    "example": "PRODUCT"
                 },
                 "name": {
                     "type": "string",
-                    "maxLength": 255
+                    "example": "Organic Tomatoes"
+                },
+                "organization_id": {
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174001"
+                },
+                "service_area": {
+                    "type": "object",
+                    "additionalProperties": true
                 },
                 "sku": {
                     "type": "string",
-                    "maxLength": 100
+                    "example": "TOM-ORG-001"
                 },
                 "subcategory": {
                     "type": "string",
-                    "maxLength": 100
+                    "example": "tomatoes"
                 },
                 "tags": {
                     "type": "array",
                     "items": {
                         "type": "string"
-                    }
+                    },
+                    "example": [
+                        "organic",
+                        "fresh",
+                        "local"
+                    ]
                 },
                 "unit_of_measure": {
                     "type": "string",
-                    "maxLength": 50
+                    "example": "kg"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2024-01-15T10:30:00Z"
                 },
                 "visibility": {
+                    "type": "string",
+                    "example": "ORG"
+                }
+            }
+        },
+        "catalog.UnpublishRequest": {
+            "type": "object",
+            "properties": {
+                "effective_date": {
+                    "type": "string"
+                },
+                "handle_active_orders": {
+                    "type": "string",
                     "enum": [
-                        "PRIVATE",
-                        "ORG",
-                        "NETWORK",
-                        "PUBLIC"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/catalog.VisibilityType"
-                        }
+                        "fulfill",
+                        "cancel",
+                        "transfer"
                     ]
+                },
+                "reason": {
+                    "type": "string",
+                    "maxLength": 500
                 }
             }
         },
@@ -2460,6 +9553,45 @@ const docTemplate = `{
                 "VisibilityNetwork",
                 "VisibilityPublic"
             ]
+        },
+        "common.APIError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "context": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "details": {
+                    "type": "string"
+                },
+                "fields": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "common.APIResponse": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "error": {
+                    "$ref": "#/definitions/common.APIError"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
         },
         "common.HealthResponse": {
             "type": "object",
@@ -2555,91 +9687,2130 @@ const docTemplate = `{
             "properties": {
                 "city": {
                     "type": "string",
-                    "maxLength": 100
+                    "maxLength": 100,
+                    "minLength": 1,
+                    "example": "Rural City"
                 },
                 "country": {
                     "type": "string",
-                    "maxLength": 100
+                    "maxLength": 100,
+                    "minLength": 1,
+                    "example": "India"
                 },
                 "postal_code": {
                     "type": "string",
-                    "maxLength": 20
+                    "maxLength": 20,
+                    "minLength": 1,
+                    "example": "411001"
                 },
                 "state": {
                     "type": "string",
-                    "maxLength": 100
+                    "maxLength": 100,
+                    "minLength": 1,
+                    "example": "Maharashtra"
                 },
                 "street": {
                     "type": "string",
+                    "maxLength": 255,
+                    "minLength": 1,
+                    "example": "123 Farm Road"
+                }
+            }
+        },
+        "health.Alert": {
+            "type": "object",
+            "properties": {
+                "component": {
+                    "type": "string"
+                },
+                "level": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "resolved": {
+                    "type": "boolean"
+                },
+                "timestamp": {
+                    "type": "string"
+                }
+            }
+        },
+        "health.ComponentHealth": {
+            "type": "object",
+            "properties": {
+                "details": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "duration": {
+                    "description": "Duration in milliseconds",
+                    "type": "integer"
+                },
+                "last_checked": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/health.HealthStatus"
+                }
+            }
+        },
+        "health.DashboardMetrics": {
+            "type": "object",
+            "properties": {
+                "active_connections": {
+                    "type": "integer"
+                },
+                "avg_response_time_ms": {
+                    "type": "number"
+                },
+                "cpu_usage_percent": {
+                    "type": "number"
+                },
+                "error_rate": {
+                    "type": "number"
+                },
+                "memory_usage_percent": {
+                    "type": "number"
+                },
+                "requests_per_minute": {
+                    "type": "number"
+                }
+            }
+        },
+        "health.DatabaseMetrics": {
+            "type": "object",
+            "properties": {
+                "connections": {
+                    "type": "integer"
+                },
+                "errors": {
+                    "type": "integer"
+                },
+                "latency_ms": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "health.DependencyStatus": {
+            "type": "object",
+            "properties": {
+                "last_checked": {
+                    "type": "string"
+                },
+                "latency_ms": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "health.DetailedHealthResponse": {
+            "type": "object",
+            "properties": {
+                "dependencies": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/health.HealthCheck"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "health.GC": {
+            "type": "object",
+            "properties": {
+                "last_gc": {
+                    "type": "string"
+                },
+                "next_gc_bytes": {
+                    "type": "integer"
+                },
+                "num_gc": {
+                    "type": "integer"
+                },
+                "pause_total_ns": {
+                    "type": "integer"
+                }
+            }
+        },
+        "health.HTTPMetrics": {
+            "type": "object",
+            "properties": {
+                "avg_response_time_ms": {
+                    "type": "number"
+                },
+                "error_rate": {
+                    "type": "number"
+                },
+                "requests_per_sec": {
+                    "type": "number"
+                },
+                "requests_total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "health.HealthCheck": {
+            "type": "object",
+            "properties": {
+                "latency": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "health.HealthResult": {
+            "type": "object",
+            "properties": {
+                "healthy": {
+                    "type": "boolean"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "health.HealthStatus": {
+            "type": "string",
+            "enum": [
+                "healthy",
+                "unhealthy",
+                "degraded",
+                "unknown"
+            ],
+            "x-enum-varnames": [
+                "StatusHealthy",
+                "StatusUnhealthy",
+                "StatusDegraded",
+                "StatusUnknown"
+            ]
+        },
+        "health.Memory": {
+            "type": "object",
+            "properties": {
+                "alloc_bytes": {
+                    "type": "integer"
+                },
+                "heap_alloc_bytes": {
+                    "type": "integer"
+                },
+                "heap_inuse_bytes": {
+                    "type": "integer"
+                },
+                "heap_released_bytes": {
+                    "type": "integer"
+                },
+                "heap_sys_bytes": {
+                    "type": "integer"
+                },
+                "num_gc": {
+                    "type": "integer"
+                },
+                "sys_bytes": {
+                    "type": "integer"
+                },
+                "total_alloc_bytes": {
+                    "type": "integer"
+                }
+            }
+        },
+        "health.MetricsResponse": {
+            "type": "object",
+            "properties": {
+                "database": {
+                    "$ref": "#/definitions/health.DatabaseMetrics"
+                },
+                "http": {
+                    "$ref": "#/definitions/health.HTTPMetrics"
+                },
+                "system": {
+                    "$ref": "#/definitions/health.SystemMetrics"
+                }
+            }
+        },
+        "health.ServiceStatus": {
+            "type": "object",
+            "properties": {
+                "environment": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "uptime": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "health.StatusDashboard": {
+            "type": "object",
+            "properties": {
+                "alerts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/health.Alert"
+                    }
+                },
+                "dependencies": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/health.DependencyStatus"
+                    }
+                },
+                "last_updated": {
+                    "type": "string"
+                },
+                "metrics": {
+                    "$ref": "#/definitions/health.DashboardMetrics"
+                },
+                "service": {
+                    "$ref": "#/definitions/health.ServiceStatus"
+                }
+            }
+        },
+        "health.SystemHealth": {
+            "type": "object",
+            "properties": {
+                "components": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/health.ComponentHealth"
+                    }
+                },
+                "duration": {
+                    "description": "Duration in milliseconds",
+                    "type": "integer"
+                },
+                "status": {
+                    "$ref": "#/definitions/health.HealthStatus"
+                },
+                "timestamp": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "health.SystemMetrics": {
+            "type": "object",
+            "properties": {
+                "gc_stats": {
+                    "$ref": "#/definitions/health.GC"
+                },
+                "go_version": {
+                    "type": "string"
+                },
+                "memory_usage": {
+                    "$ref": "#/definitions/health.Memory"
+                },
+                "num_cpu": {
+                    "type": "integer"
+                },
+                "num_goroutines": {
+                    "type": "integer"
+                },
+                "uptime": {
+                    "type": "string"
+                }
+            }
+        },
+        "integrations.ApprovalStep": {
+            "type": "object",
+            "properties": {
+                "assigned_to": {
+                    "type": "string",
+                    "example": "tech_reviewer_1"
+                },
+                "completed_at": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "PENDING"
+                },
+                "step_id": {
+                    "type": "string",
+                    "example": "step_1"
+                },
+                "step_name": {
+                    "type": "string",
+                    "example": "Technical Review"
+                }
+            }
+        },
+        "integrations.CatalogExportItem": {
+            "type": "object",
+            "properties": {
+                "attributes": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "base_price": {
+                    "description": "Pricing",
+                    "type": "number",
+                    "example": 25.5
+                },
+                "category": {
+                    "type": "string",
+                    "example": "Seeds"
+                },
+                "change_type": {
+                    "description": "Delta sync metadata",
+                    "type": "string",
+                    "example": "UPDATED"
+                },
+                "created_at": {
+                    "description": "Change tracking",
+                    "type": "string",
+                    "example": "2024-01-15T09:00:00Z"
+                },
+                "currency": {
+                    "type": "string",
+                    "example": "INR"
+                },
+                "description": {
+                    "type": "string",
+                    "example": "Premium organic tomato seeds"
+                },
+                "duration_minutes": {
+                    "description": "Service-specific fields",
+                    "type": "integer",
+                    "example": 120
+                },
+                "external_id": {
+                    "type": "string",
+                    "example": "ext_789"
+                },
+                "global_id": {
+                    "type": "string",
+                    "example": "global_456"
+                },
+                "hourly_rate": {
+                    "type": "number",
+                    "example": 75
+                },
+                "id": {
+                    "description": "Item identification",
+                    "type": "string",
+                    "example": "item_123"
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "is_active": {
+                    "description": "Availability \u0026 Visibility",
+                    "type": "boolean",
+                    "example": true
+                },
+                "item_type": {
+                    "description": "Item classification",
+                    "type": "string",
+                    "example": "PRODUCT"
+                },
+                "name": {
+                    "description": "Basic information",
+                    "type": "string",
+                    "example": "Organic Tomato Seeds"
+                },
+                "organization_id": {
+                    "description": "Organization scoping",
+                    "type": "string",
+                    "example": "org_123"
+                },
+                "perishable": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "service_area": {
+                    "type": "string",
+                    "example": "Maharashtra"
+                },
+                "shelf_life_days": {
+                    "type": "integer",
+                    "example": 730
+                },
+                "skill_level": {
+                    "description": "Labour-specific fields",
+                    "type": "string",
+                    "example": "Expert"
+                },
+                "sku": {
+                    "type": "string",
+                    "example": "OTS-001"
+                },
+                "subcategory": {
+                    "type": "string",
+                    "example": "Vegetable Seeds"
+                },
+                "tags": {
+                    "description": "Metadata",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "organic",
+                        "certified"
+                    ]
+                },
+                "unit_of_measure": {
+                    "type": "string",
+                    "example": "packet"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2024-01-15T10:00:00Z"
+                },
+                "version": {
+                    "type": "integer",
+                    "example": 2
+                },
+                "visibility": {
+                    "type": "string",
+                    "example": "NETWORK"
+                },
+                "weight": {
+                    "description": "Product-specific fields",
+                    "type": "number",
+                    "example": 0.1
+                }
+            }
+        },
+        "integrations.CatalogExportResponse": {
+            "type": "object",
+            "properties": {
+                "changed_since": {
+                    "description": "Delta sync information",
+                    "type": "string",
+                    "example": "2024-01-15T10:00:00Z"
+                },
+                "export_id": {
+                    "description": "Export metadata",
+                    "type": "string",
+                    "example": "export_123"
+                },
+                "filters": {
+                    "description": "Filtering applied",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/integrations.ExportFilters"
+                        }
+                    ]
+                },
+                "generated_at": {
+                    "type": "string",
+                    "example": "2024-01-15T10:30:00Z"
+                },
+                "has_next_page": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "items": {
+                    "description": "Catalog items",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/integrations.CatalogExportItem"
+                    }
+                },
+                "items_in_page": {
+                    "type": "integer",
+                    "example": 50
+                },
+                "next_watermark": {
+                    "type": "string",
+                    "example": "2024-01-15T10:30:00Z"
+                },
+                "page": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "page_size": {
+                    "type": "integer",
+                    "example": 50
+                },
+                "total_items": {
+                    "description": "Data summary",
+                    "type": "integer",
+                    "example": 150
+                },
+                "watermark": {
+                    "type": "string",
+                    "example": "2024-01-15T10:30:00Z"
+                }
+            }
+        },
+        "integrations.CatalogItemProposal": {
+            "type": "object",
+            "required": [
+                "base_price",
+                "external_id",
+                "item_type",
+                "name"
+            ],
+            "properties": {
+                "attributes": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "base_price": {
+                    "description": "Pricing",
+                    "type": "number",
+                    "example": 25.5
+                },
+                "category": {
+                    "type": "string",
+                    "example": "Seeds"
+                },
+                "currency": {
+                    "type": "string",
+                    "example": "INR"
+                },
+                "description": {
+                    "type": "string",
+                    "example": "Premium organic tomato seeds, certified by NPOP"
+                },
+                "duration_minutes": {
+                    "description": "Service-specific fields",
+                    "type": "integer",
+                    "example": 120
+                },
+                "external_id": {
+                    "description": "Item identification",
+                    "type": "string",
+                    "example": "ext_789"
+                },
+                "hourly_rate": {
+                    "type": "number",
+                    "example": 75
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "is_active": {
+                    "description": "Availability",
+                    "type": "boolean",
+                    "example": true
+                },
+                "item_type": {
+                    "type": "string",
+                    "enum": [
+                        "PRODUCT",
+                        "SERVICE",
+                        "LABOUR"
+                    ],
+                    "example": "PRODUCT"
+                },
+                "name": {
+                    "description": "Basic information",
+                    "type": "string",
+                    "example": "Organic Tomato Seeds"
+                },
+                "perishable": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "service_area": {
+                    "type": "string",
+                    "example": "Maharashtra"
+                },
+                "shelf_life_days": {
+                    "type": "integer",
+                    "example": 730
+                },
+                "skill_level": {
+                    "description": "Labour-specific fields",
+                    "type": "string",
+                    "example": "Expert"
+                },
+                "sku": {
+                    "type": "string",
+                    "example": "OTS-001"
+                },
+                "subcategory": {
+                    "type": "string",
+                    "example": "Vegetable Seeds"
+                },
+                "tags": {
+                    "description": "Metadata",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "organic",
+                        "certified",
+                        "premium"
+                    ]
+                },
+                "unit_of_measure": {
+                    "type": "string",
+                    "example": "packet"
+                },
+                "visibility": {
+                    "type": "string",
+                    "enum": [
+                        "PRIVATE",
+                        "ORG",
+                        "NETWORK",
+                        "PUBLIC"
+                    ],
+                    "example": "NETWORK"
+                },
+                "weight": {
+                    "description": "Product-specific fields",
+                    "type": "number",
+                    "example": 0.1
+                }
+            }
+        },
+        "integrations.CatalogProposalRequest": {
+            "type": "object",
+            "required": [
+                "catalog_item",
+                "partner_id",
+                "partner_name",
+                "proposal_id",
+                "proposal_type"
+            ],
+            "properties": {
+                "catalog_item": {
+                    "description": "Catalog item data",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/integrations.CatalogItemProposal"
+                        }
+                    ]
+                },
+                "notes": {
+                    "type": "string",
+                    "example": "New organic product line from certified supplier"
+                },
+                "partner_id": {
+                    "description": "Partner identification",
+                    "type": "string",
+                    "example": "partner_123"
+                },
+                "partner_name": {
+                    "type": "string",
+                    "example": "FarmTech Solutions"
+                },
+                "priority": {
+                    "type": "string",
+                    "enum": [
+                        "LOW",
+                        "MEDIUM",
+                        "HIGH",
+                        "URGENT"
+                    ],
+                    "example": "MEDIUM"
+                },
+                "proposal_id": {
+                    "description": "Proposal metadata",
+                    "type": "string",
+                    "example": "prop_456"
+                },
+                "proposal_type": {
+                    "type": "string",
+                    "enum": [
+                        "CREATE",
+                        "UPDATE",
+                        "DELETE"
+                    ],
+                    "example": "CREATE"
+                },
+                "requires_approval": {
+                    "description": "Validation and approval",
+                    "type": "boolean",
+                    "example": true
+                },
+                "webhook_url": {
+                    "description": "Webhook for status updates",
+                    "type": "string",
+                    "example": "https://partner.example.com/webhooks/catalog"
+                }
+            }
+        },
+        "integrations.CatalogProposalResponse": {
+            "type": "object",
+            "properties": {
+                "approval_steps": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/integrations.ApprovalStep"
+                    }
+                },
+                "estimated_review_time": {
+                    "description": "Processing details",
+                    "type": "integer",
+                    "example": 24
+                },
+                "priority": {
+                    "type": "string",
+                    "example": "MEDIUM"
+                },
+                "proposal_id": {
+                    "description": "Proposal tracking",
+                    "type": "string",
+                    "example": "prop_456"
+                },
+                "requires_approval": {
+                    "description": "Approval workflow",
+                    "type": "boolean",
+                    "example": true
+                },
+                "review_notes": {
+                    "description": "Feedback",
+                    "type": "string",
+                    "example": "Proposal looks good, pending final approval"
+                },
+                "reviewed_at": {
+                    "type": "string",
+                    "example": "2024-01-15T11:00:00Z"
+                },
+                "reviewer_id": {
+                    "description": "Review information",
+                    "type": "string",
+                    "example": "reviewer_123"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "PENDING_REVIEW"
+                },
+                "submitted_at": {
+                    "type": "string",
+                    "example": "2024-01-15T10:30:00Z"
+                },
+                "tracking_url": {
+                    "description": "Tracking",
+                    "type": "string",
+                    "example": "https://api.kisanlink.com/api/v1/integrations/proposals/prop_456/status"
+                },
+                "webhook_url": {
+                    "type": "string",
+                    "example": "https://partner.example.com/webhooks/catalog"
+                }
+            }
+        },
+        "integrations.ExportFilters": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string",
+                    "example": "Seeds"
+                },
+                "is_active": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "item_type": {
+                    "type": "string",
+                    "example": "PRODUCT"
+                },
+                "organization_id": {
+                    "type": "string",
+                    "example": "org_123"
+                },
+                "visibility": {
+                    "type": "string",
+                    "example": "NETWORK"
+                }
+            }
+        },
+        "integrations.OrderAcknowledgementRequest": {
+            "type": "object",
+            "required": [
+                "acknowledged_at",
+                "external_order_id",
+                "order_id",
+                "partner_id",
+                "partner_name",
+                "status"
+            ],
+            "properties": {
+                "acknowledged_at": {
+                    "type": "string",
+                    "example": "2024-01-15T10:30:00Z"
+                },
+                "assigned_to": {
+                    "type": "string",
+                    "example": "warehouse_team_1"
+                },
+                "estimated_processing_time": {
+                    "description": "Processing information",
+                    "type": "integer",
+                    "example": 24
+                },
+                "external_order_id": {
+                    "type": "string",
+                    "example": "ext_order_456"
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "notes": {
+                    "description": "Additional metadata",
+                    "type": "string",
+                    "example": "Order received and queued for processing"
+                },
+                "order_id": {
+                    "description": "Order identification",
+                    "type": "string",
+                    "example": "order_123"
+                },
+                "partner_id": {
+                    "description": "Partner identification",
+                    "type": "string",
+                    "example": "partner_123"
+                },
+                "partner_name": {
+                    "type": "string",
+                    "example": "Logistics Partner"
+                },
+                "rejection_code": {
+                    "type": "string",
+                    "example": "INV_001"
+                },
+                "rejection_reason": {
+                    "description": "Rejection details (if status is REJECTED)",
+                    "type": "string",
+                    "example": "Insufficient inventory"
+                },
+                "status": {
+                    "description": "Acknowledgement details",
+                    "type": "string",
+                    "enum": [
+                        "RECEIVED",
+                        "ACCEPTED",
+                        "REJECTED"
+                    ],
+                    "example": "ACCEPTED"
+                },
+                "webhook_url": {
+                    "description": "Webhook for status updates",
+                    "type": "string",
+                    "example": "https://partner.example.com/webhooks/orders"
+                }
+            }
+        },
+        "integrations.OrderAcknowledgementResponse": {
+            "type": "object",
+            "properties": {
+                "acknowledgement_id": {
+                    "description": "Acknowledgement tracking",
+                    "type": "string",
+                    "example": "ack_789"
+                },
+                "assigned_to": {
+                    "type": "string",
+                    "example": "warehouse_team_1"
+                },
+                "estimated_processing_time": {
+                    "description": "Processing information",
+                    "type": "integer",
+                    "example": 24
+                },
+                "next_steps": {
+                    "description": "Next steps",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "Order will be processed within 24 hours"
+                    ]
+                },
+                "order_id": {
+                    "type": "string",
+                    "example": "order_123"
+                },
+                "partner_id": {
+                    "description": "Partner information",
+                    "type": "string",
+                    "example": "partner_123"
+                },
+                "partner_name": {
+                    "type": "string",
+                    "example": "Logistics Partner"
+                },
+                "processed_at": {
+                    "type": "string",
+                    "example": "2024-01-15T10:30:00Z"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "ACKNOWLEDGED"
+                },
+                "tracking_url": {
+                    "description": "Tracking",
+                    "type": "string",
+                    "example": "https://api.kisanlink.com/api/v1/orders/order_123/status"
+                },
+                "webhook_url": {
+                    "type": "string",
+                    "example": "https://partner.example.com/webhooks/orders"
+                }
+            }
+        },
+        "integrations.ProposalStatusResponse": {
+            "type": "object",
+            "properties": {
+                "approval_steps": {
+                    "description": "Approval workflow",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/integrations.ApprovalStep"
+                    }
+                },
+                "approved_at": {
+                    "type": "string",
+                    "example": "2024-01-15T11:30:00Z"
+                },
+                "catalog_item_id": {
+                    "description": "Result",
+                    "type": "string",
+                    "example": "item_123"
+                },
+                "proposal_id": {
+                    "type": "string",
+                    "example": "prop_456"
+                },
+                "rejection_reason": {
+                    "type": "string",
+                    "example": "Duplicate item"
+                },
+                "review_notes": {
+                    "type": "string",
+                    "example": "Approved with minor modifications"
+                },
+                "reviewed_at": {
+                    "type": "string",
+                    "example": "2024-01-15T11:00:00Z"
+                },
+                "reviewer_id": {
+                    "description": "Review details",
+                    "type": "string",
+                    "example": "reviewer_123"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "APPROVED"
+                },
+                "submitted_at": {
+                    "type": "string",
+                    "example": "2024-01-15T10:30:00Z"
+                }
+            }
+        },
+        "integrations.WebhookValidationResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Signature validated successfully"
+                },
+                "partner_id": {
+                    "type": "string",
+                    "example": "partner_123"
+                },
+                "timestamp": {
+                    "type": "string",
+                    "example": "2024-01-15T10:30:00Z"
+                },
+                "valid": {
+                    "type": "boolean",
+                    "example": true
+                }
+            }
+        },
+        "internal_handlers_catalog.UpdateCatalogItemRequest": {
+            "type": "object",
+            "properties": {
+                "attributes": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "base_price": {
+                    "type": "number"
+                },
+                "category": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string",
                     "maxLength": 255
+                },
+                "sku": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "subcategory": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "unit_of_measure": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "visibility": {
+                    "type": "string",
+                    "enum": [
+                        "PRIVATE",
+                        "ORG",
+                        "NETWORK",
+                        "PUBLIC"
+                    ]
                 }
             }
         },
-        "handlers.CreatePermissionRequest": {
+        "internal_handlers_inventory.CreateInventoryLotRequest": {
             "type": "object",
             "required": [
-                "name"
+                "catalog_item_id",
+                "initial_quantity",
+                "lot_number"
             ],
             "properties": {
-                "description": {
+                "batch_number": {
                     "type": "string",
-                    "maxLength": 500
+                    "example": "BATCH-001"
                 },
-                "name": {
+                "catalog_item_id": {
                     "type": "string",
-                    "maxLength": 100,
-                    "minLength": 1
+                    "example": "prod_123"
+                },
+                "expiry_date": {
+                    "type": "string",
+                    "example": "2024-12-31"
+                },
+                "harvest_date": {
+                    "type": "string",
+                    "example": "2024-01-15"
+                },
+                "initial_quantity": {
+                    "type": "number",
+                    "example": 100.5
+                },
+                "lot_number": {
+                    "type": "string",
+                    "example": "LOT-2024-001"
+                },
+                "lot_price": {
+                    "type": "number",
+                    "example": 25.5
+                },
+                "metadata": {
+                    "type": "string",
+                    "example": "{\"supplier\": \"Farm ABC\"}"
+                },
+                "quality_grade": {
+                    "type": "string",
+                    "example": "A"
+                },
+                "storage_conditions": {
+                    "type": "string",
+                    "example": "Temperature controlled, humidity 60%"
+                },
+                "warehouse_location": {
+                    "type": "string",
+                    "example": "Warehouse A, Section 1"
                 }
             }
         },
-        "handlers.CreateRoleRequest": {
+        "internal_handlers_inventory.UpdateInventoryLotRequest": {
             "type": "object",
-            "required": [
-                "name"
-            ],
             "properties": {
-                "description": {
+                "expiry_date": {
                     "type": "string",
-                    "maxLength": 500
+                    "example": "2024-12-31"
                 },
-                "name": {
+                "harvest_date": {
                     "type": "string",
-                    "maxLength": 100,
-                    "minLength": 1
+                    "example": "2024-01-15"
+                },
+                "lot_price": {
+                    "type": "number",
+                    "example": 30
+                },
+                "metadata": {
+                    "type": "string",
+                    "example": "{\"notes\": \"Quality improved\"}"
+                },
+                "quality_grade": {
+                    "type": "string",
+                    "example": "A+"
+                },
+                "storage_conditions": {
+                    "type": "string",
+                    "example": "Refrigerated, humidity 50%"
+                },
+                "warehouse_location": {
+                    "type": "string",
+                    "example": "Warehouse B, Section 2"
                 }
             }
         },
-        "handlers.UpdatePermissionRequest": {
+        "internal_handlers_marketplace.AuctionSummary": {
             "type": "object",
-            "required": [
-                "name"
-            ],
             "properties": {
-                "description": {
+                "end_time": {
                     "type": "string",
-                    "maxLength": 500
+                    "example": "2024-01-14T15:00:00Z"
                 },
-                "name": {
+                "listing_id": {
                     "type": "string",
-                    "maxLength": 100,
-                    "minLength": 1
+                    "example": "LST_1234567890"
+                },
+                "participants": {
+                    "type": "integer",
+                    "example": 8
+                },
+                "start_time": {
+                    "type": "string",
+                    "example": "2024-01-14T10:00:00Z"
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/marketplace.ListingStatus"
+                        }
+                    ],
+                    "example": "CLOSED"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Auction for Product PROD_123"
+                },
+                "total_bids": {
+                    "type": "integer",
+                    "example": 12
+                },
+                "winner_id": {
+                    "type": "string",
+                    "example": "USER_456"
+                },
+                "winning_bid": {
+                    "type": "string",
+                    "example": "1500.00"
                 }
             }
         },
-        "handlers.UpdateRoleRequest": {
+        "internal_handlers_marketplace.FilteredBidStatistics": {
+            "type": "object",
+            "properties": {
+                "average_bid": {
+                    "type": "string",
+                    "example": "1200.00"
+                },
+                "bid_range": {
+                    "type": "string",
+                    "example": "800.00 - 1500.00"
+                },
+                "highest_bid": {
+                    "type": "string",
+                    "example": "1500.00"
+                },
+                "listing_id": {
+                    "type": "string",
+                    "example": "LST_1234567890"
+                },
+                "participant_info": {
+                    "type": "string",
+                    "example": "8 unique bidders"
+                },
+                "total_bids": {
+                    "type": "integer",
+                    "example": 12
+                },
+                "visible_bids": {
+                    "type": "integer",
+                    "example": 8
+                }
+            }
+        },
+        "internal_handlers_marketplace.HistoricalBidData": {
+            "type": "object",
+            "properties": {
+                "access_level": {
+                    "type": "string",
+                    "example": "FULL"
+                },
+                "bids": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/marketplace.BidResponse"
+                    }
+                },
+                "data_available": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "listing_id": {
+                    "type": "string",
+                    "example": "LST_1234567890"
+                },
+                "requested_by": {
+                    "type": "string",
+                    "example": "USER_123"
+                },
+                "time_range": {
+                    "type": "string",
+                    "example": "2024-01-14T10:00:00Z to 2024-01-14T15:00:00Z"
+                },
+                "total_bids": {
+                    "type": "integer",
+                    "example": 12
+                }
+            }
+        },
+        "internal_handlers_marketplace.PlaceBidRequest": {
             "type": "object",
             "required": [
-                "name"
+                "bid_amount",
+                "quantity"
             ],
             "properties": {
-                "description": {
+                "auto_bid_limit": {
                     "type": "string",
-                    "maxLength": 500
+                    "example": "1500.00"
                 },
-                "name": {
+                "bid_amount": {
                     "type": "string",
-                    "maxLength": 100,
-                    "minLength": 1
+                    "example": "1200.00"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Interested in bulk purchase"
+                },
+                "quantity": {
+                    "type": "string",
+                    "example": "100.5"
+                }
+            }
+        },
+        "internal_handlers_marketplace.RevealedAuctionResults": {
+            "type": "object",
+            "properties": {
+                "auction_end_time": {
+                    "type": "string",
+                    "example": "2024-01-14T15:00:00Z"
+                },
+                "listing_id": {
+                    "type": "string",
+                    "example": "LST_1234567890"
+                },
+                "results_available": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/marketplace.ListingStatus"
+                        }
+                    ],
+                    "example": "CLOSED"
+                },
+                "total_bids": {
+                    "type": "integer",
+                    "example": 12
+                },
+                "winner_id": {
+                    "type": "string",
+                    "example": "USER_456"
+                },
+                "winning_bid": {
+                    "type": "string",
+                    "example": "1500.00"
+                }
+            }
+        },
+        "inventory.AdjustInventoryRequest": {
+            "type": "object",
+            "required": [
+                "adjustment",
+                "reason"
+            ],
+            "properties": {
+                "adjustment": {
+                    "type": "number",
+                    "example": 10.5
+                },
+                "reason": {
+                    "type": "string",
+                    "example": "Stock correction after physical count"
+                }
+            }
+        },
+        "marketplace.ActorType": {
+            "type": "string",
+            "enum": [
+                "USER",
+                "SYSTEM",
+                "ADMIN"
+            ],
+            "x-enum-varnames": [
+                "ActorTypeUser",
+                "ActorTypeSystem",
+                "ActorTypeAdmin"
+            ]
+        },
+        "marketplace.AuctionEventType": {
+            "type": "string",
+            "enum": [
+                "LISTING_CREATED",
+                "BID_PLACED",
+                "BID_OUTBID",
+                "AUTO_BID_TRIGGERED",
+                "LISTING_CLOSED",
+                "LISTING_EXPIRED",
+                "LISTING_CANCELLED",
+                "BID_REMOVED",
+                "LISTING_UPDATED"
+            ],
+            "x-enum-varnames": [
+                "EventListingCreated",
+                "EventBidPlaced",
+                "EventBidOutbid",
+                "EventAutoBidTriggered",
+                "EventListingClosed",
+                "EventListingExpired",
+                "EventListingCancelled",
+                "EventBidRemoved",
+                "EventListingUpdated"
+            ]
+        },
+        "marketplace.AuctionType": {
+            "type": "string",
+            "enum": [
+                "OPEN",
+                "CLOSED"
+            ],
+            "x-enum-comments": {
+                "AuctionTypeClosed": "Bid prices hidden until auction ends",
+                "AuctionTypeOpen": "All bid prices visible during auction"
+            },
+            "x-enum-descriptions": [
+                "All bid prices visible during auction",
+                "Bid prices hidden until auction ends"
+            ],
+            "x-enum-varnames": [
+                "AuctionTypeOpen",
+                "AuctionTypeClosed"
+            ]
+        },
+        "marketplace.AuditEventResponse": {
+            "type": "object",
+            "properties": {
+                "actor_id": {
+                    "type": "string",
+                    "example": "USER_456"
+                },
+                "actor_type": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/marketplace.ActorType"
+                        }
+                    ],
+                    "example": "USER"
+                },
+                "event_id": {
+                    "type": "string",
+                    "example": "EVT_1234567890"
+                },
+                "event_type": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/marketplace.AuctionEventType"
+                        }
+                    ],
+                    "example": "BID_PLACED"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "uuid-123"
+                },
+                "listing_id": {
+                    "type": "string",
+                    "example": "LST_1234567890"
+                },
+                "summary": {
+                    "type": "string",
+                    "example": "Bid placed on listing LST_1234567890 by USER_456"
+                },
+                "timestamp": {
+                    "type": "string",
+                    "example": "2024-01-14T10:30:00Z"
+                }
+            }
+        },
+        "marketplace.AuditLogResponse": {
+            "type": "object",
+            "properties": {
+                "events": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/marketplace.AuditEventResponse"
+                    }
+                },
+                "pagination": {
+                    "$ref": "#/definitions/common.PaginationMeta"
+                }
+            }
+        },
+        "marketplace.BidHistoryResponse": {
+            "type": "object",
+            "properties": {
+                "bid_visibility": {
+                    "type": "string",
+                    "example": "FULL"
+                },
+                "bids": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/marketplace.BidResponse"
+                    }
+                },
+                "can_view_bids": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "highest_bid": {
+                    "$ref": "#/definitions/marketplace.BidResponse"
+                },
+                "last_updated": {
+                    "type": "string",
+                    "example": "2024-01-14T10:30:00Z"
+                },
+                "listing_id": {
+                    "type": "string",
+                    "example": "LST_1234567890"
+                },
+                "total_bids": {
+                    "type": "integer",
+                    "example": 5
+                }
+            }
+        },
+        "marketplace.BidListResponse": {
+            "type": "object",
+            "properties": {
+                "bids": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/marketplace.BidResponse"
+                    }
+                },
+                "pagination": {
+                    "$ref": "#/definitions/common.PaginationMeta"
+                }
+            }
+        },
+        "marketplace.BidResponse": {
+            "type": "object",
+            "properties": {
+                "auto_bid_limit": {
+                    "type": "string",
+                    "example": "1500.00"
+                },
+                "bid_amount": {
+                    "type": "string",
+                    "example": "1200.00"
+                },
+                "bid_id": {
+                    "type": "string",
+                    "example": "BID_1234567890"
+                },
+                "bidder_id": {
+                    "type": "string",
+                    "example": "USER_456"
+                },
+                "currency": {
+                    "type": "string",
+                    "example": "INR"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "uuid-123"
+                },
+                "is_auto_bid": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "is_highest_bid": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "is_own_bid": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "listing_id": {
+                    "type": "string",
+                    "example": "LST_1234567890"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Interested in bulk purchase"
+                },
+                "outbid_at": {
+                    "type": "string",
+                    "example": "2024-01-14T11:30:00Z"
+                },
+                "placed_at": {
+                    "type": "string",
+                    "example": "2024-01-14T10:30:00Z"
+                },
+                "quantity": {
+                    "type": "string",
+                    "example": "100.5"
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/marketplace.BidStatus"
+                        }
+                    ],
+                    "example": "ACTIVE"
+                }
+            }
+        },
+        "marketplace.BidStatus": {
+            "type": "string",
+            "enum": [
+                "ACTIVE",
+                "OUTBID",
+                "WINNING",
+                "EXPIRED",
+                "REMOVED"
+            ],
+            "x-enum-varnames": [
+                "BidStatusActive",
+                "BidStatusOutbid",
+                "BidStatusWinning",
+                "BidStatusExpired",
+                "BidStatusRemoved"
+            ]
+        },
+        "marketplace.BidVisibility": {
+            "type": "string",
+            "enum": [
+                "FULL",
+                "PARTIAL",
+                "MINIMAL",
+                "HIDDEN"
+            ],
+            "x-enum-comments": {
+                "BidVisibilityFull": "Show all bid details based on auction type",
+                "BidVisibilityHidden": "No bid information visible",
+                "BidVisibilityMinimal": "Show only bid count",
+                "BidVisibilityPartial": "Show bid count and highest amount only"
+            },
+            "x-enum-descriptions": [
+                "Show all bid details based on auction type",
+                "Show bid count and highest amount only",
+                "Show only bid count",
+                "No bid information visible"
+            ],
+            "x-enum-varnames": [
+                "BidVisibilityFull",
+                "BidVisibilityPartial",
+                "BidVisibilityMinimal",
+                "BidVisibilityHidden"
+            ]
+        },
+        "marketplace.ForceCloseListingRequest": {
+            "type": "object",
+            "required": [
+                "reason"
+            ],
+            "properties": {
+                "reason": {
+                    "type": "string",
+                    "example": "Policy violation - fraudulent listing"
+                }
+            }
+        },
+        "marketplace.ListingListResponse": {
+            "type": "object",
+            "properties": {
+                "listings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/marketplace.ListingResponse"
+                    }
+                },
+                "pagination": {
+                    "$ref": "#/definitions/common.PaginationMeta"
+                }
+            }
+        },
+        "marketplace.ListingResponse": {
+            "type": "object",
+            "properties": {
+                "asking_price": {
+                    "type": "string",
+                    "example": "1500.00"
+                },
+                "auction_type": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/marketplace.AuctionType"
+                        }
+                    ],
+                    "example": "OPEN"
+                },
+                "bid_count": {
+                    "type": "integer",
+                    "example": 5
+                },
+                "bid_visibility": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/marketplace.BidVisibility"
+                        }
+                    ],
+                    "example": "FULL"
+                },
+                "close_reason": {
+                    "type": "string",
+                    "example": "Auction completed"
+                },
+                "closed_at": {
+                    "type": "string",
+                    "example": "2024-01-15T09:30:00Z"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2024-01-14T10:30:00Z"
+                },
+                "currency": {
+                    "type": "string",
+                    "example": "INR"
+                },
+                "current_highest_bid_id": {
+                    "type": "string",
+                    "example": "BID_987654321"
+                },
+                "expires_at": {
+                    "type": "string",
+                    "example": "2024-01-15T10:30:00Z"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "uuid-123"
+                },
+                "listing_duration_hours": {
+                    "type": "integer",
+                    "example": 24
+                },
+                "listing_id": {
+                    "type": "string",
+                    "example": "LST_1234567890"
+                },
+                "minimum_bid": {
+                    "type": "string",
+                    "example": "1000.00"
+                },
+                "organization_id": {
+                    "type": "string",
+                    "example": "ORG_789"
+                },
+                "pickup_location": {
+                    "$ref": "#/definitions/marketplace.Location"
+                },
+                "product_id": {
+                    "type": "string",
+                    "example": "PROD_123"
+                },
+                "quantity": {
+                    "type": "string",
+                    "example": "100.5"
+                },
+                "seller_id": {
+                    "type": "string",
+                    "example": "USER_456"
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/marketplace.ListingStatus"
+                        }
+                    ],
+                    "example": "ACTIVE"
+                },
+                "terms_conditions": {
+                    "type": "string",
+                    "example": "Pickup within 7 days"
+                },
+                "time_remaining": {
+                    "type": "string",
+                    "example": "23h 45m"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2024-01-14T10:30:00Z"
+                },
+                "visibility": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/marketplace.ListingVisibility"
+                        }
+                    ],
+                    "example": "PUBLIC"
+                }
+            }
+        },
+        "marketplace.ListingStatus": {
+            "type": "string",
+            "enum": [
+                "ACTIVE",
+                "CLOSED",
+                "EXPIRED",
+                "CANCELLED",
+                "EXPIRED_NO_BIDS"
+            ],
+            "x-enum-varnames": [
+                "ListingStatusActive",
+                "ListingStatusClosed",
+                "ListingStatusExpired",
+                "ListingStatusCancelled",
+                "ListingStatusExpiredNoBids"
+            ]
+        },
+        "marketplace.ListingVisibility": {
+            "type": "string",
+            "enum": [
+                "PRIVATE",
+                "PUBLIC",
+                "NETWORK",
+                "ORGANIZATION"
+            ],
+            "x-enum-comments": {
+                "VisibilityNetwork": "Network/partner organizations",
+                "VisibilityOrganization": "Same organization only",
+                "VisibilityPrivate": "Only invited participants",
+                "VisibilityPublic": "Open to all users"
+            },
+            "x-enum-descriptions": [
+                "Only invited participants",
+                "Open to all users",
+                "Network/partner organizations",
+                "Same organization only"
+            ],
+            "x-enum-varnames": [
+                "VisibilityPrivate",
+                "VisibilityPublic",
+                "VisibilityNetwork",
+                "VisibilityOrganization"
+            ]
+        },
+        "marketplace.Location": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "postal_code": {
+                    "type": "string"
+                },
+                "state": {
+                    "type": "string"
+                }
+            }
+        },
+        "marketplace.MarketplaceStatsResponse": {
+            "type": "object",
+            "properties": {
+                "active_listings": {
+                    "type": "integer",
+                    "example": 450
+                },
+                "average_bids_per_listing": {
+                    "type": "number",
+                    "example": 4.5
+                },
+                "average_listing_value": {
+                    "type": "string",
+                    "example": "2000.00"
+                },
+                "closed_listings": {
+                    "type": "integer",
+                    "example": 600
+                },
+                "expired_listings": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "total_bids": {
+                    "type": "integer",
+                    "example": 5670
+                },
+                "total_listings": {
+                    "type": "integer",
+                    "example": 1250
+                },
+                "total_value": {
+                    "type": "string",
+                    "example": "2500000.00"
+                }
+            }
+        },
+        "marketplace.RemoveBidRequest": {
+            "type": "object",
+            "required": [
+                "reason"
+            ],
+            "properties": {
+                "reason": {
+                    "type": "string",
+                    "example": "Fraudulent bid detected"
+                }
+            }
+        },
+        "orders.AddressResponse": {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "type": "string",
+                    "example": "Rural City"
+                },
+                "country": {
+                    "type": "string",
+                    "example": "India"
+                },
+                "postal_code": {
+                    "type": "string",
+                    "example": "411001"
+                },
+                "state": {
+                    "type": "string",
+                    "example": "Maharashtra"
+                },
+                "street": {
+                    "type": "string",
+                    "example": "123 Farm Road"
+                }
+            }
+        },
+        "orders.BidInfo": {
+            "type": "object",
+            "properties": {
+                "bid_amount": {
+                    "type": "number"
+                },
+                "bid_id": {
+                    "type": "string"
+                },
+                "bidder_id": {
+                    "type": "string"
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "is_winning": {
+                    "type": "boolean"
+                },
+                "placed_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "orders.BidOrderValidationRequest": {
+            "type": "object",
+            "required": [
+                "bid_id"
+            ],
+            "properties": {
+                "bid_id": {
+                    "type": "string",
+                    "example": "BID_1234567890"
+                }
+            }
+        },
+        "orders.BidOrderValidationResponse": {
+            "type": "object",
+            "properties": {
+                "bid_id": {
+                    "type": "string",
+                    "example": "BID_1234567890"
+                },
+                "buyer_id": {
+                    "type": "string",
+                    "example": "USER_0987654321"
+                },
+                "buyer_org_id": {
+                    "type": "string",
+                    "example": "ORG_0987654321"
+                },
+                "can_create_order": {
+                    "type": "boolean"
+                },
+                "currency": {
+                    "type": "string",
+                    "example": "INR"
+                },
+                "expires_at": {
+                    "type": "string",
+                    "example": "2024-12-31T23:59:59Z"
+                },
+                "listing_id": {
+                    "type": "string",
+                    "example": "LST_1234567890"
+                },
+                "product_id": {
+                    "type": "string",
+                    "example": "PROD_1234567890"
+                },
+                "product_name": {
+                    "type": "string",
+                    "example": "Organic Tomatoes"
+                },
+                "product_sku": {
+                    "type": "string",
+                    "example": "ORG-TOM-001"
+                },
+                "quantity": {
+                    "type": "number",
+                    "example": 10.5
+                },
+                "seller_id": {
+                    "type": "string",
+                    "example": "USER_1234567890"
+                },
+                "seller_org_id": {
+                    "type": "string",
+                    "example": "ORG_1234567890"
+                },
+                "valid": {
+                    "type": "boolean"
+                },
+                "validation_error": {
+                    "type": "string"
+                },
+                "winning_amount": {
+                    "type": "number",
+                    "example": 150
+                }
+            }
+        },
+        "orders.CreateOrderFromBidRequest": {
+            "type": "object",
+            "required": [
+                "bid_id",
+                "payment_method",
+                "shipping_address"
+            ],
+            "properties": {
+                "bid_id": {
+                    "type": "string",
+                    "example": "BID_1234567890"
+                },
+                "notes": {
+                    "type": "string",
+                    "maxLength": 1000,
+                    "example": "Please deliver during business hours"
+                },
+                "payment_method": {
+                    "type": "string",
+                    "enum": [
+                        "credit_card",
+                        "debit_card",
+                        "bank_transfer",
+                        "upi",
+                        "cash_on_delivery"
+                    ],
+                    "example": "upi"
+                },
+                "shipping_address": {
+                    "$ref": "#/definitions/entities_requests_orders.Address"
                 }
             }
         },
@@ -2653,7 +11824,8 @@ const docTemplate = `{
             ],
             "properties": {
                 "catalog_item_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174002"
                 },
                 "catalog_item_type": {
                     "type": "string",
@@ -2661,17 +11833,22 @@ const docTemplate = `{
                         "product",
                         "service",
                         "labour"
-                    ]
+                    ],
+                    "example": "product"
                 },
                 "notes": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 500,
+                    "example": "Organic variety preferred"
                 },
                 "quantity": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 10.5
                 },
                 "unit_price": {
                     "type": "number",
-                    "minimum": 0
+                    "minimum": 0,
+                    "example": 25.5
                 }
             }
         },
@@ -2684,7 +11861,8 @@ const docTemplate = `{
             ],
             "properties": {
                 "buyer_organization_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
                 },
                 "items": {
                     "type": "array",
@@ -2698,13 +11876,62 @@ const docTemplate = `{
                     "additionalProperties": true
                 },
                 "notes": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 1000,
+                    "example": "Special delivery instructions"
                 },
                 "seller_organization_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174001"
                 },
                 "shipping_address": {
                     "$ref": "#/definitions/entities_requests_orders.Address"
+                }
+            }
+        },
+        "orders.ListingInfo": {
+            "type": "object",
+            "properties": {
+                "closed_at": {
+                    "type": "string"
+                },
+                "listing_id": {
+                    "type": "string"
+                },
+                "product_id": {
+                    "type": "string"
+                },
+                "product_name": {
+                    "type": "string"
+                },
+                "product_sku": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "number"
+                },
+                "seller_id": {
+                    "type": "string"
+                },
+                "seller_org_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "orders.OrderFromBidResponse": {
+            "type": "object",
+            "properties": {
+                "bid": {
+                    "$ref": "#/definitions/orders.BidInfo"
+                },
+                "listing": {
+                    "$ref": "#/definitions/orders.ListingInfo"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "order": {
+                    "$ref": "#/definitions/orders.OrderResponse"
                 }
             }
         },
@@ -2712,52 +11939,68 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "catalog_item_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174005"
                 },
                 "catalog_item_name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Organic Tomatoes"
                 },
                 "catalog_item_sku": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "TOM-ORG-001"
                 },
                 "catalog_item_type": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "product"
                 },
                 "created_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2024-01-15T10:30:00Z"
                 },
                 "discount_amount": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 0
                 },
                 "discount_rate": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 0
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174004"
                 },
                 "metadata": {
-                    "type": "string"
+                    "type": "object",
+                    "additionalProperties": true
                 },
                 "order_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
                 },
                 "quantity": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 10.5
                 },
                 "tax_amount": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 26.78
                 },
                 "tax_rate": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 0.1
                 },
                 "total_price": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 267.75
                 },
                 "unit_price": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 25.5
                 },
                 "updated_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2024-01-15T10:30:00Z"
                 }
             }
         },
@@ -2765,25 +12008,32 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "actual_delivery_date": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2024-01-19T14:15:00Z"
                 },
                 "buyer_organization_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174001"
                 },
                 "buyer_user_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174003"
                 },
                 "created_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2024-01-15T10:30:00Z"
                 },
                 "discount_amount": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 0
                 },
                 "estimated_delivery_date": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2024-01-20T10:30:00Z"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
                 },
                 "items": {
                     "type": "array",
@@ -2792,25 +12042,31 @@ const docTemplate = `{
                     }
                 },
                 "metadata": {
-                    "type": "string"
+                    "type": "object",
+                    "additionalProperties": true
                 },
                 "notes": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Special delivery instructions"
                 },
                 "order_number": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ORD-2024-001"
                 },
                 "seller_organization_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174002"
                 },
                 "shipping_address": {
-                    "type": "string"
+                    "$ref": "#/definitions/orders.AddressResponse"
                 },
                 "shipping_amount": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 50
                 },
                 "status": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "pending"
                 },
                 "status_history": {
                     "type": "array",
@@ -2819,16 +12075,20 @@ const docTemplate = `{
                     }
                 },
                 "subtotal_amount": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 255
                 },
                 "tax_amount": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 25.5
                 },
                 "total_amount": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 330.5
                 },
                 "updated_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2024-01-15T10:30:00Z"
                 }
             }
         },
@@ -2859,44 +12119,136 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "changed_by_organization_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174001"
                 },
                 "changed_by_user_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174003"
                 },
                 "created_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2024-01-15T10:35:00Z"
                 },
                 "from_status": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "pending"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174006"
                 },
                 "metadata": {
-                    "type": "string"
+                    "type": "object",
+                    "additionalProperties": true
                 },
                 "order_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
                 },
                 "reason": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Payment confirmed by bank"
                 },
                 "to_status": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "confirmed"
                 }
             }
         },
-        "orders.UpdateOrderStatusRequest": {
+        "orders.PaymentResponse": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number",
+                    "example": 150
+                },
+                "currency": {
+                    "type": "string",
+                    "example": "INR"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Payment completed successfully"
+                },
+                "order_id": {
+                    "type": "string",
+                    "example": "ORD_1234567890"
+                },
+                "payment_id": {
+                    "type": "string",
+                    "example": "PAY_1234567890"
+                },
+                "payment_method": {
+                    "type": "string",
+                    "example": "upi"
+                },
+                "processed_at": {
+                    "type": "string",
+                    "example": "2024-12-31T23:59:59Z"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "COMPLETED"
+                }
+            }
+        },
+        "orders.ProcessPaymentRequest": {
             "type": "object",
             "required": [
-                "reason",
-                "status"
+                "payment_method"
             ],
             "properties": {
+                "payment_method": {
+                    "type": "string",
+                    "enum": [
+                        "credit_card",
+                        "debit_card",
+                        "bank_transfer",
+                        "upi",
+                        "cash_on_delivery",
+                        "digital_wallet",
+                        "net_banking"
+                    ],
+                    "example": "upi"
+                }
+            }
+        },
+        "orders.UpdateOrderRequest": {
+            "type": "object",
+            "properties": {
+                "buyer_organization_id": {
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
+                },
+                "items": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/orders.CreateOrderItemRequest"
+                    }
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "notes": {
+                    "type": "string",
+                    "maxLength": 1000,
+                    "example": "Updated delivery instructions"
+                },
                 "reason": {
                     "type": "string",
-                    "maxLength": 500
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "example": "Payment confirmed"
+                },
+                "seller_organization_id": {
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174001"
+                },
+                "shipping_address": {
+                    "$ref": "#/definitions/entities_requests_orders.Address"
                 },
                 "status": {
                     "enum": [
@@ -2913,7 +12265,41 @@ const docTemplate = `{
                         {
                             "$ref": "#/definitions/orders.OrderStatus"
                         }
-                    ]
+                    ],
+                    "example": "confirmed"
+                }
+            }
+        },
+        "orders.UpdateOrderStatusRequest": {
+            "type": "object",
+            "required": [
+                "reason",
+                "status"
+            ],
+            "properties": {
+                "reason": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "example": "Payment confirmed by bank"
+                },
+                "status": {
+                    "enum": [
+                        "pending",
+                        "confirmed",
+                        "paid",
+                        "shipped",
+                        "delivered",
+                        "completed",
+                        "cancelled",
+                        "refunded"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/orders.OrderStatus"
+                        }
+                    ],
+                    "example": "confirmed"
                 }
             }
         }

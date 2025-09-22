@@ -2,10 +2,11 @@ package orders
 
 import (
 	"strconv"
+	"time"
 
 	orderModels "kisanlink-ecom/entities/models/orders"
 	orders "kisanlink-ecom/entities/requests/orders"
-	_ "kisanlink-ecom/entities/responses/orders" // For Swagger documentation
+	orderResponses "kisanlink-ecom/entities/responses/orders"
 	"kisanlink-ecom/internal/common"
 	orderService "kisanlink-ecom/internal/services/orders"
 
@@ -377,6 +378,283 @@ func (h *OrderHandler) CancelOrder(c *gin.Context) {
 	}
 
 	common.Success(c, "Order cancelled successfully", &common.ResponseMeta{
+		TraceID: common.GetTraceID(c),
+	})
+}
+
+// CreateOrderFromBid godoc
+// @Summary Create an order from a winning bid
+// @Description Create an order from a marketplace winning bid
+// @Tags orders
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer token"
+// @Param order body orders.CreateOrderFromBidRequest true "Order from bid information"
+// @Success 201 {object} common.Response{data=orders.OrderFromBidResponse}
+// @Failure 400 {object} common.Response{error=common.ResponseError}
+// @Failure 401 {object} common.Response{error=common.ResponseError}
+// @Failure 403 {object} common.Response{error=common.ResponseError}
+// @Router /api/v1/orders/from-bid [post]
+func (h *OrderHandler) CreateOrderFromBid(c *gin.Context) {
+	var req orders.CreateOrderFromBidRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		common.BadRequest(c, "INVALID_REQUEST", "Invalid request body", map[string]interface{}{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	// Get user ID from context
+	userID, exists := c.Get("subjectID")
+	if !exists {
+		common.Unauthorized(c, "MISSING_USER", "User ID not found in context", nil)
+		return
+	}
+
+	// Get organization ID from context
+	orgID, exists := c.Get("organizationID")
+	if !exists {
+		common.Unauthorized(c, "MISSING_ORG", "Organization ID not found in context", nil)
+		return
+	}
+
+	// Create the order from bid
+	order, err := h.orderService.CreateOrderFromBid(c.Request.Context(), &req, userID.(string), orgID.(string))
+	if err != nil {
+		common.BadRequest(c, "CREATE_FROM_BID_FAILED", "Failed to create order from bid", map[string]interface{}{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	// Build response with bid and listing information
+	response := &orders.CreateOrderFromBidResponse{
+		OrderID:     order.ID,
+		OrderNumber: order.OrderNumber,
+		BidID:       req.BidID,
+		TotalAmount: order.TotalAmount,
+		Currency:    "INR", // Default currency
+		Status:      string(order.Status),
+		Message:     "Order created successfully from winning bid",
+	}
+
+	// Extract listing ID from metadata if available
+	if metadata, err := order.GetMetadata(); err == nil {
+		if listingID, exists := metadata["listing_id"]; exists {
+			if listingIDStr, ok := listingID.(string); ok {
+				response.ListingID = listingIDStr
+			}
+		}
+	}
+
+	common.Created(c, response, &common.ResponseMeta{
+		TraceID: common.GetTraceID(c),
+	})
+}
+
+// ValidateBidForOrder godoc
+// @Summary Validate a bid for order creation
+// @Description Validate that a bid can be used to create an order
+// @Tags orders
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer token"
+// @Param validation body orders.BidOrderValidationRequest true "Bid validation request"
+// @Success 200 {object} common.Response{data=orders.BidOrderValidationResponse}
+// @Failure 400 {object} common.Response{error=common.ResponseError}
+// @Failure 401 {object} common.Response{error=common.ResponseError}
+// @Failure 403 {object} common.Response{error=common.ResponseError}
+// @Router /api/v1/orders/validate-bid [post]
+func (h *OrderHandler) ValidateBidForOrder(c *gin.Context) {
+	var req orders.BidOrderValidationRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		common.BadRequest(c, "INVALID_REQUEST", "Invalid request body", map[string]interface{}{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	// Get user ID from context
+	userID, exists := c.Get("subjectID")
+	if !exists {
+		common.Unauthorized(c, "MISSING_USER", "User ID not found in context", nil)
+		return
+	}
+
+	// Get organization ID from context
+	orgID, exists := c.Get("organizationID")
+	if !exists {
+		common.Unauthorized(c, "MISSING_ORG", "Organization ID not found in context", nil)
+		return
+	}
+
+	// Validate the bid
+	validation, err := h.orderService.ValidateBidForOrder(c.Request.Context(), req.BidID, userID.(string), orgID.(string))
+	if err != nil {
+		// Return validation error response
+		errorResponse := &orderResponses.BidOrderValidationErrorResponse{
+			Valid:           false,
+			ErrorCode:       "VALIDATION_FAILED",
+			ErrorMessage:    "Bid validation failed",
+			ValidationError: err.Error(),
+		}
+
+		common.BadRequest(c, "BID_VALIDATION_FAILED", "Bid validation failed", map[string]interface{}{
+			"validation_error": errorResponse,
+		})
+		return
+	}
+
+	// Build validation response
+	response := &orders.BidOrderValidationResponse{
+		Valid:           validation.Valid,
+		BidID:           validation.BidID,
+		ListingID:       validation.ListingID,
+		ProductID:       validation.ProductID,
+		WinningAmount:   validation.WinningAmount,
+		Quantity:        validation.Quantity,
+		Currency:        validation.Currency,
+		SellerID:        validation.SellerID,
+		BuyerID:         validation.BuyerID,
+		SellerOrgID:     validation.SellerOrgID,
+		BuyerOrgID:      validation.BuyerOrgID,
+		ProductName:     validation.ProductName,
+		ProductSKU:      validation.ProductSKU,
+		ExpiresAt:       validation.ExpiresAt.Format(time.RFC3339),
+		CanCreateOrder:  validation.CanCreateOrder,
+		ValidationError: validation.ValidationError,
+	}
+
+	common.Success(c, response, &common.ResponseMeta{
+		TraceID: common.GetTraceID(c),
+	})
+}
+
+// ProcessPaymentForOrder godoc
+// @Summary Process payment for an order
+// @Description Process payment for an existing order
+// @Tags orders
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer token"
+// @Param id path string true "Order ID"
+// @Param payment body orders.ProcessPaymentRequest true "Payment processing request"
+// @Success 200 {object} common.Response{data=orders.PaymentResponse}
+// @Failure 400 {object} common.Response{error=common.ResponseError}
+// @Failure 401 {object} common.Response{error=common.ResponseError}
+// @Failure 403 {object} common.Response{error=common.ResponseError}
+// @Router /api/v1/orders/{id}/payment [post]
+func (h *OrderHandler) ProcessPaymentForOrder(c *gin.Context) {
+	orderID := c.Param("id")
+	if orderID == "" {
+		common.BadRequest(c, "MISSING_ID", "Order ID is required", nil)
+		return
+	}
+
+	var req orders.ProcessPaymentRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		common.BadRequest(c, "INVALID_REQUEST", "Invalid request body", map[string]interface{}{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	// Get user ID from context
+	userID, exists := c.Get("subjectID")
+	if !exists {
+		common.Unauthorized(c, "MISSING_USER", "User ID not found in context", nil)
+		return
+	}
+
+	// Get organization ID from context
+	orgID, exists := c.Get("organizationID")
+	if !exists {
+		common.Unauthorized(c, "MISSING_ORG", "Organization ID not found in context", nil)
+		return
+	}
+
+	// Process payment
+	paymentResult, err := h.orderService.ProcessPaymentForOrder(c.Request.Context(), orderID, req.PaymentMethod, userID.(string), orgID.(string))
+	if err != nil {
+		common.BadRequest(c, "PAYMENT_PROCESSING_FAILED", "Failed to process payment", map[string]interface{}{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	// Build response
+	response := &orders.PaymentResponse{
+		PaymentID:     paymentResult.PaymentID,
+		OrderID:       paymentResult.OrderID,
+		Status:        string(paymentResult.Status),
+		Amount:        paymentResult.Amount,
+		Currency:      paymentResult.Currency,
+		PaymentMethod: paymentResult.PaymentMethod,
+		ProcessedAt:   paymentResult.ProcessedAt.Format(time.RFC3339),
+		Message:       paymentResult.Message,
+	}
+
+	common.Success(c, response, &common.ResponseMeta{
+		TraceID: common.GetTraceID(c),
+	})
+}
+
+// GetPaymentStatus godoc
+// @Summary Get payment status for an order
+// @Description Retrieve the payment status for an order
+// @Tags orders
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer token"
+// @Param id path string true "Order ID"
+// @Success 200 {object} common.Response{data=orders.PaymentResponse}
+// @Failure 400 {object} common.Response{error=common.ResponseError}
+// @Failure 401 {object} common.Response{error=common.ResponseError}
+// @Failure 403 {object} common.Response{error=common.ResponseError}
+// @Router /api/v1/orders/{id}/payment/status [get]
+func (h *OrderHandler) GetPaymentStatus(c *gin.Context) {
+	orderID := c.Param("id")
+	if orderID == "" {
+		common.BadRequest(c, "MISSING_ID", "Order ID is required", nil)
+		return
+	}
+
+	// Get user ID from context
+	userID, exists := c.Get("subjectID")
+	if !exists {
+		common.Unauthorized(c, "MISSING_USER", "User ID not found in context", nil)
+		return
+	}
+
+	// Get organization ID from context
+	orgID, exists := c.Get("organizationID")
+	if !exists {
+		common.Unauthorized(c, "MISSING_ORG", "Organization ID not found in context", nil)
+		return
+	}
+
+	// Get payment status
+	paymentResult, err := h.orderService.GetPaymentStatus(c.Request.Context(), orderID, userID.(string), orgID.(string))
+	if err != nil {
+		common.BadRequest(c, "PAYMENT_STATUS_FAILED", "Failed to get payment status", map[string]interface{}{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	// Build response
+	response := &orders.PaymentResponse{
+		PaymentID:     paymentResult.PaymentID,
+		OrderID:       paymentResult.OrderID,
+		Status:        string(paymentResult.Status),
+		Amount:        paymentResult.Amount,
+		Currency:      paymentResult.Currency,
+		PaymentMethod: paymentResult.PaymentMethod,
+		ProcessedAt:   paymentResult.ProcessedAt.Format(time.RFC3339),
+		Message:       paymentResult.Message,
+	}
+
+	common.Success(c, response, &common.ResponseMeta{
 		TraceID: common.GetTraceID(c),
 	})
 }

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/base"
+	"gorm.io/gorm"
 )
 
 // CollaboratorRole represents the role of a collaborator
@@ -33,43 +34,50 @@ type Collaborator struct {
 	base.BaseModel
 
 	// AAA Service References
-	AAAEntityID   string        `json:"aaa_entity_id" gorm:"type:varchar(255);not null;index"`
-	AAAEntityType AAAEntityType `json:"aaa_entity_type" gorm:"type:varchar(20);not null;index"`
+	AAAEntityID   string        `json:"aaa_entity_id" gorm:"type:varchar(255);not null;index:idx_aaa_entity;index:idx_aaa_composite,priority:1"`
+	AAAEntityType AAAEntityType `json:"aaa_entity_type" gorm:"type:varchar(20);not null;index:idx_aaa_type;index:idx_aaa_composite,priority:2;check:aaa_entity_type IN ('USER', 'ORGANIZATION')"`
 
 	// Internal References (optional, for caching/performance)
-	UserID         *string `json:"user_id" gorm:"type:varchar(255);index"`         // Reference to user ID from AAA
-	OrganizationID *string `json:"organization_id" gorm:"type:varchar(255);index"` // Reference to org ID from AAA
+	UserID         *string `json:"user_id" gorm:"type:varchar(255);index:idx_user"`        // Reference to user ID from AAA
+	OrganizationID *string `json:"organization_id" gorm:"type:varchar(255);index:idx_org"` // Reference to org ID from AAA
 
 	// Organization Context
-	ContextOrganizationID string `json:"context_organization_id" gorm:"type:varchar(255);not null;index"` // The org this collaborator belongs to
+	ContextOrganizationID string `json:"context_organization_id" gorm:"type:varchar(255);not null;index:idx_context_org;index:idx_org_role,priority:1"` // The org this collaborator belongs to
 
 	// Collaborator-specific fields
-	Role        CollaboratorRole   `json:"role" gorm:"type:varchar(20);not null"`
-	Status      CollaboratorStatus `json:"status" gorm:"type:varchar(20);default:'PENDING'"`
-	DisplayName string             `json:"display_name" gorm:"type:varchar(255)"`
-	Email       string             `json:"email" gorm:"type:varchar(255)"`
-	Phone       string             `json:"phone" gorm:"type:varchar(20)"`
+	Role        CollaboratorRole   `json:"role" gorm:"type:varchar(20);not null;index:idx_org_role,priority:2;check:role IN ('OWNER', 'ADMIN', 'MANAGER', 'EMPLOYEE', 'CONTRACTOR', 'VIEWER')"`
+	Status      CollaboratorStatus `json:"status" gorm:"type:varchar(20);not null;default:'PENDING';index:idx_status;check:status IN ('ACTIVE', 'INACTIVE', 'SUSPENDED', 'PENDING')"`
+	DisplayName string             `json:"display_name" gorm:"type:varchar(255);index:idx_collaborators_search_name"`
+	Email       string             `json:"email" gorm:"type:varchar(255);index:idx_email"`
+	Phone       string             `json:"phone" gorm:"type:varchar(20);index:idx_phone"`
 
 	// Access Control
-	Permissions     string `json:"permissions" gorm:"type:jsonb"` // JSON array of specific permissions
-	AccessLevel     int    `json:"access_level" gorm:"default:1"` // Numeric access level (1-10)
-	CanInviteOthers bool   `json:"can_invite_others" gorm:"default:false"`
+	Permissions     string `json:"permissions" gorm:"type:jsonb;index:idx_permissions"`                                   // JSON array of specific permissions
+	AccessLevel     int    `json:"access_level" gorm:"not null;default:1;check:access_level >= 1 AND access_level <= 10"` // Numeric access level (1-10)
+	CanInviteOthers bool   `json:"can_invite_others" gorm:"not null;default:false"`
 
 	// Employment/Contract Information
-	EmployeeID   string     `json:"employee_id" gorm:"type:varchar(100)"`
-	Department   string     `json:"department" gorm:"type:varchar(100)"`
+	EmployeeID   string     `json:"employee_id" gorm:"type:varchar(100);uniqueIndex:idx_employee_id,where:employee_id IS NOT NULL AND employee_id != ''"`
+	Department   string     `json:"department" gorm:"type:varchar(100);index:idx_department"`
 	JobTitle     string     `json:"job_title" gorm:"type:varchar(100)"`
-	StartDate    *time.Time `json:"start_date"`
-	EndDate      *time.Time `json:"end_date"`
-	ContractType string     `json:"contract_type" gorm:"type:varchar(50)"` // full-time, part-time, contract, etc.
+	StartDate    *time.Time `json:"start_date" gorm:"type:timestamp"`
+	EndDate      *time.Time `json:"end_date" gorm:"type:timestamp"`
+	ContractType string     `json:"contract_type" gorm:"type:varchar(50);check:contract_type IN ('full-time', 'part-time', 'contract', 'consultant', 'intern') OR contract_type IS NULL"` // full-time, part-time, contract, etc.
 
 	// Invitation Information
-	InvitedByUserID string     `json:"invited_by_user_id" gorm:"type:varchar(255)"`
-	InvitedAt       *time.Time `json:"invited_at"`
-	AcceptedAt      *time.Time `json:"accepted_at"`
+	InvitedByUserID string     `json:"invited_by_user_id" gorm:"type:varchar(255);index:idx_invited_by"`
+	InvitedAt       *time.Time `json:"invited_at" gorm:"type:timestamp"`
+	AcceptedAt      *time.Time `json:"accepted_at" gorm:"type:timestamp"`
 
 	// Metadata
-	Metadata string `json:"metadata" gorm:"type:jsonb"`
+	Metadata string `json:"metadata" gorm:"type:jsonb;index:idx_collaborators_metadata"`
+
+	// Audit fields
+	CreatedBy string `json:"created_by" gorm:"type:varchar(255);not null"`
+	UpdatedBy string `json:"updated_by" gorm:"type:varchar(255);not null"`
+
+	// Soft delete support
+	DeletedAt gorm.DeletedAt `json:"-" gorm:"index:idx_collaborators_deleted"`
 }
 
 // TableName returns the table name for GORM
