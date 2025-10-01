@@ -37,13 +37,13 @@ func DefaultRBACConfig() *RBACConfig {
 
 // RBACMiddleware provides role-based access control
 type RBACMiddleware struct {
-	aaaClient auth.AAAClient
+	aaaClient auth.Client
 	cache     *cache.Cache
 	config    *RBACConfig
 }
 
 // NewRBACMiddleware creates a new RBAC middleware
-func NewRBACMiddleware(aaaClient auth.AAAClient, config *RBACConfig) *RBACMiddleware {
+func NewRBACMiddleware(aaaClient auth.Client, config *RBACConfig) *RBACMiddleware {
 	if config == nil {
 		config = DefaultRBACConfig()
 	}
@@ -207,13 +207,20 @@ func (m *RBACMiddleware) RequireOrganization(orgID string) gin.HandlerFunc {
 		}
 
 		// Check with AAA service for cross-organization permissions
-		allowed, err := m.aaaClient.ValidateUserOrganization(c.Request.Context(), userCtx.UserID, orgID)
+		authReq := &auth.AuthorizeRequest{
+			UserID:     userCtx.UserID,
+			TenantID:   userCtx.TenantID,
+			Resource:   "organization",
+			Action:     "access",
+			ResourceID: orgID,
+		}
+		authResp, err := m.aaaClient.Authorize(c.Request.Context(), authReq)
 		if err != nil {
 			m.handleError(c, "Organization validation failed", err)
 			return
 		}
 
-		if !allowed {
+		if !authResp.Allowed {
 			m.handleForbidden(c, fmt.Sprintf("Access denied to organization %s", orgID))
 			return
 		}
@@ -294,10 +301,17 @@ func (m *RBACMiddleware) checkPermission(ctx context.Context, userCtx *auth.User
 	}
 
 	// Check with AAA service
-	allowed, err := m.aaaClient.EvaluatePermission(ctx, userCtx.UserID, resource, action)
+	authReq := &auth.AuthorizeRequest{
+		UserID:   userCtx.UserID,
+		TenantID: userCtx.TenantID,
+		Resource: resource,
+		Action:   action,
+	}
+	authResp, err := m.aaaClient.Authorize(ctx, authReq)
 	if err != nil {
 		return false, err
 	}
+	allowed := authResp.Allowed
 
 	// Cache result if caching is enabled
 	if m.cache != nil {

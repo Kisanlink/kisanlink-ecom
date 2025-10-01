@@ -23,24 +23,28 @@ The kisanlink-ecom project now uses the aaa-service as a gRPC backend for all us
 ## Features Implemented
 
 ### 1. User Management
+
 - ✅ User registration via gRPC
 - ✅ User login with JWT token
 - ✅ User CRUD operations
 - ✅ User role assignment
 
 ### 2. Role Management
+
 - ✅ Role creation
 - ✅ Role retrieval (all/by ID)
 - ✅ Role updates
 - ✅ Role deletion
 
 ### 3. Permission Management
+
 - ✅ Permission creation
 - ✅ Permission retrieval (all/by ID)
 - ✅ Permission updates
 - ✅ Permission deletion
 
 ### 4. Role-Permission Connections
+
 - ✅ Create role-permission connections
 - ✅ Retrieve role-permission mappings
 - ✅ Update role-permission connections
@@ -49,11 +53,13 @@ The kisanlink-ecom project now uses the aaa-service as a gRPC backend for all us
 ## API Endpoints
 
 ### Authentication
+
 - `POST /api/v1/auth/register` - User registration
 - `POST /api/v1/auth/login` - User login
 - `POST /api/v1/auth/logout` - User logout
 
 ### User Management
+
 - `GET /api/v1/users` - Get all users
 - `POST /api/v1/users` - Create user
 - `GET /api/v1/users/:id` - Get user by ID
@@ -61,6 +67,7 @@ The kisanlink-ecom project now uses the aaa-service as a gRPC backend for all us
 - `DELETE /api/v1/users/:id` - Delete user
 
 ### Role Management
+
 - `GET /api/v1/roles` - Get all roles
 - `POST /api/v1/roles` - Create role
 - `GET /api/v1/roles/:id` - Get role by ID
@@ -68,6 +75,7 @@ The kisanlink-ecom project now uses the aaa-service as a gRPC backend for all us
 - `DELETE /api/v1/roles/:id` - Delete role
 
 ### Permission Management
+
 - `GET /api/v1/permissions` - Get all permissions
 - `POST /api/v1/permissions` - Create permission
 - `GET /api/v1/permissions/:id` - Get permission by ID
@@ -108,21 +116,25 @@ type GRPCConfig struct {
 ## Service Architecture
 
 ### 1. gRPC Client (`internal/services/grpc_client.go`)
+
 - Handles all gRPC communication with aaa-service
 - Provides methods for user, role, and permission operations
 - Manages connection lifecycle
 
 ### 2. User Service (`internal/services/user_service.go`)
+
 - Business logic for user operations
 - Converts between local models and gRPC models
 - Handles error mapping and response formatting
 
 ### 3. Role/Permission Service (`internal/services/role_permission_service.go`)
+
 - Business logic for role and permission operations
 - Manages role-permission connections
 - Provides local models for role and permission management
 
 ### 4. Service Container (`internal/services/init.go`)
+
 - Initializes all services with proper dependency injection
 - Manages service lifecycle
 - Provides centralized service access
@@ -130,21 +142,25 @@ type GRPCConfig struct {
 ## Handler Architecture
 
 ### 1. User Handler (`internal/handlers/users.go`)
+
 - HTTP handlers for user management
 - Uses UserService for business logic
 - Provides RESTful API endpoints
 
 ### 2. Auth Handler (`internal/handlers/auth.go`)
+
 - HTTP handlers for authentication
 - Uses UserService for login/registration
 - Returns JWT tokens from aaa-service
 
 ### 3. Role Handler (`internal/handlers/roles.go`)
+
 - HTTP handlers for role management
 - Uses RolePermissionService for business logic
 - Provides role CRUD operations
 
 ### 4. Permission Handler (`internal/handlers/permissions.go`)
+
 - HTTP handlers for permission management
 - Uses RolePermissionService for business logic
 - Provides permission CRUD operations
@@ -152,6 +168,7 @@ type GRPCConfig struct {
 ## Data Models
 
 ### Local Models (kisanlink-ecom)
+
 ```go
 type User struct {
     ID           string
@@ -176,6 +193,7 @@ type Permission struct {
 ```
 
 ### gRPC Models (aaa-service)
+
 ```protobuf
 message User {
     string id = 1;
@@ -209,6 +227,7 @@ The integration includes comprehensive error handling:
 ## Testing
 
 ### Manual Testing
+
 Use the provided test script:
 
 ```bash
@@ -220,6 +239,7 @@ chmod +x scripts/test-grpc-integration.sh
 ```
 
 ### API Testing
+
 Test the endpoints using curl or any API testing tool:
 
 ```bash
@@ -246,19 +266,22 @@ curl -X POST http://localhost:8080/api/v1/auth/login \
 ## Deployment
 
 ### Prerequisites
+
 1. aaa-service must be running and accessible
 2. gRPC server address must be configured
 3. Network connectivity between services
 
 ### Steps
+
 1. Set environment variables
 2. Start aaa-service
 3. Start kisanlink-ecom
 4. Verify connectivity
 
 ### Docker Compose Example
+
 ```yaml
-version: '3.8'
+version: "3.8"
 services:
   aaa-service:
     image: kisanlink/aaa-service:latest
@@ -283,16 +306,19 @@ services:
 ## Monitoring and Logging
 
 ### Logging
+
 - gRPC connection status
 - Service operation logs
 - Error details and stack traces
 
 ### Metrics
+
 - gRPC call latency
 - Success/failure rates
 - Connection health
 
 ### Health Checks
+
 - gRPC server connectivity
 - Service availability
 - Database connectivity (via aaa-service)
@@ -325,6 +351,7 @@ services:
    - Verify user role assignments
 
 ### Debug Commands
+
 ```bash
 # Check gRPC server status
 grpcurl -plaintext localhost:50051 list
@@ -350,6 +377,7 @@ docker logs kisanlink-ecom
 ## Support
 
 For issues related to:
+
 - **gRPC Integration**: Check this document
 - **aaa-service**: Refer to aaa-service documentation
 - **API Issues**: Check API documentation and logs
@@ -363,4 +391,4 @@ When contributing to the gRPC integration:
 2. Add comprehensive tests
 3. Update documentation
 4. Follow error handling patterns
-5. Maintain backward compatibility 
+5. Maintain backward compatibility

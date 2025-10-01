@@ -25,7 +25,7 @@ type SystemComponents struct {
 	DBManager    db.DBManager
 	UnitOfWork   database.UnitOfWork
 	CacheManager *cache.CacheManager
-	AAAClient    auth.AAAClient
+	AAAClient    auth.Client
 
 	// Observability
 	TelemetryManager   *observability.TelemetryManager
@@ -378,7 +378,7 @@ func Shutdown(components *SystemComponents) error {
 }
 
 // InitializeDefaultComponents initializes system with default configuration
-func InitializeDefaultComponents(dbManager db.DBManager, aaaClient auth.AAAClient) (*SystemComponents, error) {
+func InitializeDefaultComponents(dbManager db.DBManager, aaaClient auth.Client) (*SystemComponents, error) {
 	config := DefaultSystemConfig()
 
 	// Initialize the system

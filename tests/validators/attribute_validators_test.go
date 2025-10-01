@@ -42,12 +42,11 @@ func TestAttributeValidator_ValidateProductAttributes(t *testing.T) {
 			expectError: false,
 		},
 		{
-			name: "missing required SKU",
+			name: "valid attributes without SKU",
 			attributes: map[string]interface{}{
 				"brand": "TestBrand",
 			},
-			expectError: true,
-			errorMsg:    "sku is required for products",
+			expectError: false,
 		},
 		{
 			name: "invalid SKU format",
@@ -536,8 +535,8 @@ func TestAttributeValidator_ValidationHelpers(t *testing.T) {
 			attrs := map[string]interface{}{"sku": sku}
 			err := validator.ValidateProductAttributes(attrs)
 			if sku == "" {
-				assert.Error(t, err, "Empty SKU should be invalid")
-				assert.Contains(t, err.Error(), "sku is required")
+				// Empty SKU is now valid (optional field)
+				assert.NoError(t, err, "Empty SKU should be valid (optional field)")
 			} else {
 				assert.Error(t, err, "SKU %s should be invalid", sku)
 			}
@@ -563,7 +562,7 @@ func TestAttributeValidator_ValidationHelpers(t *testing.T) {
 
 	t.Run("Currency validation", func(t *testing.T) {
 		validCurrencies := []string{"INR", "USD", "EUR", "GBP"}
-		invalidCurrencies := []string{"", "IN", "INRS", "inr", "123"}
+		invalidCurrencies := []string{"", "IN", "INRS", "123"}
 
 		for _, currency := range validCurrencies {
 			attrs := map[string]interface{}{
@@ -593,8 +592,8 @@ func TestAttributeValidator_ValidationHelpers(t *testing.T) {
 	})
 
 	t.Run("Rate type validation", func(t *testing.T) {
-		validRateTypes := []string{"hourly", "daily", "weekly", "monthly"}
-		invalidRateTypes := []string{"", "yearly", "per_hour", "HOURLY"}
+		validRateTypes := []string{"hourly", "daily", "weekly", "monthly", "per_hour", "per_day", "per_week", "per_month"}
+		invalidRateTypes := []string{"", "yearly", "HOURLY"}
 
 		for _, rateType := range validRateTypes {
 			attrs := map[string]interface{}{

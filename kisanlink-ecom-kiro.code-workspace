@@ -8,6 +8,9 @@
         },
         {
             "path": "../aaa-service"
+        },
+        {
+            "path": "../ecommerce-frontend"
         }
     ],
     "settings": {

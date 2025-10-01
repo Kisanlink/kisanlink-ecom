@@ -24,19 +24,19 @@ make setup-hooks
 
 ### Available Commands
 
-| Command | Description |
-|---------|-------------|
-| `make help` | Show all available commands |
-| `make format` | Format code with gofmt, goimports, and gofumpt |
-| `make lint` | Run comprehensive linting with golangci-lint |
-| `make lint-fix` | Run linting with auto-fix enabled |
-| `make security` | Run security checks with gosec |
-| `make test` | Run tests |
-| `make test-coverage` | Run tests with coverage report |
-| `make check` | Run all quality checks (format + lint + test + security) |
-| `make quick-check` | Run essential checks quickly |
-| `make pre-commit` | Manually run pre-commit checks |
-| `make install-tools` | Install/update development tools |
+| Command              | Description                                              |
+| -------------------- | -------------------------------------------------------- |
+| `make help`          | Show all available commands                              |
+| `make format`        | Format code with gofmt, goimports, and gofumpt           |
+| `make lint`          | Run comprehensive linting with golangci-lint             |
+| `make lint-fix`      | Run linting with auto-fix enabled                        |
+| `make security`      | Run security checks with gosec                           |
+| `make test`          | Run tests                                                |
+| `make test-coverage` | Run tests with coverage report                           |
+| `make check`         | Run all quality checks (format + lint + test + security) |
+| `make quick-check`   | Run essential checks quickly                             |
+| `make pre-commit`    | Manually run pre-commit checks                           |
+| `make install-tools` | Install/update development tools                         |
 
 ## 🔍 Code Quality Checks
 
@@ -280,4 +280,4 @@ All changes should:
 - [Go Code Review Comments](https://github.com/golang/go/wiki/CodeReviewComments)
 - [golangci-lint Linters](https://golangci-lint.run/usage/linters/)
 - [gosec Rules](https://securecodewarrior.github.io/gosec/)
-- [Effective Go](https://golang.org/doc/effective_go.html) 
+- [Effective Go](https://golang.org/doc/effective_go.html)

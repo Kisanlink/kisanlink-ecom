@@ -19,7 +19,7 @@ type ResilientCatalogService struct {
 // NewResilientCatalogService creates a resilient catalog service
 func NewResilientCatalogService(
 	catalogSvc catalogService.CatalogServiceInterface,
-	aaaClient auth.AAAClient,
+	aaaClient auth.Client,
 ) *ResilientCatalogService {
 	// Configure database resilience
 	dbConfig := &ServiceConfig{
@@ -131,18 +131,27 @@ func (r *ResilientCatalogService) DeleteProduct(ctx context.Context, productID s
 
 // ValidatePermission validates permissions using resilient AAA client
 func (r *ResilientCatalogService) ValidatePermission(ctx context.Context, userID, resource, action string) (bool, error) {
-	return r.authWrapper.EvaluatePermission(ctx, userID, resource, action)
+	req := &auth.AuthorizeRequest{
+		UserID:   userID,
+		Resource: resource,
+		Action:   action,
+	}
+	resp, err := r.authWrapper.Authorize(ctx, req)
+	if err != nil {
+		return false, err
+	}
+	return resp.Allowed, nil
 }
 
 // ResilientServiceFactory creates resilient service instances
 type ResilientServiceFactory struct {
-	aaaClient auth.AAAClient
+	aaaClient auth.Client
 	dbConfig  *ServiceConfig
 	aaaConfig *ServiceConfig
 }
 
 // NewResilientServiceFactory creates a new resilient service factory
-func NewResilientServiceFactory(aaaClient auth.AAAClient) *ResilientServiceFactory {
+func NewResilientServiceFactory(aaaClient auth.Client) *ResilientServiceFactory {
 	return &ResilientServiceFactory{
 		aaaClient: aaaClient,
 		dbConfig:  DefaultServiceConfig("database"),

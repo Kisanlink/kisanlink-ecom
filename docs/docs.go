@@ -1702,6 +1702,12 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ETag for conditional requests",
+                        "name": "If-None-Match",
+                        "in": "header"
                     }
                 ],
                 "responses": {
@@ -1722,6 +1728,9 @@ const docTemplate = `{
                                 }
                             ]
                         }
+                    },
+                    "304": {
+                        "description": "Not modified"
                     },
                     "404": {
                         "description": "Not Found",
@@ -2213,6 +2222,12 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ETag for conditional requests",
+                        "name": "If-None-Match",
+                        "in": "header"
                     }
                 ],
                 "responses": {
@@ -2233,6 +2248,9 @@ const docTemplate = `{
                                 }
                             ]
                         }
+                    },
+                    "304": {
+                        "description": "Not modified"
                     },
                     "404": {
                         "description": "Not Found",
@@ -2858,6 +2876,12 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ETag for conditional requests",
+                        "name": "If-None-Match",
+                        "in": "header"
                     }
                 ],
                 "responses": {
@@ -2878,6 +2902,9 @@ const docTemplate = `{
                                 }
                             ]
                         }
+                    },
+                    "304": {
+                        "description": "Not modified"
                     },
                     "404": {
                         "description": "Not Found",
@@ -4123,6 +4150,1263 @@ const docTemplate = `{
                     },
                     "409": {
                         "description": "Conflict",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/collaborators": {
+            "get": {
+                "description": "Retrieve a list of collaborators with filtering and pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "collaborators"
+                ],
+                "summary": "List collaborators",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by collaborator type (FARMER, SUPPLIER, BUYER, AGENT, ADMIN)",
+                        "name": "collaborator_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by status (ACTIVE, INACTIVE, SUSPENDED, PENDING)",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by organization ID",
+                        "name": "organization_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filter by verification status",
+                        "name": "is_verified",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filter by onboarding completion",
+                        "name": "onboarding_completed",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by location",
+                        "name": "location",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by business type",
+                        "name": "business_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Minimum trust score filter",
+                        "name": "min_trust_score",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Maximum trust score filter",
+                        "name": "max_trust_score",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search term",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Filter by tags",
+                        "name": "tags",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by creation date (ISO format)",
+                        "name": "created_after",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by creation date (ISO format)",
+                        "name": "created_before",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new collaborator in the platform",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "collaborators"
+                ],
+                "summary": "Create a new collaborator",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Collaborator data",
+                        "name": "collaborator",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/collaborators/bulk": {
+            "patch": {
+                "description": "Perform bulk updates on multiple collaborators",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "collaborators"
+                ],
+                "summary": "Bulk update collaborators",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Bulk update data",
+                        "name": "bulk",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/collaborator.BulkUpdateCollaboratorsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/collaborator.BulkOperationResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/collaborators/search": {
+            "get": {
+                "description": "Search collaborators with a query string",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "collaborators"
+                ],
+                "summary": "Search collaborators",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search query",
+                        "name": "q",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/collaborator.CollaboratorSummaryResponse"
+                                            }
+                                        },
+                                        "meta": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/common.ResponseMeta"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "pagination": {
+                                                            "$ref": "#/definitions/common.PaginationMeta"
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/collaborators/stats": {
+            "get": {
+                "description": "Retrieve statistics about collaborators",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "collaborators"
+                ],
+                "summary": "Get collaborator statistics",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by organization ID",
+                        "name": "organization_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/collaborator.CollaboratorStatsResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/collaborators/user/{user_id}": {
+            "get": {
+                "description": "Retrieve a collaborator by their user ID from AAA service",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "collaborators"
+                ],
+                "summary": "Get collaborator by user ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/collaborator.CollaboratorResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/collaborators/{id}": {
+            "get": {
+                "description": "Retrieve a collaborator by their ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "collaborators"
+                ],
+                "summary": "Get collaborator by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Collaborator ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update collaborator information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "collaborators"
+                ],
+                "summary": "Update collaborator",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Collaborator ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update data",
+                        "name": "collaborator",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/collaborator.UpdateCollaboratorRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/collaborator.CollaboratorResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Soft delete a collaborator",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "collaborators"
+                ],
+                "summary": "Delete collaborator",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Collaborator ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Collaborator deleted successfully"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/collaborators/{id}/onboarding": {
+            "patch": {
+                "description": "Update the onboarding step for a collaborator",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "collaborators"
+                ],
+                "summary": "Update onboarding step",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Collaborator ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Onboarding step data",
+                        "name": "step",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/collaborator.UpdateOnboardingStepRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/collaborator.OnboardingStepResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/collaborators/{id}/onboarding/complete": {
+            "post": {
+                "description": "Mark onboarding as completed for a collaborator",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "collaborators"
+                ],
+                "summary": "Complete onboarding",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Collaborator ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/collaborator.OnboardingStepResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/collaborators/{id}/profile": {
+            "get": {
+                "description": "Retrieve detailed profile information for a collaborator",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "collaborators"
+                ],
+                "summary": "Get detailed collaborator profile",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Collaborator ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/collaborator.CollaboratorProfileResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/collaborators/{id}/status": {
+            "patch": {
+                "description": "Update the status of a collaborator",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "collaborators"
+                ],
+                "summary": "Update collaborator status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Collaborator ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Status update data",
+                        "name": "status",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/collaborator.CollaboratorResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/collaborators/{id}/verify": {
+            "post": {
+                "description": "Mark a collaborator as verified",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "collaborators"
+                ],
+                "summary": "Verify collaborator",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Collaborator ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Verification data",
+                        "name": "verification",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/collaborator.CollaboratorVerificationResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/common.ResponseError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "allOf": [
                                 {
@@ -9553,6 +10837,674 @@ const docTemplate = `{
                 "VisibilityNetwork",
                 "VisibilityPublic"
             ]
+        },
+        "collaborator.BulkOperationResponse": {
+            "type": "object",
+            "properties": {
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "failed": {
+                    "type": "integer"
+                },
+                "failed_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                },
+                "successful": {
+                    "type": "integer"
+                },
+                "total_requested": {
+                    "type": "integer"
+                }
+            }
+        },
+        "collaborator.BulkUpdateCollaboratorsRequest": {
+            "type": "object",
+            "required": [
+                "collaborator_ids"
+            ],
+            "properties": {
+                "collaborator_ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "organization_id": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "status": {
+                    "$ref": "#/definitions/collaborator.CollaboratorStatus"
+                },
+                "tags": {
+                    "type": "string"
+                }
+            }
+        },
+        "collaborator.CollaboratorProfileResponse": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "average_rating": {
+                    "type": "number"
+                },
+                "bank_account_number": {
+                    "description": "Financial information (only for the collaborator themselves or admins)",
+                    "type": "string"
+                },
+                "bank_branch": {
+                    "type": "string"
+                },
+                "bank_name": {
+                    "type": "string"
+                },
+                "bio": {
+                    "type": "string"
+                },
+                "business_address": {
+                    "type": "string"
+                },
+                "business_description": {
+                    "type": "string"
+                },
+                "business_email": {
+                    "type": "string"
+                },
+                "business_license": {
+                    "type": "string"
+                },
+                "business_name": {
+                    "description": "Business Information",
+                    "type": "string"
+                },
+                "business_phone": {
+                    "type": "string"
+                },
+                "business_type": {
+                    "type": "string"
+                },
+                "business_website": {
+                    "type": "string"
+                },
+                "cancelled_orders": {
+                    "type": "integer"
+                },
+                "collaborator_type": {
+                    "$ref": "#/definitions/collaborator.CollaboratorType"
+                },
+                "completed_orders": {
+                    "type": "integer"
+                },
+                "coordinates": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "Timestamps",
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "ifsc_code": {
+                    "type": "string"
+                },
+                "invited_at": {
+                    "type": "string"
+                },
+                "invited_by": {
+                    "type": "string"
+                },
+                "is_verified": {
+                    "description": "Verification \u0026 Trust",
+                    "type": "boolean"
+                },
+                "language_preference": {
+                    "description": "Preferences \u0026 Settings",
+                    "type": "string"
+                },
+                "last_activity_at": {
+                    "type": "string"
+                },
+                "last_login_at": {
+                    "description": "Platform Activity",
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "login_count": {
+                    "type": "integer"
+                },
+                "notes": {
+                    "description": "Admin notes (only for admins)",
+                    "type": "string"
+                },
+                "notification_settings": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "onboarding_completed": {
+                    "description": "Metadata",
+                    "type": "boolean"
+                },
+                "onboarding_step": {
+                    "type": "integer"
+                },
+                "organization_id": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "preferences": {
+                    "description": "Additional profile information",
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "status": {
+                    "$ref": "#/definitions/collaborator.CollaboratorStatus"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "tax_id": {
+                    "type": "string"
+                },
+                "timezone_preference": {
+                    "type": "string"
+                },
+                "total_reviews": {
+                    "type": "integer"
+                },
+                "trust_score": {
+                    "type": "number"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "upi_id": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                },
+                "verified_at": {
+                    "type": "string"
+                },
+                "verified_by": {
+                    "type": "string"
+                }
+            }
+        },
+        "collaborator.CollaboratorResponse": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "average_rating": {
+                    "type": "number"
+                },
+                "bio": {
+                    "type": "string"
+                },
+                "business_address": {
+                    "type": "string"
+                },
+                "business_description": {
+                    "type": "string"
+                },
+                "business_email": {
+                    "type": "string"
+                },
+                "business_license": {
+                    "type": "string"
+                },
+                "business_name": {
+                    "description": "Business Information",
+                    "type": "string"
+                },
+                "business_phone": {
+                    "type": "string"
+                },
+                "business_type": {
+                    "type": "string"
+                },
+                "business_website": {
+                    "type": "string"
+                },
+                "cancelled_orders": {
+                    "type": "integer"
+                },
+                "collaborator_type": {
+                    "$ref": "#/definitions/collaborator.CollaboratorType"
+                },
+                "completed_orders": {
+                    "type": "integer"
+                },
+                "coordinates": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "Timestamps",
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "invited_at": {
+                    "type": "string"
+                },
+                "invited_by": {
+                    "type": "string"
+                },
+                "is_verified": {
+                    "description": "Verification \u0026 Trust",
+                    "type": "boolean"
+                },
+                "language_preference": {
+                    "description": "Preferences \u0026 Settings",
+                    "type": "string"
+                },
+                "last_activity_at": {
+                    "type": "string"
+                },
+                "last_login_at": {
+                    "description": "Platform Activity",
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "login_count": {
+                    "type": "integer"
+                },
+                "onboarding_completed": {
+                    "description": "Metadata",
+                    "type": "boolean"
+                },
+                "onboarding_step": {
+                    "type": "integer"
+                },
+                "organization_id": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/collaborator.CollaboratorStatus"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "tax_id": {
+                    "type": "string"
+                },
+                "timezone_preference": {
+                    "type": "string"
+                },
+                "total_reviews": {
+                    "type": "integer"
+                },
+                "trust_score": {
+                    "type": "number"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                },
+                "verified_at": {
+                    "type": "string"
+                },
+                "verified_by": {
+                    "type": "string"
+                }
+            }
+        },
+        "collaborator.CollaboratorStatsResponse": {
+            "type": "object",
+            "properties": {
+                "active_collaborators": {
+                    "type": "integer"
+                },
+                "active_in_last_30_days": {
+                    "type": "integer"
+                },
+                "average_trust_score": {
+                    "type": "number"
+                },
+                "collaborators_by_status": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "collaborators_by_type": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "onboarding_completion_rate": {
+                    "type": "number"
+                },
+                "pending_collaborators": {
+                    "type": "integer"
+                },
+                "recent_registrations_7_days": {
+                    "type": "integer"
+                },
+                "total_collaborators": {
+                    "type": "integer"
+                },
+                "verified_collaborators": {
+                    "type": "integer"
+                }
+            }
+        },
+        "collaborator.CollaboratorStatus": {
+            "type": "string",
+            "enum": [
+                "ACTIVE",
+                "INACTIVE",
+                "SUSPENDED",
+                "PENDING"
+            ],
+            "x-enum-varnames": [
+                "CollaboratorStatusActive",
+                "CollaboratorStatusInactive",
+                "CollaboratorStatusSuspended",
+                "CollaboratorStatusPending"
+            ]
+        },
+        "collaborator.CollaboratorSummaryResponse": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "business_name": {
+                    "type": "string"
+                },
+                "collaborator_type": {
+                    "$ref": "#/definitions/collaborator.CollaboratorType"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_verified": {
+                    "type": "boolean"
+                },
+                "last_activity_at": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "organization_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/collaborator.CollaboratorStatus"
+                },
+                "trust_score": {
+                    "type": "number"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "collaborator.CollaboratorType": {
+            "type": "string",
+            "enum": [
+                "FARMER",
+                "SUPPLIER",
+                "BUYER",
+                "AGENT",
+                "ADMIN"
+            ],
+            "x-enum-varnames": [
+                "CollaboratorTypeFarmer",
+                "CollaboratorTypeSupplier",
+                "CollaboratorTypeBuyer",
+                "CollaboratorTypeAgent",
+                "CollaboratorTypeAdmin"
+            ]
+        },
+        "collaborator.CollaboratorVerificationResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "is_verified": {
+                    "type": "boolean"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "verified_at": {
+                    "type": "string"
+                },
+                "verified_by": {
+                    "type": "string"
+                }
+            }
+        },
+        "collaborator.OnboardingStepResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "next_step": {
+                    "type": "string"
+                },
+                "onboarding_completed": {
+                    "type": "boolean"
+                },
+                "onboarding_step": {
+                    "type": "integer"
+                }
+            }
+        },
+        "collaborator.UpdateCollaboratorRequest": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "bank_account_number": {
+                    "description": "Financial information updates",
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "bank_branch": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "bank_name": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "bio": {
+                    "type": "string",
+                    "maxLength": 1000
+                },
+                "business_address": {
+                    "type": "string",
+                    "maxLength": 1000
+                },
+                "business_description": {
+                    "type": "string",
+                    "maxLength": 1000
+                },
+                "business_email": {
+                    "type": "string"
+                },
+                "business_license": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "business_name": {
+                    "description": "Business information updates",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "business_phone": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 10
+                },
+                "business_type": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "business_website": {
+                    "type": "string"
+                },
+                "coordinates": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "first_name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 1
+                },
+                "ifsc_code": {
+                    "type": "string",
+                    "maxLength": 20
+                },
+                "language_preference": {
+                    "description": "Preferences updates",
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 1
+                },
+                "location": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "notes": {
+                    "type": "string",
+                    "maxLength": 2000
+                },
+                "phone": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 10
+                },
+                "tags": {
+                    "description": "Metadata updates",
+                    "type": "string"
+                },
+                "tax_id": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "timezone_preference": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "upi_id": {
+                    "type": "string",
+                    "maxLength": 100
+                }
+            }
+        },
+        "collaborator.UpdateOnboardingStepRequest": {
+            "type": "object",
+            "required": [
+                "step"
+            ],
+            "properties": {
+                "step": {
+                    "type": "integer",
+                    "maximum": 10,
+                    "minimum": 0
+                }
+            }
         },
         "common.APIError": {
             "type": "object",

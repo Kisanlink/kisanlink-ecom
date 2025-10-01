@@ -12,7 +12,7 @@ import (
 // SetupMarketplaceRoutes configures marketplace routes with proper authentication and authorization
 func SetupMarketplaceRoutes(
 	router *gin.RouterGroup,
-	aaaClient auth.AAAClient,
+	aaaClient auth.Client,
 	marketplaceSvc *marketplaceService.MarketplaceServices,
 ) {
 	if marketplaceSvc == nil {
@@ -178,7 +178,7 @@ func SetupMarketplaceRoutes(
 // SetupMarketplaceRoutesConditional configures marketplace routes with conditional authentication (for development)
 func SetupMarketplaceRoutesConditional(
 	router *gin.RouterGroup,
-	aaaClient auth.AAAClient,
+	aaaClient auth.Client,
 	marketplaceSvc *marketplaceService.MarketplaceServices,
 ) {
 	if marketplaceSvc == nil {

@@ -14,12 +14,14 @@ import (
 // LabourHandler handles HTTP requests for labour operations
 type LabourHandler struct {
 	catalogService catalogService.CatalogServiceInterface
+	etagService    *catalogService.ETagService
 }
 
 // NewLabourHandler creates a new labour handler
-func NewLabourHandler(catalogService catalogService.CatalogServiceInterface) *LabourHandler {
+func NewLabourHandler(catalogService catalogService.CatalogServiceInterface, etagService *catalogService.ETagService) *LabourHandler {
 	return &LabourHandler{
 		catalogService: catalogService,
+		etagService:    etagService,
 	}
 }
 
@@ -79,7 +81,9 @@ func (h *LabourHandler) CreateLabour(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "Labour ID"
+// @Param If-None-Match header string false "ETag for conditional requests"
 // @Success 200 {object} common.Response{data=catalog.LabourResponse}
+// @Success 304 "Not modified"
 // @Failure 404 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/catalog/labour/{id} [get]
 func (h *LabourHandler) GetLabourByID(c *gin.Context) {
@@ -89,6 +93,16 @@ func (h *LabourHandler) GetLabourByID(c *gin.Context) {
 		return
 	}
 
+	// Validate conditional request headers if ETag service is available
+	if h.etagService != nil {
+		if err := h.etagService.ValidateConditionalRequest(c); err != nil {
+			common.BadRequest(c, "INVALID_CONDITIONAL_HEADER", "Invalid conditional request header", map[string]interface{}{
+				"error": err.Error(),
+			})
+			return
+		}
+	}
+
 	labour, err := h.catalogService.GetLabourByID(c.Request.Context(), id)
 	if err != nil {
 		common.NotFound(c, "LABOUR_NOT_FOUND", "Labour not found", map[string]interface{}{
@@ -96,6 +110,23 @@ func (h *LabourHandler) GetLabourByID(c *gin.Context) {
 			"error":     err.Error(),
 		})
 		return
+	}
+
+	// Handle ETag validation and conditional response
+	if h.etagService != nil {
+		// Convert Labour to CatalogItem for ETag processing
+		catalogItem := &labour.CatalogItem
+
+		// Log ETag operation
+		h.etagService.LogETagOperation(c, "get_labour", catalogItem, map[string]interface{}{
+			"labour_id": id,
+		})
+
+		// Check if client has current version (ETag match)
+		if h.etagService.HandleConditionalRequest(c, catalogItem) {
+			// 304 Not Modified response was sent
+			return
+		}
 	}
 
 	common.Success(c, labour, &common.ResponseMeta{

@@ -25,7 +25,7 @@ import (
 
 // SetupSecureRouter configures all routes with comprehensive authentication and authorization
 func SetupSecureRouter(
-	aaaClient auth.AAAClient,
+	aaaClient auth.Client,
 	catalogSvc catalogService.CatalogServiceInterface,
 	inventorySvc inventoryService.InventoryService,
 	orderSvc orderService.OrderServiceInterface,
@@ -108,7 +108,8 @@ func SetupSecureRouter(
 		catalogGroup.Use(authMiddleware.Middleware()) // Require authentication
 		{
 			if catalogSvc != nil {
-				catalogHandler := catalog.NewCatalogHandler(catalogSvc)
+				etagService := catalogService.NewETagService(nil)
+				catalogHandler := catalog.NewCatalogHandler(catalogSvc, etagService)
 
 				// Generic catalog endpoints
 				catalogGroup.GET("",
@@ -131,7 +132,7 @@ func SetupSecureRouter(
 				// Products
 				products := catalogGroup.Group("/products")
 				{
-					productHandler := catalog.NewProductHandler(catalogSvc)
+					productHandler := catalog.NewProductHandler(catalogSvc, etagService)
 
 					products.POST("",
 						rbacMiddleware.RequirePermission("catalog.product", "create"),
@@ -158,7 +159,7 @@ func SetupSecureRouter(
 				// Services
 				services := catalogGroup.Group("/services")
 				{
-					serviceHandler := catalog.NewServiceHandler(catalogSvc)
+					serviceHandler := catalog.NewServiceHandler(catalogSvc, etagService)
 
 					services.POST("",
 						rbacMiddleware.RequirePermission("catalog.service", "create"),
@@ -185,7 +186,7 @@ func SetupSecureRouter(
 				// Labour
 				labour := catalogGroup.Group("/labour")
 				{
-					labourHandler := catalog.NewLabourHandler(catalogSvc)
+					labourHandler := catalog.NewLabourHandler(catalogSvc, etagService)
 
 					labour.POST("",
 						rbacMiddleware.RequirePermission("catalog.labour", "create"),

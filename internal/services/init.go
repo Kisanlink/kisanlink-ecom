@@ -71,7 +71,7 @@ func NewServiceContainer(cfg *config.Config) (*ServiceContainer, error) {
 	orderRepository.SetInventoryRepository(inventoryRepository)
 
 	// Initialize AAA client
-	aaaClient, err := auth.NewAAAClient(&cfg.AAA)
+	aaaClient, err := auth.NewClient(&cfg.AAA)
 	if err != nil {
 		// Log warning but continue without AAA client
 		aaaClient = nil

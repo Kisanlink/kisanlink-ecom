@@ -1,14 +1,19 @@
 package middleware
 
 import (
+	"context"
+	"crypto/sha256"
+	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
 	"kisanlink-ecom/entities/models/common"
 	"kisanlink-ecom/internal/auth"
+	"kisanlink-ecom/internal/cache"
 
 	"github.com/gin-gonic/gin"
-	"github.com/patrickmn/go-cache"
+	gocache "github.com/patrickmn/go-cache"
 )
 
 // EnhancedAuthConfig holds configuration for enhanced authentication
@@ -19,6 +24,10 @@ type EnhancedAuthConfig struct {
 	TokenCacheEnabled bool
 	// TokenCacheTTL sets the cache TTL for tokens
 	TokenCacheTTL time.Duration
+	// PermissionCacheEnabled enables permission caching
+	PermissionCacheEnabled bool
+	// PermissionCacheTTL sets the cache TTL for permissions (short TTL as per requirement)
+	PermissionCacheTTL time.Duration
 	// RequireOrganization forces organization validation
 	RequireOrganization bool
 }
@@ -31,34 +40,48 @@ func DefaultEnhancedAuthConfig() *EnhancedAuthConfig {
 			"/docs", "/docs/",
 			"/api/v1/auth/login", "/api/v1/auth/register",
 		},
-		TokenCacheEnabled:   true,
-		TokenCacheTTL:       2 * time.Minute,
-		RequireOrganization: true,
+		TokenCacheEnabled:      true,
+		TokenCacheTTL:          2 * time.Minute,
+		PermissionCacheEnabled: true,
+		PermissionCacheTTL:     30 * time.Second, // Short TTL for permissions as per requirement
+		RequireOrganization:    true,
 	}
 }
 
 // EnhancedAuthMiddleware provides enhanced authentication with caching and organization validation
 type EnhancedAuthMiddleware struct {
-	aaaClient  auth.AAAClient
-	tokenCache *cache.Cache
-	config     *EnhancedAuthConfig
+	aaaClient       auth.Client
+	tokenCache      *gocache.Cache
+	permissionCache *gocache.Cache
+	cacheManager    *cache.CacheManager
+	config          *EnhancedAuthConfig
 }
 
 // NewEnhancedAuthMiddleware creates a new enhanced authentication middleware
-func NewEnhancedAuthMiddleware(aaaClient auth.AAAClient, config *EnhancedAuthConfig) *EnhancedAuthMiddleware {
+func NewEnhancedAuthMiddleware(aaaClient auth.Client, config *EnhancedAuthConfig) *EnhancedAuthMiddleware {
 	if config == nil {
 		config = DefaultEnhancedAuthConfig()
 	}
 
-	var tokenCache *cache.Cache
+	var tokenCache *gocache.Cache
 	if config.TokenCacheEnabled {
-		tokenCache = cache.New(config.TokenCacheTTL, config.TokenCacheTTL*2)
+		tokenCache = gocache.New(config.TokenCacheTTL, config.TokenCacheTTL*2)
 	}
 
+	var permissionCache *gocache.Cache
+	if config.PermissionCacheEnabled {
+		permissionCache = gocache.New(config.PermissionCacheTTL, config.PermissionCacheTTL*2)
+	}
+
+	// Initialize cache manager for advanced caching features
+	cacheManager := cache.GetCacheManager()
+
 	return &EnhancedAuthMiddleware{
-		aaaClient:  aaaClient,
-		tokenCache: tokenCache,
-		config:     config,
+		aaaClient:       aaaClient,
+		tokenCache:      tokenCache,
+		permissionCache: permissionCache,
+		cacheManager:    cacheManager,
+		config:          config,
 	}
 }
 
@@ -224,24 +247,44 @@ func (m *EnhancedAuthMiddleware) validateToken(c *gin.Context, token string) (*a
 	}
 
 	// Validate with AAA service
-	valid, err := m.aaaClient.ValidateJWT(c.Request.Context(), token)
+	claims, err := m.aaaClient.ValidateToken(c.Request.Context(), token)
 	if err != nil {
 		return nil, err
 	}
 
-	if !valid {
-		return nil, err
-	}
-
-	// Get user context from token
-	userContext, err := m.aaaClient.GetUserFromToken(c.Request.Context(), token)
-	if err != nil {
-		return nil, err
+	// Create user context from claims with all enhanced fields
+	userContext := &auth.UserContext{
+		UserID:           claims.UserID,
+		Username:         claims.Username,
+		Email:            claims.Email,
+		PhoneNumber:      claims.PhoneNumber,
+		CountryCode:      claims.CountryCode,
+		TenantID:         claims.TenantID,
+		OrganizationID:   claims.OrganizationID,
+		OrganizationName: claims.OrganizationName,
+		Roles:            claims.Roles,
+		RoleIDs:          claims.RoleIDs,
+		Permissions:      claims.Permissions,
+		Scopes:           claims.Scopes,
+		IsActive:         true,
+		IsValidated:      claims.IsValidated,
+		UserRoles:        claims.UserRoles,
+		Organizations:    claims.Organizations,
+		Groups:           claims.Groups,
+		TokenType:        claims.TokenType,
+		TokenVersion:     claims.TokenVersion,
+		Subject:          claims.Subject,
+		SessionID:        claims.SessionID,
+		JTI:              claims.JTI,
+		Issuer:           claims.Issuer,
+		Audience:         claims.Audience,
+		TenantContext:    claims.TenantContext,
+		UserContextData:  claims.UserContextData,
 	}
 
 	// Cache result if caching is enabled
 	if m.tokenCache != nil && userContext != nil {
-		m.tokenCache.Set(token, userContext, cache.DefaultExpiration)
+		m.tokenCache.Set(token, userContext, gocache.DefaultExpiration)
 	}
 
 	return userContext, nil
@@ -305,4 +348,126 @@ func MustGetUserContext(c *gin.Context) *auth.UserContext {
 		panic("User context not found - ensure authentication middleware is applied")
 	}
 	return userCtx
+}
+
+// AuthorizeMiddleware creates authorization middleware that checks permissions with caching
+func (m *EnhancedAuthMiddleware) AuthorizeMiddleware(resource, action string, resourceIDExtractor func(*gin.Context) string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Get user context from authentication middleware
+		userContext, exists := GetUserContext(c)
+		if !exists {
+			m.handleUnauthorized(c, "Authentication required for authorization")
+			return
+		}
+
+		// Extract resource ID if extractor is provided
+		resourceID := ""
+		if resourceIDExtractor != nil {
+			resourceID = resourceIDExtractor(c)
+		}
+
+		// Check permission with caching
+		allowed, err := m.checkPermissionWithCache(c.Request.Context(), userContext, resource, action, resourceID)
+		if err != nil {
+			m.handleAuthError(c, "Permission check failed", err)
+			return
+		}
+
+		if !allowed {
+			m.handleForbidden(c, "Insufficient permissions", resource, action, resourceID)
+			return
+		}
+
+		c.Next()
+	}
+}
+
+// RequirePermission creates middleware that requires specific permission
+func (m *EnhancedAuthMiddleware) RequirePermission(resource, action string) gin.HandlerFunc {
+	return m.AuthorizeMiddleware(resource, action, nil)
+}
+
+// RequireResourcePermission creates middleware that requires permission on a specific resource
+func (m *EnhancedAuthMiddleware) RequireResourcePermission(resource, action string, resourceIDExtractor func(*gin.Context) string) gin.HandlerFunc {
+	return m.AuthorizeMiddleware(resource, action, resourceIDExtractor)
+}
+
+// checkPermissionWithCache checks permission with caching support
+func (m *EnhancedAuthMiddleware) checkPermissionWithCache(ctx context.Context, userContext *auth.UserContext, resource, action, resourceID string) (bool, error) {
+	// Generate cache key for permission
+	cacheKey := m.generatePermissionCacheKey(userContext.UserID, userContext.TenantID, resource, action, resourceID)
+
+	// Check cache first if enabled
+	if m.permissionCache != nil {
+		if cached, found := m.permissionCache.Get(cacheKey); found {
+			if allowed, ok := cached.(bool); ok {
+				return allowed, nil
+			}
+		}
+	}
+
+	// Call AAA service for authorization
+	authReq := &auth.AuthorizeRequest{
+		UserID:     userContext.UserID,
+		TenantID:   userContext.TenantID,
+		Resource:   resource,
+		Action:     action,
+		ResourceID: resourceID,
+	}
+
+	authResp, err := m.aaaClient.Authorize(ctx, authReq)
+	if err != nil {
+		return false, fmt.Errorf("AAA authorization failed: %w", err)
+	}
+
+	// Cache the result if caching is enabled
+	if m.permissionCache != nil {
+		m.permissionCache.Set(cacheKey, authResp.Allowed, gocache.DefaultExpiration)
+	}
+
+	return authResp.Allowed, nil
+}
+
+// generatePermissionCacheKey generates a cache key for permission checks
+func (m *EnhancedAuthMiddleware) generatePermissionCacheKey(userID, tenantID, resource, action, resourceID string) string {
+	// Create a deterministic cache key
+	key := fmt.Sprintf("perm:%s:%s:%s:%s:%s", userID, tenantID, resource, action, resourceID)
+
+	// Hash the key to ensure consistent length and avoid special characters
+	hash := sha256.Sum256([]byte(key))
+	return fmt.Sprintf("permission:%x", hash[:16]) // Use first 16 bytes of hash
+}
+
+// InvalidatePermissionCache invalidates permission cache for a user
+func (m *EnhancedAuthMiddleware) InvalidatePermissionCache(userID string) {
+	if m.permissionCache == nil {
+		return
+	}
+
+	// Since go-cache doesn't support pattern deletion, we'd need to track keys
+	// For now, we'll clear the entire cache (acceptable for short TTL)
+	m.permissionCache.Flush()
+}
+
+// InvalidateUserPermissions invalidates all cached permissions for a specific user
+func (m *EnhancedAuthMiddleware) InvalidateUserPermissions(userID, tenantID string) {
+	if m.permissionCache == nil {
+		return
+	}
+
+	// For a more sophisticated implementation, we could maintain a reverse index
+	// For now, clear the entire cache since TTL is short (30 seconds)
+	m.permissionCache.Flush()
+}
+
+// handleForbidden handles forbidden access
+func (m *EnhancedAuthMiddleware) handleForbidden(c *gin.Context, message, resource, action, resourceID string) {
+	c.AbortWithStatusJSON(http.StatusForbidden, common.APIResponse{
+		Success: false,
+		Error: &common.APIError{
+			Code:    "FORBIDDEN",
+			Message: message,
+			Details: fmt.Sprintf("Access denied for action '%s' on resource '%s' (ID: %s)", action, resource, resourceID),
+		},
+	})
 }

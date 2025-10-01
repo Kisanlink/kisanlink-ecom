@@ -9,6 +9,7 @@ import (
 
 	catalogModels "kisanlink-ecom/entities/models/catalog"
 	"kisanlink-ecom/internal/handlers/catalog"
+	catalogService "kisanlink-ecom/internal/services/catalog"
 	"kisanlink-ecom/internal/services/catalog/mocks"
 
 	"github.com/gin-gonic/gin"
@@ -59,7 +60,8 @@ func TestCatalogHandler_ListCatalogItems(t *testing.T) {
 			mockService := new(mocks.CatalogServiceInterface)
 			tt.mockSetup(mockService)
 
-			handler := catalog.NewCatalogHandler(mockService)
+			etagService := &catalogService.ETagService{}
+			handler := catalog.NewCatalogHandler(mockService, etagService)
 
 			// Create request with query parameters
 			req := httptest.NewRequest(http.MethodGet, "/api/v1/catalog", nil)

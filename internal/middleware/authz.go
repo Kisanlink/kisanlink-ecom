@@ -77,7 +77,7 @@ func AuthZ(resourceType Resource, action Action, inferResourceID InferResourceID
 			return
 		}
 
-		client, ok := aaaClient.(auth.AAAClient)
+		client, ok := aaaClient.(auth.Client)
 		if !ok {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": gin.H{
@@ -90,7 +90,13 @@ func AuthZ(resourceType Resource, action Action, inferResourceID InferResourceID
 		}
 
 		// Check permission with AAA service using the new interface
-		allowed, err := client.EvaluatePermission(c.Request.Context(), subjectID, string(resourceType), string(action))
+		req := &auth.AuthorizeRequest{
+			UserID:     subjectID,
+			Resource:   string(resourceType),
+			Action:     string(action),
+			ResourceID: resourceID,
+		}
+		resp, err := client.Authorize(c.Request.Context(), req)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": gin.H{
@@ -105,7 +111,7 @@ func AuthZ(resourceType Resource, action Action, inferResourceID InferResourceID
 			return
 		}
 
-		if !allowed {
+		if !resp.Allowed {
 			c.JSON(http.StatusForbidden, gin.H{
 				"error": gin.H{
 					"code":    "FORBIDDEN",

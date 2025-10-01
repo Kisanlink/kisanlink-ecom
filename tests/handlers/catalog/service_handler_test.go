@@ -10,6 +10,7 @@ import (
 	catalogModels "kisanlink-ecom/entities/models/catalog"
 	catalogRequests "kisanlink-ecom/entities/requests/catalog"
 	"kisanlink-ecom/internal/handlers/catalog"
+	catalogService "kisanlink-ecom/internal/services/catalog"
 	"kisanlink-ecom/internal/services/catalog/mocks"
 
 	"github.com/gin-gonic/gin"
@@ -91,7 +92,8 @@ func TestServiceHandler_CreateService(t *testing.T) {
 			mockService := new(mocks.CatalogServiceInterface)
 			tt.mockSetup(mockService)
 
-			handler := catalog.NewServiceHandler(mockService)
+			etagService := &catalogService.ETagService{}
+			handler := catalog.NewServiceHandler(mockService, etagService)
 
 			// Create request
 			reqBody, _ := json.Marshal(tt.request)

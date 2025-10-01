@@ -16,6 +16,7 @@ This document provides comprehensive information about testing in the KisanLink 
 ## Overview
 
 The project uses a comprehensive testing strategy with:
+
 - **Unit Tests**: Testing individual functions and methods
 - **Integration Tests**: Testing database operations and service interactions
 - **Coverage Reporting**: Ensuring adequate test coverage
@@ -89,7 +90,7 @@ func TestUserHandler(t *testing.T) {
 
     // Make HTTP request
     w := testutils.MakeTestRequest(t, suite.Router, "GET", "/users/"+testUser.ID, nil)
-    
+
     // Assert response
     testutils.AssertJSONResponse(t, w, http.StatusOK, true)
 }
@@ -230,7 +231,7 @@ func TestDatabaseManagerIntegration(t *testing.T) {
     t.Run("InMemoryProvider", func(t *testing.T) {
         // Test connection, repositories, health checks
     })
-    
+
     // Test invalid provider fallback
     t.Run("InvalidProvider", func(t *testing.T) {
         // Test fallback to in-memory
@@ -247,15 +248,15 @@ func TestUserRepositoryIntegration(t *testing.T) {
     t.Run("CreateUser", func(t *testing.T) {
         // Test user creation and validation
     })
-    
+
     t.Run("GetByID", func(t *testing.T) {
         // Test user retrieval
     })
-    
+
     t.Run("UpdateUser", func(t *testing.T) {
         // Test user updates
     })
-    
+
     t.Run("DeleteUser", func(t *testing.T) {
         // Test user deletion
     })
@@ -353,11 +354,11 @@ func TestExample(t *testing.T) {
     // 1. Setup
     repo := NewUserRepository()
     ctx := context.Background()
-    
+
     // 2. Execute
     user := &user.User{...}
     err := repo.Create(ctx, user)
-    
+
     // 3. Assert
     assert.NoError(t, err)
     assert.NotEmpty(t, user.ID)
@@ -391,7 +392,7 @@ assert.Error(t, err)
 func BenchmarkUserRepository_Create(b *testing.B) {
     repo := NewUserRepository()
     ctx := context.Background()
-    
+
     b.ResetTimer()
     for i := 0; i < b.N; i++ {
         user := &user.User{...}
@@ -470,4 +471,4 @@ This testing framework provides comprehensive coverage of the application with:
 - ✅ **Test Utilities**: Common testing helpers
 - ✅ **CI/CD Integration**: Automated testing pipeline
 
-For questions or issues with testing, please refer to the project documentation or create an issue in the repository. 
+For questions or issues with testing, please refer to the project documentation or create an issue in the repository.

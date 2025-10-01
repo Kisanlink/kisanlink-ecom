@@ -6,12 +6,14 @@ import (
 	"kisanlink-ecom/internal/auth"
 	"kisanlink-ecom/internal/handlers"
 	"kisanlink-ecom/internal/handlers/catalog"
+	"kisanlink-ecom/internal/handlers/collaborator"
 	"kisanlink-ecom/internal/handlers/health"
 	"kisanlink-ecom/internal/handlers/integrations"
 	"kisanlink-ecom/internal/handlers/inventory"
 	"kisanlink-ecom/internal/handlers/orders"
 	"kisanlink-ecom/internal/middleware"
 	catalogService "kisanlink-ecom/internal/services/catalog"
+	collaboratorService "kisanlink-ecom/internal/services/collaborator"
 	integrationService "kisanlink-ecom/internal/services/integrations"
 	inventoryService "kisanlink-ecom/internal/services/inventory"
 	marketplaceService "kisanlink-ecom/internal/services/marketplace"
@@ -25,13 +27,14 @@ import (
 
 // SetupRouter configures all routes and middleware
 func SetupRouter(
-	aaaClient auth.AAAClient,
+	aaaClient auth.Client,
 	catalogSvc catalogService.CatalogServiceInterface,
 	inventorySvc inventoryService.InventoryService,
 	orderSvc orderService.OrderServiceInterface,
 	userSvc *userService.UserService,
 	integrationSvc integrationService.IntegrationServiceInterface,
 	marketplaceSvc *marketplaceService.MarketplaceServices,
+	collaboratorSvc collaboratorService.CollaboratorServiceInterface,
 ) *gin.Engine {
 	// Set Gin mode
 	gin.SetMode(gin.ReleaseMode)
@@ -105,14 +108,23 @@ func SetupRouter(
 		catalogGroup := v1.Group("/catalog")
 		{
 			if catalogSvc != nil {
+				// Create ETag service for cache validation
+				etagService := catalogService.NewETagService(nil)
+
 				// Generic catalog handlers
-				catalogHandler := catalog.NewCatalogHandler(catalogSvc)
+				catalogHandler := catalog.NewCatalogHandler(catalogSvc, etagService)
+
+				// Create cache validation middleware
+				cacheMiddleware := middleware.NewCacheValidationMiddleware(nil)
 
 				// Generic catalog endpoints
 				catalogGroup.GET("", catalogHandler.ListCatalogItems)
 				catalogGroup.GET("/search", catalogHandler.SearchCatalog)
 				catalogGroup.GET("/:type", catalogHandler.ListCatalogItemsByType)
-				catalogGroup.GET("/:type/:id", catalogHandler.GetCatalogItemByTypeAndID)
+				catalogGroup.GET("/:type/:id",
+					cacheMiddleware.CacheValidationHandler(),
+					catalogHandler.GetCatalogItemByTypeAndID,
+				)
 				catalogGroup.PUT("/:type/:id",
 					conditionalAuthMiddleware(aaaClient),
 					catalogHandler.UpdateCatalogItemByTypeAndID,
@@ -158,7 +170,7 @@ func SetupRouter(
 				// Products
 				products := catalogGroup.Group("/products")
 				{
-					productHandler := catalog.NewProductHandler(catalogSvc)
+					productHandler := catalog.NewProductHandler(catalogSvc, etagService)
 					products.POST("",
 						conditionalAuthMiddleware(aaaClient),
 						// TODO: Add proper authorization middleware
@@ -168,6 +180,7 @@ func SetupRouter(
 						productHandler.ListProducts,
 					)
 					products.GET("/:id",
+						cacheMiddleware.CacheValidationHandler(),
 						productHandler.GetProductByID,
 					)
 					products.PUT("/:id",
@@ -185,7 +198,7 @@ func SetupRouter(
 				// Services
 				services := catalogGroup.Group("/services")
 				{
-					serviceHandler := catalog.NewServiceHandler(catalogSvc)
+					serviceHandler := catalog.NewServiceHandler(catalogSvc, etagService)
 					services.POST("",
 						conditionalAuthMiddleware(aaaClient),
 						serviceHandler.CreateService,
@@ -194,6 +207,7 @@ func SetupRouter(
 						serviceHandler.ListServices,
 					)
 					services.GET("/:id",
+						cacheMiddleware.CacheValidationHandler(),
 						serviceHandler.GetServiceByID,
 					)
 					services.PUT("/:id",
@@ -209,7 +223,7 @@ func SetupRouter(
 				// Labour
 				labour := catalogGroup.Group("/labour")
 				{
-					labourHandler := catalog.NewLabourHandler(catalogSvc)
+					labourHandler := catalog.NewLabourHandler(catalogSvc, etagService)
 					labour.POST("",
 						conditionalAuthMiddleware(aaaClient),
 						labourHandler.CreateLabour,
@@ -218,6 +232,7 @@ func SetupRouter(
 						labourHandler.ListLabour,
 					)
 					labour.GET("/:id",
+						cacheMiddleware.CacheValidationHandler(),
 						labourHandler.GetLabourByID,
 					)
 					labour.PUT("/:id",
@@ -310,7 +325,8 @@ func SetupRouter(
 		productsGroup := v1.Group("/products")
 		{
 			if catalogSvc != nil {
-				productHandler := catalog.NewProductHandler(catalogSvc)
+				etagService := catalogService.NewETagService(nil)
+				productHandler := catalog.NewProductHandler(catalogSvc, etagService)
 				productsGroup.POST("",
 					conditionalAuthMiddleware(aaaClient),
 					productHandler.CreateProduct,
@@ -587,6 +603,112 @@ func SetupRouter(
 			}
 		}
 
+		// Collaborator routes
+		collaboratorsGroup := v1.Group("/collaborators")
+		{
+			if collaboratorSvc != nil {
+				collaboratorHandler := collaborator.NewCollaboratorHandler(collaboratorSvc)
+
+				// Public endpoints (no auth required for some operations)
+				collaboratorsGroup.GET("/:id", collaboratorHandler.GetCollaboratorByID)
+				collaboratorsGroup.GET("/user/:user_id", collaboratorHandler.GetCollaboratorByUserID)
+
+				// Protected endpoints (require authentication)
+				collaboratorsGroup.POST("",
+					conditionalAuthMiddleware(aaaClient),
+					collaboratorHandler.CreateCollaborator,
+				)
+				collaboratorsGroup.GET("",
+					conditionalAuthMiddleware(aaaClient),
+					collaboratorHandler.ListCollaborators,
+				)
+				collaboratorsGroup.GET("/search",
+					conditionalAuthMiddleware(aaaClient),
+					collaboratorHandler.SearchCollaborators,
+				)
+				collaboratorsGroup.GET("/stats",
+					conditionalAuthMiddleware(aaaClient),
+					collaboratorHandler.GetCollaboratorStats,
+				)
+				collaboratorsGroup.GET("/:id/profile",
+					conditionalAuthMiddleware(aaaClient),
+					collaboratorHandler.GetCollaboratorProfile,
+				)
+				collaboratorsGroup.PUT("/:id",
+					conditionalAuthMiddleware(aaaClient),
+					collaboratorHandler.UpdateCollaborator,
+				)
+				collaboratorsGroup.DELETE("/:id",
+					conditionalAuthMiddleware(aaaClient),
+					collaboratorHandler.DeleteCollaborator,
+				)
+				collaboratorsGroup.PATCH("/:id/status",
+					conditionalAuthMiddleware(aaaClient),
+					collaboratorHandler.UpdateCollaboratorStatus,
+				)
+				collaboratorsGroup.POST("/:id/verify",
+					conditionalAuthMiddleware(aaaClient),
+					collaboratorHandler.VerifyCollaborator,
+				)
+				collaboratorsGroup.PATCH("/:id/onboarding",
+					conditionalAuthMiddleware(aaaClient),
+					collaboratorHandler.UpdateOnboardingStep,
+				)
+				collaboratorsGroup.POST("/:id/onboarding/complete",
+					conditionalAuthMiddleware(aaaClient),
+					collaboratorHandler.CompleteOnboarding,
+				)
+				collaboratorsGroup.PATCH("/bulk",
+					conditionalAuthMiddleware(aaaClient),
+					collaboratorHandler.BulkUpdateCollaborators,
+				)
+			} else {
+				// Fallback handlers when service is not available
+				collaboratorsGroup.GET("/:id", func(c *gin.Context) {
+					c.JSON(503, gin.H{"error": "Service unavailable"})
+				})
+				collaboratorsGroup.GET("/user/:user_id", func(c *gin.Context) {
+					c.JSON(503, gin.H{"error": "Service unavailable"})
+				})
+				collaboratorsGroup.POST("", func(c *gin.Context) {
+					c.JSON(503, gin.H{"error": "Service unavailable"})
+				})
+				collaboratorsGroup.GET("", func(c *gin.Context) {
+					c.JSON(503, gin.H{"error": "Service unavailable"})
+				})
+				collaboratorsGroup.GET("/search", func(c *gin.Context) {
+					c.JSON(503, gin.H{"error": "Service unavailable"})
+				})
+				collaboratorsGroup.GET("/stats", func(c *gin.Context) {
+					c.JSON(503, gin.H{"error": "Service unavailable"})
+				})
+				collaboratorsGroup.GET("/:id/profile", func(c *gin.Context) {
+					c.JSON(503, gin.H{"error": "Service unavailable"})
+				})
+				collaboratorsGroup.PUT("/:id", func(c *gin.Context) {
+					c.JSON(503, gin.H{"error": "Service unavailable"})
+				})
+				collaboratorsGroup.DELETE("/:id", func(c *gin.Context) {
+					c.JSON(503, gin.H{"error": "Service unavailable"})
+				})
+				collaboratorsGroup.PATCH("/:id/status", func(c *gin.Context) {
+					c.JSON(503, gin.H{"error": "Service unavailable"})
+				})
+				collaboratorsGroup.POST("/:id/verify", func(c *gin.Context) {
+					c.JSON(503, gin.H{"error": "Service unavailable"})
+				})
+				collaboratorsGroup.PATCH("/:id/onboarding", func(c *gin.Context) {
+					c.JSON(503, gin.H{"error": "Service unavailable"})
+				})
+				collaboratorsGroup.POST("/:id/onboarding/complete", func(c *gin.Context) {
+					c.JSON(503, gin.H{"error": "Service unavailable"})
+				})
+				collaboratorsGroup.PATCH("/bulk", func(c *gin.Context) {
+					c.JSON(503, gin.H{"error": "Service unavailable"})
+				})
+			}
+		}
+
 		// Marketplace routes
 		SetupMarketplaceRoutesConditional(v1, aaaClient, marketplaceSvc)
 	}
@@ -622,7 +744,7 @@ func SetupRouter(
 }
 
 // conditionalAuthMiddleware returns authentication middleware
-func conditionalAuthMiddleware(aaaClient auth.AAAClient) gin.HandlerFunc {
+func conditionalAuthMiddleware(aaaClient auth.Client) gin.HandlerFunc {
 	// Use the standard middleware for now
 	return middleware.AuthNMiddleware(aaaClient)
 }

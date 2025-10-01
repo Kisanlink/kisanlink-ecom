@@ -15,12 +15,12 @@ import (
 
 // UserService handles user-related business logic and AAA service integration
 type UserService struct {
-	aaaClient authService.AAAClient
+	aaaClient authService.Client
 	// TODO: Add user repository when available
 }
 
 // NewUserService creates a new user service instance
-func NewUserService(aaaClient authService.AAAClient) *UserService {
+func NewUserService(aaaClient authService.Client) *UserService {
 	return &UserService{
 		aaaClient: aaaClient,
 	}
@@ -36,7 +36,7 @@ func (s *UserService) CreateUser(ctx context.Context, req auth.RegisterRequest) 
 
 	// Create local user reference
 	localUser := user.NewUser(
-		aaaUser.ID,
+		aaaUser.UserID,
 		req.Username,
 		req.Email,
 		req.FirstName,
@@ -58,7 +58,7 @@ func (s *UserService) LoginUser(ctx context.Context, username, password string) 
 	}
 
 	// Get or create local user reference
-	localUser, err := s.getOrCreateLocalUser(ctx, authResponse.User)
+	localUser, err := s.getOrCreateLocalUser(ctx, authResponse.UserContext)
 	if err != nil {
 		return nil, "", fmt.Errorf("failed to get local user: %w", err)
 	}
@@ -82,12 +82,12 @@ func (s *UserService) GetUserByID(ctx context.Context, userID string) (*user.Use
 
 	// Convert to local user format
 	localUser := user.NewUser(
-		aaaUser.ID,
+		aaaUser.UserID,
 		aaaUser.Username,
 		aaaUser.Email,
-		aaaUser.FirstName,
-		aaaUser.LastName,
-		aaaUser.Phone,
+		"", // FirstName not available in UserContext
+		"", // LastName not available in UserContext
+		"", // Phone not available in UserContext
 	)
 
 	return localUser, nil
@@ -108,16 +108,14 @@ func (s *UserService) AssignRole(ctx context.Context, userID, roleID, assignedBy
 }
 
 // registerWithAAA registers a user with the AAA service
-func (s *UserService) registerWithAAA(ctx context.Context, req auth.RegisterRequest) (*authService.AAAUser, error) {
+func (s *UserService) registerWithAAA(ctx context.Context, req auth.RegisterRequest) (*authService.UserContext, error) {
 	if s.aaaClient == nil {
 		// Mock implementation when AAA client is not available
-		return &authService.AAAUser{
-			ID:        generateID(),
-			Username:  req.Username,
-			Email:     req.Email,
-			FirstName: req.FirstName,
-			LastName:  req.LastName,
-			Phone:     req.Phone,
+		return &authService.UserContext{
+			UserID:   generateID(),
+			Username: req.Username,
+			Email:    req.Email,
+			IsActive: true,
 		}, nil
 	}
 
@@ -130,17 +128,10 @@ func (s *UserService) registerWithAAA(ctx context.Context, req auth.RegisterRequ
 func (s *UserService) authenticateWithAAA(ctx context.Context, username, password string) (*authService.AuthenticationResponse, error) {
 	if s.aaaClient == nil {
 		// Mock implementation when AAA client is not available
-		user := &authService.AAAUser{
-			ID:       generateID(),
+		userContext := &authService.UserContext{
+			UserID:   generateID(),
 			Username: username,
 			Email:    username + "@example.com",
-			IsActive: true,
-		}
-
-		userContext := &authService.UserContext{
-			UserID:   user.ID,
-			Username: user.Username,
-			Email:    user.Email,
 			IsActive: true,
 		}
 
@@ -149,24 +140,25 @@ func (s *UserService) authenticateWithAAA(ctx context.Context, username, passwor
 			RefreshToken: generateToken(),
 			ExpiresIn:    3600,
 			TokenType:    "Bearer",
-			User:         user,
 			UserContext:  userContext,
 		}
 
 		return authResponse, nil
 	}
 
-	// Use the enhanced AAA client
-	return s.aaaClient.AuthenticateUser(ctx, username, password)
+	// TODO: Implement actual AAA service authentication
+	// This would call the AAA service gRPC endpoint
+	return nil, fmt.Errorf("AAA service authentication not implemented yet")
 }
 
 // getUserFromAAA retrieves user data from the AAA service
-func (s *UserService) getUserFromAAA(ctx context.Context, userID string) (*authService.AAAUser, error) {
+func (s *UserService) getUserFromAAA(ctx context.Context, userID string) (*authService.UserContext, error) {
 	if s.aaaClient == nil {
 		// Mock implementation when AAA client is not available
-		return &authService.AAAUser{
-			ID:       userID,
+		return &authService.UserContext{
+			UserID:   userID,
 			Username: "mock-user",
+			IsActive: true,
 		}, nil
 	}
 
@@ -176,16 +168,16 @@ func (s *UserService) getUserFromAAA(ctx context.Context, userID string) (*authS
 }
 
 // getOrCreateLocalUser gets or creates a local user reference
-func (s *UserService) getOrCreateLocalUser(ctx context.Context, aaaUser *authService.AAAUser) (*user.User, error) {
+func (s *UserService) getOrCreateLocalUser(ctx context.Context, userContext *authService.UserContext) (*user.User, error) {
 	// TODO: Check if user exists in local database
 	// If not, create new local user reference
 	localUser := user.NewUser(
-		aaaUser.ID,
-		aaaUser.Username,
-		aaaUser.Email,
-		aaaUser.FirstName,
-		aaaUser.LastName,
-		aaaUser.Phone,
+		userContext.UserID,
+		userContext.Username,
+		userContext.Email,
+		"", // FirstName not available in UserContext
+		"", // LastName not available in UserContext
+		"", // Phone not available in UserContext
 	)
 
 	return localUser, nil

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"time"
 
 	"kisanlink-ecom/entities/models/catalog"
 
@@ -53,13 +54,11 @@ func (av *AttributeValidator) ValidateProductAttributes(attributes map[string]in
 		return fmt.Errorf("invalid product attributes structure: %w", err)
 	}
 
-	// Validate required fields
-	if productAttrs.SKU == "" {
-		return fmt.Errorf("sku is required for products")
-	}
+	// SKU validation - SKU can be provided either in attributes or at the main request level
+	// So it's not required in attributes, but if provided, it should be valid
 
-	// Validate SKU format
-	if !av.isValidSKU(productAttrs.SKU) {
+	// Validate SKU format if provided
+	if productAttrs.SKU != "" && !av.isValidSKU(productAttrs.SKU) {
 		return fmt.Errorf("sku must be alphanumeric with hyphens and underscores, max 50 characters")
 	}
 
@@ -186,13 +185,14 @@ func (av *AttributeValidator) ValidateLabourAttributes(attributes map[string]int
 		return fmt.Errorf("unit_rate amount must be greater than 0")
 	}
 
-	// Validate currency
-	if !av.isValidCurrency(labourAttrs.UnitRate.Currency) {
+	// Validate currency (convert to uppercase for validation)
+	currency := strings.ToUpper(labourAttrs.UnitRate.Currency)
+	if !av.isValidCurrency(currency) {
 		return fmt.Errorf("unit_rate currency must be a valid 3-character ISO code")
 	}
 
 	// Validate rate type
-	validRateTypes := []string{"hourly", "daily", "weekly", "monthly"}
+	validRateTypes := []string{"hourly", "daily", "weekly", "monthly", "per_hour", "per_day", "per_week", "per_month"}
 	if !av.isValidRateType(labourAttrs.RateType, validRateTypes) {
 		return fmt.Errorf("rate_type must be one of: %s", strings.Join(validRateTypes, ", "))
 	}
@@ -238,9 +238,32 @@ func (av *AttributeValidator) ValidateContractAttributes(attributes map[string]i
 		return nil
 	}
 
+	// Handle date strings by converting them to time.Time before struct mapping
+	processedAttrs := make(map[string]interface{})
+	for k, v := range attributes {
+		processedAttrs[k] = v
+	}
+
+	// Convert date strings to time.Time for proper struct mapping
+	if startDateStr, exists := attributes["start_date"]; exists {
+		if dateStr, ok := startDateStr.(string); ok && dateStr != "" {
+			if parsedDate, err := time.Parse("2006-01-02", dateStr); err == nil {
+				processedAttrs["start_date"] = parsedDate
+			}
+		}
+	}
+
+	if endDateStr, exists := attributes["end_date"]; exists {
+		if dateStr, ok := endDateStr.(string); ok && dateStr != "" {
+			if parsedDate, err := time.Parse("2006-01-02", dateStr); err == nil {
+				processedAttrs["end_date"] = parsedDate
+			}
+		}
+	}
+
 	// Convert to ContractAttributes struct for validation
 	var contractAttrs catalog.ContractAttributes
-	if err := av.mapToStruct(attributes, &contractAttrs); err != nil {
+	if err := av.mapToStruct(processedAttrs, &contractAttrs); err != nil {
 		return fmt.Errorf("invalid contract attributes structure: %w", err)
 	}
 
@@ -496,7 +519,8 @@ func (av *AttributeValidator) validatePaymentTerms(terms *catalog.PaymentTerms) 
 		return fmt.Errorf("due_days must be greater than or equal to 0")
 	}
 
-	if !av.isValidCurrency(terms.Currency) {
+	// Only validate currency if it's provided
+	if terms.Currency != "" && !av.isValidCurrency(terms.Currency) {
 		return fmt.Errorf("payment currency must be a valid 3-character ISO code")
 	}
 

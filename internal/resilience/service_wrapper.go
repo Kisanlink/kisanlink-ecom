@@ -48,14 +48,14 @@ func DefaultServiceConfig(serviceName string) *ServiceConfig {
 
 // AAAClientWrapper wraps AAA client with resilience patterns
 type AAAClientWrapper struct {
-	client         auth.AAAClient
+	client         auth.Client
 	circuitBreaker *CircuitBreaker
 	retryPolicy    *RetryPolicy
 	config         *ServiceConfig
 }
 
 // NewAAAClientWrapper creates a new resilient AAA client wrapper
-func NewAAAClientWrapper(client auth.AAAClient, config *ServiceConfig) *AAAClientWrapper {
+func NewAAAClientWrapper(client auth.Client, config *ServiceConfig) *AAAClientWrapper {
 	if config == nil {
 		config = DefaultServiceConfig("aaa_service")
 	}
@@ -68,9 +68,9 @@ func NewAAAClientWrapper(client auth.AAAClient, config *ServiceConfig) *AAAClien
 	}
 }
 
-// ValidateJWT validates a JWT token with circuit breaker and retry
-func (w *AAAClientWrapper) ValidateJWT(ctx context.Context, token string) (bool, error) {
-	var result bool
+// ValidateToken validates a JWT token with circuit breaker and retry
+func (w *AAAClientWrapper) ValidateToken(ctx context.Context, token string) (*auth.TokenClaims, error) {
+	var result *auth.TokenClaims
 	err := w.circuitBreaker.CallContext(ctx, func(ctx context.Context) error {
 		return w.retryPolicy.ExecuteContext(ctx, func(ctx context.Context) error {
 			// Apply timeout
@@ -78,55 +78,23 @@ func (w *AAAClientWrapper) ValidateJWT(ctx context.Context, token string) (bool,
 			defer cancel()
 
 			var err error
-			result, err = w.client.ValidateJWT(timeoutCtx, token)
+			result, err = w.client.ValidateToken(timeoutCtx, token)
 			return err
 		})
 	})
 	return result, err
 }
 
-// GetUserFromToken gets user context from token with resilience
-func (w *AAAClientWrapper) GetUserFromToken(ctx context.Context, token string) (*auth.UserContext, error) {
-	var result *auth.UserContext
+// Authorize performs authorization with resilience
+func (w *AAAClientWrapper) Authorize(ctx context.Context, req *auth.AuthorizeRequest) (*auth.AuthorizeResponse, error) {
+	var result *auth.AuthorizeResponse
 	err := w.circuitBreaker.CallContext(ctx, func(ctx context.Context) error {
 		return w.retryPolicy.ExecuteContext(ctx, func(ctx context.Context) error {
 			timeoutCtx, cancel := context.WithTimeout(ctx, w.config.TimeoutConfig.Timeout)
 			defer cancel()
 
 			var err error
-			result, err = w.client.GetUserFromToken(timeoutCtx, token)
-			return err
-		})
-	})
-	return result, err
-}
-
-// EvaluatePermission evaluates permission with resilience
-func (w *AAAClientWrapper) EvaluatePermission(ctx context.Context, userID, resource, action string) (bool, error) {
-	var result bool
-	err := w.circuitBreaker.CallContext(ctx, func(ctx context.Context) error {
-		return w.retryPolicy.ExecuteContext(ctx, func(ctx context.Context) error {
-			timeoutCtx, cancel := context.WithTimeout(ctx, w.config.TimeoutConfig.Timeout)
-			defer cancel()
-
-			var err error
-			result, err = w.client.EvaluatePermission(timeoutCtx, userID, resource, action)
-			return err
-		})
-	})
-	return result, err
-}
-
-// ValidateUserOrganization validates user organization with resilience
-func (w *AAAClientWrapper) ValidateUserOrganization(ctx context.Context, userID, orgID string) (bool, error) {
-	var result bool
-	err := w.circuitBreaker.CallContext(ctx, func(ctx context.Context) error {
-		return w.retryPolicy.ExecuteContext(ctx, func(ctx context.Context) error {
-			timeoutCtx, cancel := context.WithTimeout(ctx, w.config.TimeoutConfig.Timeout)
-			defer cancel()
-
-			var err error
-			result, err = w.client.ValidateUserOrganization(timeoutCtx, userID, orgID)
+			result, err = w.client.Authorize(timeoutCtx, req)
 			return err
 		})
 	})
@@ -267,7 +235,7 @@ func (f *ServiceWrapperFactory) GetConfig(serviceName string) *ServiceConfig {
 }
 
 // CreateAAAWrapper creates a resilient AAA client wrapper
-func (f *ServiceWrapperFactory) CreateAAAWrapper(client auth.AAAClient) *AAAClientWrapper {
+func (f *ServiceWrapperFactory) CreateAAAWrapper(client auth.Client) *AAAClientWrapper {
 	config := f.GetConfig("aaa_service")
 	return NewAAAClientWrapper(client, config)
 }
@@ -293,7 +261,7 @@ func SetServiceConfig(serviceName string, config *ServiceConfig) {
 }
 
 // CreateResilientAAAClient creates a resilient AAA client wrapper
-func CreateResilientAAAClient(client auth.AAAClient) *AAAClientWrapper {
+func CreateResilientAAAClient(client auth.Client) *AAAClientWrapper {
 	return defaultFactory.CreateAAAWrapper(client)
 }
 

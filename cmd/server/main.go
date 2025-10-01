@@ -17,10 +17,12 @@ import (
 	"kisanlink-ecom/internal/config"
 	"kisanlink-ecom/internal/database"
 	"kisanlink-ecom/internal/repositories/catalog"
+	"kisanlink-ecom/internal/repositories/collaborator"
 	"kisanlink-ecom/internal/repositories/inventory"
 	"kisanlink-ecom/internal/repositories/orders"
 	"kisanlink-ecom/internal/routes"
 	catalogService "kisanlink-ecom/internal/services/catalog"
+	collaboratorService "kisanlink-ecom/internal/services/collaborator"
 	integrationService "kisanlink-ecom/internal/services/integrations"
 	inventoryService "kisanlink-ecom/internal/services/inventory"
 	"kisanlink-ecom/internal/services/marketplace"
@@ -117,11 +119,11 @@ func main() {
 	log.Println("Database repositories and services initialized successfully")
 
 	// Initialize AAA client
-	aaaClient, err := auth.NewAAAClient(&cfg.AAA)
+	aaaClient, err := auth.NewClient(&cfg.AAA)
 	if err != nil {
 		log.Printf("Warning: AAA client initialization failed: %v", err)
 		log.Printf("Falling back to mock AAA client for development")
-		aaaClient = auth.NewMockAAAClient()
+		aaaClient = auth.NewMockClient()
 	} else {
 		log.Printf("AAA client initialized successfully")
 	}
@@ -142,8 +144,13 @@ func main() {
 	integrationSvc := integrationService.NewIntegrationService(catalogSvc, orderSvc, logrusLogger, webhookSecret)
 	log.Println("Integration service initialized")
 
+	// Initialize collaborator service
+	collaboratorRepo := collaborator.NewCollaboratorRepository(dbManager.GetManager(db.BackendGorm))
+	collaboratorSvc := collaboratorService.NewCollaboratorService(collaboratorRepo, logrusLogger)
+	log.Println("Collaborator service initialized")
+
 	// Setup router with services and database manager for health checks
-	router := routes.SetupRouter(aaaClient, catalogSvc, inventorySvc, orderSvc, userSvc, integrationSvc, &marketplace.MarketplaceServices{})
+	router := routes.SetupRouter(aaaClient, catalogSvc, inventorySvc, orderSvc, userSvc, integrationSvc, &marketplace.MarketplaceServices{}, collaboratorSvc)
 
 	// Add database manager to context for health checks
 	router.Use(func(c *gin.Context) {

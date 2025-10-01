@@ -42,11 +42,11 @@ const (
 
 // MarketplaceAuthMiddleware provides marketplace-specific authorization
 type MarketplaceAuthMiddleware struct {
-	aaaClient auth.AAAClient
+	aaaClient auth.Client
 }
 
 // NewMarketplaceAuthMiddleware creates a new marketplace authorization middleware
-func NewMarketplaceAuthMiddleware(aaaClient auth.AAAClient) *MarketplaceAuthMiddleware {
+func NewMarketplaceAuthMiddleware(aaaClient auth.Client) *MarketplaceAuthMiddleware {
 	return &MarketplaceAuthMiddleware{
 		aaaClient: aaaClient,
 	}
@@ -70,11 +70,19 @@ func (m *MarketplaceAuthMiddleware) RequireMarketplaceAuth() gin.HandlerFunc {
 
 		// Validate user belongs to the organization
 		if userContext.OrganizationID != orgID {
-			allowed, err := m.aaaClient.ValidateUserOrganization(c.Request.Context(), userContext.UserID, orgID)
+			req := &auth.AuthorizeRequest{
+				UserID:     userContext.UserID,
+				TenantID:   userContext.TenantID,
+				Resource:   "organization",
+				Action:     "access",
+				ResourceID: orgID,
+			}
+			resp, err := m.aaaClient.Authorize(c.Request.Context(), req)
 			if err != nil {
 				m.handleAuthError(c, "Organization validation failed", err)
 				return
 			}
+			allowed := resp.Allowed
 			if !allowed {
 				m.handleForbidden(c, "Access denied to organization marketplace")
 				return
@@ -97,11 +105,18 @@ func (m *MarketplaceAuthMiddleware) RequireListingPermission(action string) gin.
 		}
 
 		// Check permission with AAA service
-		allowed, err := m.aaaClient.EvaluatePermission(c.Request.Context(), userContext.UserID, ResourceMarketplaceListing, action)
+		req := &auth.AuthorizeRequest{
+			UserID:   userContext.UserID,
+			TenantID: userContext.TenantID,
+			Resource: ResourceMarketplaceListing,
+			Action:   action,
+		}
+		resp, err := m.aaaClient.Authorize(c.Request.Context(), req)
 		if err != nil {
 			m.handleAuthError(c, "Permission evaluation failed", err)
 			return
 		}
+		allowed := resp.Allowed
 
 		if !allowed {
 			m.handleForbidden(c, fmt.Sprintf("Permission denied for action '%s' on marketplace listings", action))
@@ -122,11 +137,18 @@ func (m *MarketplaceAuthMiddleware) RequireBiddingPermission(action string) gin.
 		}
 
 		// Check permission with AAA service
-		allowed, err := m.aaaClient.EvaluatePermission(c.Request.Context(), userContext.UserID, ResourceMarketplaceBid, action)
+		req := &auth.AuthorizeRequest{
+			UserID:   userContext.UserID,
+			TenantID: userContext.TenantID,
+			Resource: ResourceMarketplaceBid,
+			Action:   action,
+		}
+		resp, err := m.aaaClient.Authorize(c.Request.Context(), req)
 		if err != nil {
 			m.handleAuthError(c, "Permission evaluation failed", err)
 			return
 		}
+		allowed := resp.Allowed
 
 		if !allowed {
 			m.handleForbidden(c, fmt.Sprintf("Permission denied for action '%s' on marketplace bids", action))
@@ -161,11 +183,18 @@ func (m *MarketplaceAuthMiddleware) RequireAdminPermission(action string) gin.Ha
 		}
 
 		// Check specific admin permission
-		allowed, err := m.aaaClient.EvaluatePermission(c.Request.Context(), userContext.UserID, ResourceMarketplaceAdmin, action)
+		req := &auth.AuthorizeRequest{
+			UserID:   userContext.UserID,
+			TenantID: userContext.TenantID,
+			Resource: ResourceMarketplaceAdmin,
+			Action:   action,
+		}
+		resp, err := m.aaaClient.Authorize(c.Request.Context(), req)
 		if err != nil {
 			m.handleAuthError(c, "Admin permission evaluation failed", err)
 			return
 		}
+		allowed := resp.Allowed
 
 		if !allowed {
 			m.handleForbidden(c, fmt.Sprintf("Admin permission denied for action '%s'", action))
@@ -309,11 +338,19 @@ func (m *MarketplaceAuthMiddleware) ValidateOrganizationAccess() gin.HandlerFunc
 
 		// Validate user has access to this organization
 		if userContext.OrganizationID != orgID {
-			allowed, err := m.aaaClient.ValidateUserOrganization(c.Request.Context(), userContext.UserID, orgID)
+			req := &auth.AuthorizeRequest{
+				UserID:     userContext.UserID,
+				TenantID:   userContext.TenantID,
+				Resource:   "organization",
+				Action:     "access",
+				ResourceID: orgID,
+			}
+			resp, err := m.aaaClient.Authorize(c.Request.Context(), req)
 			if err != nil {
 				m.handleAuthError(c, "Organization access validation failed", err)
 				return
 			}
+			allowed := resp.Allowed
 			if !allowed {
 				m.handleForbidden(c, fmt.Sprintf("Access denied to organization %s", orgID))
 				return

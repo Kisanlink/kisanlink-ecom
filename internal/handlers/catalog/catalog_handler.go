@@ -17,12 +17,14 @@ import (
 // CatalogHandler handles HTTP requests for generic catalog operations
 type CatalogHandler struct {
 	catalogService catalogService.CatalogServiceInterface
+	etagService    *catalogService.ETagService
 }
 
 // NewCatalogHandler creates a new catalog handler
-func NewCatalogHandler(catalogService catalogService.CatalogServiceInterface) *CatalogHandler {
+func NewCatalogHandler(catalogService catalogService.CatalogServiceInterface, etagService *catalogService.ETagService) *CatalogHandler {
 	return &CatalogHandler{
 		catalogService: catalogService,
+		etagService:    etagService,
 	}
 }
 
@@ -565,6 +567,16 @@ func (h *CatalogHandler) GetCatalogItemByTypeAndID(c *gin.Context) {
 		return
 	}
 
+	// Validate conditional request headers if ETag service is available
+	if h.etagService != nil {
+		if err := h.etagService.ValidateConditionalRequest(c); err != nil {
+			common.BadRequest(c, "INVALID_CONDITIONAL_HEADER", "Invalid conditional request header", map[string]interface{}{
+				"error": err.Error(),
+			})
+			return
+		}
+	}
+
 	// Get catalog item
 	item, err := h.catalogService.GetCatalogItemByID(c.Request.Context(), id)
 	if err != nil {
@@ -596,6 +608,20 @@ func (h *CatalogHandler) GetCatalogItemByTypeAndID(c *gin.Context) {
 			"actual_type":    item.ItemType,
 		})
 		return
+	}
+
+	// Handle ETag validation and conditional response
+	if h.etagService != nil {
+		// Log ETag operation
+		h.etagService.LogETagOperation(c, "get_catalog_item", item, map[string]interface{}{
+			"type_param": typeParam,
+		})
+
+		// Check if client has current version (ETag match)
+		if h.etagService.HandleConditionalRequest(c, item) {
+			// 304 Not Modified response was sent
+			return
+		}
 	}
 
 	common.Success(c, item, &common.ResponseMeta{

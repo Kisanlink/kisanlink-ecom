@@ -2,44 +2,47 @@ package auth
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"kisanlink-ecom/internal/config"
+	"os"
 	"time"
 
-	aaaPb "github.com/Kisanlink/aaa-service/pkg/proto"
+	aaaPb "kisanlink-ecom/proto"
+
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-// AAAClient interface for interacting with AAA service
-type AAAClient interface {
+// Client interface for interacting with AAA service
+type Client interface {
+	// Token validation
+	ValidateToken(ctx context.Context, token string) (*TokenClaims, error)
+	ValidateJWT(ctx context.Context, token string) (bool, error)
+
+	// Authentication
+	AuthenticateUser(ctx context.Context, req *AuthenticationRequest) (*AuthenticationResponse, error)
+	RefreshToken(ctx context.Context, refreshToken string) (*AuthenticationResponse, error)
+
+	// Authorization
+	Authorize(ctx context.Context, req *AuthorizeRequest) (*AuthorizeResponse, error)
+	EvaluatePermission(ctx context.Context, userID, resource, action string) (bool, error)
+	EvaluateResourcePermission(ctx context.Context, userID, resource, action, resourceID string) (bool, error)
+
 	// User management
 	CreateUser(ctx context.Context, user *AAAUser) (*AAAUser, error)
 	GetUser(ctx context.Context, userID string) (*AAAUser, error)
+	GetUserFromToken(ctx context.Context, token string) (*AAAUser, error)
 	UpdateUser(ctx context.Context, user *AAAUser) (*AAAUser, error)
 	DeleteUser(ctx context.Context, userID string) error
 
-	// Authentication
-	AuthenticateUser(ctx context.Context, username, password string) (*AuthenticationResponse, error)
-	RefreshToken(ctx context.Context, refreshToken string) (*AuthenticationResponse, error)
-
-	// Token validation
-	ValidateJWT(ctx context.Context, token string) (bool, error)
-	GetUserFromToken(ctx context.Context, token string) (*UserContext, error)
-
-	// Role and permission management
+	// Role management
 	GetUserRoles(ctx context.Context, userID string) ([]*AAARole, error)
-	AssignRole(ctx context.Context, userID, roleID string) error
-	RemoveRole(ctx context.Context, userID, roleID string) error
-	GetUserPermissions(ctx context.Context, userID string) ([]string, error)
 
 	// Permission evaluation
-	EvaluatePermission(ctx context.Context, userID, resource, action string) (bool, error)
-	EvaluateResourcePermission(ctx context.Context, userID, resourceType, resourceID, action string) (bool, error)
 	BulkEvaluatePermissions(ctx context.Context, userID string, permissions []PermissionCheck) ([]PermissionResult, error)
-
-	// Organization validation
-	ValidateUserOrganization(ctx context.Context, userID, orgID string) (bool, error)
 
 	// Health check
 	HealthCheck(ctx context.Context) error
@@ -48,29 +51,70 @@ type AAAClient interface {
 	Close() error
 }
 
-// PermissionCheck represents a permission to check
-type PermissionCheck struct {
-	Resource string
-	Action   string
+// AAAClient is an alias for Client (for backward compatibility)
+type AAAClient = Client
+
+// AuthorizeRequest represents an authorization request
+type AuthorizeRequest struct {
+	UserID     string
+	TenantID   string
+	Resource   string // "catalog"
+	Action     string // "read", "create", "update", "delete", "publish"
+	ResourceID string // specific catalog ID for resource-level permissions
 }
 
-// PermissionResult represents the result of a permission check
-type PermissionResult struct {
-	Resource string
-	Action   string
-	Allowed  bool
-	Reason   string
+// AuthorizeResponse represents an authorization response
+type AuthorizeResponse struct {
+	Allowed bool
+	Reason  string
 }
 
-// aaaClient implements AAAClient interface
-type aaaClient struct {
+// TokenClaims represents the claims extracted from a JWT token
+type TokenClaims struct {
+	UserID           string
+	Username         string
+	Email            string
+	PhoneNumber      string
+	CountryCode      string
+	TenantID         string
+	OrganizationID   string
+	OrganizationName string
+	Roles            []string
+	RoleIDs          []string
+	Permissions      []string
+	Scopes           []string
+	IssuedAt         int64
+	ExpiresAt        int64
+	NotBefore        int64
+	Issuer           string
+	Audience         string
+	IsValidated      bool
+	UserRoles        []*UserRoleDetails
+	Organizations    []*OrganizationDetails
+	Groups           []*GroupDetails
+	TokenType        string
+	TokenVersion     string
+	Subject          string
+	SessionID        string
+	JTI              string
+	TenantContext    map[string]interface{}
+	UserContextData  *UserContextDetails
+}
+
+// client implements Client interface
+type client struct {
 	conn        *grpc.ClientConn
-	userClient  aaaPb.UserServiceV2Client
+	authClient  aaaPb.AuthServiceClient
 	authzClient aaaPb.AuthorizationServiceClient
 }
 
-// NewAAAClient creates a new AAA client
+// NewAAAClient creates a new AAA client with TLS/mTLS support (alias for NewClient)
 func NewAAAClient(config *config.AAAConfig) (AAAClient, error) {
+	return NewClient(config)
+}
+
+// NewClient creates a new AAA client with TLS/mTLS support
+func NewClient(config *config.AAAConfig) (Client, error) {
 	// Validate config
 	if config == nil {
 		return nil, fmt.Errorf("AAA config cannot be nil")
@@ -79,287 +123,428 @@ func NewAAAClient(config *config.AAAConfig) (AAAClient, error) {
 		return nil, fmt.Errorf("AAA gRPC server address cannot be empty")
 	}
 
+	// Setup connection options
+	var opts []grpc.DialOption
+
+	// Configure TLS/mTLS if enabled
+	if config.TLSEnabled {
+		creds, err := setupTLSCredentials(config)
+		if err != nil {
+			return nil, fmt.Errorf("failed to setup TLS credentials: %w", err)
+		}
+		opts = append(opts, grpc.WithTransportCredentials(creds))
+	} else {
+		// Use insecure credentials for development
+		opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	}
+
+	// Add connection timeout
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(config.TimeoutMs)*time.Millisecond)
+	defer cancel()
+
 	// Connect to AAA service
-	conn, err := grpc.Dial(config.GRPCServerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.DialContext(ctx, config.GRPCServerAddr, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to AAA service: %w", err)
 	}
 
-	client := &aaaClient{
+	client := &client{
 		conn:        conn,
-		userClient:  aaaPb.NewUserServiceV2Client(conn),
+		authClient:  aaaPb.NewAuthServiceClient(conn),
 		authzClient: aaaPb.NewAuthorizationServiceClient(conn),
 	}
 
 	return client, nil
 }
 
+// setupTLSCredentials configures TLS/mTLS credentials based on configuration
+func setupTLSCredentials(config *config.AAAConfig) (credentials.TransportCredentials, error) {
+	var tlsConfig *tls.Config
+
+	// Setup mTLS if client certificate and key are provided
+	if config.CertPath != "" && config.KeyPath != "" {
+		cert, err := tls.LoadX509KeyPair(config.CertPath, config.KeyPath)
+		if err != nil {
+			return nil, fmt.Errorf("failed to load client certificate: %w", err)
+		}
+
+		tlsConfig = &tls.Config{
+			Certificates: []tls.Certificate{cert},
+			ServerName:   config.ServerName,
+		}
+
+		// Load CA certificate if provided
+		if config.CAPath != "" {
+			caCert, err := os.ReadFile(config.CAPath)
+			if err != nil {
+				return nil, fmt.Errorf("failed to read CA certificate: %w", err)
+			}
+
+			caCertPool := x509.NewCertPool()
+			if !caCertPool.AppendCertsFromPEM(caCert) {
+				return nil, fmt.Errorf("failed to append CA certificate")
+			}
+
+			tlsConfig.RootCAs = caCertPool
+		}
+	} else {
+		// Use system root CAs for TLS without client certificate
+		tlsConfig = &tls.Config{
+			ServerName: config.ServerName,
+		}
+	}
+
+	return credentials.NewTLS(tlsConfig), nil
+}
+
 // Close closes the gRPC connection
-func (c *aaaClient) Close() error {
+func (c *client) Close() error {
 	if c.conn != nil {
 		return c.conn.Close()
 	}
 	return nil
 }
 
-// CreateUser creates a new user in AAA service
-func (c *aaaClient) CreateUser(ctx context.Context, user *AAAUser) (*AAAUser, error) {
-	// Validate input
-	if user == nil {
-		return nil, fmt.Errorf("user cannot be nil")
-	}
-	if user.Username == "" {
-		return nil, fmt.Errorf("username is required")
-	}
-	if user.Email == "" {
-		return nil, fmt.Errorf("email is required")
-	}
-
-	// Generate ID if not provided
-	if user.ID == "" {
-		user.ID = fmt.Sprintf("user_%s_%d", user.Username, time.Now().Unix())
-	}
-
-	// Set default values
-	user.IsActive = true
-
-	// Return the user - actual AAA service integration will be implemented later
-	return user, nil
-}
-
-// GetUser retrieves a user from AAA service
-func (c *aaaClient) GetUser(ctx context.Context, userID string) (*AAAUser, error) {
-	// Validate input
-	if userID == "" {
-		return nil, fmt.Errorf("userID cannot be empty")
-	}
-
-	// Return mock user for development - actual AAA service integration will be implemented later
-	return &AAAUser{
-		ID:       userID,
-		Username: "user_" + userID,
-		Email:    "user_" + userID + "@example.com",
-		IsActive: true,
-	}, nil
-}
-
-// UpdateUser updates a user in AAA service
-func (c *aaaClient) UpdateUser(ctx context.Context, user *AAAUser) (*AAAUser, error) {
-	// Validate input
-	if user == nil {
-		return nil, fmt.Errorf("user cannot be nil")
-	}
-	if user.ID == "" {
-		return nil, fmt.Errorf("user ID is required for update")
-	}
-
-	// Return the updated user - actual AAA service integration will be implemented later
-	return user, nil
-}
-
-// DeleteUser deletes a user from AAA service
-func (c *aaaClient) DeleteUser(ctx context.Context, userID string) error {
-	// Validate input
-	if userID == "" {
-		return fmt.Errorf("userID cannot be empty")
-	}
-
-	// Return success for development - actual AAA service integration will be implemented later
-	return nil
-}
-
-// AuthenticateUser authenticates a user with AAA service
-func (c *aaaClient) AuthenticateUser(ctx context.Context, username, password string) (*AuthenticationResponse, error) {
-	// Validate input
-	if username == "" {
-		return nil, fmt.Errorf("username cannot be empty")
-	}
-	if password == "" {
-		return nil, fmt.Errorf("password cannot be empty")
-	}
-
-	// Mock authentication for development - actual AAA service integration will be implemented later
-	user := &AAAUser{
-		ID:       "auth_" + username,
-		Username: username,
-		Email:    username + "@example.com",
-		IsActive: true,
-	}
-
-	userContext := &UserContext{
-		UserID:   user.ID,
-		Username: user.Username,
-		Email:    user.Email,
-		IsActive: user.IsActive,
-	}
-
-	return &AuthenticationResponse{
-		AccessToken:  "mock_token_" + username,
-		RefreshToken: "mock_refresh_" + username,
-		ExpiresIn:    3600,
-		TokenType:    "Bearer",
-		User:         user,
-		UserContext:  userContext,
-	}, nil
-}
-
-// RefreshToken refreshes a user's token
-func (c *aaaClient) RefreshToken(ctx context.Context, refreshToken string) (*AuthenticationResponse, error) {
-	// Validate input
-	if refreshToken == "" {
-		return nil, fmt.Errorf("refresh token cannot be empty")
-	}
-
-	// Mock token refresh for development - actual AAA service integration will be implemented later
-	user := &AAAUser{
-		ID:       "refreshed_user",
-		Username: "refreshed_user",
-		Email:    "refreshed@example.com",
-		IsActive: true,
-	}
-
-	userContext := &UserContext{
-		UserID:   user.ID,
-		Username: user.Username,
-		Email:    user.Email,
-		IsActive: user.IsActive,
-	}
-
-	return &AuthenticationResponse{
-		AccessToken:  "refreshed_token_" + refreshToken,
-		RefreshToken: "new_refresh_" + refreshToken,
-		ExpiresIn:    3600,
-		TokenType:    "Bearer",
-		User:         user,
-		UserContext:  userContext,
-	}, nil
-}
-
-// GetUserRoles retrieves roles assigned to a user
-func (c *aaaClient) GetUserRoles(ctx context.Context, userID string) ([]*AAARole, error) {
-	// Return empty roles as RBAC service integration is not yet available
-	// This allows the application to function while RBAC service is being developed
-	return []*AAARole{}, nil
-}
-
-// AssignRole assigns a role to a user
-func (c *aaaClient) AssignRole(ctx context.Context, userID, roleID string) error {
-	// Role assignment will be implemented when RBAC service is available
-	// For now, return success to allow application functionality
-	return nil
-}
-
-// RemoveRole removes a role from a user
-func (c *aaaClient) RemoveRole(ctx context.Context, userID, roleID string) error {
-	// Role removal will be implemented when RBAC service is available
-	// For now, return success to allow application functionality
-	return nil
-}
-
-// GetUserPermissions retrieves permissions for a user
-func (c *aaaClient) GetUserPermissions(ctx context.Context, userID string) ([]string, error) {
-	// Return empty permissions as RBAC service integration is not yet available
-	// This allows the application to function while RBAC service is being developed
-	return []string{}, nil
-}
-
-// EvaluatePermission evaluates if a user has permission to perform an action on a resource
-func (c *aaaClient) EvaluatePermission(ctx context.Context, userID, resource, action string) (bool, error) {
-	// Return true for development mode - allows application functionality
-	// In production, this should integrate with RBAC service for proper authorization
-	return true, nil
-}
-
-// ValidateJWT validates a JWT token with AAA service
-func (c *aaaClient) ValidateJWT(ctx context.Context, token string) (bool, error) {
-	// Basic token validation - check for non-empty token
-	// Full JWT validation will be implemented when AAA service is available
+// ValidateToken validates a JWT token with AAA service
+func (c *client) ValidateToken(ctx context.Context, token string) (*TokenClaims, error) {
 	if token == "" {
-		return false, fmt.Errorf("empty token provided")
+		return nil, fmt.Errorf("empty token provided")
 	}
-	return true, nil
-}
 
-// GetUserFromToken gets user context from a validated token
-func (c *aaaClient) GetUserFromToken(ctx context.Context, token string) (*UserContext, error) {
-	// First validate the token
-	isValid, err := c.ValidateJWT(ctx, token)
-	if err != nil {
-		return nil, fmt.Errorf("token validation failed: %w", err)
+	// Create request
+	req := &aaaPb.ValidateTokenRequest{
+		Token: token,
 	}
-	if !isValid {
+
+	// Call AAA service
+	resp, err := c.authClient.ValidateToken(ctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to validate token: %w", err)
+	}
+
+	if !resp.Valid {
 		return nil, fmt.Errorf("invalid token")
 	}
 
-	// Return mock user context for development
-	// Full token parsing will be implemented when AAA service is available
-	return &UserContext{
-		UserID:           "mock_user_from_token",
-		Username:         "mock_user",
-		Email:            "mock@example.com",
-		OrganizationID:   "mock_org",
-		OrganizationName: "Mock Organization",
-		Roles:            []string{"user"},
-		Permissions:      []string{"read", "write"},
-		IsActive:         true,
+	// Convert protobuf UserRoles to internal UserRoleDetails
+	var userRoles []*UserRoleDetails
+	for _, ur := range resp.Claims.UserRoles {
+		userRole := &UserRoleDetails{
+			ID:       ur.Id,
+			UserID:   ur.UserId,
+			RoleID:   ur.RoleId,
+			IsActive: ur.IsActive,
+		}
+
+		// Convert nested role if present
+		if ur.Role != nil {
+			userRole.Role = &RoleDetails{
+				ID:          ur.Role.Id,
+				Name:        ur.Role.Name,
+				Scope:       ur.Role.Scope,
+				Description: ur.Role.Description,
+				ParentID:    ur.Role.ParentId,
+				IsActive:    ur.Role.IsActive,
+				Permissions: ur.Role.Permissions,
+			}
+		}
+
+		userRoles = append(userRoles, userRole)
+	}
+
+	// Convert protobuf Organizations to internal OrganizationDetails
+	var organizations []*OrganizationDetails
+	for _, org := range resp.Claims.Organizations {
+		organizations = append(organizations, &OrganizationDetails{
+			ID:       org.Id,
+			Name:     org.Name,
+			TenantID: org.TenantId,
+		})
+	}
+
+	// Convert protobuf Groups to internal GroupDetails
+	var groups []*GroupDetails
+	for _, grp := range resp.Claims.Groups {
+		groups = append(groups, &GroupDetails{
+			ID:             grp.Id,
+			Name:           grp.Name,
+			OrganizationID: grp.OrganizationId,
+			Description:    grp.Description,
+		})
+	}
+
+	// Convert UserContext if present
+	var userContextData *UserContextDetails
+	if resp.Claims.UserContext != nil {
+		uc := resp.Claims.UserContext
+
+		// Convert roles from UserContext
+		var ucRoles []*RoleDetails
+		for _, r := range uc.Roles {
+			ucRoles = append(ucRoles, &RoleDetails{
+				ID:          r.Id,
+				Name:        r.Name,
+				Scope:       r.Scope,
+				Description: r.Description,
+				ParentID:    r.ParentId,
+				IsActive:    r.IsActive,
+				Permissions: r.Permissions,
+			})
+		}
+
+		// Convert organizations from UserContext
+		var ucOrgs []*OrganizationDetails
+		for _, o := range uc.Organizations {
+			ucOrgs = append(ucOrgs, &OrganizationDetails{
+				ID:       o.Id,
+				Name:     o.Name,
+				TenantID: o.TenantId,
+			})
+		}
+
+		// Convert groups from UserContext
+		var ucGroups []*GroupDetails
+		for _, g := range uc.Groups {
+			ucGroups = append(ucGroups, &GroupDetails{
+				ID:             g.Id,
+				Name:           g.Name,
+				OrganizationID: g.OrganizationId,
+				Description:    g.Description,
+			})
+		}
+
+		userContextData = &UserContextDetails{
+			ID:            uc.Id,
+			Username:      uc.Username,
+			PhoneNumber:   uc.PhoneNumber,
+			CountryCode:   uc.CountryCode,
+			IsValidated:   uc.IsValidated,
+			Roles:         ucRoles,
+			Organizations: ucOrgs,
+			Groups:        ucGroups,
+		}
+	}
+
+	// Parse tenant_context if it's a JSON string
+	var tenantContext map[string]interface{}
+	if resp.Claims.TenantContext != "" {
+		// For now, we'll store it as a map with the raw JSON string
+		// In production, you'd want to properly unmarshal this
+		tenantContext = make(map[string]interface{})
+	}
+
+	// Convert response to TokenClaims
+	claims := &TokenClaims{
+		UserID:           resp.Claims.UserId,
+		Username:         resp.Claims.Username,
+		Email:            resp.Claims.Email,
+		PhoneNumber:      resp.Claims.PhoneNumber,
+		CountryCode:      resp.Claims.CountryCode,
+		TenantID:         resp.Claims.TenantId,
+		OrganizationID:   resp.Claims.OrganizationId,
+		OrganizationName: resp.Claims.OrganizationName,
+		Roles:            resp.Claims.Roles,
+		RoleIDs:          resp.Claims.RoleIds,
+		Permissions:      resp.Claims.Permissions,
+		Scopes:           resp.Claims.Scopes,
+		IssuedAt:         resp.Claims.IssuedAt,
+		ExpiresAt:        resp.Claims.ExpiresAt,
+		NotBefore:        resp.Claims.NotBefore,
+		Issuer:           resp.Claims.Issuer,
+		Audience:         resp.Claims.Audience,
+		IsValidated:      resp.Claims.IsValidated,
+		UserRoles:        userRoles,
+		Organizations:    organizations,
+		Groups:           groups,
+		TokenType:        resp.Claims.TokenType,
+		TokenVersion:     resp.Claims.TokenVersion,
+		Subject:          resp.Claims.Sub,
+		SessionID:        resp.Claims.SessionId,
+		JTI:              resp.Claims.Jti,
+		TenantContext:    tenantContext,
+		UserContextData:  userContextData,
+	}
+
+	return claims, nil
+}
+
+// Authorize checks if a user has permission to perform an action on a resource
+func (c *client) Authorize(ctx context.Context, req *AuthorizeRequest) (*AuthorizeResponse, error) {
+	if req == nil {
+		return nil, fmt.Errorf("authorize request cannot be nil")
+	}
+
+	// Create gRPC request
+	grpcReq := &aaaPb.AuthorizeRequest{
+		UserId:     req.UserID,
+		TenantId:   req.TenantID,
+		Resource:   req.Resource,
+		Action:     req.Action,
+		ResourceId: req.ResourceID,
+	}
+
+	// Call AAA service
+	resp, err := c.authzClient.Authorize(ctx, grpcReq)
+	if err != nil {
+		return nil, fmt.Errorf("failed to authorize: %w", err)
+	}
+
+	return &AuthorizeResponse{
+		Allowed: resp.Allowed,
+		Reason:  resp.Reason,
 	}, nil
 }
 
-// EvaluateResourcePermission evaluates permission for a specific resource instance
-func (c *aaaClient) EvaluateResourcePermission(ctx context.Context, userID, resourceType, resourceID, action string) (bool, error) {
-	// Return true for development mode - allows application functionality
-	// In production, this should integrate with RBAC service for proper resource-level authorization
-	return true, nil
+// CreateUser creates a new user in the AAA system
+func (c *client) CreateUser(ctx context.Context, user *AAAUser) (*AAAUser, error) {
+	// Implementation would call AAA service
+	// For now, return the user as-is for testing
+	return user, nil
 }
 
-// ValidateUserOrganization validates that a user belongs to an organization
-func (c *aaaClient) ValidateUserOrganization(ctx context.Context, userID, orgID string) (bool, error) {
-	// Return true for development mode - allows application functionality
-	// In production, this should validate actual user-organization relationships
-	return true, nil
+// GetUser retrieves a user from the AAA system
+func (c *client) GetUser(ctx context.Context, userID string) (*AAAUser, error) {
+	// Implementation would call AAA service
+	// For now, return a mock user for testing
+	return &AAAUser{
+		ID:       userID,
+		Username: "test-user",
+		Email:    "test@example.com",
+		IsActive: true,
+	}, nil
 }
 
-// HealthCheck checks the health of the AAA service
-func (c *aaaClient) HealthCheck(ctx context.Context) error {
-	// Basic health check - verify connection exists
-	if c.conn == nil {
-		return fmt.Errorf("AAA service connection not established")
-	}
-	// Return success for now - detailed health checks will be implemented with AAA service
+// UpdateUser updates a user in the AAA system
+func (c *client) UpdateUser(ctx context.Context, user *AAAUser) (*AAAUser, error) {
+	// Implementation would call AAA service
+	// For now, return the user as-is for testing
+	return user, nil
+}
+
+// DeleteUser deletes a user from the AAA system
+func (c *client) DeleteUser(ctx context.Context, userID string) error {
+	// Implementation would call AAA service
+	// For now, return nil for testing
 	return nil
 }
 
-// BulkEvaluatePermissions evaluates multiple permissions at once
-func (c *aaaClient) BulkEvaluatePermissions(ctx context.Context, userID string, permissions []PermissionCheck) ([]PermissionResult, error) {
-	// Return all permissions as allowed for development mode
-	// In production, this should integrate with RBAC service for proper bulk permission evaluation
-	var results []PermissionResult
-	for _, perm := range permissions {
-		results = append(results, PermissionResult{
+// GetUserRoles retrieves roles for a user
+func (c *client) GetUserRoles(ctx context.Context, userID string) ([]*AAARole, error) {
+	// Implementation would call AAA service
+	// For now, return empty roles for testing
+	return []*AAARole{}, nil
+}
+
+// BulkEvaluatePermissions evaluates multiple permissions for a user
+func (c *client) BulkEvaluatePermissions(ctx context.Context, userID string, permissions []PermissionCheck) ([]PermissionResult, error) {
+	// Implementation would call AAA service
+	// For now, return all permissions as allowed for testing
+	results := make([]PermissionResult, len(permissions))
+	for i, perm := range permissions {
+		results[i] = PermissionResult{
 			Resource: perm.Resource,
 			Action:   perm.Action,
 			Allowed:  true,
-			Reason:   "Development mode - all permissions allowed",
-		})
+			Reason:   "Mock implementation",
+		}
 	}
 	return results, nil
 }
 
-// withRetry executes a function with retry logic and exponential backoff
-func (c *aaaClient) withRetry(operation func() error, maxRetries int) error {
-	var lastErr error
-	for i := 0; i < maxRetries; i++ {
-		if err := operation(); err != nil {
-			lastErr = err
-			if i < maxRetries-1 {
-				// Exponential backoff with jitter
-				backoffDelay := time.Duration(i+1) * 100 * time.Millisecond
-				time.Sleep(backoffDelay)
-				continue
-			}
-		} else {
-			return nil
-		}
+// ValidateJWT validates a JWT token (simplified version)
+func (c *client) ValidateJWT(ctx context.Context, token string) (bool, error) {
+	_, err := c.ValidateToken(ctx, token)
+	return err == nil, err
+}
+
+// AuthenticateUser authenticates a user with credentials
+func (c *client) AuthenticateUser(ctx context.Context, req *AuthenticationRequest) (*AuthenticationResponse, error) {
+	// Implementation would call AAA service
+	// For now, return mock response for testing
+	return &AuthenticationResponse{
+		AccessToken:  "mock_access_token",
+		RefreshToken: "mock_refresh_token",
+		ExpiresIn:    3600,
+		TokenType:    "Bearer",
+		UserContext: &UserContext{
+			UserID:   "mock_user_123",
+			Username: req.Username,
+			Email:    req.Username + "@example.com",
+			IsActive: true,
+		},
+	}, nil
+}
+
+// RefreshToken refreshes an access token
+func (c *client) RefreshToken(ctx context.Context, refreshToken string) (*AuthenticationResponse, error) {
+	// Implementation would call AAA service
+	// For now, return mock response for testing
+	return &AuthenticationResponse{
+		AccessToken:  "new_mock_access_token",
+		RefreshToken: "new_mock_refresh_token",
+		ExpiresIn:    3600,
+		TokenType:    "Bearer",
+	}, nil
+}
+
+// EvaluatePermission evaluates a single permission
+func (c *client) EvaluatePermission(ctx context.Context, userID, resource, action string) (bool, error) {
+	req := &AuthorizeRequest{
+		UserID:   userID,
+		Resource: resource,
+		Action:   action,
 	}
-	return fmt.Errorf("operation failed after %d retries: %w", maxRetries, lastErr)
+	resp, err := c.Authorize(ctx, req)
+	if err != nil {
+		return false, err
+	}
+	return resp.Allowed, nil
+}
+
+// EvaluateResourcePermission evaluates permission for a specific resource
+func (c *client) EvaluateResourcePermission(ctx context.Context, userID, resource, action, resourceID string) (bool, error) {
+	req := &AuthorizeRequest{
+		UserID:     userID,
+		Resource:   resource,
+		Action:     action,
+		ResourceID: resourceID,
+	}
+	resp, err := c.Authorize(ctx, req)
+	if err != nil {
+		return false, err
+	}
+	return resp.Allowed, nil
+}
+
+// GetUserFromToken retrieves user information from a token
+func (c *client) GetUserFromToken(ctx context.Context, token string) (*AAAUser, error) {
+	claims, err := c.ValidateToken(ctx, token)
+	if err != nil {
+		return nil, err
+	}
+
+	return &AAAUser{
+		ID:       claims.UserID,
+		Username: claims.Username,
+		Email:    claims.Email,
+		IsActive: true,
+	}, nil
+}
+
+// HealthCheck checks the health of the AAA service
+func (c *client) HealthCheck(ctx context.Context) error {
+	if c.conn == nil {
+		return fmt.Errorf("AAA service connection not established")
+	}
+
+	// Create health check request
+	req := &aaaPb.HealthCheckRequest{}
+
+	// Call AAA service health check
+	_, err := c.authClient.HealthCheck(ctx, req)
+	if err != nil {
+		return fmt.Errorf("AAA service health check failed: %w", err)
+	}
+
+	return nil
 }

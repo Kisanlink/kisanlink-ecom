@@ -10,6 +10,7 @@ import (
 	catalogModels "kisanlink-ecom/entities/models/catalog"
 	catalogRequests "kisanlink-ecom/entities/requests/catalog"
 	"kisanlink-ecom/internal/handlers/catalog"
+	catalogService "kisanlink-ecom/internal/services/catalog"
 	"kisanlink-ecom/internal/services/catalog/mocks"
 	"kisanlink-ecom/tests/data"
 
@@ -26,10 +27,11 @@ func TestCatalogHandlers_Integration(t *testing.T) {
 		mockService := new(mocks.CatalogServiceInterface)
 
 		// Setup handlers
-		productHandler := catalog.NewProductHandler(mockService)
-		serviceHandler := catalog.NewServiceHandler(mockService)
-		labourHandler := catalog.NewLabourHandler(mockService)
-		catalogHandler := catalog.NewCatalogHandler(mockService)
+		etagService := &catalogService.ETagService{}
+		productHandler := catalog.NewProductHandler(mockService, etagService)
+		serviceHandler := catalog.NewServiceHandler(mockService, etagService)
+		labourHandler := catalog.NewLabourHandler(mockService, etagService)
+		catalogHandler := catalog.NewCatalogHandler(mockService, etagService)
 
 		// Test 1: Create a product
 		t.Run("Create Product", func(t *testing.T) {

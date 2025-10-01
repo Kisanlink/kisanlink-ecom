@@ -18,7 +18,7 @@ const (
 )
 
 // AuthNMiddleware creates authentication middleware that validates JWT tokens
-func AuthNMiddleware(aaaClient auth.AAAClient) gin.HandlerFunc {
+func AuthNMiddleware(aaaClient auth.Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Extract token from request
 		token, err := auth.ExtractToken(c)
@@ -36,15 +36,15 @@ func AuthNMiddleware(aaaClient auth.AAAClient) gin.HandlerFunc {
 			return
 		}
 
-		// For now, use a simple token validation approach
-		// TODO: Implement proper JWT validation with AAA service
-		if token == "" {
+		// Validate token with AAA service
+		claims, err := aaaClient.ValidateToken(c.Request.Context(), token)
+		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error": gin.H{
 					"code":    "INVALID_TOKEN",
 					"message": "Token validation failed",
 					"details": gin.H{
-						"reason": "empty token",
+						"reason": err.Error(),
 					},
 				},
 			})
@@ -52,18 +52,43 @@ func AuthNMiddleware(aaaClient auth.AAAClient) gin.HandlerFunc {
 			return
 		}
 
-		// Mock user ID, roles and org for now
-		// TODO: Replace with actual AAA service call and claims parsing
-		userID := "mock_user_id"
-		roles := []string{"buyer", "seller"}
-		orgID := c.GetHeader("X-Org-ID")
-
 		// Store user information in context for downstream handlers
-		c.Set(SubjectIDKey, userID)
-		c.Set(UserRolesKey, roles)
-		if orgID != "" {
-			c.Set(OrgIDKey, orgID)
+		c.Set(SubjectIDKey, claims.UserID)
+		c.Set(UserRolesKey, claims.Roles)
+		c.Set(OrgIDKey, claims.TenantID)
+
+		// Create enhanced user context with all available fields
+		userCtx := &auth.UserContext{
+			UserID:           claims.UserID,
+			Username:         claims.Username,
+			Email:            claims.Email,
+			PhoneNumber:      claims.PhoneNumber,
+			CountryCode:      claims.CountryCode,
+			TenantID:         claims.TenantID,
+			OrganizationID:   claims.OrganizationID,
+			OrganizationName: claims.OrganizationName,
+			Roles:            claims.Roles,
+			RoleIDs:          claims.RoleIDs,
+			Permissions:      claims.Permissions,
+			Scopes:           claims.Scopes,
+			IsActive:         true,
+			IsValidated:      claims.IsValidated,
+			UserRoles:        claims.UserRoles,
+			Organizations:    claims.Organizations,
+			Groups:           claims.Groups,
+			TokenType:        claims.TokenType,
+			TokenVersion:     claims.TokenVersion,
+			Subject:          claims.Subject,
+			SessionID:        claims.SessionID,
+			JTI:              claims.JTI,
+			Issuer:           claims.Issuer,
+			Audience:         claims.Audience,
+			TenantContext:    claims.TenantContext,
+			UserContextData:  claims.UserContextData,
 		}
+
+		c.Set("userContext", userCtx)
+		c.Set("user_context", userCtx)
 
 		c.Next()
 	}

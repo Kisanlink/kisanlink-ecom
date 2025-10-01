@@ -53,7 +53,7 @@ type ErrorWithContext struct {
 }
 
 func (e *ErrorWithContext) Error() string {
-	if e.Context == nil || len(e.Context) == 0 {
+	if len(e.Context) == 0 {
 		return e.Err.Error()
 	}
 	return fmt.Sprintf("%s: %v", e.Err.Error(), e.Context)
@@ -120,6 +120,13 @@ const (
 	ErrorCodeExternalServiceError ErrorCode = "EXTERNAL_SERVICE_ERROR"
 	ErrorCodeServiceUnavailable   ErrorCode = "SERVICE_UNAVAILABLE"
 	ErrorCodeServiceTimeout       ErrorCode = "SERVICE_TIMEOUT"
+
+	// Idempotency and optimistic locking error codes
+	ErrorCodeIdempotencyConflict    ErrorCode = "IDEMPOTENCY_CONFLICT"
+	ErrorCodeOptimisticLockConflict ErrorCode = "OPTIMISTIC_LOCK_CONFLICT"
+	ErrorCodePreconditionFailed     ErrorCode = "PRECONDITION_FAILED"
+	ErrorCodeETagMismatch           ErrorCode = "ETAG_MISMATCH"
+	ErrorCodeVersionConflict        ErrorCode = "VERSION_CONFLICT"
 
 	// Internal error codes
 	ErrorCodeInternalError ErrorCode = "INTERNAL_ERROR"
@@ -253,6 +260,59 @@ func NewExternalServiceError(service string, cause error) *AppError {
 		Message:    fmt.Sprintf("External service error: %s", service),
 		StatusCode: 502,
 		Cause:      cause,
+	}
+}
+
+// NewIdempotencyConflictError creates an idempotency conflict error
+func NewIdempotencyConflictError(message string) *AppError {
+	return &AppError{
+		Code:       ErrorCodeIdempotencyConflict,
+		Message:    message,
+		StatusCode: 409,
+	}
+}
+
+// NewOptimisticLockConflictError creates an optimistic locking conflict error
+func NewOptimisticLockConflictError(message string) *AppError {
+	return &AppError{
+		Code:       ErrorCodeOptimisticLockConflict,
+		Message:    message,
+		StatusCode: 412, // Precondition Failed
+	}
+}
+
+// NewPreconditionFailedError creates a precondition failed error
+func NewPreconditionFailedError(message string) *AppError {
+	return &AppError{
+		Code:       ErrorCodePreconditionFailed,
+		Message:    message,
+		StatusCode: 412,
+	}
+}
+
+// NewETagMismatchError creates an ETag mismatch error
+func NewETagMismatchError(expected, actual string) *AppError {
+	return &AppError{
+		Code:       ErrorCodeETagMismatch,
+		Message:    "ETag mismatch - entity has been modified",
+		StatusCode: 412,
+		Context: map[string]interface{}{
+			"expected_etag": expected,
+			"actual_etag":   actual,
+		},
+	}
+}
+
+// NewVersionConflictError creates a version conflict error
+func NewVersionConflictError(expected, actual int64) *AppError {
+	return &AppError{
+		Code:       ErrorCodeVersionConflict,
+		Message:    "Version conflict - entity has been modified",
+		StatusCode: 409,
+		Context: map[string]interface{}{
+			"expected_version": expected,
+			"actual_version":   actual,
+		},
 	}
 }
 

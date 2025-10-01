@@ -14,12 +14,14 @@ import (
 // ServiceHandler handles HTTP requests for service operations
 type ServiceHandler struct {
 	catalogService catalogService.CatalogServiceInterface
+	etagService    *catalogService.ETagService
 }
 
 // NewServiceHandler creates a new service handler
-func NewServiceHandler(catalogService catalogService.CatalogServiceInterface) *ServiceHandler {
+func NewServiceHandler(catalogService catalogService.CatalogServiceInterface, etagService *catalogService.ETagService) *ServiceHandler {
 	return &ServiceHandler{
 		catalogService: catalogService,
+		etagService:    etagService,
 	}
 }
 
@@ -79,7 +81,9 @@ func (h *ServiceHandler) CreateService(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "Service ID"
+// @Param If-None-Match header string false "ETag for conditional requests"
 // @Success 200 {object} common.Response{data=catalog.ServiceResponse}
+// @Success 304 "Not modified"
 // @Failure 404 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/catalog/services/{id} [get]
 func (h *ServiceHandler) GetServiceByID(c *gin.Context) {
@@ -89,6 +93,16 @@ func (h *ServiceHandler) GetServiceByID(c *gin.Context) {
 		return
 	}
 
+	// Validate conditional request headers if ETag service is available
+	if h.etagService != nil {
+		if err := h.etagService.ValidateConditionalRequest(c); err != nil {
+			common.BadRequest(c, "INVALID_CONDITIONAL_HEADER", "Invalid conditional request header", map[string]interface{}{
+				"error": err.Error(),
+			})
+			return
+		}
+	}
+
 	service, err := h.catalogService.GetServiceByID(c.Request.Context(), id)
 	if err != nil {
 		common.NotFound(c, "SERVICE_NOT_FOUND", "Service not found", map[string]interface{}{
@@ -96,6 +110,23 @@ func (h *ServiceHandler) GetServiceByID(c *gin.Context) {
 			"error":      err.Error(),
 		})
 		return
+	}
+
+	// Handle ETag validation and conditional response
+	if h.etagService != nil {
+		// Convert Service to CatalogItem for ETag processing
+		catalogItem := &service.CatalogItem
+
+		// Log ETag operation
+		h.etagService.LogETagOperation(c, "get_service", catalogItem, map[string]interface{}{
+			"service_id": id,
+		})
+
+		// Check if client has current version (ETag match)
+		if h.etagService.HandleConditionalRequest(c, catalogItem) {
+			// 304 Not Modified response was sent
+			return
+		}
 	}
 
 	common.Success(c, service, &common.ResponseMeta{

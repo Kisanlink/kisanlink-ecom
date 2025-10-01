@@ -5,7 +5,9 @@ This directory contains comprehensive documentation for the KisanLink E-commerce
 ## 📚 Available Documentation
 
 ### [DEVELOPMENT.md](DEVELOPMENT.md)
+
 Complete guide for developers including:
+
 - Development tools setup
 - Code quality standards
 - Pre-commit hooks configuration
@@ -16,11 +18,13 @@ Complete guide for developers including:
 ## 🚀 Quick Start for Developers
 
 1. **Setup your development environment:**
+
    ```bash
    make setup-hooks
    ```
 
 2. **Run quality checks:**
+
    ```bash
    make quick-check
    ```
@@ -43,4 +47,4 @@ Complete guide for developers including:
 
 - Check the troubleshooting section in [DEVELOPMENT.md](DEVELOPMENT.md)
 - Create an issue using the templates in `.github/ISSUE_TEMPLATE/`
-- Review the project's [main README](../README.md) 
+- Review the project's [main README](../README.md)

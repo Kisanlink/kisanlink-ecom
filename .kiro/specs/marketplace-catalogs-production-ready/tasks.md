@@ -53,7 +53,7 @@
   - **Dependencies**: A1
   - **Requirements**: 2.1
 
-- [ ] B2. Implement request validation with go-playground/validator
+- [x] B2. Implement request validation with go-playground/validator
   - Create custom validation rules for catalog-specific fields
   - Implement rate unit validation, contract date validation, SKU format validation
   - Add cross-field validation for complex business rules
@@ -71,7 +71,7 @@
   - **Dependencies**: None
   - **Requirements**: 2.3
 
-- [ ] B4. Implement idempotency and optimistic locking
+- [x] B4. Implement idempotency and optimistic locking
   - Add Idempotency-Key header support for POST/PUT operations
   - Implement optimistic locking using updated_at/version fields
   - Create idempotency key storage and validation logic
@@ -79,7 +79,7 @@
   - **Dependencies**: A2, B3
   - **Requirements**: 2.4
 
-- [ ] B5. Add ETag support for caching validation
+- [x] B5. Add ETag support for caching validation
   - Implement ETag generation for GET detail responses
   - Add If-None-Match header processing
   - Create cache validation middleware
@@ -89,8 +89,8 @@
 
 ## EPIC C — AAA gRPC Client + AuthZ
 
-- [ ] C1. Integrate AAA service gRPC client
-  - Import AAA protobufs from github.com/Kisanlink/aaa-protos
+- [x] C1. Integrate AAA service gRPC client
+  - Import AAA protobufs from github.com/Kisanlink/pkg/proto
   - Generate gRPC client code using buf
   - Configure TLS and mTLS for secure communication
   - **Priority**: P0 | **Estimate**: 4 SP | **Owner**: TBD | **Labels**: [backend], [security], [integration]

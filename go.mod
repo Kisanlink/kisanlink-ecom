@@ -3,7 +3,6 @@ module kisanlink-ecom
 go 1.24
 
 require (
-	github.com/Kisanlink/aaa-service v0.0.0-00010101000000-000000000000
 	github.com/Kisanlink/kisanlink-db v0.1.9
 	github.com/MarceloPetrucio/go-scalar-api-reference v0.0.0-20240521013641-ce5d2efe0e06
 	github.com/aws/aws-sdk-go-v2 v1.39.0
@@ -13,7 +12,6 @@ require (
 	github.com/gin-contrib/requestid v1.0.2
 	github.com/gin-gonic/gin v1.10.1
 	github.com/go-playground/validator/v10 v10.27.0
-	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/joho/godotenv v1.5.1
@@ -35,6 +33,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.38.0
 	golang.org/x/time v0.12.0
 	google.golang.org/grpc v1.75.0
+	google.golang.org/protobuf v1.36.8
 	gorm.io/driver/sqlite v1.6.0
 	gorm.io/gorm v1.30.0
 )
@@ -122,12 +121,9 @@ require (
 	golang.org/x/tools v0.35.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250825161204-c5933d9347a5 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250825161204-c5933d9347a5 // indirect
-	google.golang.org/protobuf v1.36.8 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/postgres v1.6.0 // indirect
 )
 
 replace github.com/Kisanlink/kisanlink-db => ../kisanlink-db
-
-replace github.com/Kisanlink/aaa-service => ../aaa-service

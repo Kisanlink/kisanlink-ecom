@@ -81,6 +81,23 @@ type CatalogItem struct {
 	// - Pricing via pricing.Price (EntityID)
 }
 
+// VersionedEntity interface implementation for optimistic locking
+func (c *CatalogItem) GetID() string {
+	return c.ID
+}
+
+func (c *CatalogItem) GetVersion() int64 {
+	return c.Version
+}
+
+func (c *CatalogItem) GetUpdatedAt() time.Time {
+	return c.UpdatedAt
+}
+
+func (c *CatalogItem) IncrementVersion() {
+	c.Version++
+}
+
 // Product represents a product catalog item
 type Product struct {
 	CatalogItem
