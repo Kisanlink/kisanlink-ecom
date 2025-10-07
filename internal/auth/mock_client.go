@@ -40,7 +40,7 @@ func (m *MockClient) ValidateToken(ctx context.Context, token string) (*TokenCla
 		OrganizationID:   "mock_org_789",
 		OrganizationName: "Mock Organization",
 		Roles:            []string{"user", "catalog_manager"},
-		Permissions:      []string{"catalog:read", "catalog:write", "catalog:publish"},
+		Permissions:      []string{"catalog_read", "catalog_write", "catalog_publish"},
 		IssuedAt:         now,
 		ExpiresAt:        now + 3600, // 1 hour from now
 		Issuer:           "mock_aaa_service",

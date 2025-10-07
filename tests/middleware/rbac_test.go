@@ -61,11 +61,12 @@ func TestRBACMiddleware_RequirePermission(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mockAAA := new(MockAAAClient)
+			mockAAA := new(MockProductionAAAClient)
 
 			if tt.userContext != nil {
-				mockAAA.On("EvaluatePermission", mock.Anything, tt.userContext.UserID, tt.resource, tt.action).
-					Return(tt.permissionResp, tt.permissionErr)
+				mockAAA.On("Authorize", mock.Anything, mock.MatchedBy(func(req *auth.AuthorizeRequest) bool {
+					return req.UserID == tt.userContext.UserID && req.Resource == tt.resource && req.Action == tt.action
+				})).Return(&auth.AuthorizeResponse{Allowed: tt.permissionResp}, tt.permissionErr)
 			}
 
 			rbacMiddleware := middleware.NewRBACMiddleware(mockAAA, nil)
@@ -122,7 +123,7 @@ func TestRBACMiddleware_RequireRole(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mockAAA := new(MockAAAClient)
+			mockAAA := new(MockProductionAAAClient)
 			rbacMiddleware := middleware.NewRBACMiddleware(mockAAA, nil)
 
 			userContext := &auth.UserContext{
@@ -188,11 +189,12 @@ func TestRBACMiddleware_RequireOrganization(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mockAAA := new(MockAAAClient)
+			mockAAA := new(MockProductionAAAClient)
 
 			if tt.shouldCallAAA {
-				mockAAA.On("ValidateUserOrganization", mock.Anything, "user123", tt.requiredOrgID).
-					Return(tt.crossOrgAllowed, nil)
+				mockAAA.On("Authorize", mock.Anything, mock.MatchedBy(func(req *auth.AuthorizeRequest) bool {
+					return req.UserID == "user123" && req.Resource == "organization" && req.ResourceID == tt.requiredOrgID
+				})).Return(&auth.AuthorizeResponse{Allowed: tt.crossOrgAllowed}, nil)
 			}
 
 			rbacMiddleware := middleware.NewRBACMiddleware(mockAAA, nil)
@@ -230,7 +232,7 @@ func TestRBACMiddleware_SkipAuthPaths(t *testing.T) {
 		CacheEnabled:  false,
 	}
 
-	mockAAA := new(MockAAAClient)
+	mockAAA := new(MockProductionAAAClient)
 	rbacMiddleware := middleware.NewRBACMiddleware(mockAAA, config)
 
 	router := gin.New()
@@ -262,10 +264,12 @@ func TestRBACMiddleware_CachePermissions(t *testing.T) {
 		CacheTTL:     1 * time.Minute,
 	}
 
-	mockAAA := new(MockAAAClient)
+	mockAAA := new(MockProductionAAAClient)
 
 	// Mock should be called only once due to caching
-	mockAAA.On("EvaluatePermission", mock.Anything, "user123", "catalog", "read").Return(true, nil).Once()
+	mockAAA.On("Authorize", mock.Anything, mock.MatchedBy(func(req *auth.AuthorizeRequest) bool {
+		return req.UserID == "user123" && req.Resource == "catalog" && req.Action == "read"
+	})).Return(&auth.AuthorizeResponse{Allowed: true}, nil).Once()
 
 	rbacMiddleware := middleware.NewRBACMiddleware(mockAAA, config)
 
