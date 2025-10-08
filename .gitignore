@@ -65,3 +65,4 @@ coverage.txt
 # Test artifacts
 testdata/
 *.test
+node_modules/.cache/

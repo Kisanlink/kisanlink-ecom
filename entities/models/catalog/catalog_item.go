@@ -34,34 +34,34 @@ type CatalogItem struct {
 	base.BaseModel
 
 	// Tenant isolation (using OrganizationID as TenantID for compatibility)
-	OrganizationID string `json:"organization_id" gorm:"type:varchar(255);not null;index:idx_tenant;index:idx_tenant_type_status,priority:1;index:idx_tenant_category,priority:1;index:idx_tenant_vendor,priority:1"`
+	OrganizationID string `json:"organization_id" gorm:"type:varchar(255);not null;index:idx_catalog_items_tenant;index:idx_catalog_items_tenant_type_status,priority:1;index:idx_catalog_items_tenant_category,priority:1;index:idx_catalog_items_tenant_vendor,priority:1"`
 
 	// Item Classification
-	ItemType    CatalogItemType `json:"item_type" gorm:"type:varchar(20);not null;index:idx_tenant_type_status,priority:2"`
-	CategoryID  string          `json:"category_id" gorm:"type:varchar(255);index:idx_tenant_category,priority:2"`
+	ItemType    CatalogItemType `json:"item_type" gorm:"type:varchar(20);not null;index:idx_catalog_items_tenant_type_status,priority:2"`
+	CategoryID  string          `json:"category_id" gorm:"type:varchar(255);index:idx_catalog_items_tenant_category,priority:2"`
 	Category    string          `json:"category" gorm:"type:varchar(100)"`
 	Subcategory string          `json:"subcategory" gorm:"type:varchar(100)"`
 
 	// Basic Information
 	Name          string `json:"name" gorm:"type:varchar(255);not null;index:idx_catalog_items_search_name"`
-	Description   string `json:"description" gorm:"type:text;index:idx_search_desc"`
-	SKU           string `json:"sku" gorm:"type:varchar(100);uniqueIndex:idx_org_sku,where:sku IS NOT NULL AND sku != ''"`
+	Description   string `json:"description" gorm:"type:text;index:idx_catalog_items_search_desc"`
+	SKU           string `json:"sku" gorm:"type:varchar(100);uniqueIndex:idx_catalog_items_org_sku,where:sku IS NOT NULL AND sku != ''"`
 	UnitOfMeasure string `json:"unit_of_measure" gorm:"type:varchar(50)"`
 
 	// Vendor/FPO Information
-	VendorID string `json:"vendor_id" gorm:"type:varchar(255);index:idx_tenant_vendor,priority:3"`
+	VendorID string `json:"vendor_id" gorm:"type:varchar(255);index:idx_catalog_items_tenant_vendor,priority:3"`
 
 	// Pricing (Authoritative)
 	BasePrice decimal.Decimal `json:"base_price" gorm:"type:decimal(12,2);not null;check:base_price >= 0"`
 	Currency  string          `json:"currency" gorm:"type:varchar(3);not null;default:'INR'"`
 
 	// Availability & Visibility (PublishState)
-	IsActive   bool           `json:"is_active" gorm:"not null;default:true;index:idx_tenant_type_status,priority:3"`
+	IsActive   bool           `json:"is_active" gorm:"not null;default:true;index:idx_catalog_items_tenant_type_status,priority:3"`
 	Visibility VisibilityType `json:"visibility" gorm:"type:varchar(20);not null;default:'PRIVATE'"`
 
 	// Metadata
-	Tags       pq.StringArray `json:"tags" gorm:"type:text[];index:idx_tags"`
-	Attributes string         `json:"attributes" gorm:"type:jsonb;index:idx_attributes"`
+	Tags       pq.StringArray `json:"tags" gorm:"type:text[];index:idx_catalog_items_tags"`
+	Attributes string         `json:"attributes" gorm:"type:jsonb;index:idx_catalog_items_attributes"`
 	Images     pq.StringArray `json:"images" gorm:"type:text[]"`
 
 	// Audit fields
@@ -178,6 +178,7 @@ func NewCatalogItem(orgID string, itemType CatalogItemType, name string, basePri
 		Currency:       "INR",
 		IsActive:       true,
 		Visibility:     VisibilityPrivate,
+		Version:        1,
 	}
 }
 

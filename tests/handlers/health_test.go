@@ -30,16 +30,10 @@ func TestHealthCheck(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	var response common.APIResponse
+	var response common.HealthResponse
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
-	assert.True(t, response.Success)
-	assert.Equal(t, "Health check successful", response.Message)
-
-	// Verify the health response data
-	data, ok := response.Data.(map[string]interface{})
-	assert.True(t, ok)
-	assert.Equal(t, "ok", data["status"])
-	assert.Equal(t, "KisanLink E-commerce API is running", data["message"])
-	assert.Equal(t, "1.0.0", data["version"])
+	assert.Equal(t, "ok", response.Status)
+	assert.Equal(t, "KisanLink E-commerce API is running", response.Message)
+	assert.Equal(t, "1.0.0", response.Version)
 }

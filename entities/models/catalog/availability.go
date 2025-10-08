@@ -24,15 +24,15 @@ type Availability struct {
 	base.BaseModel
 
 	// Tenant isolation
-	OrganizationID string `json:"organization_id" gorm:"type:varchar(255);not null;index:idx_tenant"`
+	OrganizationID string `json:"organization_id" gorm:"type:varchar(255);not null;index:idx_availability_tenant"`
 
 	// Parent catalog item or variant
-	CatalogItemID *string `json:"catalog_item_id" gorm:"type:varchar(255);index:idx_catalog_item"`
-	VariantID     *string `json:"variant_id" gorm:"type:varchar(255);index:idx_variant"`
+	CatalogItemID *string `json:"catalog_item_id" gorm:"type:varchar(255);index:idx_availability_catalog_item"`
+	VariantID     *string `json:"variant_id" gorm:"type:varchar(255);index:idx_availability_variant"`
 
 	// Availability details
 	Type   AvailabilityType `json:"type" gorm:"type:varchar(20);not null;check:type IN ('in_stock', 'out_of_stock', 'pre_order', 'back_order', 'discontinued')"`
-	Status string           `json:"status" gorm:"type:varchar(50);not null;default:'available'"`
+	Status string           `json:"status" gorm:"type:varchar(50);not null;default:'available';index:idx_availability_status"`
 
 	// Inventory
 	QuantityAvailable *decimal.Decimal `json:"quantity_available" gorm:"type:decimal(12,3);check:quantity_available IS NULL OR quantity_available >= 0"`
@@ -41,8 +41,8 @@ type Availability struct {
 	MaxOrderQuantity  *decimal.Decimal `json:"max_order_quantity" gorm:"type:decimal(12,3);check:max_order_quantity IS NULL OR max_order_quantity > 0"`
 
 	// Location
-	Location  string `json:"location" gorm:"type:varchar(255);index:idx_location"`
-	Warehouse string `json:"warehouse" gorm:"type:varchar(255);index:idx_warehouse"`
+	Location  string `json:"location" gorm:"type:varchar(255);index:idx_availability_location"`
+	Warehouse string `json:"warehouse" gorm:"type:varchar(255);index:idx_availability_warehouse"`
 
 	// Time-based availability
 	AvailableFrom *time.Time `json:"available_from" gorm:"type:timestamp"`

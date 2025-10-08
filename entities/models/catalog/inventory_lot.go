@@ -25,16 +25,16 @@ type InventoryLot struct {
 	base.BaseModel
 
 	// Tenant isolation
-	OrganizationID string `json:"organization_id" gorm:"type:varchar(255);not null;index:idx_tenant"`
+	OrganizationID string `json:"organization_id" gorm:"type:varchar(255);not null;index:idx_inventory_lots_tenant"`
 
 	// Parent catalog item or variant
-	CatalogItemID *string `json:"catalog_item_id" gorm:"type:varchar(255);index:idx_catalog_item"`
-	VariantID     *string `json:"variant_id" gorm:"type:varchar(255);index:idx_variant"`
+	CatalogItemID *string `json:"catalog_item_id" gorm:"type:varchar(255);index:idx_inventory_lots_catalog_item"`
+	VariantID     *string `json:"variant_id" gorm:"type:varchar(255);index:idx_inventory_lots_variant"`
 
 	// Lot identification
-	LotNumber    string `json:"lot_number" gorm:"type:varchar(100);not null;uniqueIndex:idx_org_lot_number"`
-	BatchNumber  string `json:"batch_number" gorm:"type:varchar(100);index:idx_batch"`
-	SerialNumber string `json:"serial_number" gorm:"type:varchar(100);uniqueIndex:idx_serial,where:serial_number IS NOT NULL AND serial_number != ''"`
+	LotNumber    string `json:"lot_number" gorm:"type:varchar(100);not null;uniqueIndex:idx_inventory_lots_org_lot_number"`
+	BatchNumber  string `json:"batch_number" gorm:"type:varchar(100);index:idx_inventory_lots_batch"`
+	SerialNumber string `json:"serial_number" gorm:"type:varchar(100);uniqueIndex:idx_inventory_lots_serial,where:serial_number IS NOT NULL AND serial_number != ''"`
 
 	// Quantity and units
 	Quantity      decimal.Decimal `json:"quantity" gorm:"type:decimal(12,3);not null;check:quantity > 0"`
@@ -43,17 +43,17 @@ type InventoryLot struct {
 	UnitOfMeasure string          `json:"unit_of_measure" gorm:"type:varchar(50);not null"`
 
 	// Status and condition
-	Status    LotStatus `json:"status" gorm:"type:varchar(20);not null;default:'active';index:idx_status;check:status IN ('active', 'reserved', 'sold', 'expired', 'damaged', 'returned')"`
+	Status    LotStatus `json:"status" gorm:"type:varchar(20);not null;default:'active';index:idx_inventory_lots_status;check:status IN ('active', 'reserved', 'sold', 'expired', 'damaged', 'returned')"`
 	Condition string    `json:"condition" gorm:"type:varchar(50)"` // new, used, refurbished, damaged
 
 	// Dates
 	ManufacturedDate *time.Time `json:"manufactured_date" gorm:"type:timestamp"`
-	ExpiryDate       *time.Time `json:"expiry_date" gorm:"type:timestamp;index:idx_expiry"`
+	ExpiryDate       *time.Time `json:"expiry_date" gorm:"type:timestamp;index:idx_inventory_lots_expiry"`
 	ReceivedDate     *time.Time `json:"received_date" gorm:"type:timestamp"`
 
 	// Location and storage
-	Location  string `json:"location" gorm:"type:varchar(255);index:idx_location"`
-	Warehouse string `json:"warehouse" gorm:"type:varchar(255);index:idx_warehouse"`
+	Location  string `json:"location" gorm:"type:varchar(255);index:idx_inventory_lots_location"`
+	Warehouse string `json:"warehouse" gorm:"type:varchar(255);index:idx_inventory_lots_warehouse"`
 	Zone      string `json:"zone" gorm:"type:varchar(100)"`
 	Aisle     string `json:"aisle" gorm:"type:varchar(50)"`
 	Shelf     string `json:"shelf" gorm:"type:varchar(50)"`
@@ -65,8 +65,8 @@ type InventoryLot struct {
 	Currency  string          `json:"currency" gorm:"type:varchar(3);not null;default:'INR'"`
 
 	// Supplier information
-	SupplierID      string `json:"supplier_id" gorm:"type:varchar(255);index:idx_supplier"`
-	PurchaseOrderID string `json:"purchase_order_id" gorm:"type:varchar(255);index:idx_po"`
+	SupplierID      string `json:"supplier_id" gorm:"type:varchar(255);index:idx_inventory_lots_supplier"`
+	PurchaseOrderID string `json:"purchase_order_id" gorm:"type:varchar(255);index:idx_inventory_lots_po"`
 
 	// Quality and compliance
 	QualityGrade    string `json:"quality_grade" gorm:"type:varchar(50)"`     // A, B, C, Premium, Standard

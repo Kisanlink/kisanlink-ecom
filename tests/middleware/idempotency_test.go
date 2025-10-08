@@ -280,8 +280,8 @@ func TestETagGeneration(t *testing.T) {
 
 	// Validate ETag format (should be quoted hex string)
 	assert.True(t, len(etag1) > 2)
-	assert.Equal(t, '"', etag1[0])
-	assert.Equal(t, '"', etag1[len(etag1)-1])
+	assert.Equal(t, byte('"'), etag1[0])
+	assert.Equal(t, byte('"'), etag1[len(etag1)-1])
 }
 
 func TestETagParsing(t *testing.T) {

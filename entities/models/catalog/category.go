@@ -10,7 +10,7 @@ type Category struct {
 	base.BaseModel
 
 	// Tenant isolation
-	OrganizationID string `json:"organization_id" gorm:"type:varchar(255);not null;index:idx_tenant;index:idx_org_slug,priority:1"`
+	OrganizationID string `json:"organization_id" gorm:"type:varchar(255);not null;index:idx_org_slug,priority:1;index:idx_org_categories"`
 
 	// Category details
 	Name        string `json:"name" gorm:"type:varchar(255);not null;index:idx_categories_search_name"`
@@ -23,7 +23,7 @@ type Category struct {
 	Path     string  `json:"path" gorm:"type:varchar(1000);not null;index:idx_path"` // materialized path like "/electronics/mobile"
 
 	// Metadata
-	IsActive  bool `json:"is_active" gorm:"not null;default:true;index:idx_active"`
+	IsActive  bool `json:"is_active" gorm:"not null;default:true;index:idx_categories_active"`
 	SortOrder int  `json:"sort_order" gorm:"not null;default:0"`
 
 	// Audit fields

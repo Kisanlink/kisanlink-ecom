@@ -25,44 +25,44 @@ type AuditLog struct {
 	base.BaseModel
 
 	// Tenant isolation
-	OrganizationID string `json:"organization_id" gorm:"type:varchar(255);not null;index:idx_tenant"`
+	OrganizationID string `json:"organization_id" gorm:"type:varchar(255);not null;index:idx_audit_logs_tenant"`
 
 	// Action details
-	Action     AuditAction `json:"action" gorm:"type:varchar(20);not null;index:idx_action;check:action IN ('CREATE', 'UPDATE', 'DELETE', 'RESTORE', 'PUBLISH', 'UNPUBLISH', 'APPROVE', 'REJECT')"`
-	EntityType string      `json:"entity_type" gorm:"type:varchar(100);not null;index:idx_entity_type"`
-	EntityID   string      `json:"entity_id" gorm:"type:varchar(255);not null;index:idx_entity_id"`
+	Action     AuditAction `json:"action" gorm:"type:varchar(20);not null;index:idx_audit_logs_action;check:action IN ('CREATE', 'UPDATE', 'DELETE', 'RESTORE', 'PUBLISH', 'UNPUBLISH', 'APPROVE', 'REJECT')"`
+	EntityType string      `json:"entity_type" gorm:"type:varchar(100);not null;index:idx_audit_logs_entity_type"`
+	EntityID   string      `json:"entity_id" gorm:"type:varchar(255);not null;index:idx_audit_logs_entity_id"`
 	EntityName string      `json:"entity_name" gorm:"type:varchar(255)"`
 
 	// Actor information (who performed the action)
 	ActorType  string `json:"actor_type" gorm:"type:varchar(50);not null;check:actor_type IN ('USER', 'SYSTEM', 'API', 'BATCH')"` // USER, SYSTEM, API, BATCH
-	ActorID    string `json:"actor_id" gorm:"type:varchar(255);not null;index:idx_actor"`
+	ActorID    string `json:"actor_id" gorm:"type:varchar(255);not null;index:idx_audit_logs_actor"`
 	ActorName  string `json:"actor_name" gorm:"type:varchar(255)"`
 	ActorEmail string `json:"actor_email" gorm:"type:varchar(255)"`
 
 	// Request context
-	RequestID string `json:"request_id" gorm:"type:varchar(255);index:idx_request"`
-	SessionID string `json:"session_id" gorm:"type:varchar(255);index:idx_session"`
+	RequestID string `json:"request_id" gorm:"type:varchar(255);index:idx_audit_logs_request"`
+	SessionID string `json:"session_id" gorm:"type:varchar(255);index:idx_audit_logs_session"`
 	IPAddress string `json:"ip_address" gorm:"type:varchar(45)"` // IPv6 compatible
 	UserAgent string `json:"user_agent" gorm:"type:text"`
 	Source    string `json:"source" gorm:"type:varchar(100)"` // web, mobile, api, admin
 
 	// Change details
-	FieldsChanged string `json:"fields_changed" gorm:"type:jsonb;index:idx_fields"` // Array of field names that changed
-	OldValues     string `json:"old_values" gorm:"type:jsonb"`                      // Previous values (for UPDATE/DELETE)
-	NewValues     string `json:"new_values" gorm:"type:jsonb"`                      // New values (for CREATE/UPDATE)
-	ChangeReason  string `json:"change_reason" gorm:"type:text"`                    // Optional reason for the change
+	FieldsChanged string `json:"fields_changed" gorm:"type:jsonb;index:idx_audit_logs_fields"` // Array of field names that changed
+	OldValues     string `json:"old_values" gorm:"type:jsonb"`                                 // Previous values (for UPDATE/DELETE)
+	NewValues     string `json:"new_values" gorm:"type:jsonb"`                                 // New values (for CREATE/UPDATE)
+	ChangeReason  string `json:"change_reason" gorm:"type:text"`                               // Optional reason for the change
 
 	// Metadata
 	Metadata string `json:"metadata" gorm:"type:jsonb;index:idx_audit_logs_metadata"`                                                      // Additional context
-	Tags     string `json:"tags" gorm:"type:jsonb"`                                                                                        // Searchable tags
+	Tags     string `json:"tags" gorm:"type:jsonb;index:idx_audit_logs_tags"`                                                              // Searchable tags
 	Severity string `json:"severity" gorm:"type:varchar(20);default:'INFO';check:severity IN ('LOW', 'INFO', 'WARN', 'HIGH', 'CRITICAL')"` // Audit severity level
 
 	// Timestamp (immutable)
-	Timestamp time.Time `json:"timestamp" gorm:"type:timestamp;not null;default:CURRENT_TIMESTAMP;index:idx_timestamp"`
+	Timestamp time.Time `json:"timestamp" gorm:"type:timestamp;not null;default:CURRENT_TIMESTAMP;index:idx_audit_logs_timestamp"`
 
 	// Compliance and retention
-	RetentionDate *time.Time `json:"retention_date" gorm:"type:timestamp;index:idx_retention"` // When this record can be purged
-	IsArchived    bool       `json:"is_archived" gorm:"not null;default:false;index:idx_archived"`
+	RetentionDate *time.Time `json:"retention_date" gorm:"type:timestamp;index:idx_audit_logs_retention"` // When this record can be purged
+	IsArchived    bool       `json:"is_archived" gorm:"not null;default:false;index:idx_audit_logs_archived"`
 
 	// Note: No soft delete for audit logs - they are append-only and immutable
 	// No UpdatedAt field - audit logs are never updated after creation

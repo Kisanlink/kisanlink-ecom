@@ -371,6 +371,13 @@ func (g *IdempotencyKeyGenerator) ValidateKey(key string) error {
 		return fmt.Errorf("idempotency key too long")
 	}
 
-	// Additional validation logic can be added here
+	// Validate key contains only alphanumeric characters, hyphens, and underscores
+	for _, char := range key {
+		if (char < 'a' || char > 'z') && (char < 'A' || char > 'Z') &&
+			(char < '0' || char > '9') && char != '-' && char != '_' {
+			return fmt.Errorf("idempotency key contains invalid characters")
+		}
+	}
+
 	return nil
 }

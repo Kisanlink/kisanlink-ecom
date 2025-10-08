@@ -31,34 +31,34 @@ type Vendor struct {
 	base.BaseModel
 
 	// Tenant isolation
-	OrganizationID string `json:"organization_id" gorm:"type:varchar(255);not null;index:idx_tenant;index:idx_org_status,priority:1"`
+	OrganizationID string `json:"organization_id" gorm:"type:varchar(255);not null;index:idx_vendors_tenant;index:idx_vendors_org_status,priority:1"`
 
 	// Vendor details
 	Name        string       `json:"name" gorm:"type:varchar(255);not null;index:idx_vendors_search_name"`
 	Type        VendorType   `json:"type" gorm:"type:varchar(20);not null;check:type IN ('individual', 'fpo', 'corporate', 'cooperative')"`
-	Status      VendorStatus `json:"status" gorm:"type:varchar(20);not null;default:'pending';index:idx_org_status,priority:2;check:status IN ('active', 'inactive', 'suspended', 'pending')"`
+	Status      VendorStatus `json:"status" gorm:"type:varchar(20);not null;default:'pending';index:idx_vendors_org_status,priority:2;check:status IN ('active', 'inactive', 'suspended', 'pending')"`
 	Description string       `json:"description" gorm:"type:text"`
 
 	// Contact information
 	ContactPerson string `json:"contact_person" gorm:"type:varchar(255)"`
-	Email         string `json:"email" gorm:"type:varchar(255);index:idx_email"`
-	Phone         string `json:"phone" gorm:"type:varchar(20);index:idx_phone"`
+	Email         string `json:"email" gorm:"type:varchar(255);index:idx_vendors_email"`
+	Phone         string `json:"phone" gorm:"type:varchar(20);index:idx_vendors_phone"`
 
 	// Address
 	Address    string `json:"address" gorm:"type:text"`
-	City       string `json:"city" gorm:"type:varchar(100);index:idx_city"`
-	State      string `json:"state" gorm:"type:varchar(100);index:idx_state"`
+	City       string `json:"city" gorm:"type:varchar(100);index:idx_vendors_city"`
+	State      string `json:"state" gorm:"type:varchar(100);index:idx_vendors_state"`
 	Country    string `json:"country" gorm:"type:varchar(100);not null;default:'India'"`
 	PostalCode string `json:"postal_code" gorm:"type:varchar(20)"`
 
 	// Business information
-	BusinessLicense string         `json:"business_license" gorm:"type:varchar(100);uniqueIndex:idx_business_license,where:business_license IS NOT NULL AND business_license != ''"`
-	TaxID           string         `json:"tax_id" gorm:"type:varchar(50);uniqueIndex:idx_tax_id,where:tax_id IS NOT NULL AND tax_id != ''"`
-	Categories      pq.StringArray `json:"categories" gorm:"type:text[];index:idx_categories"`
+	BusinessLicense string         `json:"business_license" gorm:"type:varchar(100);uniqueIndex:idx_vendors_business_license,where:business_license IS NOT NULL AND business_license != ''"`
+	TaxID           string         `json:"tax_id" gorm:"type:varchar(50);uniqueIndex:idx_vendors_tax_id,where:tax_id IS NOT NULL AND tax_id != ''"`
+	Categories      pq.StringArray `json:"categories" gorm:"type:text[];index:idx_vendors_categories"`
 
 	// Rating and verification
 	Rating     *float64 `json:"rating" gorm:"type:decimal(3,2);check:rating IS NULL OR (rating >= 0 AND rating <= 5)"`
-	IsVerified bool     `json:"is_verified" gorm:"not null;default:false;index:idx_verified"`
+	IsVerified bool     `json:"is_verified" gorm:"not null;default:false;index:idx_vendors_verified"`
 	VerifiedAt *string  `json:"verified_at" gorm:"type:timestamp"`
 
 	// Metadata

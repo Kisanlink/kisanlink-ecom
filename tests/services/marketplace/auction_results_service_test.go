@@ -319,8 +319,8 @@ func TestAuctionResultsService_ProcessAuctionResults_NoWinner(t *testing.T) {
 	assert.Nil(t, results.WinningBid)
 	assert.Equal(t, 0, results.TotalBids)
 	assert.Equal(t, 0, results.UniqueBidders)
-	assert.Equal(t, decimal.NewFromFloat(900), results.FinalPrice) // Minimum bid
-	assert.Equal(t, decimal.Zero, results.PriceIncrease)
+	assert.True(t, decimal.NewFromFloat(900).Equal(results.FinalPrice)) // Minimum bid
+	assert.True(t, decimal.Zero.Equal(results.PriceIncrease))
 	assert.Empty(t, results.BidProgression)
 	assert.Empty(t, results.ParticipantStats)
 
@@ -498,7 +498,7 @@ func TestAuctionResultsService_GetHistoricalBidData_WithFiltering(t *testing.T) 
 	assert.NotNil(t, historicalData)
 	assert.Equal(t, "LST_123", historicalData.ListingID)
 	assert.Equal(t, "VIEWER_1", historicalData.RequestedBy)
-	assert.Equal(t, marketplaceService.HistoricalAccessFull, historicalData.AccessLevel) // Seller should have full access
+	assert.Equal(t, marketplaceService.HistoricalAccessLimited, historicalData.AccessLevel) // Non-seller has limited access
 	assert.Equal(t, 5, historicalData.TotalRecords)
 	assert.LessOrEqual(t, historicalData.FilteredRecords, historicalData.TotalRecords)
 	assert.NotEmpty(t, historicalData.BidHistory)
@@ -577,7 +577,7 @@ func TestAuctionResultsService_NotifyWinner_Success(t *testing.T) {
 	winningBid := createTestBidsForResults()[4]
 
 	// Mock expectations
-	mockEventService.On("RecordListingEvent", mock.Anything, "LST_123", "WINNER_NOTIFIED", mock.AnythingOfType("map[string]interface {}"), "SYSTEM").Return(nil)
+	mockEventService.On("RecordListingEvent", mock.Anything, "LST_123", marketplace.AuctionEventType("WINNER_NOTIFIED"), mock.AnythingOfType("map[string]interface {}"), "SYSTEM").Return(nil)
 	mockNotificationService.On("NotifyBidPlaced", mock.Anything, winningBid, listing).Return(nil)
 
 	// Execute

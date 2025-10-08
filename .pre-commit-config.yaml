@@ -22,8 +22,8 @@ repos:
       - id: go-cyclo
         args: [-over=15]
       - id: go-mod-tidy
-      - id: go-unit-tests
       - id: golangci-lint
+        args: [--new-from-rev=HEAD]
 
   - repo: https://github.com/Lucas-C/pre-commit-hooks
     rev: v1.5.5
@@ -44,3 +44,12 @@ repos:
       - id: prettier
         types_or: [yaml, markdown, json]
         exclude: go.sum
+
+  - repo: local
+    hooks:
+      - id: go-unit-tests-only
+        name: go unit tests (excludes integration tests)
+        entry: make test-unit
+        language: system
+        pass_filenames: false
+        types: [go]

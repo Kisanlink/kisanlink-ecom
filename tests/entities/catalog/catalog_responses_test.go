@@ -183,8 +183,8 @@ func TestToProductResponse(t *testing.T) {
 func TestToServiceResponse(t *testing.T) {
 	t.Run("converts complete service model to response", func(t *testing.T) {
 		serviceArea := map[string]interface{}{
-			"states":   []string{"Maharashtra", "Karnataka"},
-			"radius":   50,
+			"states":   []interface{}{"Maharashtra", "Karnataka"},
+			"radius":   float64(50),
 			"coverage": "rural",
 		}
 		serviceAreaJSON, _ := json.Marshal(serviceArea)

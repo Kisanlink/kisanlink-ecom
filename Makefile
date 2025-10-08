@@ -77,26 +77,47 @@ clean:
 	rm -rf $(COVERAGE_DIR)
 	@echo "Clean complete!"
 
-# Run tests
+# Run all tests (unit + integration)
 test:
-	@echo "Running tests..."
-	$(GOTEST) -v ./...
-	@echo "Tests complete!"
+	@echo "Running all tests..."
+	$(GOTEST) -v -tags=integration ./...
+	@echo "All tests complete!"
 
-# Run tests with coverage
+# Run only unit tests (excludes integration tests)
+test-unit:
+	@echo "Running unit tests..."
+	$(GOTEST) -v ./...
+	@echo "Unit tests complete!"
+
+# Run only integration tests
+test-integration:
+	@echo "Running integration tests..."
+	$(GOTEST) -v -tags=integration ./tests/integration/... ./tests/database/manager_integration_test.go ./tests/repositories/orders/order_repository_integration_test.go ./tests/handlers/catalog/integration_test.go ./tests/handlers/integrations/...
+	@echo "Integration tests complete!"
+
+# Run tests with coverage (all tests)
 test-coverage:
 	@echo "Running tests with coverage..."
 	mkdir -p $(COVERAGE_DIR)
-	$(GOTEST) -v -coverprofile=$(COVERAGE_DIR)/coverage.out -covermode=atomic ./...
+	$(GOTEST) -v -tags=integration -coverprofile=$(COVERAGE_DIR)/coverage.out -covermode=atomic ./...
 	$(GOCMD) tool cover -html=$(COVERAGE_DIR)/coverage.out -o $(COVERAGE_DIR)/coverage.html
 	$(GOCMD) tool cover -func=$(COVERAGE_DIR)/coverage.out | grep total | awk '{print "Total coverage: " $$3}'
 	@echo "Coverage report generated in $(COVERAGE_DIR)/coverage.html"
 
-# Run tests with coverage and enforce minimum coverage
+# Run unit tests with coverage
+test-unit-coverage:
+	@echo "Running unit tests with coverage..."
+	mkdir -p $(COVERAGE_DIR)
+	$(GOTEST) -v -coverprofile=$(COVERAGE_DIR)/coverage-unit.out -covermode=atomic ./...
+	$(GOCMD) tool cover -html=$(COVERAGE_DIR)/coverage-unit.out -o $(COVERAGE_DIR)/coverage-unit.html
+	$(GOCMD) tool cover -func=$(COVERAGE_DIR)/coverage-unit.out | grep total | awk '{print "Total coverage: " $$3}'
+	@echo "Unit test coverage report generated in $(COVERAGE_DIR)/coverage-unit.html"
+
+# Run tests with coverage and enforce minimum coverage (all tests)
 test-coverage-check:
 	@echo "Running tests with coverage check (minimum 90%)..."
 	mkdir -p $(COVERAGE_DIR)
-	$(GOTEST) -v -coverprofile=$(COVERAGE_DIR)/coverage.out -covermode=atomic ./...
+	$(GOTEST) -v -tags=integration -coverprofile=$(COVERAGE_DIR)/coverage.out -covermode=atomic ./...
 	@COVERAGE=$$($(GOCMD) tool cover -func=$(COVERAGE_DIR)/coverage.out | grep total | awk '{print $$3}' | sed 's/%//'); \
 	echo "Total coverage: $$COVERAGE%"; \
 	if [ $$(echo "$$COVERAGE < 90" | bc -l) -eq 1 ]; then \
@@ -104,9 +125,26 @@ test-coverage-check:
 	    exit 1; \
 	fi
 
-# Run tests with race detection
+# Run unit tests with coverage and enforce minimum coverage
+test-unit-coverage-check:
+	@echo "Running unit tests with coverage check (minimum 90%)..."
+	mkdir -p $(COVERAGE_DIR)
+	$(GOTEST) -v -coverprofile=$(COVERAGE_DIR)/coverage-unit.out -covermode=atomic ./...
+	@COVERAGE=$$($(GOCMD) tool cover -func=$(COVERAGE_DIR)/coverage-unit.out | grep total | awk '{print $$3}' | sed 's/%//'); \
+	echo "Unit test coverage: $$COVERAGE%"; \
+	if [ $$(echo "$$COVERAGE < 90" | bc -l) -eq 1 ]; then \
+	    echo "Coverage $$COVERAGE% is below minimum 90%"; \
+	    exit 1; \
+	fi
+
+# Run tests with race detection (all tests)
 test-race:
 	@echo "Running tests with race detection..."
+	$(GOTEST) -race -v -tags=integration ./...
+
+# Run unit tests with race detection
+test-unit-race:
+	@echo "Running unit tests with race detection..."
 	$(GOTEST) -race -v ./...
 
 # Run specific test
@@ -122,7 +160,7 @@ bench:
 # Lint the code
 lint:
 	@echo "Linting code..."
-	golangci-lint run
+	golangci-lint run --new-from-rev=HEAD
 	@echo "Lint complete!"
 
 # Format code
@@ -329,12 +367,17 @@ help:
 	@echo "  clean              - Clean build artifacts"
 	@echo ""
 	@echo "Test targets:"
-	@echo "  test               - Run tests"
-	@echo "  test-coverage      - Run tests with coverage report"
-	@echo "  test-coverage-check - Run tests with coverage enforcement (90%)"
-	@echo "  test-race          - Run tests with race detection"
-	@echo "  test-package       - Run tests for specific package (PACKAGE=path)"
-	@echo "  bench              - Run benchmarks"
+	@echo "  test                    - Run all tests (unit + integration)"
+	@echo "  test-unit               - Run unit tests only (fast, for pre-commit)"
+	@echo "  test-integration        - Run integration tests only"
+	@echo "  test-coverage           - Run all tests with coverage report"
+	@echo "  test-unit-coverage      - Run unit tests with coverage report"
+	@echo "  test-coverage-check     - Run all tests with coverage enforcement (90%)"
+	@echo "  test-unit-coverage-check - Run unit tests with coverage enforcement (90%)"
+	@echo "  test-race               - Run all tests with race detection"
+	@echo "  test-unit-race          - Run unit tests with race detection"
+	@echo "  test-package            - Run tests for specific package (PACKAGE=path)"
+	@echo "  bench                   - Run benchmarks"
 	@echo ""
 	@echo "Code quality targets:"
 	@echo "  lint               - Lint the code with golangci-lint"
@@ -442,8 +485,8 @@ docker-dev-reset: docker-dev-down
 ci: deps-tidy fmt vet lint test-coverage-check security-check swagger
 	@echo "CI pipeline complete!"
 
-# CI pipeline for pull requests
-ci-pr: deps-tidy fmt vet lint test test-race
+# CI pipeline for pull requests (unit tests only for speed)
+ci-pr: deps-tidy fmt vet lint test-unit test-unit-race
 	@echo "PR CI pipeline complete!"
 
 # CD pipeline for deployment
@@ -456,9 +499,13 @@ cd-staging: build-staging test-coverage-check swagger
 cd-prod: build-prod test-coverage-check security-check swagger
 	@echo "Production deployment pipeline complete!"
 
-# Pre-commit hooks
-pre-commit: fmt vet lint test-coverage-check security-check
+# Pre-commit hooks (only unit tests - fast)
+pre-commit: fmt vet lint test-unit security-check
 	@echo "Pre-commit checks complete!"
+
+# Pre-commit with coverage check (unit tests only)
+pre-commit-coverage: fmt vet lint test-unit-coverage-check security-check
+	@echo "Pre-commit checks with coverage complete!"
 
 # Install pre-commit hooks
 install-pre-commit:

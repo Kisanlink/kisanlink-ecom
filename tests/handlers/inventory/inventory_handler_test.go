@@ -330,7 +330,7 @@ func (suite *InventoryHandlerTestSuite) TestListInventoryLots_WithFilters() {
 	}), suite.testUserID, suite.testOrgID).Return(mockResponse, nil)
 
 	// Make request with filters
-	req, _ := http.NewRequest("GET", "/inventory/lots?catalog_item_id=prod_123&status=available&quality_grade=A", nil)
+	req, _ := http.NewRequest("GET", "/inventory/lots?catalog_item_id=prod_123&status=active&quality_grade=A", nil)
 	w := httptest.NewRecorder()
 
 	suite.router.ServeHTTP(w, req)

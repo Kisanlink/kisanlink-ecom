@@ -18,25 +18,25 @@ type Customer struct {
 	base.BaseModel
 
 	// AAA Service References
-	AAAEntityID   string        `json:"aaa_entity_id" gorm:"type:varchar(255);not null;index:idx_aaa_entity;index:idx_aaa_composite,priority:1"`
-	AAAEntityType AAAEntityType `json:"aaa_entity_type" gorm:"type:varchar(20);not null;index:idx_aaa_type;index:idx_aaa_composite,priority:2;check:aaa_entity_type IN ('USER', 'ORGANIZATION')"`
+	AAAEntityID   string        `json:"aaa_entity_id" gorm:"type:varchar(255);not null;index:idx_customers_aaa_entity;index:idx_customers_aaa_composite,priority:1"`
+	AAAEntityType AAAEntityType `json:"aaa_entity_type" gorm:"type:varchar(20);not null;index:idx_customers_aaa_type;index:idx_customers_aaa_composite,priority:2;check:aaa_entity_type IN ('USER', 'ORGANIZATION')"`
 
 	// Internal References (optional, for caching/performance)
-	UserID         *string `json:"user_id" gorm:"type:varchar(255);index:idx_user"`        // Reference to user ID from AAA
-	OrganizationID *string `json:"organization_id" gorm:"type:varchar(255);index:idx_org"` // Reference to org ID from AAA
+	UserID         *string `json:"user_id" gorm:"type:varchar(255);index:idx_customers_user"`        // Reference to user ID from AAA
+	OrganizationID *string `json:"organization_id" gorm:"type:varchar(255);index:idx_customers_org"` // Reference to org ID from AAA
 
 	// Customer-specific fields
-	CustomerCode string `json:"customer_code" gorm:"type:varchar(100);not null;uniqueIndex:idx_customer_code"`
+	CustomerCode string `json:"customer_code" gorm:"type:varchar(100);not null;uniqueIndex:idx_customers_customer_code"`
 	DisplayName  string `json:"display_name" gorm:"type:varchar(255);index:idx_customers_search_name"`
-	Email        string `json:"email" gorm:"type:varchar(255);index:idx_email"`
-	Phone        string `json:"phone" gorm:"type:varchar(20);index:idx_phone"`
-	Status       string `json:"status" gorm:"type:varchar(20);not null;default:'active';index:idx_status;check:status IN ('active', 'inactive', 'suspended')"`
-	IsVerified   bool   `json:"is_verified" gorm:"not null;default:false;index:idx_verified"`
+	Email        string `json:"email" gorm:"type:varchar(255);index:idx_customers_email"`
+	Phone        string `json:"phone" gorm:"type:varchar(20);index:idx_customers_phone"`
+	Status       string `json:"status" gorm:"type:varchar(20);not null;default:'active';index:idx_customers_status;check:status IN ('active', 'inactive', 'suspended')"`
+	IsVerified   bool   `json:"is_verified" gorm:"not null;default:false;index:idx_customers_verified"`
 
 	// Business Information
 	BusinessType      string `json:"business_type" gorm:"type:varchar(50);check:business_type IN ('individual', 'business', 'cooperative', 'fpo') OR business_type IS NULL"` // individual, business, cooperative, etc.
-	TaxID             string `json:"tax_id" gorm:"type:varchar(50);uniqueIndex:idx_tax_id,where:tax_id IS NOT NULL AND tax_id != ''"`
-	RegistrationID    string `json:"registration_id" gorm:"type:varchar(100);uniqueIndex:idx_registration_id,where:registration_id IS NOT NULL AND registration_id != ''"`
+	TaxID             string `json:"tax_id" gorm:"type:varchar(50);uniqueIndex:idx_customers_tax_id,where:tax_id IS NOT NULL AND tax_id != ''"`
+	RegistrationID    string `json:"registration_id" gorm:"type:varchar(100);uniqueIndex:idx_customers_registration_id,where:registration_id IS NOT NULL AND registration_id != ''"`
 	PreferredLanguage string `json:"preferred_language" gorm:"type:varchar(10);not null;default:'en'"`
 
 	// Address Information (stored as JSON for flexibility)

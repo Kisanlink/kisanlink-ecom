@@ -1,6 +1,8 @@
 package models
 
 import (
+	"fmt"
+	"path/filepath"
 	"testing"
 
 	"gorm.io/driver/sqlite"
@@ -50,8 +52,12 @@ func TestCatalogModels(t *testing.T) {
 		t.Fatal("No catalog models returned")
 	}
 
-	// Create an in-memory SQLite database for testing
-	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	// Create a temporary SQLite database for testing
+	tmpDir := t.TempDir()
+	dbPath := filepath.Join(tmpDir, "test_catalog.db")
+	db, err := gorm.Open(sqlite.Open(fmt.Sprintf("file:%s?mode=memory&cache=shared", dbPath)), &gorm.Config{
+		DisableForeignKeyConstraintWhenMigrating: true,
+	})
 	if err != nil {
 		t.Fatalf("Failed to connect to database: %v", err)
 	}

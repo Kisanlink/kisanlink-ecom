@@ -20,7 +20,7 @@ type Media struct {
 	base.BaseModel
 
 	// Tenant isolation
-	OrganizationID string `json:"organization_id" gorm:"type:varchar(255);not null;index:idx_tenant"`
+	OrganizationID string `json:"organization_id" gorm:"type:varchar(255);not null;index:idx_media_tenant"`
 
 	// Parent catalog item or variant
 	CatalogItemID *string `json:"catalog_item_id" gorm:"type:varchar(255);index:idx_catalog_item"`
@@ -44,7 +44,7 @@ type Media struct {
 	// Ordering and display
 	SortOrder int  `json:"sort_order" gorm:"not null;default:0"`
 	IsPrimary bool `json:"is_primary" gorm:"not null;default:false"`
-	IsActive  bool `json:"is_active" gorm:"not null;default:true;index:idx_active"`
+	IsActive  bool `json:"is_active" gorm:"not null;default:true;index:idx_media_active"`
 
 	// Alt text for accessibility
 	AltText string `json:"alt_text" gorm:"type:varchar(255)"`

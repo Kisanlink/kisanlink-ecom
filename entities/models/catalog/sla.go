@@ -22,10 +22,10 @@ type SLA struct {
 	base.BaseModel
 
 	// Tenant isolation
-	OrganizationID string `json:"organization_id" gorm:"type:varchar(255);not null;index:idx_tenant"`
+	OrganizationID string `json:"organization_id" gorm:"type:varchar(255);not null;index:idx_catalog_slas_tenant"`
 
 	// Parent catalog item
-	CatalogItemID string `json:"catalog_item_id" gorm:"type:varchar(255);not null;index:idx_catalog_item"`
+	CatalogItemID string `json:"catalog_item_id" gorm:"type:varchar(255);not null;index:idx_catalog_slas_catalog_item"`
 
 	// SLA details
 	Type        SLAType `json:"type" gorm:"type:varchar(20);not null;check:type IN ('service', 'support', 'delivery', 'availability')"`
@@ -54,7 +54,7 @@ type SLA struct {
 	ValidTo   *time.Time `json:"valid_to" gorm:"type:timestamp"`
 
 	// Status
-	IsActive bool `json:"is_active" gorm:"not null;default:true;index:idx_active"`
+	IsActive bool `json:"is_active" gorm:"not null;default:true;index:idx_sla_active"`
 
 	// Metadata
 	Metadata string `json:"metadata" gorm:"type:jsonb;index:idx_slas_metadata"`

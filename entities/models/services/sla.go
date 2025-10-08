@@ -32,7 +32,7 @@ type SLA struct {
 	base.BaseModel
 
 	// Tenant isolation
-	OrganizationID string `json:"organization_id" gorm:"type:varchar(255);not null;index:idx_tenant"`
+	OrganizationID string `json:"organization_id" gorm:"type:varchar(255);not null;index:idx_service_slas_tenant"`
 
 	// Parent catalog item (for services)
 	CatalogItemID string `json:"catalog_item_id" gorm:"type:varchar(255);not null;index"`

@@ -1,3 +1,6 @@
+//go:build integration
+// +build integration
+
 package integration
 
 import (
@@ -612,10 +615,10 @@ func (suite *AAAServiceIntegrationTestSuite) testBulkPermissionEvaluation(ctx co
 	suite.Len(results, 4)
 
 	// Verify individual results
-	suite.True(results[0].Allowed)  // orders:create - allowed
-	suite.True(results[1].Allowed)  // orders:read - allowed
-	suite.False(results[2].Allowed) // catalog:create - denied
-	suite.True(results[3].Allowed)  // catalog:read - allowed
+	suite.True(results[0].Allowed)  // orders_create - allowed
+	suite.True(results[1].Allowed)  // orders_read - allowed
+	suite.False(results[2].Allowed) // catalog_create - denied
+	suite.True(results[3].Allowed)  // catalog_read - allowed
 
 	for _, result := range results {
 		suite.NotEmpty(result.Resource)

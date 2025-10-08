@@ -12,14 +12,14 @@ type Variant struct {
 	base.BaseModel
 
 	// Tenant isolation
-	OrganizationID string `json:"organization_id" gorm:"type:varchar(255);not null;index:idx_tenant;index:idx_org_sku,priority:1"`
+	OrganizationID string `json:"organization_id" gorm:"type:varchar(255);not null;index:idx_variants_tenant;index:idx_variants_org_sku,priority:1"`
 
 	// Parent catalog item
-	CatalogItemID string `json:"catalog_item_id" gorm:"type:varchar(255);not null;index:idx_catalog_item"`
+	CatalogItemID string `json:"catalog_item_id" gorm:"type:varchar(255);not null;index:idx_variants_catalog_item"`
 
 	// Variant details
 	Name        string `json:"name" gorm:"type:varchar(255);not null"`
-	SKU         string `json:"sku" gorm:"type:varchar(100);not null;uniqueIndex:idx_org_sku,priority:2"`
+	SKU         string `json:"sku" gorm:"type:varchar(100);not null;uniqueIndex:idx_variants_org_sku,priority:2"`
 	Description string `json:"description" gorm:"type:text"`
 
 	// Pricing
@@ -27,10 +27,10 @@ type Variant struct {
 	Currency string          `json:"currency" gorm:"type:varchar(3);not null;default:'INR'"`
 
 	// Variant attributes (size, color, etc.)
-	Attributes string `json:"attributes" gorm:"type:jsonb;index:idx_attributes"`
+	Attributes string `json:"attributes" gorm:"type:jsonb;index:idx_variants_attributes"`
 
 	// Availability
-	IsActive  bool `json:"is_active" gorm:"not null;default:true;index:idx_active"`
+	IsActive  bool `json:"is_active" gorm:"not null;default:true;index:idx_variants_active"`
 	IsDefault bool `json:"is_default" gorm:"not null;default:false"`
 	SortOrder int  `json:"sort_order" gorm:"not null;default:0"`
 

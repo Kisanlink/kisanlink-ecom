@@ -32,9 +32,9 @@ const (
 // Price represents a price for a product or service
 type Price struct {
 	base.BaseModel
-	EntityID   string `json:"entity_id" gorm:"type:varchar(255);not null;index:idx_entity;index:idx_org_entity,priority:2"`                                         // References catalog item, service, etc.
-	EntityType string `json:"entity_type" gorm:"type:varchar(50);not null;index:idx_entity_type;check:entity_type IN ('product', 'service', 'labour', 'contract')"` // "product", "service", "labour"
-	OrgID      string `json:"org_id" gorm:"type:varchar(255);not null;index:idx_org;index:idx_org_entity,priority:1"`                                               // Organization that sets the price
+	EntityID   string `json:"entity_id" gorm:"type:varchar(255);not null;index:idx_prices_entity;index:idx_prices_org_entity,priority:2"`                                  // References catalog item, service, etc.
+	EntityType string `json:"entity_type" gorm:"type:varchar(50);not null;index:idx_prices_entity_type;check:entity_type IN ('product', 'service', 'labour', 'contract')"` // "product", "service", "labour"
+	OrgID      string `json:"org_id" gorm:"type:varchar(255);not null;index:idx_prices_org;index:idx_prices_org_entity,priority:1"`                                        // Organization that sets the price
 
 	PriceType PriceType       `json:"price_type" gorm:"type:varchar(20);not null;default:'base';check:price_type IN ('base', 'sale', 'wholesale', 'bulk', 'seasonal', 'dynamic')"`
 	Amount    decimal.Decimal `json:"amount" gorm:"type:decimal(12,2);not null;check:amount >= 0"`
@@ -49,7 +49,7 @@ type Price struct {
 	ValidTo   *time.Time `json:"valid_to" gorm:"type:timestamp"`
 
 	// Status
-	IsActive bool `json:"is_active" gorm:"not null;default:true;index:idx_active"`
+	IsActive bool `json:"is_active" gorm:"not null;default:true;index:idx_prices_active"`
 
 	// Metadata
 	Description string `json:"description" gorm:"type:text"`
@@ -117,7 +117,7 @@ func (p *Price) IsValidForQuantity(quantity decimal.Decimal) bool {
 // PriceTier represents quantity-based pricing tiers
 type PriceTier struct {
 	base.BaseModel
-	PriceID   string           `json:"price_id" gorm:"type:varchar(255);not null;index:idx_price"` // References prices table
+	PriceID   string           `json:"price_id" gorm:"type:varchar(255);not null;index:idx_price_tiers_price"` // References prices table
 	MinQty    decimal.Decimal  `json:"min_qty" gorm:"type:decimal(10,3);not null;check:min_qty >= 0"`
 	MaxQty    *decimal.Decimal `json:"max_qty" gorm:"type:decimal(10,3);check:max_qty IS NULL OR max_qty > min_qty"` // NULL means unlimited
 	UnitPrice decimal.Decimal  `json:"unit_price" gorm:"type:decimal(12,2);not null;check:unit_price >= 0"`
@@ -150,16 +150,16 @@ func NewPriceTier(priceID string, minQty, unitPrice decimal.Decimal, currency Cu
 // PriceRule represents complex pricing rules
 type PriceRule struct {
 	base.BaseModel
-	OrgID       string `json:"org_id" gorm:"type:varchar(255);not null;index:idx_org"`
+	OrgID       string `json:"org_id" gorm:"type:varchar(255);not null;index:idx_price_rules_org"`
 	Name        string `json:"name" gorm:"type:varchar(255);not null"`
 	Description string `json:"description" gorm:"type:text"`
 	RuleType    string `json:"rule_type" gorm:"type:varchar(50);not null;check:rule_type IN ('percentage', 'fixed', 'formula')"` // "percentage", "fixed", "formula"
-	RuleData    string `json:"rule_data" gorm:"type:jsonb;index:idx_rule_data"`                                                  // Rule-specific data
-	Priority    int    `json:"priority" gorm:"not null;default:0;index:idx_priority"`                                            // Higher priority rules are applied first
-	IsActive    bool   `json:"is_active" gorm:"not null;default:true;index:idx_active"`
+	RuleData    string `json:"rule_data" gorm:"type:jsonb;index:idx_price_rules_rule_data"`                                      // Rule-specific data
+	Priority    int    `json:"priority" gorm:"not null;default:0;index:idx_price_rules_priority"`                                // Higher priority rules are applied first
+	IsActive    bool   `json:"is_active" gorm:"not null;default:true;index:idx_price_rules_active"`
 
 	// Conditions
-	Conditions string `json:"conditions" gorm:"type:jsonb;index:idx_conditions"` // When this rule applies
+	Conditions string `json:"conditions" gorm:"type:jsonb;index:idx_price_rules_conditions"` // When this rule applies
 
 	// Audit fields
 	CreatedBy string `json:"created_by" gorm:"type:varchar(255);not null"`

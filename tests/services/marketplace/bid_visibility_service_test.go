@@ -61,6 +61,9 @@ func (m *MockBidRepository) GetAllBids(ctx context.Context, filter *marketplace.
 
 func (m *MockBidRepository) GetHighestBid(ctx context.Context, listingID string) (*marketplace.Bid, error) {
 	args := m.Called(ctx, listingID)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
 	return args.Get(0).(*marketplace.Bid), args.Error(1)
 }
 
