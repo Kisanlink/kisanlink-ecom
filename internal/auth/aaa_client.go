@@ -9,11 +9,15 @@ import (
 	"os"
 	"time"
 
-	aaaPb "kisanlink-ecom/proto"
+	aaaPb "github.com/Kisanlink/aaa-service/v2/pkg/proto"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
+)
+
+const (
+	activeStatus = "active"
 )
 
 // Client interface for interacting with AAA service
@@ -103,9 +107,8 @@ type TokenClaims struct {
 
 // client implements Client interface
 type client struct {
-	conn        *grpc.ClientConn
-	authClient  aaaPb.AuthServiceClient
-	authzClient aaaPb.AuthorizationServiceClient
+	conn      *grpc.ClientConn
+	aaaClient aaaPb.AAAServiceClient
 }
 
 // NewAAAClient creates a new AAA client with TLS/mTLS support (alias for NewClient)
@@ -149,9 +152,8 @@ func NewClient(config *config.AAAConfig) (Client, error) {
 	}
 
 	client := &client{
-		conn:        conn,
-		authClient:  aaaPb.NewAuthServiceClient(conn),
-		authzClient: aaaPb.NewAuthorizationServiceClient(conn),
+		conn:      conn,
+		aaaClient: aaaPb.NewAAAServiceClient(conn),
 	}
 
 	return client, nil
@@ -217,7 +219,7 @@ func (c *client) ValidateToken(ctx context.Context, token string) (*TokenClaims,
 	}
 
 	// Call AAA service
-	resp, err := c.authClient.ValidateToken(ctx, req)
+	resp, err := c.aaaClient.ValidateToken(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to validate token: %w", err)
 	}
@@ -226,111 +228,33 @@ func (c *client) ValidateToken(ctx context.Context, token string) (*TokenClaims,
 		return nil, fmt.Errorf("invalid token")
 	}
 
-	// Convert protobuf UserRoles to internal UserRoleDetails
-	var userRoles []*UserRoleDetails
-	for _, ur := range resp.Claims.UserRoles {
-		userRole := &UserRoleDetails{
-			ID:       ur.Id,
-			UserID:   ur.UserId,
-			RoleID:   ur.RoleId,
-			IsActive: ur.IsActive,
-		}
-
-		// Convert nested role if present
-		if ur.Role != nil {
-			userRole.Role = &RoleDetails{
-				ID:          ur.Role.Id,
-				Name:        ur.Role.Name,
-				Scope:       ur.Role.Scope,
-				Description: ur.Role.Description,
-				ParentID:    ur.Role.ParentId,
-				IsActive:    ur.Role.IsActive,
-				Permissions: ur.Role.Permissions,
-			}
-		}
-
-		userRoles = append(userRoles, userRole)
+	// Convert timestamps from protobuf to int64
+	var issuedAt, expiresAt, notBefore int64
+	if resp.Claims.IssuedAt != nil {
+		issuedAt = resp.Claims.IssuedAt.Seconds
+	}
+	if resp.Claims.ExpiresAt != nil {
+		expiresAt = resp.Claims.ExpiresAt.Seconds
+	}
+	if resp.Claims.NotBefore != nil {
+		notBefore = resp.Claims.NotBefore.Seconds
 	}
 
-	// Convert protobuf Organizations to internal OrganizationDetails
-	var organizations []*OrganizationDetails
-	for _, org := range resp.Claims.Organizations {
-		organizations = append(organizations, &OrganizationDetails{
-			ID:       org.Id,
-			Name:     org.Name,
-			TenantID: org.TenantId,
-		})
-	}
-
-	// Convert protobuf Groups to internal GroupDetails
-	var groups []*GroupDetails
-	for _, grp := range resp.Claims.Groups {
-		groups = append(groups, &GroupDetails{
-			ID:             grp.Id,
-			Name:           grp.Name,
-			OrganizationID: grp.OrganizationId,
-			Description:    grp.Description,
-		})
+	// Convert audience array to single string (take first if exists)
+	var audience string
+	if len(resp.Claims.Audience) > 0 {
+		audience = resp.Claims.Audience[0]
 	}
 
 	// Convert UserContext if present
 	var userContextData *UserContextDetails
-	if resp.Claims.UserContext != nil {
-		uc := resp.Claims.UserContext
-
-		// Convert roles from UserContext
-		var ucRoles []*RoleDetails
-		for _, r := range uc.Roles {
-			ucRoles = append(ucRoles, &RoleDetails{
-				ID:          r.Id,
-				Name:        r.Name,
-				Scope:       r.Scope,
-				Description: r.Description,
-				ParentID:    r.ParentId,
-				IsActive:    r.IsActive,
-				Permissions: r.Permissions,
-			})
-		}
-
-		// Convert organizations from UserContext
-		var ucOrgs []*OrganizationDetails
-		for _, o := range uc.Organizations {
-			ucOrgs = append(ucOrgs, &OrganizationDetails{
-				ID:       o.Id,
-				Name:     o.Name,
-				TenantID: o.TenantId,
-			})
-		}
-
-		// Convert groups from UserContext
-		var ucGroups []*GroupDetails
-		for _, g := range uc.Groups {
-			ucGroups = append(ucGroups, &GroupDetails{
-				ID:             g.Id,
-				Name:           g.Name,
-				OrganizationID: g.OrganizationId,
-				Description:    g.Description,
-			})
-		}
-
+	if resp.UserContext != nil {
+		uc := resp.UserContext
 		userContextData = &UserContextDetails{
-			ID:            uc.Id,
-			Username:      uc.Username,
-			PhoneNumber:   uc.PhoneNumber,
-			CountryCode:   uc.CountryCode,
-			IsValidated:   uc.IsValidated,
-			Roles:         ucRoles,
-			Organizations: ucOrgs,
-			Groups:        ucGroups,
+			ID:          uc.Id,
+			Username:    uc.Username,
+			IsValidated: uc.IsValidated,
 		}
-	}
-
-	// Parse tenant_context if it's a JSON string
-	var tenantContext map[string]interface{}
-	if resp.Claims.TenantContext != "" {
-		// For now, we'll store it as a map with the raw JSON string
-		// In production, you'd want to properly unmarshal this
-		tenantContext = make(map[string]interface{})
 	}
 
 	// Convert response to TokenClaims
@@ -338,30 +262,20 @@ func (c *client) ValidateToken(ctx context.Context, token string) (*TokenClaims,
 		UserID:           resp.Claims.UserId,
 		Username:         resp.Claims.Username,
 		Email:            resp.Claims.Email,
-		PhoneNumber:      resp.Claims.PhoneNumber,
-		CountryCode:      resp.Claims.CountryCode,
-		TenantID:         resp.Claims.TenantId,
 		OrganizationID:   resp.Claims.OrganizationId,
 		OrganizationName: resp.Claims.OrganizationName,
 		Roles:            resp.Claims.Roles,
-		RoleIDs:          resp.Claims.RoleIds,
 		Permissions:      resp.Claims.Permissions,
 		Scopes:           resp.Claims.Scopes,
-		IssuedAt:         resp.Claims.IssuedAt,
-		ExpiresAt:        resp.Claims.ExpiresAt,
-		NotBefore:        resp.Claims.NotBefore,
+		IssuedAt:         issuedAt,
+		ExpiresAt:        expiresAt,
+		NotBefore:        notBefore,
 		Issuer:           resp.Claims.Issuer,
-		Audience:         resp.Claims.Audience,
-		IsValidated:      resp.Claims.IsValidated,
-		UserRoles:        userRoles,
-		Organizations:    organizations,
-		Groups:           groups,
+		Audience:         audience,
 		TokenType:        resp.Claims.TokenType,
-		TokenVersion:     resp.Claims.TokenVersion,
-		Subject:          resp.Claims.Sub,
+		Subject:          resp.Claims.Subject,
 		SessionID:        resp.Claims.SessionId,
 		JTI:              resp.Claims.Jti,
-		TenantContext:    tenantContext,
 		UserContextData:  userContextData,
 	}
 
@@ -374,43 +288,109 @@ func (c *client) Authorize(ctx context.Context, req *AuthorizeRequest) (*Authori
 		return nil, fmt.Errorf("authorize request cannot be nil")
 	}
 
-	// Create gRPC request
-	grpcReq := &aaaPb.AuthorizeRequest{
-		UserId:     req.UserID,
-		TenantId:   req.TenantID,
-		Resource:   req.Resource,
-		Action:     req.Action,
-		ResourceId: req.ResourceID,
+	// Use the AAA v2 Check API instead of the old Authorize
+	checkReq := &aaaPb.CheckRequest{
+		PrincipalId:    req.UserID,
+		ResourceType:   req.Resource,
+		ResourceId:     req.ResourceID,
+		Action:         req.Action,
+		OrganizationId: req.TenantID,
 	}
 
-	// Call AAA service
-	resp, err := c.authzClient.Authorize(ctx, grpcReq)
+	// Call AAA service Check
+	checkResp, err := c.aaaClient.Check(ctx, checkReq)
 	if err != nil {
-		return nil, fmt.Errorf("failed to authorize: %w", err)
+		return nil, fmt.Errorf("failed to check authorization: %w", err)
+	}
+
+	// Combine reasons into a single string
+	reason := ""
+	if len(checkResp.Reasons) > 0 {
+		reason = checkResp.Reasons[0]
 	}
 
 	return &AuthorizeResponse{
-		Allowed: resp.Allowed,
-		Reason:  resp.Reason,
+		Allowed: checkResp.Allowed,
+		Reason:  reason,
 	}, nil
 }
 
-// CreateUser creates a new user in the AAA system
+// CreateUser creates a new user in the AAA system using AAA v2 Register
 func (c *client) CreateUser(ctx context.Context, user *AAAUser) (*AAAUser, error) {
-	// Implementation would call AAA service
-	// For now, return the user as-is for testing
-	return user, nil
+	// Create register request
+	registerReq := &aaaPb.RegisterRequest{
+		Username:    user.Username,
+		Email:       user.Email,
+		FullName:    user.FirstName + " " + user.LastName,
+		Password:    "", // Password should be provided separately
+		PhoneNumber: user.Phone,
+		CountryCode: "+1", // Default, should be provided
+	}
+
+	// Call AAA service Register
+	resp, err := c.aaaClient.Register(ctx, registerReq)
+	if err != nil {
+		return nil, fmt.Errorf("failed to register user: %w", err)
+	}
+
+	if resp.StatusCode != 200 && resp.StatusCode != 201 {
+		return nil, fmt.Errorf("registration failed: %s", resp.Message)
+	}
+
+	// Convert response to AAAUser
+	roles := make([]string, 0, len(resp.User.UserRoles))
+	for _, ur := range resp.User.UserRoles {
+		roles = append(roles, ur.RoleName)
+	}
+
+	return &AAAUser{
+		ID:          resp.User.Id,
+		Username:    resp.User.Username,
+		Email:       resp.User.Email,
+		Phone:       resp.User.PhoneNumber,
+		Roles:       roles,
+		Permissions: []string{},
+		IsActive:    resp.User.Status == activeStatus,
+	}, nil
 }
 
-// GetUser retrieves a user from the AAA system
+// GetUser retrieves a user from the AAA system using AAA v2 GetUser
 func (c *client) GetUser(ctx context.Context, userID string) (*AAAUser, error) {
-	// Implementation would call AAA service
-	// For now, return a mock user for testing
+	// Create get user request
+	getUserReq := &aaaPb.GetUserRequest{
+		Id:                 userID,
+		IncludeRoles:       true,
+		IncludePermissions: true,
+	}
+
+	// Call AAA service GetUser
+	resp, err := c.aaaClient.GetUser(ctx, getUserReq)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user: %w", err)
+	}
+
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("get user failed: %s", resp.Message)
+	}
+
+	if resp.User == nil {
+		return nil, fmt.Errorf("user not found")
+	}
+
+	// Convert protobuf User to AAAUser
+	roles := make([]string, 0, len(resp.User.UserRoles))
+	for _, ur := range resp.User.UserRoles {
+		roles = append(roles, ur.RoleName)
+	}
+
 	return &AAAUser{
-		ID:       userID,
-		Username: "test-user",
-		Email:    "test@example.com",
-		IsActive: true,
+		ID:          resp.User.Id,
+		Username:    resp.User.Username,
+		Email:       resp.User.Email,
+		Phone:       resp.User.PhoneNumber,
+		Roles:       roles,
+		Permissions: resp.User.Permissions,
+		IsActive:    resp.User.Status == activeStatus,
 	}, nil
 }
 
@@ -457,32 +437,78 @@ func (c *client) ValidateJWT(ctx context.Context, token string) (bool, error) {
 	return err == nil, err
 }
 
-// AuthenticateUser authenticates a user with credentials
+// AuthenticateUser authenticates a user with credentials using AAA v2 Login
 func (c *client) AuthenticateUser(ctx context.Context, req *AuthenticationRequest) (*AuthenticationResponse, error) {
-	// Implementation would call AAA service
-	// For now, return mock response for testing
+	// Create login request
+	loginReq := &aaaPb.LoginRequest{
+		Username: req.Username,
+		Password: req.Password,
+	}
+
+	// Call AAA service Login
+	resp, err := c.aaaClient.Login(ctx, loginReq)
+	if err != nil {
+		return nil, fmt.Errorf("failed to login: %w", err)
+	}
+
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("login failed: %s", resp.Message)
+	}
+
+	// Convert response to AuthenticationResponse
+	userContext := &UserContext{
+		UserID:      resp.User.Id,
+		Username:    resp.User.Username,
+		Email:       resp.User.Email,
+		PhoneNumber: resp.User.PhoneNumber,
+		CountryCode: resp.User.CountryCode,
+		IsActive:    resp.User.Status == "active",
+		IsValidated: resp.User.IsValidated,
+		Permissions: resp.Permissions,
+	}
+
+	// Convert user roles
+	userRoles := make([]*UserRoleDetails, 0, len(resp.User.UserRoles))
+	for _, ur := range resp.User.UserRoles {
+		userRoles = append(userRoles, &UserRoleDetails{
+			ID:       ur.Id,
+			UserID:   ur.UserId,
+			RoleID:   ur.RoleId,
+			IsActive: true, // Assuming active if returned
+		})
+	}
+	userContext.UserRoles = userRoles
+
 	return &AuthenticationResponse{
-		AccessToken:  "mock_access_token",
-		RefreshToken: "mock_refresh_token",
-		ExpiresIn:    3600,
-		TokenType:    "Bearer",
-		UserContext: &UserContext{
-			UserID:   "mock_user_123",
-			Username: req.Username,
-			Email:    req.Username + "@example.com",
-			IsActive: true,
-		},
+		AccessToken:  resp.AccessToken,
+		RefreshToken: resp.RefreshToken,
+		ExpiresIn:    int64(resp.ExpiresIn),
+		TokenType:    resp.TokenType,
+		UserContext:  userContext,
 	}, nil
 }
 
-// RefreshToken refreshes an access token
+// RefreshToken refreshes an access token using AAA v2 RefreshToken
 func (c *client) RefreshToken(ctx context.Context, refreshToken string) (*AuthenticationResponse, error) {
-	// Implementation would call AAA service
-	// For now, return mock response for testing
+	// Create refresh token request
+	refreshReq := &aaaPb.RefreshTokenRequest{
+		RefreshToken: refreshToken,
+	}
+
+	// Call AAA service RefreshToken
+	resp, err := c.aaaClient.RefreshToken(ctx, refreshReq)
+	if err != nil {
+		return nil, fmt.Errorf("failed to refresh token: %w", err)
+	}
+
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("token refresh failed: %s", resp.Message)
+	}
+
 	return &AuthenticationResponse{
-		AccessToken:  "new_mock_access_token",
-		RefreshToken: "new_mock_refresh_token",
-		ExpiresIn:    3600,
+		AccessToken:  resp.AccessToken,
+		RefreshToken: resp.RefreshToken,
+		ExpiresIn:    int64(resp.ExpiresIn),
 		TokenType:    "Bearer",
 	}, nil
 }
@@ -541,7 +567,7 @@ func (c *client) HealthCheck(ctx context.Context) error {
 	req := &aaaPb.HealthCheckRequest{}
 
 	// Call AAA service health check
-	_, err := c.authClient.HealthCheck(ctx, req)
+	_, err := c.aaaClient.HealthCheck(ctx, req)
 	if err != nil {
 		return fmt.Errorf("AAA service health check failed: %w", err)
 	}
