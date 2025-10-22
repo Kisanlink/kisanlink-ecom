@@ -55,7 +55,9 @@ func AuthNMiddleware(aaaClient auth.Client) gin.HandlerFunc {
 		// Store user information in context for downstream handlers
 		c.Set(SubjectIDKey, claims.UserID)
 		c.Set(UserRolesKey, claims.Roles)
-		c.Set(OrgIDKey, claims.TenantID)
+		c.Set(OrgIDKey, claims.OrganizationID)
+		c.Set("user_id", claims.UserID) // For backward compatibility with handlers
+		c.Set("organization_id", claims.OrganizationID)
 
 		// Create enhanced user context with all available fields
 		userCtx := &auth.UserContext{
@@ -130,6 +132,31 @@ func GetOrgID(c *gin.Context) (string, bool) {
 		return id, true
 	}
 	return "", false
+}
+
+// GetOrganizationID retrieves the organization ID from the context with error handling
+// Returns the organization ID or an empty string if not found
+func GetOrganizationID(c *gin.Context) string {
+	// Try to get from OrgIDKey first (set by auth middleware)
+	if orgID, exists := GetOrgID(c); exists && orgID != "" {
+		return orgID
+	}
+
+	// Fallback to organization_id key
+	if orgID, exists := c.Get("organization_id"); exists {
+		if id, ok := orgID.(string); ok && id != "" {
+			return id
+		}
+	}
+
+	// Last resort: check user context
+	if userCtx, exists := c.Get("userContext"); exists {
+		if ctx, ok := userCtx.(*auth.UserContext); ok && ctx.OrganizationID != "" {
+			return ctx.OrganizationID
+		}
+	}
+
+	return ""
 }
 
 // RequireAuth ensures that the request has been authenticated

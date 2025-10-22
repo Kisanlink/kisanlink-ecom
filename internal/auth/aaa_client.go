@@ -252,6 +252,28 @@ func (c *client) ValidateToken(ctx context.Context, token string) (*TokenClaims,
 		audience = resp.Claims.Audience[0]
 	}
 
+	// Extract organization information from response
+	// Priority: resp.UserContext > resp.Organization > resp.Claims
+	var organizationID, organizationName string
+
+	// First, try to get from UserContext (most reliable in AAA v2.0)
+	if resp.UserContext != nil {
+		organizationID = resp.UserContext.OrganizationId
+		organizationName = resp.UserContext.OrganizationName
+	}
+
+	// If not found in UserContext, try Organization object
+	if organizationID == "" && resp.Organization != nil {
+		organizationID = resp.Organization.Id
+		organizationName = resp.Organization.Name
+	}
+
+	// Fallback to Claims if still not found
+	if organizationID == "" {
+		organizationID = resp.Claims.OrganizationId
+		organizationName = resp.Claims.OrganizationName
+	}
+
 	// Convert UserContext if present
 	var userContextData *UserContextDetails
 	if resp.UserContext != nil {
@@ -268,8 +290,8 @@ func (c *client) ValidateToken(ctx context.Context, token string) (*TokenClaims,
 		UserID:           resp.Claims.UserId,
 		Username:         resp.Claims.Username,
 		Email:            resp.Claims.Email,
-		OrganizationID:   resp.Claims.OrganizationId,
-		OrganizationName: resp.Claims.OrganizationName,
+		OrganizationID:   organizationID,
+		OrganizationName: organizationName,
 		Roles:            resp.Claims.Roles,
 		Permissions:      resp.Claims.Permissions,
 		Scopes:           resp.Claims.Scopes,

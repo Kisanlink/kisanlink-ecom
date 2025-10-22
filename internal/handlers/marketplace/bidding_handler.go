@@ -7,6 +7,7 @@ import (
 
 	"kisanlink-ecom/entities/models/marketplace"
 	"kisanlink-ecom/internal/common"
+	"kisanlink-ecom/internal/middleware"
 	marketplaceService "kisanlink-ecom/internal/services/marketplace"
 	"kisanlink-ecom/internal/utils"
 
@@ -171,9 +172,9 @@ func (h *BiddingHandler) PlaceBid(c *gin.Context) {
 		return
 	}
 
-	orgID := c.GetHeader("X-Organization-ID")
+	orgID := middleware.GetOrganizationID(c)
 	if orgID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_REQUEST", "Organization ID is required", "")
+		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_ORG", "Organization ID not found in context", "")
 		return
 	}
 
@@ -254,9 +255,9 @@ func (h *BiddingHandler) GetListingBids(c *gin.Context) {
 		return
 	}
 
-	orgID := c.GetHeader("X-Organization-ID")
+	orgID := middleware.GetOrganizationID(c)
 	if orgID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_REQUEST", "Organization ID is required", "")
+		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_ORG", "Organization ID not found in context", "")
 		return
 	}
 
@@ -309,9 +310,9 @@ func (h *BiddingHandler) GetBid(c *gin.Context) {
 		return
 	}
 
-	orgID := c.GetHeader("X-Organization-ID")
+	orgID := middleware.GetOrganizationID(c)
 	if orgID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_REQUEST", "Organization ID is required", "")
+		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_ORG", "Organization ID not found in context", "")
 		return
 	}
 
@@ -620,9 +621,9 @@ func (h *BiddingHandler) GetAuctionResults(c *gin.Context) {
 		return
 	}
 
-	orgID := c.GetHeader("X-Organization-ID")
+	orgID := middleware.GetOrganizationID(c)
 	if orgID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_REQUEST", "Organization ID is required", "")
+		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_ORG", "Organization ID not found in context", "")
 		return
 	}
 
@@ -666,9 +667,9 @@ func (h *BiddingHandler) GetAuctionSummary(c *gin.Context) {
 		return
 	}
 
-	orgID := c.GetHeader("X-Organization-ID")
+	orgID := middleware.GetOrganizationID(c)
 	if orgID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_REQUEST", "Organization ID is required", "")
+		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_ORG", "Organization ID not found in context", "")
 		return
 	}
 
@@ -717,9 +718,9 @@ func (h *BiddingHandler) GetHistoricalBidData(c *gin.Context) {
 		return
 	}
 
-	orgID := c.GetHeader("X-Organization-ID")
+	orgID := middleware.GetOrganizationID(c)
 	if orgID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_REQUEST", "Organization ID is required", "")
+		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_ORG", "Organization ID not found in context", "")
 		return
 	}
 
@@ -770,9 +771,9 @@ func (h *BiddingHandler) GetBidStatistics(c *gin.Context) {
 		return
 	}
 
-	orgID := c.GetHeader("X-Organization-ID")
+	orgID := middleware.GetOrganizationID(c)
 	if orgID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_REQUEST", "Organization ID is required", "")
+		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_ORG", "Organization ID not found in context", "")
 		return
 	}
 

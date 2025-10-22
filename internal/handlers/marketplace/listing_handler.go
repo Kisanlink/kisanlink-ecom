@@ -8,6 +8,7 @@ import (
 
 	"kisanlink-ecom/entities/models/marketplace"
 	"kisanlink-ecom/internal/common"
+	"kisanlink-ecom/internal/middleware"
 	marketplaceService "kisanlink-ecom/internal/services/marketplace"
 	"kisanlink-ecom/internal/utils"
 
@@ -106,9 +107,9 @@ func (h *ListingHandler) CreateListing(c *gin.Context) {
 		return
 	}
 
-	orgID := c.GetHeader("X-Organization-ID")
+	orgID := middleware.GetOrganizationID(c)
 	if orgID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_ORGANIZATION", "Organization ID is required", "")
+		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_ORG", "Organization ID not found in context", "")
 		return
 	}
 
@@ -168,9 +169,9 @@ func (h *ListingHandler) GetListing(c *gin.Context) {
 		return
 	}
 
-	orgID := c.GetHeader("X-Organization-ID")
+	orgID := middleware.GetOrganizationID(c)
 	if orgID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_ORGANIZATION", "Organization ID is required", "")
+		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_ORG", "Organization ID not found in context", "")
 		return
 	}
 
@@ -196,9 +197,9 @@ func (h *ListingHandler) GetListing(c *gin.Context) {
 
 // GetActiveListings retrieves active marketplace listings
 func (h *ListingHandler) GetActiveListings(c *gin.Context) {
-	orgID := c.GetHeader("X-Organization-ID")
+	orgID := middleware.GetOrganizationID(c)
 	if orgID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_ORGANIZATION", "Organization ID is required", "")
+		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_ORG", "Organization ID not found in context", "")
 		return
 	}
 
@@ -262,9 +263,9 @@ func (h *ListingHandler) UpdateListing(c *gin.Context) {
 		return
 	}
 
-	orgID := c.GetHeader("X-Organization-ID")
+	orgID := middleware.GetOrganizationID(c)
 	if orgID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_ORGANIZATION", "Organization ID is required", "")
+		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_ORG", "Organization ID not found in context", "")
 		return
 	}
 
@@ -336,9 +337,9 @@ func (h *ListingHandler) CloseListing(c *gin.Context) {
 		return
 	}
 
-	orgID := c.GetHeader("X-Organization-ID")
+	orgID := middleware.GetOrganizationID(c)
 	if orgID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_ORGANIZATION", "Organization ID is required", "")
+		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_ORG", "Organization ID not found in context", "")
 		return
 	}
 
