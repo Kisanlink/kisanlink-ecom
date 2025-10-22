@@ -62,7 +62,7 @@ func (m *MarketplaceAuthMiddleware) RequireMarketplaceAuth() gin.HandlerFunc {
 		}
 
 		// Validate organization ID is present for marketplace operations
-		orgID := c.GetHeader("X-Organization-ID")
+		orgID := GetOrganizationID(c)
 		if orgID == "" {
 			m.handleUnauthorized(c, "Organization ID required for marketplace operations")
 			return
@@ -322,13 +322,14 @@ func (m *MarketplaceAuthMiddleware) ValidateOrganizationAccess() gin.HandlerFunc
 			return
 		}
 
-		// Get organization ID from header or parameter
-		orgID := c.GetHeader("X-Organization-ID")
-		if orgID == "" {
-			orgID = c.Param("org_id")
-		}
+		// Get organization ID from parameter or query first (for explicit cross-org access)
+		orgID := c.Param("org_id")
 		if orgID == "" {
 			orgID = c.Query("org_id")
+		}
+		// If not explicitly provided, use from context (user's own org from token)
+		if orgID == "" {
+			orgID = GetOrganizationID(c)
 		}
 
 		if orgID == "" {
