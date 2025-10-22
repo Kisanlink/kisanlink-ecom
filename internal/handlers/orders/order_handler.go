@@ -60,14 +60,14 @@ func (h *OrderHandler) CreateOrder(c *gin.Context) {
 	}
 
 	// Get organization ID from context
-	orgID, exists := c.Get("organization_id")
+	orgID, exists := getOrganizationID(c)
 	if !exists {
-		common.Unauthorized(c, "MISSING_ORG", "Organization ID not found in context", nil)
+		common.Unauthorized(c, "INVALID_ORG", "Valid organization ID is required", nil)
 		return
 	}
 
 	// Create the order
-	order, err := h.orderService.CreateOrder(c.Request.Context(), &req, userID.(string), orgID.(string))
+	order, err := h.orderService.CreateOrder(c.Request.Context(), &req, userID.(string), orgID)
 	if err != nil {
 		common.BadRequest(c, "CREATE_FAILED", "Failed to create order", map[string]interface{}{
 			"error": err.Error(),
@@ -92,6 +92,21 @@ func normalizeCatalogItemType(itemType string) string {
 	default:
 		return itemType
 	}
+}
+
+// getOrganizationID retrieves and validates the organization ID from context
+func getOrganizationID(c *gin.Context) (string, bool) {
+	orgID, exists := c.Get("organization_id")
+	if !exists {
+		return "", false
+	}
+
+	orgIDStr, ok := orgID.(string)
+	if !ok || orgIDStr == "" {
+		return "", false
+	}
+
+	return orgIDStr, true
 }
 
 // GetOrderByID godoc
@@ -119,13 +134,13 @@ func (h *OrderHandler) GetOrderByID(c *gin.Context) {
 	}
 
 	// Get organization ID from context
-	orgID, exists := c.Get("organization_id")
+	orgID, exists := getOrganizationID(c)
 	if !exists {
-		common.Unauthorized(c, "MISSING_ORG", "Organization ID not found in context", nil)
+		common.Unauthorized(c, "INVALID_ORG", "Valid organization ID is required", nil)
 		return
 	}
 
-	order, err := h.orderService.GetOrderByID(c.Request.Context(), id, userID.(string), orgID.(string))
+	order, err := h.orderService.GetOrderByID(c.Request.Context(), id, userID.(string), orgID)
 	if err != nil {
 		common.NotFound(c, "ORDER_NOT_FOUND", "Order not found", map[string]interface{}{
 			"order_id": id,
@@ -177,14 +192,14 @@ func (h *OrderHandler) UpdateOrderStatus(c *gin.Context) {
 	}
 
 	// Get organization ID from context
-	orgID, exists := c.Get("organization_id")
+	orgID, exists := getOrganizationID(c)
 	if !exists {
-		common.Unauthorized(c, "MISSING_ORG", "Organization ID not found in context", nil)
+		common.Unauthorized(c, "INVALID_ORG", "Valid organization ID is required", nil)
 		return
 	}
 
 	// Update order status
-	err := h.orderService.UpdateOrderStatus(c.Request.Context(), id, &req, userID.(string), orgID.(string))
+	err := h.orderService.UpdateOrderStatus(c.Request.Context(), id, &req, userID.(string), orgID)
 	if err != nil {
 		common.BadRequest(c, "UPDATE_FAILED", "Failed to update order status", map[string]interface{}{
 			"error": err.Error(),
@@ -235,14 +250,14 @@ func (h *OrderHandler) UpdateOrder(c *gin.Context) {
 	}
 
 	// Get organization ID from context
-	orgID, exists := c.Get("organization_id")
+	orgID, exists := getOrganizationID(c)
 	if !exists {
-		common.Unauthorized(c, "MISSING_ORG", "Organization ID not found in context", nil)
+		common.Unauthorized(c, "INVALID_ORG", "Valid organization ID is required", nil)
 		return
 	}
 
 	// Update the order
-	order, err := h.orderService.UpdateOrder(c.Request.Context(), id, &req, userID.(string), orgID.(string))
+	order, err := h.orderService.UpdateOrder(c.Request.Context(), id, &req, userID.(string), orgID)
 	if err != nil {
 		common.BadRequest(c, "UPDATE_FAILED", "Failed to update order", map[string]interface{}{
 			"error": err.Error(),
@@ -307,14 +322,14 @@ func (h *OrderHandler) ListOrders(c *gin.Context) {
 	}
 
 	// Get organization ID from context
-	orgID, exists := c.Get("organization_id")
+	orgID, exists := getOrganizationID(c)
 	if !exists {
-		common.Unauthorized(c, "MISSING_ORG", "Organization ID not found in context", nil)
+		common.Unauthorized(c, "INVALID_ORG", "Valid organization ID is required", nil)
 		return
 	}
 
 	// Get orders
-	orders, total, err := h.orderService.ListOrders(c.Request.Context(), filter, userID.(string), orgID.(string), offset, limit)
+	orders, total, err := h.orderService.ListOrders(c.Request.Context(), filter, userID.(string), orgID, offset, limit)
 	if err != nil {
 		common.InternalServerError(c, "LIST_FAILED", "Failed to list orders", map[string]interface{}{
 			"error": err.Error(),
@@ -362,14 +377,14 @@ func (h *OrderHandler) CancelOrder(c *gin.Context) {
 	}
 
 	// Get organization ID from context
-	orgID, exists := c.Get("organization_id")
+	orgID, exists := getOrganizationID(c)
 	if !exists {
-		common.Unauthorized(c, "MISSING_ORG", "Organization ID not found in context", nil)
+		common.Unauthorized(c, "INVALID_ORG", "Valid organization ID is required", nil)
 		return
 	}
 
 	// Cancel the order
-	err := h.orderService.CancelOrder(c.Request.Context(), id, userID.(string), orgID.(string))
+	err := h.orderService.CancelOrder(c.Request.Context(), id, userID.(string), orgID)
 	if err != nil {
 		common.BadRequest(c, "CANCEL_FAILED", "Failed to cancel order", map[string]interface{}{
 			"error": err.Error(),
@@ -412,14 +427,14 @@ func (h *OrderHandler) CreateOrderFromBid(c *gin.Context) {
 	}
 
 	// Get organization ID from context
-	orgID, exists := c.Get("organization_id")
+	orgID, exists := getOrganizationID(c)
 	if !exists {
-		common.Unauthorized(c, "MISSING_ORG", "Organization ID not found in context", nil)
+		common.Unauthorized(c, "INVALID_ORG", "Valid organization ID is required", nil)
 		return
 	}
 
 	// Create the order from bid
-	order, err := h.orderService.CreateOrderFromBid(c.Request.Context(), &req, userID.(string), orgID.(string))
+	order, err := h.orderService.CreateOrderFromBid(c.Request.Context(), &req, userID.(string), orgID)
 	if err != nil {
 		common.BadRequest(c, "CREATE_FROM_BID_FAILED", "Failed to create order from bid", map[string]interface{}{
 			"error": err.Error(),
@@ -482,14 +497,14 @@ func (h *OrderHandler) ValidateBidForOrder(c *gin.Context) {
 	}
 
 	// Get organization ID from context
-	orgID, exists := c.Get("organization_id")
+	orgID, exists := getOrganizationID(c)
 	if !exists {
-		common.Unauthorized(c, "MISSING_ORG", "Organization ID not found in context", nil)
+		common.Unauthorized(c, "INVALID_ORG", "Valid organization ID is required", nil)
 		return
 	}
 
 	// Validate the bid
-	validation, err := h.orderService.ValidateBidForOrder(c.Request.Context(), req.BidID, userID.(string), orgID.(string))
+	validation, err := h.orderService.ValidateBidForOrder(c.Request.Context(), req.BidID, userID.(string), orgID)
 	if err != nil {
 		// Return validation error response
 		errorResponse := &orderResponses.BidOrderValidationErrorResponse{
@@ -567,14 +582,14 @@ func (h *OrderHandler) ProcessPaymentForOrder(c *gin.Context) {
 	}
 
 	// Get organization ID from context
-	orgID, exists := c.Get("organization_id")
+	orgID, exists := getOrganizationID(c)
 	if !exists {
-		common.Unauthorized(c, "MISSING_ORG", "Organization ID not found in context", nil)
+		common.Unauthorized(c, "INVALID_ORG", "Valid organization ID is required", nil)
 		return
 	}
 
 	// Process payment
-	paymentResult, err := h.orderService.ProcessPaymentForOrder(c.Request.Context(), orderID, req.PaymentMethod, userID.(string), orgID.(string))
+	paymentResult, err := h.orderService.ProcessPaymentForOrder(c.Request.Context(), orderID, req.PaymentMethod, userID.(string), orgID)
 	if err != nil {
 		common.BadRequest(c, "PAYMENT_PROCESSING_FAILED", "Failed to process payment", map[string]interface{}{
 			"error": err.Error(),
@@ -627,14 +642,14 @@ func (h *OrderHandler) GetPaymentStatus(c *gin.Context) {
 	}
 
 	// Get organization ID from context
-	orgID, exists := c.Get("organization_id")
+	orgID, exists := getOrganizationID(c)
 	if !exists {
-		common.Unauthorized(c, "MISSING_ORG", "Organization ID not found in context", nil)
+		common.Unauthorized(c, "INVALID_ORG", "Valid organization ID is required", nil)
 		return
 	}
 
 	// Get payment status
-	paymentResult, err := h.orderService.GetPaymentStatus(c.Request.Context(), orderID, userID.(string), orgID.(string))
+	paymentResult, err := h.orderService.GetPaymentStatus(c.Request.Context(), orderID, userID.(string), orgID)
 	if err != nil {
 		common.BadRequest(c, "PAYMENT_STATUS_FAILED", "Failed to get payment status", map[string]interface{}{
 			"error": err.Error(),
