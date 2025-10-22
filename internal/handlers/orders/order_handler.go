@@ -60,7 +60,7 @@ func (h *OrderHandler) CreateOrder(c *gin.Context) {
 	}
 
 	// Get organization ID from context
-	orgID, exists := c.Get("organizationID")
+	orgID, exists := c.Get("organization_id")
 	if !exists {
 		common.Unauthorized(c, "MISSING_ORG", "Organization ID not found in context", nil)
 		return
@@ -119,7 +119,7 @@ func (h *OrderHandler) GetOrderByID(c *gin.Context) {
 	}
 
 	// Get organization ID from context
-	orgID, exists := c.Get("organizationID")
+	orgID, exists := c.Get("organization_id")
 	if !exists {
 		common.Unauthorized(c, "MISSING_ORG", "Organization ID not found in context", nil)
 		return
@@ -177,7 +177,7 @@ func (h *OrderHandler) UpdateOrderStatus(c *gin.Context) {
 	}
 
 	// Get organization ID from context
-	orgID, exists := c.Get("organizationID")
+	orgID, exists := c.Get("organization_id")
 	if !exists {
 		common.Unauthorized(c, "MISSING_ORG", "Organization ID not found in context", nil)
 		return
@@ -235,7 +235,7 @@ func (h *OrderHandler) UpdateOrder(c *gin.Context) {
 	}
 
 	// Get organization ID from context
-	orgID, exists := c.Get("organizationID")
+	orgID, exists := c.Get("organization_id")
 	if !exists {
 		common.Unauthorized(c, "MISSING_ORG", "Organization ID not found in context", nil)
 		return
@@ -307,7 +307,7 @@ func (h *OrderHandler) ListOrders(c *gin.Context) {
 	}
 
 	// Get organization ID from context
-	orgID, exists := c.Get("organizationID")
+	orgID, exists := c.Get("organization_id")
 	if !exists {
 		common.Unauthorized(c, "MISSING_ORG", "Organization ID not found in context", nil)
 		return
@@ -362,7 +362,7 @@ func (h *OrderHandler) CancelOrder(c *gin.Context) {
 	}
 
 	// Get organization ID from context
-	orgID, exists := c.Get("organizationID")
+	orgID, exists := c.Get("organization_id")
 	if !exists {
 		common.Unauthorized(c, "MISSING_ORG", "Organization ID not found in context", nil)
 		return
@@ -412,7 +412,7 @@ func (h *OrderHandler) CreateOrderFromBid(c *gin.Context) {
 	}
 
 	// Get organization ID from context
-	orgID, exists := c.Get("organizationID")
+	orgID, exists := c.Get("organization_id")
 	if !exists {
 		common.Unauthorized(c, "MISSING_ORG", "Organization ID not found in context", nil)
 		return
@@ -482,7 +482,7 @@ func (h *OrderHandler) ValidateBidForOrder(c *gin.Context) {
 	}
 
 	// Get organization ID from context
-	orgID, exists := c.Get("organizationID")
+	orgID, exists := c.Get("organization_id")
 	if !exists {
 		common.Unauthorized(c, "MISSING_ORG", "Organization ID not found in context", nil)
 		return
@@ -567,7 +567,7 @@ func (h *OrderHandler) ProcessPaymentForOrder(c *gin.Context) {
 	}
 
 	// Get organization ID from context
-	orgID, exists := c.Get("organizationID")
+	orgID, exists := c.Get("organization_id")
 	if !exists {
 		common.Unauthorized(c, "MISSING_ORG", "Organization ID not found in context", nil)
 		return
@@ -627,7 +627,7 @@ func (h *OrderHandler) GetPaymentStatus(c *gin.Context) {
 	}
 
 	// Get organization ID from context
-	orgID, exists := c.Get("organizationID")
+	orgID, exists := c.Get("organization_id")
 	if !exists {
 		common.Unauthorized(c, "MISSING_ORG", "Organization ID not found in context", nil)
 		return

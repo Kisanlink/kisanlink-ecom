@@ -219,7 +219,7 @@ func createTestCreateOrderRequest() *orderRequests.CreateOrderRequest {
 
 func setupAuthenticatedContext(c *gin.Context) {
 	c.Set("subjectID", "user-1")
-	c.Set("organizationID", "buyer-org-1")
+	c.Set("organization_id", "buyer-org-1")
 }
 
 // Test CreateOrder handler with comprehensive scenarios
