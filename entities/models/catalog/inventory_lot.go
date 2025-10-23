@@ -38,10 +38,11 @@ type InventoryLot struct {
 	SerialNumber string `json:"serial_number" gorm:"type:varchar(100);uniqueIndex:idx_inventory_lots_serial,where:serial_number IS NOT NULL AND serial_number != ''"`
 
 	// Quantity and units
-	InitialQuantity decimal.Decimal `json:"initial_quantity" gorm:"type:decimal(12,3);not null;check:initial_quantity > 0"`
+	InitialQuantity decimal.Decimal `json:"initial_quantity" gorm:"column:initial_quantity;type:decimal(12,3);not null"`
+	AvailableQty    decimal.Decimal `json:"available_quantity" gorm:"column:available_quantity;type:decimal(12,3);not null"`
+	ReservedQty     decimal.Decimal `json:"reserved_quantity" gorm:"column:reserved_quantity;type:decimal(12,3);default:0"`
+	SoldQty         decimal.Decimal `json:"sold_quantity" gorm:"column:sold_quantity;type:decimal(12,3);default:0"`
 	Quantity        decimal.Decimal `json:"quantity" gorm:"type:decimal(12,3);not null;check:quantity > 0"`
-	ReservedQty     decimal.Decimal `json:"reserved_qty" gorm:"type:decimal(12,3);not null;default:0;check:reserved_qty >= 0"`
-	AvailableQty    decimal.Decimal `json:"available_qty" gorm:"type:decimal(12,3);not null;check:available_qty >= 0"`
 	UnitOfMeasure   string          `json:"unit_of_measure" gorm:"type:varchar(50);not null"`
 
 	// Status and condition
@@ -108,9 +109,10 @@ func NewInventoryLot(orgID, lotNumber string, quantity decimal.Decimal, unitOfMe
 		OrganizationID:  orgID,
 		LotNumber:       lotNumber,
 		InitialQuantity: quantity,
-		Quantity:        quantity,
 		AvailableQty:    quantity,
 		ReservedQty:     decimal.Zero,
+		SoldQty:         decimal.Zero,
+		Quantity:        quantity,
 		UnitOfMeasure:   unitOfMeasure,
 		Status:          LotStatusActive,
 		Currency:        "INR",
@@ -160,9 +162,10 @@ func (l *InventoryLot) ConsumeQuantity(qty decimal.Decimal) bool {
 
 	l.ReservedQty = l.ReservedQty.Sub(qty)
 	l.Quantity = l.Quantity.Sub(qty)
+	l.SoldQty = l.SoldQty.Add(qty)
 
 	// Update status if lot is empty
-	if l.Quantity.IsZero() {
+	if l.AvailableQty.IsZero() && l.ReservedQty.IsZero() {
 		l.Status = LotStatusSold
 	}
 
