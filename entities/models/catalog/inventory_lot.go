@@ -38,10 +38,11 @@ type InventoryLot struct {
 	SerialNumber string `json:"serial_number" gorm:"type:varchar(100);uniqueIndex:idx_inventory_lots_serial,where:serial_number IS NOT NULL AND serial_number != ''"`
 
 	// Quantity and units
-	Quantity      decimal.Decimal `json:"quantity" gorm:"type:decimal(12,3);not null;check:quantity > 0"`
-	ReservedQty   decimal.Decimal `json:"reserved_qty" gorm:"type:decimal(12,3);not null;default:0;check:reserved_qty >= 0"`
-	AvailableQty  decimal.Decimal `json:"available_qty" gorm:"type:decimal(12,3);not null;check:available_qty >= 0"`
-	UnitOfMeasure string          `json:"unit_of_measure" gorm:"type:varchar(50);not null"`
+	InitialQuantity decimal.Decimal `json:"initial_quantity" gorm:"type:decimal(12,3);not null;check:initial_quantity > 0"`
+	Quantity        decimal.Decimal `json:"quantity" gorm:"type:decimal(12,3);not null;check:quantity > 0"`
+	ReservedQty     decimal.Decimal `json:"reserved_qty" gorm:"type:decimal(12,3);not null;default:0;check:reserved_qty >= 0"`
+	AvailableQty    decimal.Decimal `json:"available_qty" gorm:"type:decimal(12,3);not null;check:available_qty >= 0"`
+	UnitOfMeasure   string          `json:"unit_of_measure" gorm:"type:varchar(50);not null"`
 
 	// Status and condition
 	Status    LotStatus `json:"status" gorm:"type:varchar(20);not null;default:'active';index:idx_inventory_lots_status;check:status IN ('active', 'reserved', 'sold', 'expired', 'damaged', 'returned')"`
@@ -103,15 +104,16 @@ func (InventoryLot) TableName() string {
 // NewInventoryLot creates a new inventory lot
 func NewInventoryLot(orgID, lotNumber string, quantity decimal.Decimal, unitOfMeasure string) *InventoryLot {
 	return &InventoryLot{
-		BaseModel:      *base.NewBaseModel("LOT", "large"),
-		OrganizationID: orgID,
-		LotNumber:      lotNumber,
-		Quantity:       quantity,
-		AvailableQty:   quantity,
-		ReservedQty:    decimal.Zero,
-		UnitOfMeasure:  unitOfMeasure,
-		Status:         LotStatusActive,
-		Currency:       "INR",
+		BaseModel:       *base.NewBaseModel("LOT", "large"),
+		OrganizationID:  orgID,
+		LotNumber:       lotNumber,
+		InitialQuantity: quantity,
+		Quantity:        quantity,
+		AvailableQty:    quantity,
+		ReservedQty:     decimal.Zero,
+		UnitOfMeasure:   unitOfMeasure,
+		Status:          LotStatusActive,
+		Currency:        "INR",
 	}
 }
 
