@@ -3,7 +3,7 @@ module kisanlink-ecom
 go 1.24
 
 require (
-	github.com/Kisanlink/aaa-service/v2 v2.0.4
+	github.com/Kisanlink/aaa-service/v2 v2.0.5
 	github.com/Kisanlink/kisanlink-db v0.3.0
 	github.com/MarceloPetrucio/go-scalar-api-reference v0.0.0-20240521013641-ce5d2efe0e06
 	github.com/aws/aws-sdk-go-v2 v1.39.0
