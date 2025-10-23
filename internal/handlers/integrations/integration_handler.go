@@ -87,21 +87,21 @@ func (h *IntegrationHandler) SubmitCatalogProposal(c *gin.Context) {
 	}
 
 	// Get user ID from context
-	userID, exists := c.Get("subjectID")
+	userID, exists := common.GetSubjectID(c)
 	if !exists {
 		common.Unauthorized(c, "MISSING_USER", "User ID not found in context", nil)
 		return
 	}
 
 	// Get organization ID from context
-	orgID, exists := c.Get("organizationID")
+	orgID, exists := common.GetOrganizationID(c)
 	if !exists {
 		common.Unauthorized(c, "MISSING_ORG", "Organization ID not found in context", nil)
 		return
 	}
 
 	// Process the catalog proposal
-	response, err := h.integrationService.ProcessCatalogProposal(c.Request.Context(), &req, userID.(string), orgID.(string))
+	response, err := h.integrationService.ProcessCatalogProposal(c.Request.Context(), &req, userID, orgID)
 	if err != nil {
 		common.BadRequest(c, "PROPOSAL_PROCESSING_FAILED", "Failed to process catalog proposal", map[string]interface{}{
 			"error": err.Error(),
@@ -178,21 +178,21 @@ func (h *IntegrationHandler) AcknowledgeOrder(c *gin.Context) {
 	}
 
 	// Get user ID from context
-	userID, exists := c.Get("subjectID")
+	userID, exists := common.GetSubjectID(c)
 	if !exists {
 		common.Unauthorized(c, "MISSING_USER", "User ID not found in context", nil)
 		return
 	}
 
 	// Get organization ID from context
-	orgID, exists := c.Get("organizationID")
+	orgID, exists := common.GetOrganizationID(c)
 	if !exists {
 		common.Unauthorized(c, "MISSING_ORG", "Organization ID not found in context", nil)
 		return
 	}
 
 	// Process the order acknowledgement
-	response, err := h.integrationService.ProcessOrderAcknowledgement(c.Request.Context(), &req, userID.(string), orgID.(string))
+	response, err := h.integrationService.ProcessOrderAcknowledgement(c.Request.Context(), &req, userID, orgID)
 	if err != nil {
 		common.BadRequest(c, "ACKNOWLEDGEMENT_PROCESSING_FAILED", "Failed to process order acknowledgement", map[string]interface{}{
 			"error": err.Error(),
@@ -249,21 +249,21 @@ func (h *IntegrationHandler) ExportCatalog(c *gin.Context) {
 	}
 
 	// Get user ID from context
-	userID, exists := c.Get("subjectID")
+	userID, exists := common.GetSubjectID(c)
 	if !exists {
 		common.Unauthorized(c, "MISSING_USER", "User ID not found in context", nil)
 		return
 	}
 
 	// Get organization ID from context
-	orgID, exists := c.Get("organizationID")
+	orgID, exists := common.GetOrganizationID(c)
 	if !exists {
 		common.Unauthorized(c, "MISSING_ORG", "Organization ID not found in context", nil)
 		return
 	}
 
 	// Export catalog with delta synchronization
-	response, err := h.integrationService.ExportCatalogWithDelta(c.Request.Context(), &req, userID.(string), orgID.(string))
+	response, err := h.integrationService.ExportCatalogWithDelta(c.Request.Context(), &req, userID, orgID)
 	if err != nil {
 		common.BadRequest(c, "EXPORT_FAILED", "Failed to export catalog", map[string]interface{}{
 			"error": err.Error(),
@@ -386,21 +386,21 @@ func (h *IntegrationHandler) GetProposalStatus(c *gin.Context) {
 	}
 
 	// Get user ID from context
-	userID, exists := c.Get("subjectID")
+	userID, exists := common.GetSubjectID(c)
 	if !exists {
 		common.Unauthorized(c, "MISSING_USER", "User ID not found in context", nil)
 		return
 	}
 
 	// Get organization ID from context
-	orgID, exists := c.Get("organizationID")
+	orgID, exists := common.GetOrganizationID(c)
 	if !exists {
 		common.Unauthorized(c, "MISSING_ORG", "Organization ID not found in context", nil)
 		return
 	}
 
 	// Get proposal status from service
-	response, err := h.integrationService.GetProposalStatus(c.Request.Context(), proposalID, userID.(string), orgID.(string))
+	response, err := h.integrationService.GetProposalStatus(c.Request.Context(), proposalID, userID, orgID)
 	if err != nil {
 		common.InternalServerError(c, "GET_STATUS_FAILED", "Failed to get proposal status", map[string]interface{}{
 			"error": err.Error(),
@@ -437,21 +437,21 @@ func (h *IntegrationHandler) ListIntegrationPartners(c *gin.Context) {
 	}
 
 	// Get user ID from context
-	userID, exists := c.Get("subjectID")
+	userID, exists := common.GetSubjectID(c)
 	if !exists {
 		common.Unauthorized(c, "MISSING_USER", "User ID not found in context", nil)
 		return
 	}
 
 	// Get organization ID from context
-	orgID, exists := c.Get("organizationID")
+	orgID, exists := common.GetOrganizationID(c)
 	if !exists {
 		common.Unauthorized(c, "MISSING_ORG", "Organization ID not found in context", nil)
 		return
 	}
 
 	// Get partners from service
-	partners, total, err := h.integrationService.ListIntegrationPartners(c.Request.Context(), page, limit, userID.(string), orgID.(string))
+	partners, total, err := h.integrationService.ListIntegrationPartners(c.Request.Context(), page, limit, userID, orgID)
 	if err != nil {
 		common.InternalServerError(c, "LIST_FAILED", "Failed to list integration partners", map[string]interface{}{
 			"error": err.Error(),

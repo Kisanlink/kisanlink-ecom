@@ -6,6 +6,7 @@ import (
 	"time"
 
 	catalogModels "kisanlink-ecom/entities/models/catalog"
+	"kisanlink-ecom/internal/common"
 	inventoryService "kisanlink-ecom/internal/services/inventory"
 	"kisanlink-ecom/internal/utils"
 
@@ -86,13 +87,13 @@ func (h *InventoryHandler) CreateInventoryLot(c *gin.Context) {
 	}
 
 	// Get user context
-	userID, exists := c.Get("subjectID")
+	userID, exists := common.GetSubjectID(c)
 	if !exists {
 		utils.ErrorResponse(c, http.StatusUnauthorized, "UNAUTHORIZED", "User not authenticated", "")
 		return
 	}
 
-	orgID, exists := c.Get("organizationID")
+	orgID, exists := common.GetOrganizationID(c)
 	if !exists {
 		utils.ErrorResponse(c, http.StatusForbidden, "FORBIDDEN", "Organization context required", "")
 		return
@@ -139,8 +140,8 @@ func (h *InventoryHandler) CreateInventoryLot(c *gin.Context) {
 	lot, err := h.inventoryService.CreateInventoryLot(
 		c.Request.Context(),
 		serviceReq,
-		userID.(string),
-		orgID.(string),
+		userID,
+		orgID,
 	)
 	if err != nil {
 		utils.ErrorResponse(c, http.StatusBadRequest, "SERVICE_ERROR", err.Error(), "")
@@ -179,13 +180,13 @@ func (h *InventoryHandler) UpdateInventoryLot(c *gin.Context) {
 	}
 
 	// Get user context
-	userID, exists := c.Get("subjectID")
+	userID, exists := common.GetSubjectID(c)
 	if !exists {
 		utils.ErrorResponse(c, http.StatusUnauthorized, "UNAUTHORIZED", "User not authenticated", "")
 		return
 	}
 
-	orgID, exists := c.Get("organizationID")
+	orgID, exists := common.GetOrganizationID(c)
 	if !exists {
 		utils.ErrorResponse(c, http.StatusForbidden, "FORBIDDEN", "Organization context required", "")
 		return
@@ -229,8 +230,8 @@ func (h *InventoryHandler) UpdateInventoryLot(c *gin.Context) {
 		c.Request.Context(),
 		lotID,
 		serviceReq,
-		userID.(string),
-		orgID.(string),
+		userID,
+		orgID,
 	)
 	if err != nil {
 		utils.ErrorResponse(c, http.StatusBadRequest, "SERVICE_ERROR", err.Error(), "")
@@ -260,13 +261,13 @@ func (h *InventoryHandler) UpdateInventoryLot(c *gin.Context) {
 // @Router /api/v1/inventory/lots [get]
 func (h *InventoryHandler) ListInventoryLots(c *gin.Context) {
 	// Get user context
-	userID, exists := c.Get("subjectID")
+	userID, exists := common.GetSubjectID(c)
 	if !exists {
 		utils.ErrorResponse(c, http.StatusUnauthorized, "UNAUTHORIZED", "User not authenticated", "")
 		return
 	}
 
-	orgID, exists := c.Get("organizationID")
+	orgID, exists := common.GetOrganizationID(c)
 	if !exists {
 		utils.ErrorResponse(c, http.StatusForbidden, "FORBIDDEN", "Organization context required", "")
 		return
@@ -310,8 +311,8 @@ func (h *InventoryHandler) ListInventoryLots(c *gin.Context) {
 	response, err := h.inventoryService.ListInventoryLots(
 		c.Request.Context(),
 		filter,
-		userID.(string),
-		orgID.(string),
+		userID,
+		orgID,
 	)
 	if err != nil {
 		utils.ErrorResponse(c, http.StatusInternalServerError, "INTERNAL_ERROR", err.Error(), "")
@@ -343,13 +344,13 @@ func (h *InventoryHandler) GetInventoryLot(c *gin.Context) {
 	}
 
 	// Get user context
-	userID, exists := c.Get("subjectID")
+	userID, exists := common.GetSubjectID(c)
 	if !exists {
 		utils.ErrorResponse(c, http.StatusUnauthorized, "UNAUTHORIZED", "User not authenticated", "")
 		return
 	}
 
-	orgID, exists := c.Get("organizationID")
+	orgID, exists := common.GetOrganizationID(c)
 	if !exists {
 		utils.ErrorResponse(c, http.StatusForbidden, "FORBIDDEN", "Organization context required", "")
 		return
@@ -359,8 +360,8 @@ func (h *InventoryHandler) GetInventoryLot(c *gin.Context) {
 	lot, err := h.inventoryService.GetInventoryLot(
 		c.Request.Context(),
 		lotID,
-		userID.(string),
-		orgID.(string),
+		userID,
+		orgID,
 	)
 	if err != nil {
 		utils.ErrorResponse(c, http.StatusNotFound, "NOT_FOUND", err.Error(), "")
@@ -399,13 +400,13 @@ func (h *InventoryHandler) AdjustInventoryQuantity(c *gin.Context) {
 	}
 
 	// Get user context
-	userID, exists := c.Get("subjectID")
+	userID, exists := common.GetSubjectID(c)
 	if !exists {
 		utils.ErrorResponse(c, http.StatusUnauthorized, "UNAUTHORIZED", "User not authenticated", "")
 		return
 	}
 
-	orgID, exists := c.Get("organizationID")
+	orgID, exists := common.GetOrganizationID(c)
 	if !exists {
 		utils.ErrorResponse(c, http.StatusForbidden, "FORBIDDEN", "Organization context required", "")
 		return
@@ -417,8 +418,8 @@ func (h *InventoryHandler) AdjustInventoryQuantity(c *gin.Context) {
 		lotID,
 		req.Adjustment,
 		req.Reason,
-		userID.(string),
-		orgID.(string),
+		userID,
+		orgID,
 	)
 	if err != nil {
 		utils.ErrorResponse(c, http.StatusBadRequest, "SERVICE_ERROR", err.Error(), "")
@@ -451,13 +452,13 @@ func (h *InventoryHandler) CheckInventoryAvailability(c *gin.Context) {
 	}
 
 	// Get user context
-	userID, exists := c.Get("subjectID")
+	userID, exists := common.GetSubjectID(c)
 	if !exists {
 		utils.ErrorResponse(c, http.StatusUnauthorized, "UNAUTHORIZED", "User not authenticated", "")
 		return
 	}
 
-	orgID, exists := c.Get("organizationID")
+	orgID, exists := common.GetOrganizationID(c)
 	if !exists {
 		utils.ErrorResponse(c, http.StatusForbidden, "FORBIDDEN", "Organization context required", "")
 		return
@@ -479,8 +480,8 @@ func (h *InventoryHandler) CheckInventoryAvailability(c *gin.Context) {
 		c.Request.Context(),
 		catalogItemID,
 		requiredQuantity,
-		userID.(string),
-		orgID.(string),
+		userID,
+		orgID,
 	)
 	if err != nil {
 		utils.ErrorResponse(c, http.StatusBadRequest, "SERVICE_ERROR", err.Error(), "")
@@ -491,8 +492,8 @@ func (h *InventoryHandler) CheckInventoryAvailability(c *gin.Context) {
 	totalQty, err := h.inventoryService.GetTotalQuantity(
 		c.Request.Context(),
 		catalogItemID,
-		userID.(string),
-		orgID.(string),
+		userID,
+		orgID,
 	)
 	if err != nil {
 		utils.ErrorResponse(c, http.StatusInternalServerError, "INTERNAL_ERROR", err.Error(), "")
@@ -533,13 +534,13 @@ func (h *InventoryHandler) GetInventoryAuditTrail(c *gin.Context) {
 	}
 
 	// Get user context
-	userID, exists := c.Get("subjectID")
+	userID, exists := common.GetSubjectID(c)
 	if !exists {
 		utils.ErrorResponse(c, http.StatusUnauthorized, "UNAUTHORIZED", "User not authenticated", "")
 		return
 	}
 
-	orgID, exists := c.Get("organizationID")
+	orgID, exists := common.GetOrganizationID(c)
 	if !exists {
 		utils.ErrorResponse(c, http.StatusForbidden, "FORBIDDEN", "Organization context required", "")
 		return
@@ -567,8 +568,8 @@ func (h *InventoryHandler) GetInventoryAuditTrail(c *gin.Context) {
 		lotID,
 		offset,
 		limit,
-		userID.(string),
-		orgID.(string),
+		userID,
+		orgID,
 	)
 	if err != nil {
 		utils.ErrorResponse(c, http.StatusBadRequest, "SERVICE_ERROR", err.Error(), "")

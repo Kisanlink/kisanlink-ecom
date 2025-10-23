@@ -289,7 +289,7 @@ func (im *IdempotentMigrator) migrateInventoryLotsTable(tx *gorm.DB, currentColu
 
 	// Add missing columns if they don't exist
 	missingColumns := []string{
-		"variant_id", "serial_number", "quantity", "reserved_qty", "available_qty", "unit_of_measure",
+		"variant_id", "serial_number", "quantity", "reserved_quantity", "available_quantity", "unit_of_measure",
 	}
 
 	for _, colName := range missingColumns {
@@ -327,101 +327,127 @@ func (im *IdempotentMigrator) migrateCatalogItemsTable(tx *gorm.DB, currentColum
 func (im *IdempotentMigrator) migrateCatalogItemsStructure(tx *gorm.DB, currentColumns map[string]ColumnInfo) error {
 	log.Printf("Migrating catalog_items table structure...")
 
-	// Check if we have the old structure (category, subcategory) vs new structure (category_id)
-	hasOldCategory := false
-	hasNewCategoryId := false
-
-	if _, exists := currentColumns["category"]; exists {
-		hasOldCategory = true
-	}
-	if _, exists := currentColumns["category_id"]; exists {
-		hasNewCategoryId = true
+	// Check if we need migration
+	if !im.needsCatalogItemsMigration(currentColumns) {
+		return nil
 	}
 
-	// If we have old structure but not new, we need to migrate
-	if hasOldCategory && !hasNewCategoryId {
-		log.Printf("Detected old catalog_items structure, performing structural migration...")
+	log.Printf("Detected old catalog_items structure, performing structural migration...")
 
-		// Add new columns that are missing
-		newColumns := map[string]string{
-			"category_id":     "ALTER TABLE catalog_items ADD COLUMN category_id varchar(255)",
-			"vendor_id":       "ALTER TABLE catalog_items ADD COLUMN vendor_id varchar(255)",
-			"version":         "ALTER TABLE catalog_items ADD COLUMN version bigint NOT NULL DEFAULT 1",
-			"weight":          "ALTER TABLE catalog_items ADD COLUMN weight decimal(10,3)",
-			"dimensions":      "ALTER TABLE catalog_items ADD COLUMN dimensions jsonb",
-			"perishable":      "ALTER TABLE catalog_items ADD COLUMN perishable boolean NOT NULL DEFAULT false",
-			"shelf_life_days": "ALTER TABLE catalog_items ADD COLUMN shelf_life_days bigint",
-		}
+	// Perform migration steps
+	im.addCatalogItemsColumns(tx, currentColumns)
+	im.removeCatalogItemsOldColumns(tx, currentColumns)
+	im.addCatalogItemsConstraints(tx)
+	im.addCatalogItemsIndexes(tx)
 
-		for colName, sql := range newColumns {
-			if _, exists := currentColumns[colName]; !exists {
-				log.Printf("Adding column: %s", colName)
-				if err := tx.Exec(sql).Error; err != nil {
-					log.Printf("Warning: Failed to add column %s: %v", colName, err)
-				}
-			}
-		}
-
-		// Remove old columns that are no longer needed
-		oldColumns := []string{"skill_level", "hourly_rate"}
-		for _, colName := range oldColumns {
-			if _, exists := currentColumns[colName]; exists {
-				log.Printf("Removing old column: %s", colName)
-				sql := fmt.Sprintf("ALTER TABLE catalog_items DROP COLUMN IF EXISTS %s", colName)
-				if err := tx.Exec(sql).Error; err != nil {
-					log.Printf("Warning: Failed to drop column %s: %v", colName, err)
-				}
-			}
-		}
-
-		// Add constraints that GORM would normally create
-		constraints := []string{
-			"ALTER TABLE catalog_items ADD CONSTRAINT chk_catalog_items_base_price CHECK (base_price >= 0)",
-			"ALTER TABLE catalog_items ADD CONSTRAINT chk_catalog_items_weight CHECK (weight IS NULL OR weight >= 0)",
-			"ALTER TABLE catalog_items ADD CONSTRAINT chk_catalog_items_shelf_life_days CHECK (shelf_life_days IS NULL OR shelf_life_days > 0)",
-		}
-
-		for _, constraintSQL := range constraints {
-			// Check if constraint already exists
-			constraintName := im.extractConstraintName(constraintSQL)
-			if constraintName != "" {
-				var count int64
-				checkSQL := "SELECT COUNT(*) FROM INFORMATION_SCHEMA.table_constraints WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'catalog_items' AND constraint_name = ?"
-				if err := tx.Raw(checkSQL, constraintName).Scan(&count).Error; err == nil && count == 0 {
-					log.Printf("Adding constraint: %s", constraintName)
-					if err := tx.Exec(constraintSQL).Error; err != nil {
-						log.Printf("Warning: Failed to add constraint %s: %v", constraintName, err)
-					}
-				}
-			}
-		}
-
-		// Add indexes that GORM would normally create
-		indexes := []string{
-			"CREATE INDEX IF NOT EXISTS idx_tenant ON catalog_items (organization_id)",
-			"CREATE INDEX IF NOT EXISTS idx_tenant_type_status ON catalog_items (organization_id, item_type, is_active)",
-			"CREATE INDEX IF NOT EXISTS idx_tenant_category ON catalog_items (organization_id, category_id)",
-			"CREATE INDEX IF NOT EXISTS idx_tenant_vendor ON catalog_items (organization_id, vendor_id)",
-			"CREATE INDEX IF NOT EXISTS idx_catalog_items_search_name ON catalog_items (name)",
-			"CREATE INDEX IF NOT EXISTS idx_search_desc ON catalog_items (description)",
-			"CREATE UNIQUE INDEX IF NOT EXISTS idx_org_sku ON catalog_items (sku) WHERE sku IS NOT NULL AND sku != ''",
-			"CREATE INDEX IF NOT EXISTS idx_tags ON catalog_items (tags)",
-			"CREATE INDEX IF NOT EXISTS idx_attributes ON catalog_items (attributes)",
-			"CREATE INDEX IF NOT EXISTS idx_catalog_items_deleted ON catalog_items (deleted_at)",
-		}
-
-		for _, indexSQL := range indexes {
-			if err := tx.Exec(indexSQL).Error; err != nil {
-				log.Printf("Warning: Failed to create index: %v", err)
-			}
-		}
-
-		// Migrate data from old category/subcategory to category_id if needed
-		// For now, we'll just set category_id to NULL and let the application handle it
-		log.Printf("Structural migration completed")
-	}
-
+	log.Printf("Structural migration completed")
 	return nil
+}
+
+// Legacy migration functions - kept for reference but not currently used
+
+// needsCatalogItemsMigration checks if catalog_items needs migration
+//
+//nolint:unused
+func (im *IdempotentMigrator) needsCatalogItemsMigration(currentColumns map[string]ColumnInfo) bool {
+	_, hasOldCategory := currentColumns["category"]
+	_, hasNewCategoryID := currentColumns["category_id"]
+	return hasOldCategory && !hasNewCategoryID
+}
+
+// addCatalogItemsColumns adds new columns to catalog_items table
+//
+//nolint:unused
+func (im *IdempotentMigrator) addCatalogItemsColumns(tx *gorm.DB, currentColumns map[string]ColumnInfo) {
+	newColumns := map[string]string{
+		"category_id":     "ALTER TABLE catalog_items ADD COLUMN category_id varchar(255)",
+		"vendor_id":       "ALTER TABLE catalog_items ADD COLUMN vendor_id varchar(255)",
+		"version":         "ALTER TABLE catalog_items ADD COLUMN version bigint NOT NULL DEFAULT 1",
+		"weight":          "ALTER TABLE catalog_items ADD COLUMN weight decimal(10,3)",
+		"dimensions":      "ALTER TABLE catalog_items ADD COLUMN dimensions jsonb",
+		"perishable":      "ALTER TABLE catalog_items ADD COLUMN perishable boolean NOT NULL DEFAULT false",
+		"shelf_life_days": "ALTER TABLE catalog_items ADD COLUMN shelf_life_days bigint",
+	}
+
+	for colName, sql := range newColumns {
+		if _, exists := currentColumns[colName]; !exists {
+			log.Printf("Adding column: %s", colName)
+			if err := tx.Exec(sql).Error; err != nil {
+				log.Printf("Warning: Failed to add column %s: %v", colName, err)
+			}
+		}
+	}
+}
+
+// removeCatalogItemsOldColumns removes obsolete columns from catalog_items table
+//
+//nolint:unused
+func (im *IdempotentMigrator) removeCatalogItemsOldColumns(tx *gorm.DB, currentColumns map[string]ColumnInfo) {
+	oldColumns := []string{"skill_level", "hourly_rate"}
+	for _, colName := range oldColumns {
+		if _, exists := currentColumns[colName]; exists {
+			log.Printf("Removing old column: %s", colName)
+			sql := fmt.Sprintf("ALTER TABLE catalog_items DROP COLUMN IF EXISTS %s", colName)
+			if err := tx.Exec(sql).Error; err != nil {
+				log.Printf("Warning: Failed to drop column %s: %v", colName, err)
+			}
+		}
+	}
+}
+
+// addCatalogItemsConstraints adds constraints to catalog_items table
+//
+//nolint:unused
+func (im *IdempotentMigrator) addCatalogItemsConstraints(tx *gorm.DB) {
+	constraints := []string{
+		"ALTER TABLE catalog_items ADD CONSTRAINT chk_catalog_items_base_price CHECK (base_price >= 0)",
+		"ALTER TABLE catalog_items ADD CONSTRAINT chk_catalog_items_weight CHECK (weight IS NULL OR weight >= 0)",
+		"ALTER TABLE catalog_items ADD CONSTRAINT chk_catalog_items_shelf_life_days CHECK (shelf_life_days IS NULL OR shelf_life_days > 0)",
+	}
+
+	for _, constraintSQL := range constraints {
+		constraintName := im.extractConstraintName(constraintSQL)
+		if constraintName != "" && !im.constraintExists(tx, "catalog_items", constraintName) {
+			log.Printf("Adding constraint: %s", constraintName)
+			if err := tx.Exec(constraintSQL).Error; err != nil {
+				log.Printf("Warning: Failed to add constraint %s: %v", constraintName, err)
+			}
+		}
+	}
+}
+
+// addCatalogItemsIndexes adds indexes to catalog_items table
+//
+//nolint:unused
+func (im *IdempotentMigrator) addCatalogItemsIndexes(tx *gorm.DB) {
+	indexes := []string{
+		"CREATE INDEX IF NOT EXISTS idx_tenant ON catalog_items (organization_id)",
+		"CREATE INDEX IF NOT EXISTS idx_tenant_type_status ON catalog_items (organization_id, item_type, is_active)",
+		"CREATE INDEX IF NOT EXISTS idx_tenant_category ON catalog_items (organization_id, category_id)",
+		"CREATE INDEX IF NOT EXISTS idx_tenant_vendor ON catalog_items (organization_id, vendor_id)",
+		"CREATE INDEX IF NOT EXISTS idx_catalog_items_search_name ON catalog_items (name)",
+		"CREATE INDEX IF NOT EXISTS idx_search_desc ON catalog_items (description)",
+		"CREATE UNIQUE INDEX IF NOT EXISTS idx_org_sku ON catalog_items (sku) WHERE sku IS NOT NULL AND sku != ''",
+		"CREATE INDEX IF NOT EXISTS idx_tags ON catalog_items (tags)",
+		"CREATE INDEX IF NOT EXISTS idx_attributes ON catalog_items (attributes)",
+		"CREATE INDEX IF NOT EXISTS idx_catalog_items_deleted ON catalog_items (deleted_at)",
+	}
+
+	for _, indexSQL := range indexes {
+		if err := tx.Exec(indexSQL).Error; err != nil {
+			log.Printf("Warning: Failed to create index: %v", err)
+		}
+	}
+}
+
+// constraintExists checks if a constraint exists on a table
+//
+//nolint:unused
+func (im *IdempotentMigrator) constraintExists(tx *gorm.DB, tableName, constraintName string) bool {
+	var count int64
+	checkSQL := "SELECT COUNT(*) FROM INFORMATION_SCHEMA.table_constraints WHERE table_schema = CURRENT_SCHEMA() AND table_name = ? AND constraint_name = ?"
+	err := tx.Raw(checkSQL, tableName, constraintName).Scan(&count).Error
+	return err == nil && count > 0
 }
 
 // addColumnSafely adds a column with proper error handling
@@ -435,10 +461,10 @@ func (im *IdempotentMigrator) addColumnSafely(tx *gorm.DB, tableName, columnName
 		sql = "ALTER TABLE " + tableName + " ADD COLUMN serial_number varchar(100)"
 	case "quantity":
 		sql = "ALTER TABLE " + tableName + " ADD COLUMN quantity decimal(12,3) NOT NULL DEFAULT 0"
-	case "reserved_qty":
-		sql = "ALTER TABLE " + tableName + " ADD COLUMN reserved_qty decimal(12,3) NOT NULL DEFAULT 0"
-	case "available_qty":
-		sql = "ALTER TABLE " + tableName + " ADD COLUMN available_qty decimal(12,3) NOT NULL DEFAULT 0"
+	case "reserved_quantity":
+		sql = "ALTER TABLE " + tableName + " ADD COLUMN reserved_quantity decimal(12,3) NOT NULL DEFAULT 0"
+	case "available_quantity":
+		sql = "ALTER TABLE " + tableName + " ADD COLUMN available_quantity decimal(12,3) NOT NULL DEFAULT 0"
 	case "unit_of_measure":
 		sql = "ALTER TABLE " + tableName + " ADD COLUMN unit_of_measure varchar(50) NOT NULL DEFAULT ''"
 	default:

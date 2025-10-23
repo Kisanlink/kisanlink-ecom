@@ -39,8 +39,8 @@ type InventoryLot struct {
 
 	// Quantity and units
 	InitialQuantity decimal.Decimal `json:"initial_quantity" gorm:"column:initial_quantity;type:decimal(12,3);not null"`
-	AvailableQty    decimal.Decimal `json:"available_qty" gorm:"column:available_qty;type:decimal(12,3);not null"`
-	ReservedQty     decimal.Decimal `json:"reserved_qty" gorm:"column:reserved_qty;type:decimal(12,3);not null;default:0"`
+	AvailableQty    decimal.Decimal `json:"available_quantity" gorm:"column:available_quantity;type:decimal(12,3);not null"`
+	ReservedQty     decimal.Decimal `json:"reserved_quantity" gorm:"column:reserved_quantity;type:decimal(12,3);not null;default:0"`
 	Quantity        decimal.Decimal `json:"quantity" gorm:"type:decimal(12,3);not null;check:quantity > 0"`
 	UnitOfMeasure   string          `json:"unit_of_measure" gorm:"type:varchar(50);not null"`
 

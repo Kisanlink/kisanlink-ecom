@@ -117,6 +117,53 @@ func GetTraceID(c *gin.Context) string {
 	return ""
 }
 
+// GetOrganizationID extracts the organization ID from the gin context
+// It tries multiple key variants to ensure compatibility across all handlers
+func GetOrganizationID(c *gin.Context) (string, bool) {
+	// Try camelCase variant (used by some handlers)
+	if orgID, exists := c.Get("organizationID"); exists {
+		if id, ok := orgID.(string); ok && id != "" {
+			return id, true
+		}
+	}
+
+	// Try snake_case variant (used by other handlers)
+	if orgID, exists := c.Get("organization_id"); exists {
+		if id, ok := orgID.(string); ok && id != "" {
+			return id, true
+		}
+	}
+
+	// Try standard key (set by middleware)
+	if orgID, exists := c.Get("orgID"); exists {
+		if id, ok := orgID.(string); ok && id != "" {
+			return id, true
+		}
+	}
+
+	return "", false
+}
+
+// GetSubjectID extracts the subject ID (user ID) from the gin context
+// It tries multiple key variants to ensure compatibility
+func GetSubjectID(c *gin.Context) (string, bool) {
+	// Try standard subjectID key
+	if subjectID, exists := c.Get("subjectID"); exists {
+		if id, ok := subjectID.(string); ok && id != "" {
+			return id, true
+		}
+	}
+
+	// Try alternative user_id key
+	if userID, exists := c.Get("user_id"); exists {
+		if id, ok := userID.(string); ok && id != "" {
+			return id, true
+		}
+	}
+
+	return "", false
+}
+
 // NewPaginationMeta creates pagination metadata
 func NewPaginationMeta(page, limit, total int) *PaginationMeta {
 	totalPages := (total + limit - 1) / limit // Ceiling division

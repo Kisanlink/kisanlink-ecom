@@ -349,7 +349,7 @@ func (r *inventoryRepository) ReserveQuantity(ctx context.Context, catalogItemID
 			Value:    string(catalogModels.LotStatusActive),
 		},
 		{
-			Field:    "available_qty",
+			Field:    "available_quantity",
 			Operator: base.OpGreaterThan,
 			Value:    decimal.Zero,
 		},
@@ -417,7 +417,7 @@ func (r *inventoryRepository) ReleaseQuantity(ctx context.Context, catalogItemID
 			Value:    catalogItemID,
 		},
 		{
-			Field:    "reserved_qty",
+			Field:    "reserved_quantity",
 			Operator: base.OpGreaterThan,
 			Value:    decimal.Zero,
 		},
@@ -480,7 +480,7 @@ func (r *inventoryRepository) SellQuantity(ctx context.Context, catalogItemID st
 			Value:    catalogItemID,
 		},
 		{
-			Field:    "reserved_qty",
+			Field:    "reserved_quantity",
 			Operator: base.OpGreaterThan,
 			Value:    decimal.Zero,
 		},
