@@ -6,6 +6,7 @@ import (
 	"time"
 
 	catalogModels "kisanlink-ecom/entities/models/catalog"
+	"kisanlink-ecom/internal/repositories/common"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/base"
 	"github.com/Kisanlink/kisanlink-db/pkg/db"
@@ -67,13 +68,15 @@ func (InventoryAuditLog) TableName() string {
 
 // inventoryRepository implements the InventoryRepository interface
 type inventoryRepository struct {
+	*common.BaseRepository
 	dbManager db.DBManager
 }
 
 // NewInventoryRepository creates a new inventory repository
 func NewInventoryRepository(dbManager db.DBManager) InventoryRepository {
 	return &inventoryRepository{
-		dbManager: dbManager,
+		BaseRepository: common.NewBaseRepository(dbManager),
+		dbManager:      dbManager,
 	}
 }
 
@@ -86,15 +89,45 @@ func (r *inventoryRepository) Create(ctx context.Context, lot *catalogModels.Inv
 }
 
 // GetByID retrieves an inventory lot by ID
+// Respects soft delete filtering based on context
 func (r *inventoryRepository) GetByID(ctx context.Context, id string) (*catalogModels.InventoryLot, error) {
-	var lot catalogModels.InventoryLot
-	if err := r.dbManager.GetByID(ctx, id, &lot); err != nil {
+	opts := common.QueryOptionsFromContext(ctx)
+
+	if opts.IncludeDeleted {
+		var lot catalogModels.InventoryLot
+		if err := r.dbManager.GetByID(ctx, id, &lot); err != nil {
+			return nil, fmt.Errorf("failed to get inventory lot: %w", err)
+		}
+		return &lot, nil
+	}
+
+	// Filter out deleted items
+	filter := base.NewFilter()
+	filter.Group.Conditions = []base.FilterCondition{
+		{
+			Field:    "id",
+			Operator: base.OpEqual,
+			Value:    id,
+		},
+	}
+
+	// Apply query options
+	filter = r.ApplyQueryOptions(ctx, filter)
+
+	var lots []*catalogModels.InventoryLot
+	if err := r.dbManager.List(ctx, filter, &lots); err != nil {
 		return nil, fmt.Errorf("failed to get inventory lot: %w", err)
 	}
-	return &lot, nil
+
+	if len(lots) == 0 {
+		return nil, fmt.Errorf("inventory lot not found")
+	}
+
+	return lots[0], nil
 }
 
 // GetByLotNumber retrieves an inventory lot by lot number and organization
+// Respects soft delete filtering based on context
 func (r *inventoryRepository) GetByLotNumber(ctx context.Context, orgID, lotNumber string) (*catalogModels.InventoryLot, error) {
 	filter := base.NewFilter()
 	filter.Group.Conditions = []base.FilterCondition{
@@ -109,6 +142,9 @@ func (r *inventoryRepository) GetByLotNumber(ctx context.Context, orgID, lotNumb
 			Value:    lotNumber,
 		},
 	}
+
+	// Apply query options
+	filter = r.ApplyQueryOptions(ctx, filter)
 
 	var lots []*catalogModels.InventoryLot
 	if err := r.dbManager.List(ctx, filter, &lots); err != nil {
@@ -158,6 +194,9 @@ func (r *inventoryRepository) ListByOrganization(ctx context.Context, orgID stri
 		},
 	}
 
+	// Apply query options
+	filter = r.ApplyQueryOptions(ctx, filter)
+
 	var lots []*catalogModels.InventoryLot
 	if err := r.dbManager.List(ctx, filter, &lots); err != nil {
 		return nil, 0, fmt.Errorf("failed to list inventory lots: %w", err)
@@ -190,6 +229,9 @@ func (r *inventoryRepository) ListByCatalogItem(ctx context.Context, catalogItem
 			Direction: "desc",
 		},
 	}
+
+	// Apply query options
+	filter = r.ApplyQueryOptions(ctx, filter)
 
 	var lots []*catalogModels.InventoryLot
 	if err := r.dbManager.List(ctx, filter, &lots); err != nil {
@@ -228,6 +270,9 @@ func (r *inventoryRepository) ListByStatus(ctx context.Context, orgID string, st
 			Direction: "desc",
 		},
 	}
+
+	// Apply query options
+	filter = r.ApplyQueryOptions(ctx, filter)
 
 	var lots []*catalogModels.InventoryLot
 	if err := r.dbManager.List(ctx, filter, &lots); err != nil {
@@ -572,6 +617,9 @@ func (r *inventoryRepository) GetExpiringLots(ctx context.Context, orgID string,
 			Direction: "asc",
 		},
 	}
+
+	// Apply query options
+	filter = r.ApplyQueryOptions(ctx, filter)
 
 	var lots []*catalogModels.InventoryLot
 	if err := r.dbManager.List(ctx, filter, &lots); err != nil {

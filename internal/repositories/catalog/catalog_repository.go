@@ -6,6 +6,7 @@ import (
 
 	"kisanlink-ecom/entities/models/catalog"
 	catalogRequests "kisanlink-ecom/entities/requests/catalog"
+	"kisanlink-ecom/internal/repositories/common"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/base"
 	"github.com/Kisanlink/kisanlink-db/pkg/db"
@@ -13,22 +14,61 @@ import (
 
 // CatalogRepository handles catalog operations using the database manager
 type CatalogRepository struct {
+	*common.BaseRepository
 	dbManager db.DBManager
 }
 
 // NewCatalogRepository creates a new catalog repository
 func NewCatalogRepository(dbManager db.DBManager) *CatalogRepository {
 	return &CatalogRepository{
-		dbManager: dbManager,
+		BaseRepository: common.NewBaseRepository(dbManager),
+		dbManager:      dbManager,
 	}
 }
 
 // GetByID retrieves a catalog item by ID from the database
+// Respects soft delete filtering based on context
 func (r *CatalogRepository) GetByID(ctx context.Context, id string, model interface{}) (interface{}, error) {
-	if err := r.dbManager.GetByID(ctx, id, model); err != nil {
+	opts := common.QueryOptionsFromContext(ctx)
+
+	if opts.IncludeDeleted {
+		// Include deleted items - use standard GetByID
+		if err := r.dbManager.GetByID(ctx, id, model); err != nil {
+			return nil, fmt.Errorf("failed to get catalog item by ID: %w", err)
+		}
+		return model, nil
+	}
+
+	// Filter out deleted items - use List with filter
+	filter := base.NewFilter()
+	filter.Group.Conditions = []base.FilterCondition{
+		{
+			Field:    "id",
+			Operator: base.OpEqual,
+			Value:    id,
+		},
+	}
+
+	// Apply query options (adds deleted_at IS NULL)
+	filter = r.ApplyQueryOptions(ctx, filter)
+
+	var items []*catalog.CatalogItem
+	if err := r.dbManager.List(ctx, filter, &items); err != nil {
 		return nil, fmt.Errorf("failed to get catalog item by ID: %w", err)
 	}
-	return model, nil
+
+	if len(items) == 0 {
+		return nil, fmt.Errorf("catalog item not found")
+	}
+
+	// Copy the result to the model
+	switch m := model.(type) {
+	case *catalog.CatalogItem:
+		*m = *items[0]
+		return m, nil
+	default:
+		return nil, fmt.Errorf("unsupported model type")
+	}
 }
 
 // Create creates a new catalog item in the database
@@ -63,8 +103,11 @@ func (r *CatalogRepository) SoftDelete(ctx context.Context, id string, deletedBy
 
 // Restore restores a soft-deleted catalog item
 func (r *CatalogRepository) Restore(ctx context.Context, id string) error {
+	// Use context with deleted items included to find the deleted item
+	ctxWithDeleted := common.ContextWithQueryOptions(ctx, common.WithIncludeDeleted("restore operation"))
+
 	var item catalog.CatalogItem
-	if err := r.dbManager.GetByID(ctx, id, &item); err != nil {
+	if err := r.dbManager.GetByID(ctxWithDeleted, id, &item); err != nil {
 		return fmt.Errorf("failed to get catalog item for restore: %w", err)
 	}
 
@@ -76,11 +119,15 @@ func (r *CatalogRepository) Restore(ctx context.Context, id string) error {
 }
 
 // Find retrieves catalog items using filters
+// Respects soft delete filtering based on context
 func (r *CatalogRepository) Find(ctx context.Context, filter *base.Filter) ([]*catalog.CatalogItem, error) {
 	var items []*catalog.CatalogItem
 
-	// Use the database manager's List method with the filter
-	if err := r.dbManager.List(ctx, filter, &items); err != nil {
+	// Apply query options to filter
+	enhancedFilter := r.ApplyQueryOptions(ctx, filter)
+
+	// Use the database manager's List method with the enhanced filter
+	if err := r.dbManager.List(ctx, enhancedFilter, &items); err != nil {
 		return nil, fmt.Errorf("failed to find catalog items: %w", err)
 	}
 
@@ -88,6 +135,7 @@ func (r *CatalogRepository) Find(ctx context.Context, filter *base.Filter) ([]*c
 }
 
 // GetBySKU retrieves a catalog item by SKU
+// Respects soft delete filtering based on context
 func (r *CatalogRepository) GetBySKU(ctx context.Context, sku string) (*catalog.CatalogItem, error) {
 	filter := base.NewFilter()
 	filter.Group.Conditions = []base.FilterCondition{
@@ -111,6 +159,7 @@ func (r *CatalogRepository) GetBySKU(ctx context.Context, sku string) (*catalog.
 }
 
 // GetByOrgID retrieves catalog items by organization ID
+// Respects soft delete filtering based on context
 func (r *CatalogRepository) GetByOrgID(ctx context.Context, orgID string, limit, offset int) ([]*catalog.CatalogItem, error) {
 	filter := base.NewFilter()
 	filter.Group.Conditions = []base.FilterCondition{
@@ -132,6 +181,7 @@ func (r *CatalogRepository) GetByOrgID(ctx context.Context, orgID string, limit,
 }
 
 // GetByCategory retrieves catalog items by category
+// Respects soft delete filtering based on context
 func (r *CatalogRepository) GetByCategory(ctx context.Context, category string, limit, offset int) ([]*catalog.CatalogItem, error) {
 	filter := base.NewFilter()
 	filter.Group.Conditions = []base.FilterCondition{
@@ -153,6 +203,7 @@ func (r *CatalogRepository) GetByCategory(ctx context.Context, category string, 
 }
 
 // ListCatalogItems retrieves catalog items with filtering and pagination
+// Respects soft delete filtering based on context
 func (r *CatalogRepository) ListCatalogItems(ctx context.Context, filter *catalogRequests.CatalogFilter, offset, limit int) ([]*catalog.CatalogItem, int, error) {
 	dbFilter := base.NewFilter()
 
@@ -263,7 +314,9 @@ func (r *CatalogRepository) ListCatalogItems(ctx context.Context, filter *catalo
 	}
 
 	// Get total count for pagination
-	total, err := r.dbManager.Count(ctx, dbFilter, &catalog.CatalogItem{})
+	// Apply query options to the count filter as well
+	countFilter := r.ApplyQueryOptions(ctx, dbFilter)
+	total, err := r.dbManager.Count(ctx, countFilter, &catalog.CatalogItem{})
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to get total count: %w", err)
 	}

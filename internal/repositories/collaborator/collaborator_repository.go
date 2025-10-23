@@ -8,6 +8,7 @@ import (
 
 	"kisanlink-ecom/entities/models/collaborator"
 	collaboratorRequests "kisanlink-ecom/entities/requests/collaborator"
+	"kisanlink-ecom/internal/repositories/common"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/base"
 	"github.com/Kisanlink/kisanlink-db/pkg/db"
@@ -15,13 +16,15 @@ import (
 
 // CollaboratorRepository handles collaborator operations using the database manager
 type CollaboratorRepository struct {
+	*common.BaseRepository
 	dbManager db.DBManager
 }
 
 // NewCollaboratorRepository creates a new collaborator repository
 func NewCollaboratorRepository(dbManager db.DBManager) *CollaboratorRepository {
 	return &CollaboratorRepository{
-		dbManager: dbManager,
+		BaseRepository: common.NewBaseRepository(dbManager),
+		dbManager:      dbManager,
 	}
 }
 
@@ -31,12 +34,39 @@ func (r *CollaboratorRepository) Create(ctx context.Context, collab *collaborato
 }
 
 // GetByID retrieves a collaborator by ID from the database
+// Respects soft delete filtering based on context
 func (r *CollaboratorRepository) GetByID(ctx context.Context, id string) (*collaborator.Collaborator, error) {
-	var collab collaborator.Collaborator
-	if err := r.dbManager.GetByID(ctx, id, &collab); err != nil {
+	opts := common.QueryOptionsFromContext(ctx)
+
+	if opts.IncludeDeleted {
+		// Include deleted items
+		var collab collaborator.Collaborator
+		if err := r.dbManager.GetByID(ctx, id, &collab); err != nil {
+			return nil, fmt.Errorf("failed to get collaborator by ID: %w", err)
+		}
+		return &collab, nil
+	}
+
+	// Filter out deleted items - use Find with filter
+	filter := base.NewFilter()
+	filter.Group.Conditions = []base.FilterCondition{
+		{
+			Field:    "id",
+			Operator: base.OpEqual,
+			Value:    id,
+		},
+	}
+
+	collaborators, err := r.Find(ctx, filter)
+	if err != nil {
 		return nil, fmt.Errorf("failed to get collaborator by ID: %w", err)
 	}
-	return &collab, nil
+
+	if len(collaborators) == 0 {
+		return nil, fmt.Errorf("collaborator not found")
+	}
+
+	return collaborators[0], nil
 }
 
 // Update updates an existing collaborator in the database
@@ -56,18 +86,28 @@ func (r *CollaboratorRepository) SoftDelete(ctx context.Context, id string, dele
 }
 
 // Find retrieves collaborators using filters
+// Respects soft delete filtering based on context
 func (r *CollaboratorRepository) Find(ctx context.Context, filter *base.Filter) ([]*collaborator.Collaborator, error) {
 	var collaborators []*collaborator.Collaborator
-	if err := r.dbManager.List(ctx, filter, &collaborators); err != nil {
+
+	// Apply query options to filter
+	enhancedFilter := r.ApplyQueryOptions(ctx, filter)
+
+	if err := r.dbManager.List(ctx, enhancedFilter, &collaborators); err != nil {
 		return nil, fmt.Errorf("failed to find collaborators: %w", err)
 	}
 	return collaborators, nil
 }
 
 // Count returns the count of collaborators matching the filter
+// Respects soft delete filtering based on context
 func (r *CollaboratorRepository) Count(ctx context.Context, filter *base.Filter) (int64, error) {
 	var collab collaborator.Collaborator
-	return r.dbManager.Count(ctx, filter, &collab)
+
+	// Apply query options to filter
+	enhancedFilter := r.ApplyQueryOptions(ctx, filter)
+
+	return r.dbManager.Count(ctx, enhancedFilter, &collab)
 }
 
 // GetByUserID retrieves a collaborator by user ID
