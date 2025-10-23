@@ -8,6 +8,7 @@ import (
 
 	"github.com/Kisanlink/kisanlink-db/pkg/base"
 	"github.com/shopspring/decimal"
+	"gorm.io/datatypes"
 )
 
 // OrderStatus represents the possible order states
@@ -52,9 +53,9 @@ type Order struct {
 	TotalAmount    decimal.Decimal `json:"total_amount" gorm:"type:decimal(12,2);not null;default:0.00"`
 
 	// Shipping Information
-	ShippingAddress       string     `json:"shipping_address" gorm:"type:jsonb"`
-	EstimatedDeliveryDate *time.Time `json:"estimated_delivery_date"`
-	ActualDeliveryDate    *time.Time `json:"actual_delivery_date"`
+	ShippingAddress       datatypes.JSON `json:"shipping_address" gorm:"type:jsonb"`
+	EstimatedDeliveryDate *time.Time     `json:"estimated_delivery_date"`
+	ActualDeliveryDate    *time.Time     `json:"actual_delivery_date"`
 
 	// Metadata
 	Notes    string         `json:"notes" gorm:"type:text"`
@@ -147,10 +148,10 @@ func NewOrderItem(orderID, catalogItemID, catalogItemType, catalogItemName, cata
 type OrderStatusHistory struct {
 	base.BaseModel
 
-	OrderID                 string      `json:"order_id" gorm:"type:varchar(255);not null;index"`
-	FromStatus              *string     `json:"from_status" gorm:"type:varchar(20)"`
-	ToStatus                OrderStatus `json:"to_status" gorm:"type:varchar(20);not null"`
-	Reason                  string      `json:"reason" gorm:"type:varchar(500)"`
+	OrderID                 string         `json:"order_id" gorm:"type:varchar(255);not null;index"`
+	FromStatus              *string        `json:"from_status" gorm:"type:varchar(20)"`
+	ToStatus                OrderStatus    `json:"to_status" gorm:"type:varchar(20);not null"`
+	Reason                  string         `json:"reason" gorm:"type:varchar(500)"`
 	ChangedByUserID         string         `json:"changed_by_user_id" gorm:"type:varchar(255);not null"`
 	ChangedByOrganizationID string         `json:"changed_by_organization_id" gorm:"type:varchar(255)"`
 	Metadata                sql.NullString `json:"metadata" gorm:"type:jsonb"` // NULL if not set
@@ -292,7 +293,7 @@ type OrderFilter struct {
 // SetShippingAddress sets the shipping address from an Address struct
 func (o *Order) SetShippingAddress(address *Address) error {
 	if address == nil {
-		o.ShippingAddress = ""
+		o.ShippingAddress = nil
 		return nil
 	}
 
@@ -301,18 +302,18 @@ func (o *Order) SetShippingAddress(address *Address) error {
 		return fmt.Errorf("failed to marshal shipping address: %w", err)
 	}
 
-	o.ShippingAddress = string(addressJSON)
+	o.ShippingAddress = addressJSON
 	return nil
 }
 
 // GetShippingAddress returns the shipping address as an Address struct
 func (o *Order) GetShippingAddress() (*Address, error) {
-	if o.ShippingAddress == "" {
+	if len(o.ShippingAddress) == 0 {
 		return nil, nil
 	}
 
 	var address Address
-	if err := json.Unmarshal([]byte(o.ShippingAddress), &address); err != nil {
+	if err := json.Unmarshal(o.ShippingAddress, &address); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal shipping address: %w", err)
 	}
 

@@ -48,7 +48,7 @@ func TestToOrderResponse(t *testing.T) {
 			DiscountAmount:        decimal.NewFromFloat(0.00),
 			ShippingAmount:        decimal.NewFromFloat(50.00),
 			TotalAmount:           decimal.NewFromFloat(330.50),
-			ShippingAddress:       string(addressJSON),
+			ShippingAddress:       addressJSON,
 			EstimatedDeliveryDate: &estimatedDelivery,
 			Notes:                 "Special delivery instructions",
 			Metadata:              sql.NullString{String: string(metadataJSON), Valid: true},
@@ -159,7 +159,7 @@ func TestToOrderResponse(t *testing.T) {
 			BuyerOrganizationID:  "buyer-123",
 			SellerOrganizationID: "seller-456",
 			BuyerUserID:          "user-789",
-			ShippingAddress:      "",
+			ShippingAddress:      nil,
 		}
 		order.ID = "order-123"
 
@@ -176,7 +176,7 @@ func TestToOrderResponse(t *testing.T) {
 			BuyerOrganizationID:  "buyer-123",
 			SellerOrganizationID: "seller-456",
 			BuyerUserID:          "user-789",
-			ShippingAddress:      "invalid json",
+			ShippingAddress:      []byte("invalid json"),
 		}
 		order.ID = "order-123"
 

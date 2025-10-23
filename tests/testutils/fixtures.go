@@ -33,7 +33,7 @@ func CreateTestOrder() *orderModels.Order {
 		Status:               orderModels.OrderStatusPending,
 		TotalAmount:          decimal.NewFromFloat(1000.0),
 		Items:                []orderModels.OrderItem{*CreateTestOrderItem()},
-		ShippingAddress:      `{"street": "Test Address", "city": "Test City", "state": "Test State", "postal_code": "12345", "country": "India"}`,
+		ShippingAddress:      []byte(`{"street": "Test Address", "city": "Test City", "state": "Test State", "postal_code": "12345", "country": "India"}`),
 	}
 }
 

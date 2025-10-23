@@ -115,10 +115,10 @@ func ToOrderResponse(order *orderModels.Order) (*OrderResponse, error) {
 		UpdatedAt:             order.UpdatedAt,
 	}
 
-	// Parse shipping address from JSON string
-	if order.ShippingAddress != "" {
+	// Parse shipping address from JSON
+	if len(order.ShippingAddress) > 0 {
 		var address orderModels.Address
-		if err := json.Unmarshal([]byte(order.ShippingAddress), &address); err == nil {
+		if err := json.Unmarshal(order.ShippingAddress, &address); err == nil {
 			response.ShippingAddress = &AddressResponse{
 				Street:     address.Street,
 				City:       address.City,
