@@ -219,9 +219,12 @@ func (c *client) ValidateToken(ctx context.Context, token string) (*TokenClaims,
 		return nil, fmt.Errorf("empty token provided")
 	}
 
-	// Create request
+	// Create request with flags to include user details, permissions, and organization
 	req := &aaaPb.ValidateTokenRequest{
-		Token: token,
+		Token:               token,
+		IncludeUserDetails:  true,
+		IncludePermissions:  true,
+		IncludeOrganization: true,
 	}
 
 	// Call AAA service TokenService
