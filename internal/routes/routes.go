@@ -724,8 +724,9 @@ func SetupRouter(
 		specURL := scheme + "://" + c.Request.Host + "/docs/swagger.json"
 
 		htmlContent, err := scalar.ApiReferenceHTML(&scalar.Options{
-			SpecURL:  specURL,
-			DarkMode: true,
+			SpecURL:        specURL,
+			DarkMode:       true,
+			Authentication: "BearerAuth",
 			CustomOptions: scalar.CustomOptions{
 				PageTitle: "KisanLink E-commerce API Reference",
 			},

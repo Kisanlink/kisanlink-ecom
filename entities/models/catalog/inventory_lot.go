@@ -1,6 +1,7 @@
 package catalog
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/base"
@@ -69,9 +70,9 @@ type InventoryLot struct {
 	PurchaseOrderID string `json:"purchase_order_id" gorm:"type:varchar(255);index:idx_inventory_lots_po"`
 
 	// Quality and compliance
-	QualityGrade    string `json:"quality_grade" gorm:"type:varchar(50)"`     // A, B, C, Premium, Standard
-	CertificationID string `json:"certification_id" gorm:"type:varchar(100)"` // Organic, Fair Trade, etc.
-	TestResults     string `json:"test_results" gorm:"type:jsonb"`            // Lab test results
+	QualityGrade    string         `json:"quality_grade" gorm:"type:varchar(50)"`     // A, B, C, Premium, Standard
+	CertificationID string         `json:"certification_id" gorm:"type:varchar(100)"` // Organic, Fair Trade, etc.
+	TestResults     sql.NullString `json:"test_results" gorm:"type:jsonb"`            // Lab test results (NULL if not set)
 
 	// Tracking and traceability
 	OriginLocation string     `json:"origin_location" gorm:"type:varchar(255)"` // Farm, factory location
@@ -79,8 +80,8 @@ type InventoryLot struct {
 	ProcessingDate *time.Time `json:"processing_date" gorm:"type:timestamp"`
 
 	// Metadata
-	Notes    string `json:"notes" gorm:"type:text"`
-	Metadata string `json:"metadata" gorm:"type:jsonb;index:idx_inventory_lots_metadata"`
+	Notes    string         `json:"notes" gorm:"type:text"`
+	Metadata sql.NullString `json:"metadata" gorm:"type:jsonb;index:idx_inventory_lots_metadata"` // NULL if not set
 
 	// Audit fields
 	CreatedBy string `json:"created_by" gorm:"type:varchar(255);not null"`

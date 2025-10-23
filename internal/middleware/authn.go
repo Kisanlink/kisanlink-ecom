@@ -56,8 +56,9 @@ func AuthNMiddleware(aaaClient auth.Client) gin.HandlerFunc {
 		c.Set(SubjectIDKey, claims.UserID)
 		c.Set(UserRolesKey, claims.Roles)
 		c.Set(OrgIDKey, claims.OrganizationID)
-		c.Set("user_id", claims.UserID) // For backward compatibility with handlers
-		c.Set("organization_id", claims.OrganizationID)
+		c.Set("user_id", claims.UserID)           // For backward compatibility with handlers
+		c.Set("organization_id", claims.OrganizationID) // Snake case version
+		c.Set("organizationID", claims.OrganizationID)  // Camel case version for inventory/order handlers
 
 		// Create enhanced user context with all available fields
 		userCtx := &auth.UserContext{

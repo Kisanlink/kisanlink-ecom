@@ -1,6 +1,7 @@
 package orders
 
 import (
+	"database/sql"
 	"encoding/json"
 	"testing"
 	"time"
@@ -50,7 +51,7 @@ func TestToOrderResponse(t *testing.T) {
 			ShippingAddress:       string(addressJSON),
 			EstimatedDeliveryDate: &estimatedDelivery,
 			Notes:                 "Special delivery instructions",
-			Metadata:              string(metadataJSON),
+			Metadata:              sql.NullString{String: string(metadataJSON), Valid: true},
 		}
 		order.ID = "order-123"
 		order.CreatedAt = now
@@ -192,7 +193,7 @@ func TestToOrderResponse(t *testing.T) {
 			BuyerOrganizationID:  "buyer-123",
 			SellerOrganizationID: "seller-456",
 			BuyerUserID:          "user-789",
-			Metadata:             "",
+			Metadata:             sql.NullString{Valid: false},
 		}
 		order.ID = "order-123"
 
@@ -225,7 +226,7 @@ func TestToOrderItemResponse(t *testing.T) {
 			TaxAmount:       decimal.NewFromFloat(26.78),
 			DiscountRate:    decimal.NewFromFloat(0.0500),
 			DiscountAmount:  decimal.NewFromFloat(13.39),
-			Metadata:        string(metadataJSON),
+			Metadata:        sql.NullString{String: string(metadataJSON), Valid: true},
 		}
 		item.ID = "item-123"
 		item.CreatedAt = now
@@ -265,7 +266,7 @@ func TestToOrderItemResponse(t *testing.T) {
 			CatalogItemID:   "catalog-123",
 			CatalogItemType: "product",
 			CatalogItemName: "Organic Tomatoes",
-			Metadata:        "",
+			Metadata:        sql.NullString{Valid: false},
 		}
 		item.ID = "item-123"
 
@@ -293,7 +294,7 @@ func TestToOrderStatusHistoryResponse(t *testing.T) {
 			Reason:                  "Payment confirmed by bank",
 			ChangedByUserID:         "user-789",
 			ChangedByOrganizationID: "buyer-123",
-			Metadata:                string(metadataJSON),
+			Metadata:                sql.NullString{String: string(metadataJSON), Valid: true},
 		}
 		history.ID = "history-123"
 		history.CreatedAt = now

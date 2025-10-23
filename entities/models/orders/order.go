@@ -1,6 +1,7 @@
 package orders
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -56,8 +57,8 @@ type Order struct {
 	ActualDeliveryDate    *time.Time `json:"actual_delivery_date"`
 
 	// Metadata
-	Notes    string `json:"notes" gorm:"type:text"`
-	Metadata string `json:"metadata" gorm:"type:jsonb"`
+	Notes    string         `json:"notes" gorm:"type:text"`
+	Metadata sql.NullString `json:"metadata" gorm:"type:jsonb"` // NULL if not set
 
 	// Relationships
 	Items         []OrderItem          `json:"items,omitempty" gorm:"foreignKey:OrderID;constraint:OnDelete:CASCADE"`
@@ -115,7 +116,7 @@ type OrderItem struct {
 	DiscountAmount decimal.Decimal `json:"discount_amount" gorm:"type:decimal(10,2);default:0.00"`
 
 	// Metadata
-	Metadata string `json:"metadata" gorm:"type:jsonb"`
+	Metadata sql.NullString `json:"metadata" gorm:"type:jsonb"` // NULL if not set
 }
 
 // TableName returns the table name for GORM
@@ -150,9 +151,9 @@ type OrderStatusHistory struct {
 	FromStatus              *string     `json:"from_status" gorm:"type:varchar(20)"`
 	ToStatus                OrderStatus `json:"to_status" gorm:"type:varchar(20);not null"`
 	Reason                  string      `json:"reason" gorm:"type:varchar(500)"`
-	ChangedByUserID         string      `json:"changed_by_user_id" gorm:"type:varchar(255);not null"`
-	ChangedByOrganizationID string      `json:"changed_by_organization_id" gorm:"type:varchar(255)"`
-	Metadata                string      `json:"metadata" gorm:"type:jsonb"`
+	ChangedByUserID         string         `json:"changed_by_user_id" gorm:"type:varchar(255);not null"`
+	ChangedByOrganizationID string         `json:"changed_by_organization_id" gorm:"type:varchar(255)"`
+	Metadata                sql.NullString `json:"metadata" gorm:"type:jsonb"` // NULL if not set
 }
 
 // TableName returns the table name for GORM
@@ -323,7 +324,7 @@ func (o *Order) GetShippingAddress() (*Address, error) {
 // SetMetadata sets the metadata from a map
 func (o *Order) SetMetadata(metadata map[string]interface{}) error {
 	if metadata == nil {
-		o.Metadata = ""
+		o.Metadata = sql.NullString{Valid: false} // Set to NULL
 		return nil
 	}
 
@@ -332,18 +333,18 @@ func (o *Order) SetMetadata(metadata map[string]interface{}) error {
 		return fmt.Errorf("failed to marshal metadata: %w", err)
 	}
 
-	o.Metadata = string(metadataJSON)
+	o.Metadata = sql.NullString{String: string(metadataJSON), Valid: true}
 	return nil
 }
 
 // GetMetadata returns the metadata as a map
 func (o *Order) GetMetadata() (map[string]interface{}, error) {
-	if o.Metadata == "" {
+	if !o.Metadata.Valid || o.Metadata.String == "" {
 		return nil, nil
 	}
 
 	var metadata map[string]interface{}
-	if err := json.Unmarshal([]byte(o.Metadata), &metadata); err != nil {
+	if err := json.Unmarshal([]byte(o.Metadata.String), &metadata); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal metadata: %w", err)
 	}
 
@@ -355,7 +356,7 @@ func (o *Order) GetMetadata() (map[string]interface{}, error) {
 // SetMetadata sets the metadata from a map
 func (oi *OrderItem) SetMetadata(metadata map[string]interface{}) error {
 	if metadata == nil {
-		oi.Metadata = ""
+		oi.Metadata = sql.NullString{Valid: false} // Set to NULL
 		return nil
 	}
 
@@ -364,18 +365,18 @@ func (oi *OrderItem) SetMetadata(metadata map[string]interface{}) error {
 		return fmt.Errorf("failed to marshal metadata: %w", err)
 	}
 
-	oi.Metadata = string(metadataJSON)
+	oi.Metadata = sql.NullString{String: string(metadataJSON), Valid: true}
 	return nil
 }
 
 // GetMetadata returns the metadata as a map
 func (oi *OrderItem) GetMetadata() (map[string]interface{}, error) {
-	if oi.Metadata == "" {
+	if !oi.Metadata.Valid || oi.Metadata.String == "" {
 		return nil, nil
 	}
 
 	var metadata map[string]interface{}
-	if err := json.Unmarshal([]byte(oi.Metadata), &metadata); err != nil {
+	if err := json.Unmarshal([]byte(oi.Metadata.String), &metadata); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal metadata: %w", err)
 	}
 
@@ -387,7 +388,7 @@ func (oi *OrderItem) GetMetadata() (map[string]interface{}, error) {
 // SetMetadata sets the metadata from a map
 func (osh *OrderStatusHistory) SetMetadata(metadata map[string]interface{}) error {
 	if metadata == nil {
-		osh.Metadata = ""
+		osh.Metadata = sql.NullString{Valid: false} // Set to NULL
 		return nil
 	}
 
@@ -396,18 +397,18 @@ func (osh *OrderStatusHistory) SetMetadata(metadata map[string]interface{}) erro
 		return fmt.Errorf("failed to marshal metadata: %w", err)
 	}
 
-	osh.Metadata = string(metadataJSON)
+	osh.Metadata = sql.NullString{String: string(metadataJSON), Valid: true}
 	return nil
 }
 
 // GetMetadata returns the metadata as a map
 func (osh *OrderStatusHistory) GetMetadata() (map[string]interface{}, error) {
-	if osh.Metadata == "" {
+	if !osh.Metadata.Valid || osh.Metadata.String == "" {
 		return nil, nil
 	}
 
 	var metadata map[string]interface{}
-	if err := json.Unmarshal([]byte(osh.Metadata), &metadata); err != nil {
+	if err := json.Unmarshal([]byte(osh.Metadata.String), &metadata); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal metadata: %w", err)
 	}
 

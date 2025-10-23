@@ -1,6 +1,7 @@
 package data
 
 import (
+	"database/sql"
 	catalogModels "kisanlink-ecom/entities/models/catalog"
 	"kisanlink-ecom/entities/models/orders"
 	catalogRequests "kisanlink-ecom/entities/requests/catalog"
@@ -212,7 +213,7 @@ func GetTestInventoryLot() *catalogModels.InventoryLot {
 		Zone:           "Section 1",
 		UnitCost:       lotPrice,
 		Status:         catalogModels.LotStatusActive,
-		Metadata:       `{"supplier": "Farm ABC", "notes": "Premium quality"}`,
+		Metadata:       sql.NullString{String: `{"supplier": "Farm ABC", "notes": "Premium quality"}`, Valid: true},
 	}
 }
 
@@ -235,7 +236,7 @@ func GetTestInventoryLots() []*catalogModels.InventoryLot {
 		Status:         catalogModels.LotStatusActive,
 		Warehouse:      "Warehouse B",
 		Zone:           "Section 2",
-		Metadata:       `{"supplier": "Farm XYZ"}`,
+		Metadata:       sql.NullString{String: `{"supplier": "Farm XYZ"}`, Valid: true},
 	}
 
 	return []*catalogModels.InventoryLot{lot1, lot2}

@@ -130,9 +130,9 @@ func ToOrderResponse(order *orderModels.Order) (*OrderResponse, error) {
 	}
 
 	// Parse metadata from JSON string
-	if order.Metadata != "" {
+	if order.Metadata.Valid && order.Metadata.String != "" {
 		var metadata map[string]interface{}
-		if err := json.Unmarshal([]byte(order.Metadata), &metadata); err == nil {
+		if err := json.Unmarshal([]byte(order.Metadata.String), &metadata); err == nil {
 			response.Metadata = metadata
 		}
 	}
@@ -189,9 +189,9 @@ func ToOrderItemResponse(item *orderModels.OrderItem) (*OrderItemResponse, error
 	}
 
 	// Parse metadata from JSON string
-	if item.Metadata != "" {
+	if item.Metadata.Valid && item.Metadata.String != "" {
 		var metadata map[string]interface{}
-		if err := json.Unmarshal([]byte(item.Metadata), &metadata); err == nil {
+		if err := json.Unmarshal([]byte(item.Metadata.String), &metadata); err == nil {
 			response.Metadata = metadata
 		}
 	}
@@ -217,9 +217,9 @@ func ToOrderStatusHistoryResponse(history *orderModels.OrderStatusHistory) (*Ord
 	}
 
 	// Parse metadata from JSON string
-	if history.Metadata != "" {
+	if history.Metadata.Valid && history.Metadata.String != "" {
 		var metadata map[string]interface{}
-		if err := json.Unmarshal([]byte(history.Metadata), &metadata); err == nil {
+		if err := json.Unmarshal([]byte(history.Metadata.String), &metadata); err == nil {
 			response.Metadata = metadata
 		}
 	}

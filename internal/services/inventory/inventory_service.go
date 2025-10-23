@@ -2,6 +2,7 @@ package inventory
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -153,13 +154,11 @@ func (s *inventoryService) CreateInventoryLot(ctx context.Context, req *CreateIn
 	if req.LotPrice != nil {
 		lot.UnitCost = *req.LotPrice
 	}
-	// Only set metadata if it's not empty and is valid JSON
-	// PostgreSQL jsonb columns require valid JSON, empty strings are invalid
+	// Set metadata - use sql.NullString to properly handle empty values
 	if req.Metadata != "" {
-		lot.Metadata = req.Metadata
-	} else {
-		lot.Metadata = "{}" // Set to empty JSON object if not provided
+		lot.Metadata = sql.NullString{String: req.Metadata, Valid: true}
 	}
+	// If empty, leave as NULL (Valid: false) which PostgreSQL jsonb accepts
 	lot.CreatedBy = userID
 
 	// Save to database
@@ -287,13 +286,11 @@ func (s *inventoryService) UpdateInventoryLot(ctx context.Context, lotID string,
 		lot.UnitCost = *req.LotPrice
 	}
 	if req.Metadata != nil {
-		// Only set metadata if it's not empty and is valid JSON
-		// PostgreSQL jsonb columns require valid JSON, empty strings are invalid
+		// Set metadata - use sql.NullString to properly handle empty values
 		if *req.Metadata != "" {
-			lot.Metadata = *req.Metadata
-		} else {
-			lot.Metadata = "{}" // Set to empty JSON object if empty string provided
+			lot.Metadata = sql.NullString{String: *req.Metadata, Valid: true}
 		}
+		// If empty, leave as NULL (Valid: false) which PostgreSQL jsonb accepts
 	}
 
 	lot.UpdatedBy = userID
