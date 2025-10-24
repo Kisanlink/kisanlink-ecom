@@ -197,6 +197,9 @@ func (h *ListingHandler) GetListing(c *gin.Context) {
 
 // GetActiveListings retrieves active marketplace listings
 func (h *ListingHandler) GetActiveListings(c *gin.Context) {
+	// Extract query options (includes deleted items if user is admin and include_deleted=true)
+	middleware.ExtractQueryOptions(c)
+
 	orgID := middleware.GetOrganizationID(c)
 	if orgID == "" {
 		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_ORG", "Organization ID not found in context", "")
@@ -365,6 +368,9 @@ func (h *ListingHandler) CloseListing(c *gin.Context) {
 
 // GetMyListings retrieves listings for the authenticated user
 func (h *ListingHandler) GetMyListings(c *gin.Context) {
+	// Extract query options (includes deleted items if user is admin and include_deleted=true)
+	middleware.ExtractQueryOptions(c)
+
 	// Extract user information from context
 	userID, exists := c.Get("user_id")
 	if !exists {

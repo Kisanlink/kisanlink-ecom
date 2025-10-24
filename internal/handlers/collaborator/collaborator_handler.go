@@ -320,9 +320,13 @@ func (h *CollaboratorHandler) DeleteCollaborator(c *gin.Context) {
 // @Param tags query []string false "Filter by tags"
 // @Param created_after query string false "Filter by creation date (ISO format)"
 // @Param created_before query string false "Filter by creation date (ISO format)"
+// @Param include_deleted query bool false "Include soft-deleted items (admin only)" default(false)
 // @Success 200 {object} object
 // @Router /api/v1/collaborators [get]
 func (h *CollaboratorHandler) ListCollaborators(c *gin.Context) {
+	// Extract query options (includes deleted items if user is admin and include_deleted=true)
+	middleware.ExtractQueryOptions(c)
+
 	// Parse pagination parameters
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
@@ -442,9 +446,13 @@ func (h *CollaboratorHandler) ListCollaborators(c *gin.Context) {
 // @Param q query string true "Search query"
 // @Param page query int false "Page number" default(1)
 // @Param limit query int false "Items per page" default(20)
+// @Param include_deleted query bool false "Include soft-deleted items (admin only)" default(false)
 // @Success 200 {object} common.Response{data=[]collaborator.CollaboratorSummaryResponse,meta=common.ResponseMeta{pagination=common.PaginationMeta}}
 // @Router /api/v1/collaborators/search [get]
 func (h *CollaboratorHandler) SearchCollaborators(c *gin.Context) {
+	// Extract query options (includes deleted items if user is admin and include_deleted=true)
+	middleware.ExtractQueryOptions(c)
+
 	// Get search query
 	query := c.Query("q")
 	if query == "" {

@@ -7,6 +7,7 @@ import (
 
 	catalogModels "kisanlink-ecom/entities/models/catalog"
 	"kisanlink-ecom/internal/common"
+	"kisanlink-ecom/internal/middleware"
 	inventoryService "kisanlink-ecom/internal/services/inventory"
 	"kisanlink-ecom/internal/utils"
 
@@ -253,6 +254,7 @@ func (h *InventoryHandler) UpdateInventoryLot(c *gin.Context) {
 // @Param quality_grade query string false "Filter by quality grade"
 // @Param offset query int false "Pagination offset" default(0)
 // @Param limit query int false "Pagination limit (max 100)" default(20)
+// @Param include_deleted query bool false "Include soft-deleted items (admin only)" default(false)
 // @Success 200 {object} common.Response
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
@@ -260,6 +262,9 @@ func (h *InventoryHandler) UpdateInventoryLot(c *gin.Context) {
 // @Failure 500 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/inventory/lots [get]
 func (h *InventoryHandler) ListInventoryLots(c *gin.Context) {
+	// Extract query options (includes deleted items if user is admin and include_deleted=true)
+	middleware.ExtractQueryOptions(c)
+
 	// Get user context
 	userID, exists := common.GetSubjectID(c)
 	if !exists {

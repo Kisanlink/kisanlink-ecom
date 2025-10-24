@@ -7,6 +7,7 @@ import (
 
 	"kisanlink-ecom/entities/models/marketplace"
 	"kisanlink-ecom/internal/common"
+	repositoryCommon "kisanlink-ecom/internal/repositories/common"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/base"
 	"github.com/Kisanlink/kisanlink-db/pkg/db"
@@ -73,13 +74,15 @@ type EventStatistics struct {
 
 // auctionEventRepository implements the AuctionEventRepository interface
 type auctionEventRepository struct {
+	*repositoryCommon.BaseRepository
 	dbManager db.DBManager
 }
 
 // NewAuctionEventRepository creates a new auction event repository
 func NewAuctionEventRepository(dbManager db.DBManager) AuctionEventRepository {
 	return &auctionEventRepository{
-		dbManager: dbManager,
+		BaseRepository: repositoryCommon.NewBaseRepository(dbManager),
+		dbManager:      dbManager,
 	}
 }
 
@@ -110,6 +113,9 @@ func (r *auctionEventRepository) GetByEventID(ctx context.Context, eventID strin
 			Value:    eventID,
 		},
 	}
+
+	// Apply query options (adds deleted_at IS NULL by default)
+	filter = r.ApplyQueryOptions(ctx, filter)
 
 	var events []*marketplace.AuctionEvent
 	if err := r.dbManager.List(ctx, filter, &events); err != nil {
@@ -325,6 +331,9 @@ func (r *auctionEventRepository) GetRecentEvents(ctx context.Context, listingID 
 		},
 	}
 
+	// Apply query options (adds deleted_at IS NULL by default)
+	filter = r.ApplyQueryOptions(ctx, filter)
+
 	// Note: Ordering would be handled by the database layer in production
 	filter.Limit = limit
 
@@ -347,6 +356,9 @@ func (r *auctionEventRepository) GetEventsSince(ctx context.Context, since time.
 		Value:    since,
 	})
 
+	// Apply query options (adds deleted_at IS NULL by default)
+	dbFilter = r.ApplyQueryOptions(ctx, dbFilter)
+
 	// Note: Ordering would be handled by the database layer in production
 	dbFilter.Limit = limit
 
@@ -368,6 +380,9 @@ func (r *auctionEventRepository) GetEventSummary(ctx context.Context, listingID 
 			Value:    listingID,
 		},
 	}
+
+	// Apply query options (adds deleted_at IS NULL by default)
+	filter = r.ApplyQueryOptions(ctx, filter)
 
 	// Note: Ordering would be handled by the database layer in production
 
@@ -418,6 +433,9 @@ func (r *auctionEventRepository) GetEventStatistics(ctx context.Context, listing
 			Value:    timeRange.End,
 		})
 	}
+
+	// Apply query options (adds deleted_at IS NULL by default)
+	filter = r.ApplyQueryOptions(ctx, filter)
 
 	var events []*marketplace.AuctionEvent
 	if err := r.dbManager.List(ctx, filter, &events); err != nil {
@@ -503,6 +521,9 @@ func (r *auctionEventRepository) DeleteEventsByListing(ctx context.Context, list
 		},
 	}
 
+	// Apply query options (adds deleted_at IS NULL by default)
+	filter = r.ApplyQueryOptions(ctx, filter)
+
 	var events []*marketplace.AuctionEvent
 	if err := r.dbManager.List(ctx, filter, &events); err != nil {
 		return fmt.Errorf("failed to get events for deletion: %w", err)
@@ -586,6 +607,9 @@ func (r *auctionEventRepository) buildBaseFilter(filter *marketplace.EventFilter
 
 // executeListQuery executes a list query with pagination
 func (r *auctionEventRepository) executeListQuery(ctx context.Context, filter *base.Filter, pagination *common.PaginationRequest) ([]*marketplace.AuctionEvent, int, error) {
+	// Apply query options (adds deleted_at IS NULL by default) BEFORE pagination
+	filter = r.ApplyQueryOptions(ctx, filter)
+
 	// Apply pagination
 	if pagination != nil {
 		filter.Limit = pagination.Limit

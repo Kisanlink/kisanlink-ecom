@@ -8,6 +8,7 @@ import (
 	orders "kisanlink-ecom/entities/requests/orders"
 	orderResponses "kisanlink-ecom/entities/responses/orders"
 	"kisanlink-ecom/internal/common"
+	"kisanlink-ecom/internal/middleware"
 	orderService "kisanlink-ecom/internal/services/orders"
 
 	"github.com/gin-gonic/gin"
@@ -266,9 +267,13 @@ func (h *OrderHandler) UpdateOrder(c *gin.Context) {
 // @Param buyer_id query string false "Filter by buyer ID"
 // @Param seller_id query string false "Filter by seller ID"
 // @Param status query string false "Filter by status"
+// @Param include_deleted query bool false "Include soft-deleted items (admin only)" default(false)
 // @Success 200 {object} common.Response{data=[]orders.OrderResponse,meta=common.ResponseMeta{pagination=common.PaginationMeta}}
 // @Router /api/v1/orders [get]
 func (h *OrderHandler) ListOrders(c *gin.Context) {
+	// Extract query options (includes deleted items if user is admin and include_deleted=true)
+	middleware.ExtractQueryOptions(c)
+
 	// Parse pagination parameters
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))

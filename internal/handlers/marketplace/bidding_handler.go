@@ -242,6 +242,9 @@ func (h *BiddingHandler) PlaceBid(c *gin.Context) {
 // @Router /api/v1/marketplace/listings/{id}/bids [get]
 // @Security BearerAuth
 func (h *BiddingHandler) GetListingBids(c *gin.Context) {
+	// Extract query options (includes deleted items if user is admin and include_deleted=true)
+	middleware.ExtractQueryOptions(c)
+
 	listingID := c.Param("id")
 	if listingID == "" {
 		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_REQUEST", "Listing ID is required", "")
@@ -346,6 +349,9 @@ func (h *BiddingHandler) GetBid(c *gin.Context) {
 // @Router /api/v1/marketplace/bids/my-bids [get]
 // @Security BearerAuth
 func (h *BiddingHandler) GetMyBids(c *gin.Context) {
+	// Extract query options (includes deleted items if user is admin and include_deleted=true)
+	middleware.ExtractQueryOptions(c)
+
 	// Extract user information from context
 	userID, exists := c.Get("user_id")
 	if !exists {

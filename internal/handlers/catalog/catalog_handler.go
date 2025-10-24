@@ -46,9 +46,13 @@ func NewCatalogHandler(catalogService catalogService.CatalogServiceInterface, et
 // @Param search query string false "Search term"
 // @Param tags query []string false "Filter by tags"
 // @Param organization_id query string false "Filter by organization ID"
+// @Param include_deleted query bool false "Include soft-deleted items (admin only)" default(false)
 // @Success 200 {object} common.Response{data=[]catalog.CatalogItemResponse,meta=common.ResponseMeta{pagination=common.PaginationMeta}}
 // @Router /api/v1/catalog [get]
 func (h *CatalogHandler) ListCatalogItems(c *gin.Context) {
+	// Extract query options (includes deleted items if user is admin and include_deleted=true)
+	middleware.ExtractQueryOptions(c)
+
 	// Parse pagination parameters
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))

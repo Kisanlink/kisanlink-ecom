@@ -7,6 +7,7 @@ import (
 
 	"kisanlink-ecom/entities/models/marketplace"
 	"kisanlink-ecom/internal/common"
+	repositoryCommon "kisanlink-ecom/internal/repositories/common"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/base"
 	"github.com/Kisanlink/kisanlink-db/pkg/db"
@@ -62,13 +63,15 @@ type ListingRepository interface {
 
 // listingRepository implements the ListingRepository interface
 type listingRepository struct {
+	*repositoryCommon.BaseRepository
 	dbManager db.DBManager
 }
 
 // NewListingRepository creates a new listing repository
 func NewListingRepository(dbManager db.DBManager) ListingRepository {
 	return &listingRepository{
-		dbManager: dbManager,
+		BaseRepository: repositoryCommon.NewBaseRepository(dbManager),
+		dbManager:      dbManager,
 	}
 }
 
@@ -99,6 +102,9 @@ func (r *listingRepository) GetByListingID(ctx context.Context, listingID string
 			Value:    listingID,
 		},
 	}
+
+	// Apply query options (adds deleted_at IS NULL by default)
+	filter = r.ApplyQueryOptions(ctx, filter)
 
 	var listings []*marketplace.Listing
 	if err := r.dbManager.List(ctx, filter, &listings); err != nil {
@@ -232,6 +238,10 @@ func (r *listingRepository) GetExpiredListings(ctx context.Context, limit int) (
 			Value:    time.Now(),
 		},
 	}
+
+	// Apply query options (adds deleted_at IS NULL by default)
+	filter = r.ApplyQueryOptions(ctx, filter)
+
 	filter.Limit = limit
 
 	var listings []*marketplace.Listing
@@ -252,6 +262,10 @@ func (r *listingRepository) GetListingsByStatus(ctx context.Context, status mark
 			Value:    status,
 		},
 	}
+
+	// Apply query options (adds deleted_at IS NULL by default)
+	filter = r.ApplyQueryOptions(ctx, filter)
+
 	filter.Limit = limit
 
 	var listings []*marketplace.Listing
@@ -488,6 +502,9 @@ func (r *listingRepository) addVisibilityFilter(filter *base.Filter, viewerOrgID
 
 // executeListQuery executes a list query with pagination
 func (r *listingRepository) executeListQuery(ctx context.Context, filter *base.Filter, pagination *common.PaginationRequest) ([]*marketplace.Listing, int, error) {
+	// Apply query options (adds deleted_at IS NULL by default) BEFORE pagination
+	filter = r.ApplyQueryOptions(ctx, filter)
+
 	// Apply pagination
 	if pagination != nil {
 		filter.Limit = pagination.Limit
@@ -527,6 +544,9 @@ func (r *listingRepository) CountListings(ctx context.Context, startTime, endTim
 		},
 	}
 
+	// Apply query options (adds deleted_at IS NULL by default)
+	filter = r.ApplyQueryOptions(ctx, filter)
+
 	count, err := r.dbManager.Count(ctx, filter, &marketplace.Listing{})
 	if err != nil {
 		return 0, fmt.Errorf("failed to count listings: %w", err)
@@ -556,6 +576,9 @@ func (r *listingRepository) CountListingsByStatus(ctx context.Context, status ma
 		},
 	}
 
+	// Apply query options (adds deleted_at IS NULL by default)
+	filter = r.ApplyQueryOptions(ctx, filter)
+
 	count, err := r.dbManager.Count(ctx, filter, &marketplace.Listing{})
 	if err != nil {
 		return 0, fmt.Errorf("failed to count listings by status: %w", err)
@@ -584,6 +607,9 @@ func (r *listingRepository) CountUserListings(ctx context.Context, userID string
 			Value:    endTime,
 		},
 	}
+
+	// Apply query options (adds deleted_at IS NULL by default)
+	filter = r.ApplyQueryOptions(ctx, filter)
 
 	count, err := r.dbManager.Count(ctx, filter, &marketplace.Listing{})
 	if err != nil {
@@ -619,6 +645,9 @@ func (r *listingRepository) CountUserListingsByStatus(ctx context.Context, userI
 		},
 	}
 
+	// Apply query options (adds deleted_at IS NULL by default)
+	filter = r.ApplyQueryOptions(ctx, filter)
+
 	count, err := r.dbManager.Count(ctx, filter, &marketplace.Listing{})
 	if err != nil {
 		return 0, fmt.Errorf("failed to count user listings by status: %w", err)
@@ -642,6 +671,9 @@ func (r *listingRepository) GetTotalListingValue(ctx context.Context, startTime,
 			Value:    endTime,
 		},
 	}
+
+	// Apply query options (adds deleted_at IS NULL by default)
+	filter = r.ApplyQueryOptions(ctx, filter)
 
 	var listings []*marketplace.Listing
 	if err := r.dbManager.List(ctx, filter, &listings); err != nil {

@@ -41,7 +41,8 @@ func (r *outboxRepositoryImpl) Update(ctx context.Context, event *outbox.OutboxE
 // GetByID retrieves an outbox event by ID
 func (r *outboxRepositoryImpl) GetByID(ctx context.Context, id string) (*outbox.OutboxEvent, error) {
 	var event outbox.OutboxEvent
-	if err := r.db.WithContext(ctx).Where("id = ? AND deleted_at IS NULL", id).First(&event).Error; err != nil {
+	// GORM automatically filters deleted_at IS NULL for soft-deleted models
+	if err := r.db.WithContext(ctx).Where("id = ?", id).First(&event).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, fmt.Errorf("outbox event not found: %s", id)
 		}
@@ -54,8 +55,9 @@ func (r *outboxRepositoryImpl) GetByID(ctx context.Context, id string) (*outbox.
 func (r *outboxRepositoryImpl) GetUnpublished(ctx context.Context, limit int) ([]*outbox.OutboxEvent, error) {
 	var events []*outbox.OutboxEvent
 
+	// GORM automatically filters deleted_at IS NULL for soft-deleted models
 	query := r.db.WithContext(ctx).
-		Where("published_at IS NULL AND deleted_at IS NULL").
+		Where("published_at IS NULL").
 		Order("created_at ASC")
 
 	if limit > 0 {
@@ -72,7 +74,8 @@ func (r *outboxRepositoryImpl) GetUnpublished(ctx context.Context, limit int) ([
 // GetByIdempotencyKey retrieves an event by idempotency key for deduplication
 func (r *outboxRepositoryImpl) GetByIdempotencyKey(ctx context.Context, key string) (*outbox.OutboxEvent, error) {
 	var event outbox.OutboxEvent
-	if err := r.db.WithContext(ctx).Where("idempotency_key = ? AND deleted_at IS NULL", key).First(&event).Error; err != nil {
+	// GORM automatically filters deleted_at IS NULL for soft-deleted models
+	if err := r.db.WithContext(ctx).Where("idempotency_key = ?", key).First(&event).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil // Not found is not an error for deduplication check
 		}
@@ -100,8 +103,9 @@ func (r *outboxRepositoryImpl) DeletePublished(ctx context.Context, olderThanDay
 func (r *outboxRepositoryImpl) GetEventsByAggregate(ctx context.Context, aggregateType, aggregateID string, limit int) ([]*outbox.OutboxEvent, error) {
 	var events []*outbox.OutboxEvent
 
+	// GORM automatically filters deleted_at IS NULL for soft-deleted models
 	query := r.db.WithContext(ctx).
-		Where("aggregate_type = ? AND aggregate_id = ? AND deleted_at IS NULL", aggregateType, aggregateID).
+		Where("aggregate_type = ? AND aggregate_id = ?", aggregateType, aggregateID).
 		Order("created_at ASC")
 
 	if limit > 0 {

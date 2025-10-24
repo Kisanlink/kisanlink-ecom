@@ -7,6 +7,7 @@ import (
 
 	"kisanlink-ecom/entities/models/orders"
 	ordersRequests "kisanlink-ecom/entities/requests/orders"
+	repositoryCommon "kisanlink-ecom/internal/repositories/common"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/base"
 	"github.com/Kisanlink/kisanlink-db/pkg/db"
@@ -16,6 +17,7 @@ import (
 // OrderRepository extends BaseFilterableRepository with order-specific methods
 type OrderRepository struct {
 	*base.BaseFilterableRepository[*orders.Order]
+	*repositoryCommon.BaseRepository
 	dbManager     db.DBManager
 	catalogRepo   CatalogRepository
 	inventoryRepo InventoryRepository
@@ -40,6 +42,7 @@ func NewOrderRepository(dbManager db.DBManager) *OrderRepository {
 	baseRepo.SetDBManager(dbManager)
 	return &OrderRepository{
 		BaseFilterableRepository: baseRepo,
+		BaseRepository:           repositoryCommon.NewBaseRepository(dbManager),
 		dbManager:                dbManager,
 	}
 }
@@ -533,6 +536,10 @@ func (r *OrderRepository) GetOrderHistory(ctx context.Context, orderID string) (
 			Value:    orderID,
 		},
 	}
+
+	// Apply query options (adds deleted_at IS NULL by default)
+	filter = r.ApplyQueryOptions(ctx, filter)
+
 	// Note: Ordering by created_at will be handled by the database manager if supported
 
 	var historyList []*orders.OrderStatusHistory
@@ -553,6 +560,10 @@ func (r *OrderRepository) GetOrderItems(ctx context.Context, orderID string) ([]
 			Value:    orderID,
 		},
 	}
+
+	// Apply query options (adds deleted_at IS NULL by default)
+	filter = r.ApplyQueryOptions(ctx, filter)
+
 	// Note: Ordering by created_at will be handled by the database manager if supported
 
 	var itemList []*orders.OrderItem

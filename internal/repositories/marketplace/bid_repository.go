@@ -7,6 +7,7 @@ import (
 
 	"kisanlink-ecom/entities/models/marketplace"
 	"kisanlink-ecom/internal/common"
+	repositoryCommon "kisanlink-ecom/internal/repositories/common"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/base"
 	"github.com/Kisanlink/kisanlink-db/pkg/db"
@@ -70,13 +71,15 @@ type BidRepository interface {
 
 // bidRepository implements the BidRepository interface
 type bidRepository struct {
+	*repositoryCommon.BaseRepository
 	dbManager db.DBManager
 }
 
 // NewBidRepository creates a new bid repository
 func NewBidRepository(dbManager db.DBManager) BidRepository {
 	return &bidRepository{
-		dbManager: dbManager,
+		BaseRepository: repositoryCommon.NewBaseRepository(dbManager),
+		dbManager:      dbManager,
 	}
 }
 
@@ -107,6 +110,9 @@ func (r *bidRepository) GetByBidID(ctx context.Context, bidID string) (*marketpl
 			Value:    bidID,
 		},
 	}
+
+	// Apply query options (adds deleted_at IS NULL by default)
+	filter = r.ApplyQueryOptions(ctx, filter)
 
 	var bids []*marketplace.Bid
 	if err := r.dbManager.List(ctx, filter, &bids); err != nil {
@@ -306,6 +312,9 @@ func (r *bidRepository) GetHighestBid(ctx context.Context, listingID string) (*m
 		},
 	}
 
+	// Apply query options (adds deleted_at IS NULL by default)
+	filter = r.ApplyQueryOptions(ctx, filter)
+
 	var bids []*marketplace.Bid
 	if err := r.dbManager.List(ctx, filter, &bids); err != nil {
 		return nil, fmt.Errorf("failed to get highest bid: %w", err)
@@ -348,6 +357,9 @@ func (r *bidRepository) GetBidRanking(ctx context.Context, listingID string, lim
 		},
 	}
 
+	// Apply query options (adds deleted_at IS NULL by default)
+	filter = r.ApplyQueryOptions(ctx, filter)
+
 	// Note: Ordering would be handled by the database layer in production
 	filter.Limit = limit
 
@@ -370,6 +382,9 @@ func (r *bidRepository) GetBidCount(ctx context.Context, listingID string) (int,
 		},
 	}
 
+	// Apply query options (adds deleted_at IS NULL by default)
+	filter = r.ApplyQueryOptions(ctx, filter)
+
 	count, err := r.dbManager.Count(ctx, filter, &marketplace.Bid{})
 	if err != nil {
 		return 0, fmt.Errorf("failed to get bid count: %w", err)
@@ -390,6 +405,9 @@ func (r *bidRepository) GetUniqueBidderCount(ctx context.Context, listingID stri
 			Value:    listingID,
 		},
 	}
+
+	// Apply query options (adds deleted_at IS NULL by default)
+	filter = r.ApplyQueryOptions(ctx, filter)
 
 	var bids []*marketplace.Bid
 	if err := r.dbManager.List(ctx, filter, &bids); err != nil {
@@ -415,6 +433,9 @@ func (r *bidRepository) GetBidStatistics(ctx context.Context, listingID string) 
 			Value:    listingID,
 		},
 	}
+
+	// Apply query options (adds deleted_at IS NULL by default)
+	filter = r.ApplyQueryOptions(ctx, filter)
 
 	var bids []*marketplace.Bid
 	if err := r.dbManager.List(ctx, filter, &bids); err != nil {
@@ -494,6 +515,9 @@ func (r *bidRepository) GetAutoBidsForListing(ctx context.Context, listingID str
 		},
 	}
 
+	// Apply query options (adds deleted_at IS NULL by default)
+	filter = r.ApplyQueryOptions(ctx, filter)
+
 	var bids []*marketplace.Bid
 	if err := r.dbManager.List(ctx, filter, &bids); err != nil {
 		return nil, fmt.Errorf("failed to get auto-bids: %w", err)
@@ -527,6 +551,9 @@ func (r *bidRepository) GetUserAutoBids(ctx context.Context, userID string, list
 			Value:    marketplace.BidStatusActive,
 		},
 	}
+
+	// Apply query options (adds deleted_at IS NULL by default)
+	filter = r.ApplyQueryOptions(ctx, filter)
 
 	var bids []*marketplace.Bid
 	if err := r.dbManager.List(ctx, filter, &bids); err != nil {
@@ -583,6 +610,9 @@ func (r *bidRepository) MarkBidsAsOutbid(ctx context.Context, listingID string, 
 		},
 	}
 
+	// Apply query options (adds deleted_at IS NULL by default)
+	filter = r.ApplyQueryOptions(ctx, filter)
+
 	var bids []*marketplace.Bid
 	if err := r.dbManager.List(ctx, filter, &bids); err != nil {
 		return fmt.Errorf("failed to get bids to mark as outbid: %w", err)
@@ -616,6 +646,9 @@ func (r *bidRepository) ExpireBidsForListing(ctx context.Context, listingID stri
 			Value:    []marketplace.BidStatus{marketplace.BidStatusActive, marketplace.BidStatusWinning},
 		},
 	}
+
+	// Apply query options (adds deleted_at IS NULL by default)
+	filter = r.ApplyQueryOptions(ctx, filter)
 
 	var bids []*marketplace.Bid
 	if err := r.dbManager.List(ctx, filter, &bids); err != nil {
@@ -759,6 +792,9 @@ func (r *bidRepository) buildBaseFilter(filter *marketplace.BidFilter) *base.Fil
 
 // executeListQuery executes a list query with pagination
 func (r *bidRepository) executeListQuery(ctx context.Context, filter *base.Filter, pagination *common.PaginationRequest) ([]*marketplace.Bid, int, error) {
+	// Apply query options (adds deleted_at IS NULL by default) BEFORE pagination
+	filter = r.ApplyQueryOptions(ctx, filter)
+
 	// Apply pagination
 	if pagination != nil {
 		filter.Limit = pagination.Limit
@@ -797,6 +833,9 @@ func (r *bidRepository) CountBids(ctx context.Context, startTime, endTime time.T
 			Value:    endTime,
 		},
 	}
+
+	// Apply query options (adds deleted_at IS NULL by default)
+	filter = r.ApplyQueryOptions(ctx, filter)
 
 	count, err := r.dbManager.Count(ctx, filter, &marketplace.Bid{})
 	if err != nil {
