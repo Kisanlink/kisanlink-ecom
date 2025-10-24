@@ -5,6 +5,7 @@ import (
 	"kisanlink-ecom/entities/models/catalog"
 	"kisanlink-ecom/entities/models/common"
 	"kisanlink-ecom/entities/models/media"
+	"kisanlink-ecom/entities/models/orders"
 	"kisanlink-ecom/entities/models/pricing"
 )
 
@@ -80,6 +81,15 @@ func ActorModels() []interface{} {
 		&actors.Vendor{},
 		&actors.Customer{},
 		&actors.Collaborator{},
+	}
+}
+
+// OrderModels returns order-specific models
+func OrderModels() []interface{} {
+	return []interface{}{
+		&orders.Order{},
+		&orders.OrderItem{},
+		&orders.OrderStatusHistory{},
 	}
 }
 
