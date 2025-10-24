@@ -36,11 +36,17 @@ type OrderServiceInterface interface {
 	HandlePaymentFailure(ctx context.Context, orderID string, reason string, userID string, orgID string) error
 }
 
+// SequenceServiceInterface defines the interface for sequence operations
+type SequenceServiceInterface interface {
+	GenerateID(ctx context.Context, prefix string, orgID *string) (string, error)
+}
+
 // OrderService provides business logic for order operations
 type OrderService struct {
 	orderRepo      *orders.OrderRepository
 	catalogSvc     catalog.CatalogServiceInterface
 	inventorySvc   inventory.InventoryService
+	sequenceSvc    SequenceServiceInterface
 	marketplaceSvc MarketplaceServiceInterface
 }
 
@@ -51,11 +57,12 @@ type MarketplaceServiceInterface interface {
 }
 
 // NewOrderService creates a new order service
-func NewOrderService(orderRepo *orders.OrderRepository, catalogSvc catalog.CatalogServiceInterface, inventorySvc inventory.InventoryService) *OrderService {
+func NewOrderService(orderRepo *orders.OrderRepository, catalogSvc catalog.CatalogServiceInterface, inventorySvc inventory.InventoryService, sequenceSvc SequenceServiceInterface) *OrderService {
 	return &OrderService{
 		orderRepo:    orderRepo,
 		catalogSvc:   catalogSvc,
 		inventorySvc: inventorySvc,
+		sequenceSvc:  sequenceSvc,
 	}
 }
 
@@ -110,9 +117,16 @@ func (s *OrderService) CreateOrder(ctx context.Context, req *orderRequests.Creat
 			unitPrice = catalogItem.BasePrice
 		}
 
+		// Generate unique ID for order item using sequence service
+		itemID, err := s.sequenceSvc.GenerateID(ctx, "ITEM", &req.SellerOrganizationID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to generate order item ID: %w", err)
+		}
+
 		// Create order item with proper calculations
 		quantity := itemReq.Quantity
 		orderItem := orderModels.NewOrderItem(
+			itemID, // Use sequence-based ID instead of timestamp hash
 			ord.ID,
 			itemReq.CatalogItemID,
 			itemReq.CatalogItemType,

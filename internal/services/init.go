@@ -7,9 +7,11 @@ import (
 	catalogRepo "kisanlink-ecom/internal/repositories/catalog"
 	inventoryRepo "kisanlink-ecom/internal/repositories/inventory"
 	orderRepo "kisanlink-ecom/internal/repositories/orders"
+	sequenceRepo "kisanlink-ecom/internal/repositories/sequence"
 	"kisanlink-ecom/internal/services/catalog"
 	"kisanlink-ecom/internal/services/inventory"
 	"kisanlink-ecom/internal/services/orders"
+	"kisanlink-ecom/internal/services/sequence"
 	"kisanlink-ecom/internal/services/user"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/db"
@@ -31,6 +33,7 @@ type ServiceContainer struct {
 	OrderService          *orders.OrderService
 	CatalogService        *catalog.CatalogService
 	InventoryService      inventory.InventoryService
+	SequenceService       *sequence.SequenceService
 	RolePermissionService *RolePermissionService
 }
 
@@ -65,6 +68,7 @@ func NewServiceContainer(cfg *config.Config) (*ServiceContainer, error) {
 	catalogRepository := catalogRepo.NewCatalogRepository(dbManager.GetManager(db.BackendGorm))
 	inventoryRepository := inventoryRepo.NewInventoryRepository(dbManager.GetManager(db.BackendGorm))
 	orderRepository := orderRepo.NewOrderRepository(dbManager.GetManager(db.BackendGorm))
+	sequenceRepository := sequenceRepo.NewSequenceRepository(dbManager.GetManager(db.BackendGorm))
 
 	// Wire repository dependencies
 	orderRepository.SetCatalogRepository(catalogRepository)
@@ -81,7 +85,8 @@ func NewServiceContainer(cfg *config.Config) (*ServiceContainer, error) {
 	userSvc := user.NewUserService(aaaClient)
 	catalogSvc := catalog.NewCatalogService(catalogRepository)
 	inventorySvc := inventory.NewInventoryService(inventoryRepository, catalogRepository)
-	orderSvc := orders.NewOrderService(orderRepository, catalogSvc, inventorySvc)
+	sequenceSvc := sequence.NewSequenceService(sequenceRepository)
+	orderSvc := orders.NewOrderService(orderRepository, catalogSvc, inventorySvc, sequenceSvc)
 	rolePermissionService := NewRolePermissionService()
 
 	return &ServiceContainer{
@@ -89,6 +94,7 @@ func NewServiceContainer(cfg *config.Config) (*ServiceContainer, error) {
 		OrderService:          orderSvc,
 		CatalogService:        catalogSvc,
 		InventoryService:      inventorySvc,
+		SequenceService:       sequenceSvc,
 		RolePermissionService: rolePermissionService,
 	}, nil
 }

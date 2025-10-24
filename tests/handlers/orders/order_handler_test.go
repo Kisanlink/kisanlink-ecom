@@ -179,6 +179,7 @@ func createTestOrder() *orderModels.Order {
 	order.Status = orderModels.OrderStatusPending
 
 	item := orderModels.NewOrderItem(
+		"item-1", // ID
 		order.ID,
 		"catalog-item-1",
 		"product",
@@ -187,7 +188,6 @@ func createTestOrder() *orderModels.Order {
 		decimal.NewFromFloat(2),
 		decimal.NewFromFloat(50.25),
 	)
-	item.ID = "item-1"
 	order.Items = []orderModels.OrderItem{*item}
 	order.CalculateTotal()
 

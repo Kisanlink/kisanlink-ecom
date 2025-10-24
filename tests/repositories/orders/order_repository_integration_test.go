@@ -31,6 +31,7 @@ func TestOrderRepository_Integration(t *testing.T) {
 	   // Create test order
 	   order := orders.NewOrder("buyer-org-1", "seller-org-1", "user-1")
 	   item := orders.NewOrderItem(
+	       "item-1", // ID
 	       order.ID,
 	       "catalog-item-1",
 	       "product",
@@ -95,6 +96,7 @@ func TestOrderRepository_TransactionHandling(t *testing.T) {
 	   order := orders.NewOrder("buyer-org-1", "seller-org-1", "user-1")
 	   // Add invalid item that will cause creation to fail
 	   invalidItem := orders.NewOrderItem(
+	       "item-1", // ID
 	       order.ID,
 	       "", // Empty catalog ID should cause failure
 	       "product",
@@ -134,6 +136,7 @@ func TestOrderRepository_ConcurrentAccess(t *testing.T) {
 	   // Create base order
 	   order := orders.NewOrder("buyer-org-1", "seller-org-1", "user-1")
 	   item := orders.NewOrderItem(
+	       "item-1", // ID
 	       order.ID,
 	       "catalog-item-1",
 	       "product",

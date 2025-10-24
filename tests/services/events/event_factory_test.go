@@ -23,7 +23,7 @@ func TestEventFactory_CreateOrderCreatedEvent(t *testing.T) {
 	order.TotalAmount = decimal.NewFromFloat(150.50)
 	order.Status = orders.OrderStatusPending
 
-	item := orders.NewOrderItem(order.ID, "item-1", "product", "Test Item", "SKU-1", decimal.NewFromFloat(2), decimal.NewFromFloat(75.25))
+	item := orders.NewOrderItem("item-1", order.ID, "item-1", "product", "Test Item", "SKU-1", decimal.NewFromFloat(2), decimal.NewFromFloat(75.25))
 	order.Items = []orders.OrderItem{*item}
 
 	// Execute

@@ -144,6 +144,7 @@ func TestOrder_CalculateTotal(t *testing.T) {
 
 	// Add items
 	item1 := orders.NewOrderItem(
+		"item-1", // ID
 		order.ID,
 		"catalog-item-1",
 		"product",
@@ -154,6 +155,7 @@ func TestOrder_CalculateTotal(t *testing.T) {
 	)
 
 	item2 := orders.NewOrderItem(
+		"item-2", // ID
 		order.ID,
 		"catalog-item-2",
 		"service",
@@ -203,6 +205,7 @@ func TestOrder_AddRemoveItems(t *testing.T) {
 	order := orders.NewOrder("buyer-org-1", "seller-org-1", "user-1")
 
 	item := orders.NewOrderItem(
+		"item-1", // ID
 		order.ID,
 		"catalog-item-1",
 		"product",
@@ -211,7 +214,6 @@ func TestOrder_AddRemoveItems(t *testing.T) {
 		decimal.NewFromFloat(2),
 		decimal.NewFromFloat(50.25),
 	)
-	item.ID = "item-1"
 
 	// Add item
 	order.AddItem(item)

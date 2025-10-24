@@ -20,6 +20,7 @@ import (
 	"kisanlink-ecom/internal/repositories/collaborator"
 	"kisanlink-ecom/internal/repositories/inventory"
 	"kisanlink-ecom/internal/repositories/orders"
+	"kisanlink-ecom/internal/repositories/sequence"
 	"kisanlink-ecom/internal/routes"
 	catalogService "kisanlink-ecom/internal/services/catalog"
 	collaboratorService "kisanlink-ecom/internal/services/collaborator"
@@ -27,6 +28,7 @@ import (
 	inventoryService "kisanlink-ecom/internal/services/inventory"
 	"kisanlink-ecom/internal/services/marketplace"
 	orderService "kisanlink-ecom/internal/services/orders"
+	sequenceService "kisanlink-ecom/internal/services/sequence"
 	userService "kisanlink-ecom/internal/services/user"
 )
 
@@ -110,11 +112,13 @@ func main() {
 	catalogRepo := catalog.NewCatalogRepository(dbManager.GetManager(db.BackendGorm))
 	inventoryRepo := inventory.NewInventoryRepository(dbManager.GetManager(db.BackendGorm))
 	orderRepo := orders.NewOrderRepository(dbManager.GetManager(db.BackendGorm))
+	sequenceRepo := sequence.NewSequenceRepository(dbManager.GetManager(db.BackendGorm))
 
 	// Initialize services with proper dependency injection
 	catalogSvc := catalogService.NewCatalogService(catalogRepo)
 	inventorySvc := inventoryService.NewInventoryService(inventoryRepo, catalogRepo)
-	orderSvc := orderService.NewOrderService(orderRepo, catalogSvc, inventorySvc)
+	sequenceSvc := sequenceService.NewSequenceService(sequenceRepo)
+	orderSvc := orderService.NewOrderService(orderRepo, catalogSvc, inventorySvc, sequenceSvc)
 
 	log.Println("Database repositories and services initialized successfully")
 
