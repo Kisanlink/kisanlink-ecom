@@ -4,9 +4,13 @@ import (
 	"kisanlink-ecom/entities/models/actors"
 	"kisanlink-ecom/entities/models/catalog"
 	"kisanlink-ecom/entities/models/common"
+	"kisanlink-ecom/entities/models/discounts"
+	"kisanlink-ecom/entities/models/marketplace"
 	"kisanlink-ecom/entities/models/media"
 	"kisanlink-ecom/entities/models/orders"
+	"kisanlink-ecom/entities/models/outbox"
 	"kisanlink-ecom/entities/models/pricing"
+	"kisanlink-ecom/entities/models/taxation"
 )
 
 // AllModels returns a slice of all GORM models for migration
@@ -23,6 +27,7 @@ func AllModels() []interface{} {
 		&catalog.Variant{},
 		&catalog.Availability{},
 		&catalog.InventoryLot{},
+		&catalog.InventoryAuditLog{},
 		&catalog.SLA{},
 
 		// Media models
@@ -38,7 +43,29 @@ func AllModels() []interface{} {
 		&actors.Customer{},
 		&actors.Collaborator{},
 
+		// Order models
+		&orders.Order{},
+		&orders.OrderItem{},
+		&orders.OrderStatusHistory{},
+
+		// Taxation models
+		&taxation.TaxRate{},
+		&taxation.TaxRule{},
+
+		// Discount models
+		&discounts.Discount{},
+		&discounts.DiscountUsage{},
+
+		// Marketplace models
+		&marketplace.Listing{},
+		&marketplace.Bid{},
+		&marketplace.AuctionEvent{},
+
+		// Outbox models
+		&outbox.OutboxEvent{},
+
 		// Common models
+		&common.SequenceCounter{},
 		&common.AuditLog{},
 	}
 }
@@ -93,10 +120,44 @@ func OrderModels() []interface{} {
 	}
 }
 
+// TaxationModels returns taxation-specific models
+func TaxationModels() []interface{} {
+	return []interface{}{
+		&taxation.TaxRate{},
+		&taxation.TaxRule{},
+	}
+}
+
+// DiscountModels returns discount-specific models
+func DiscountModels() []interface{} {
+	return []interface{}{
+		&discounts.Discount{},
+		&discounts.DiscountUsage{},
+	}
+}
+
+// MarketplaceModels returns marketplace-specific models
+func MarketplaceModels() []interface{} {
+	return []interface{}{
+		&marketplace.Listing{},
+		&marketplace.Bid{},
+		&marketplace.AuctionEvent{},
+	}
+}
+
+// OutboxModels returns outbox-specific models
+func OutboxModels() []interface{} {
+	return []interface{}{
+		&outbox.OutboxEvent{},
+	}
+}
+
 // AuditModels returns audit-specific models
 func AuditModels() []interface{} {
 	return []interface{}{
+		&common.SequenceCounter{},
 		&common.AuditLog{},
+		&catalog.InventoryAuditLog{},
 	}
 }
 
@@ -104,12 +165,13 @@ func AuditModels() []interface{} {
 func ModelsByPriority() []interface{} {
 	return []interface{}{
 		// Base models first (no dependencies)
+		&common.SequenceCounter{},
 		&actors.Vendor{},
 		&actors.Customer{},
 		&actors.Collaborator{},
 		&catalog.Category{},
 
-		// Models with foreign key dependencies
+		// Catalog models with foreign key dependencies
 		&catalog.CatalogItem{},
 		&catalog.Product{},
 		&catalog.Service{},
@@ -121,12 +183,34 @@ func ModelsByPriority() []interface{} {
 		&catalog.SLA{},
 		&media.Media{},
 
-		// Pricing models
+		// Pricing models (depend on catalog)
 		&pricing.Price{},
 		&pricing.PriceTier{},
 		&pricing.PriceRule{},
 
+		// Taxation models (depend on catalog)
+		&taxation.TaxRate{},
+		&taxation.TaxRule{},
+
+		// Discount models (depend on catalog/pricing)
+		&discounts.Discount{},
+		&discounts.DiscountUsage{},
+
+		// Order models (depend on catalog)
+		&orders.Order{},
+		&orders.OrderItem{},
+		&orders.OrderStatusHistory{},
+
+		// Marketplace models (depend on products)
+		&marketplace.Listing{},
+		&marketplace.Bid{},
+		&marketplace.AuctionEvent{},
+
+		// Outbox models (event processing)
+		&outbox.OutboxEvent{},
+
 		// Audit models last (references all other models)
+		&catalog.InventoryAuditLog{},
 		&common.AuditLog{},
 	}
 }

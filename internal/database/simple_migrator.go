@@ -69,7 +69,7 @@ func (sm *SimpleMigrator) RunMigrations() error {
 
 	// Calculate checksum for tracking
 	checksum := sm.calculateChecksum(allModels)
-	version := "v1.0.0"
+	version := "v1.2.0" // Added taxation, discounts, marketplace, outbox, sequence_counter, inventory_audit_log models
 
 	// Check if migration is already applied
 	applied, err := sm.runner.IsMigrationApplied(version)
