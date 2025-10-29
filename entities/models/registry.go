@@ -3,6 +3,7 @@ package models
 import (
 	"kisanlink-ecom/entities/models/actors"
 	"kisanlink-ecom/entities/models/catalog"
+	"kisanlink-ecom/entities/models/collaborator"
 	"kisanlink-ecom/entities/models/common"
 	"kisanlink-ecom/entities/models/discounts"
 	"kisanlink-ecom/entities/models/marketplace"
@@ -10,13 +11,21 @@ import (
 	"kisanlink-ecom/entities/models/orders"
 	"kisanlink-ecom/entities/models/outbox"
 	"kisanlink-ecom/entities/models/pricing"
+	"kisanlink-ecom/entities/models/roles"
 	"kisanlink-ecom/entities/models/taxation"
+	"kisanlink-ecom/entities/models/user"
 )
 
 // AllModels returns a slice of all GORM models for migration
 // This ensures all models are registered with GORM AutoMigrate
 func AllModels() []interface{} {
 	return []interface{}{
+		// User and Role models (no dependencies)
+		&user.User{},
+		&roles.EcommerceRole{},
+		&roles.UserRole{},
+		&roles.OrganizationRole{},
+
 		// Catalog models
 		&catalog.CatalogItem{},
 		&catalog.Product{},
@@ -42,6 +51,7 @@ func AllModels() []interface{} {
 		&actors.Vendor{},
 		&actors.Customer{},
 		&actors.Collaborator{},
+		&collaborator.Collaborator{},
 
 		// Order models
 		&orders.Order{},
@@ -51,6 +61,7 @@ func AllModels() []interface{} {
 		// Taxation models
 		&taxation.TaxRate{},
 		&taxation.TaxRule{},
+		&taxation.TaxExemption{},
 
 		// Discount models
 		&discounts.Discount{},
@@ -108,6 +119,7 @@ func ActorModels() []interface{} {
 		&actors.Vendor{},
 		&actors.Customer{},
 		&actors.Collaborator{},
+		&collaborator.Collaborator{},
 	}
 }
 
@@ -125,6 +137,7 @@ func TaxationModels() []interface{} {
 	return []interface{}{
 		&taxation.TaxRate{},
 		&taxation.TaxRule{},
+		&taxation.TaxExemption{},
 	}
 }
 
@@ -161,14 +174,39 @@ func AuditModels() []interface{} {
 	}
 }
 
+// UserModels returns user-related models
+func UserModels() []interface{} {
+	return []interface{}{
+		&user.User{},
+	}
+}
+
+// RoleModels returns role-related models
+func RoleModels() []interface{} {
+	return []interface{}{
+		&roles.EcommerceRole{},
+		&roles.UserRole{},
+		&roles.OrganizationRole{},
+	}
+}
+
 // ModelsByPriority returns models in migration order (dependencies first)
 func ModelsByPriority() []interface{} {
 	return []interface{}{
 		// Base models first (no dependencies)
 		&common.SequenceCounter{},
+
+		// User and role models (no dependencies)
+		&user.User{},
+		&roles.EcommerceRole{},
+		&roles.UserRole{},
+		&roles.OrganizationRole{},
+
+		// Actor models
 		&actors.Vendor{},
 		&actors.Customer{},
 		&actors.Collaborator{},
+		&collaborator.Collaborator{},
 		&catalog.Category{},
 
 		// Catalog models with foreign key dependencies
@@ -191,6 +229,7 @@ func ModelsByPriority() []interface{} {
 		// Taxation models (depend on catalog)
 		&taxation.TaxRate{},
 		&taxation.TaxRule{},
+		&taxation.TaxExemption{},
 
 		// Discount models (depend on catalog/pricing)
 		&discounts.Discount{},
