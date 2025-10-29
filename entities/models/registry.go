@@ -12,6 +12,7 @@ import (
 	"kisanlink-ecom/entities/models/outbox"
 	"kisanlink-ecom/entities/models/pricing"
 	"kisanlink-ecom/entities/models/roles"
+	"kisanlink-ecom/entities/models/services"
 	"kisanlink-ecom/entities/models/taxation"
 	"kisanlink-ecom/entities/models/user"
 )
@@ -39,6 +40,9 @@ func AllModels() []interface{} {
 		&catalog.InventoryAuditLog{},
 		&catalog.SLA{},
 
+		// Service models
+		&services.SLA{},
+
 		// Media models
 		&media.Media{},
 
@@ -65,6 +69,7 @@ func AllModels() []interface{} {
 
 		// Discount models
 		&discounts.Discount{},
+		&discounts.DiscountRule{},
 		&discounts.DiscountUsage{},
 
 		// Marketplace models
@@ -145,6 +150,7 @@ func TaxationModels() []interface{} {
 func DiscountModels() []interface{} {
 	return []interface{}{
 		&discounts.Discount{},
+		&discounts.DiscountRule{},
 		&discounts.DiscountUsage{},
 	}
 }
@@ -190,6 +196,13 @@ func RoleModels() []interface{} {
 	}
 }
 
+// ServiceModels returns service-related models
+func ServiceModels() []interface{} {
+	return []interface{}{
+		&services.SLA{},
+	}
+}
+
 // ModelsByPriority returns models in migration order (dependencies first)
 func ModelsByPriority() []interface{} {
 	return []interface{}{
@@ -219,6 +232,7 @@ func ModelsByPriority() []interface{} {
 		&catalog.Availability{},
 		&catalog.InventoryLot{},
 		&catalog.SLA{},
+		&services.SLA{},
 		&media.Media{},
 
 		// Pricing models (depend on catalog)
@@ -233,6 +247,7 @@ func ModelsByPriority() []interface{} {
 
 		// Discount models (depend on catalog/pricing)
 		&discounts.Discount{},
+		&discounts.DiscountRule{},
 		&discounts.DiscountUsage{},
 
 		// Order models (depend on catalog)
