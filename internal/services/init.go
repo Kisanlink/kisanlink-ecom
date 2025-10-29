@@ -8,6 +8,7 @@ import (
 	inventoryRepo "kisanlink-ecom/internal/repositories/inventory"
 	orderRepo "kisanlink-ecom/internal/repositories/orders"
 	sequenceRepo "kisanlink-ecom/internal/repositories/sequence"
+	userRepo "kisanlink-ecom/internal/repositories/user"
 	"kisanlink-ecom/internal/services/catalog"
 	"kisanlink-ecom/internal/services/inventory"
 	"kisanlink-ecom/internal/services/orders"
@@ -69,6 +70,7 @@ func NewServiceContainer(cfg *config.Config) (*ServiceContainer, error) {
 	inventoryRepository := inventoryRepo.NewInventoryRepository(dbManager.GetManager(db.BackendGorm))
 	orderRepository := orderRepo.NewOrderRepository(dbManager.GetManager(db.BackendGorm))
 	sequenceRepository := sequenceRepo.NewSequenceRepository(dbManager.GetManager(db.BackendGorm))
+	userRepository := userRepo.NewUserRepository(dbManager.GetManager(db.BackendGorm))
 
 	// Wire repository dependencies
 	orderRepository.SetCatalogRepository(catalogRepository)
@@ -82,7 +84,7 @@ func NewServiceContainer(cfg *config.Config) (*ServiceContainer, error) {
 	}
 
 	// Initialize services
-	userSvc := user.NewUserService(aaaClient)
+	userSvc := user.NewUserService(aaaClient, userRepository)
 	catalogSvc := catalog.NewCatalogService(catalogRepository)
 	inventorySvc := inventory.NewInventoryService(inventoryRepository, catalogRepository)
 	sequenceSvc := sequence.NewSequenceService(sequenceRepository)

@@ -21,6 +21,7 @@ import (
 	"kisanlink-ecom/internal/repositories/inventory"
 	"kisanlink-ecom/internal/repositories/orders"
 	"kisanlink-ecom/internal/repositories/sequence"
+	"kisanlink-ecom/internal/repositories/user"
 	"kisanlink-ecom/internal/routes"
 	catalogService "kisanlink-ecom/internal/services/catalog"
 	collaboratorService "kisanlink-ecom/internal/services/collaborator"
@@ -113,6 +114,7 @@ func main() {
 	inventoryRepo := inventory.NewInventoryRepository(dbManager.GetManager(db.BackendGorm))
 	orderRepo := orders.NewOrderRepository(dbManager.GetManager(db.BackendGorm))
 	sequenceRepo := sequence.NewSequenceRepository(dbManager.GetManager(db.BackendGorm))
+	userRepo := user.NewUserRepository(dbManager.GetManager(db.BackendGorm))
 
 	// Initialize services with proper dependency injection
 	catalogSvc := catalogService.NewCatalogService(catalogRepo)
@@ -133,7 +135,7 @@ func main() {
 	}
 
 	// Initialize user service (always available for auth)
-	userSvc := userService.NewUserService(aaaClient)
+	userSvc := userService.NewUserService(aaaClient, userRepo)
 	log.Println("User service initialized")
 
 	// Initialize integration service (always available)

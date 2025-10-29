@@ -100,28 +100,22 @@ func (r *Repository) Delete(ctx context.Context, id string) error {
 }
 
 // List retrieves users with filtering and pagination
-func (r *Repository) List(ctx context.Context, limit, offset int, isActive *bool) ([]*user.User, int, error) {
-	filter := base.NewFilter()
-
-	// Filter by active status if specified
-	if isActive != nil {
-		filter.Group.Conditions = append(filter.Group.Conditions, base.FilterCondition{
-			Field:    "is_active",
-			Operator: base.OpEqual,
-			Value:    *isActive,
-		})
+func (r *Repository) List(ctx context.Context, filter *base.Filter, limit, offset int) ([]*user.User, int, error) {
+	dbFilter := filter
+	if dbFilter == nil {
+		dbFilter = base.NewFilter()
 	}
 
-	filter.Limit = limit
-	filter.Offset = offset
+	dbFilter.Limit = limit
+	dbFilter.Offset = offset
 
 	var users []*user.User
-	if err := r.dbManager.List(ctx, filter, &users); err != nil {
+	if err := r.dbManager.List(ctx, dbFilter, &users); err != nil {
 		return nil, 0, fmt.Errorf("failed to list users: %w", err)
 	}
 
 	// Get total count for pagination
-	total, err := r.dbManager.Count(ctx, filter, &user.User{})
+	total, err := r.dbManager.Count(ctx, dbFilter, &user.User{})
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to count users: %w", err)
 	}
