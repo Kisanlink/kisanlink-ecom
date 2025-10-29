@@ -76,7 +76,7 @@ type SLA struct {
 
 // TableName returns the table name for GORM
 func (SLA) TableName() string {
-	return "slas"
+	return "service_slas"
 }
 
 // NewSLA creates a new SLA
