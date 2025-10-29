@@ -100,6 +100,11 @@ func (r *DiscountRuleRepository) List(ctx context.Context, filter *base.Filter, 
 	return items, int(total), nil
 }
 
+// GetByOrganizationID retrieves all discount rules for an organization (implements interface method)
+func (r *DiscountRuleRepository) GetByOrganizationID(ctx context.Context, orgID string) ([]*discounts.DiscountRule, error) {
+	return r.GetByOrgID(ctx, orgID, false)
+}
+
 // GetByOrgID retrieves all discount rules for an organization
 func (r *DiscountRuleRepository) GetByOrgID(ctx context.Context, orgID string, activeOnly bool) ([]*discounts.DiscountRule, error) {
 	filter := base.NewFilter()

@@ -99,6 +99,11 @@ func (r *OrganizationRoleRepository) List(ctx context.Context, filter *base.Filt
 	return items, int(total), nil
 }
 
+// GetByOrganizationID retrieves all roles configured for an organization (implements interface method)
+func (r *OrganizationRoleRepository) GetByOrganizationID(ctx context.Context, organizationID string) ([]*roles.OrganizationRole, error) {
+	return r.GetOrgRoles(ctx, organizationID, false)
+}
+
 // GetOrgRoles retrieves all roles configured for an organization
 func (r *OrganizationRoleRepository) GetOrgRoles(ctx context.Context, organizationID string, activeOnly bool) ([]*roles.OrganizationRole, error) {
 	filter := base.NewFilter()
@@ -186,12 +191,30 @@ func (r *OrganizationRoleRepository) SetAsDefault(ctx context.Context, organizat
 	return nil
 }
 
+// GetByAAARoleID retrieves all organization roles for a specific AAA role (implements interface method)
+func (r *OrganizationRoleRepository) GetByAAARoleID(ctx context.Context, aaaRoleID string) ([]*roles.OrganizationRole, error) {
+	filter := base.NewFilter()
+	filter.Group.Conditions = []base.FilterCondition{
+		{Field: "aaa_role_id", Operator: base.OpEqual, Value: aaaRoleID},
+	}
+
+	// Apply soft delete filtering
+	filter = r.ApplyQueryOptions(ctx, filter)
+
+	var items []*roles.OrganizationRole
+	if err := r.dbManager.List(ctx, filter, &items); err != nil {
+		return nil, fmt.Errorf("failed to get organization roles by AAA role ID: %w", err)
+	}
+
+	return items, nil
+}
+
 // GetByOrgAndAAARoleID retrieves an organization role by organization ID and AAA role ID
 func (r *OrganizationRoleRepository) GetByOrgAndAAARoleID(ctx context.Context, organizationID, aaaRoleID string) (*roles.OrganizationRole, error) {
 	filter := base.NewFilter()
 	filter.Group.Conditions = []base.FilterCondition{
 		{Field: "organization_id", Operator: base.OpEqual, Value: organizationID},
-		{Field: "role_id", Operator: base.OpEqual, Value: aaaRoleID},
+		{Field: "aaa_role_id", Operator: base.OpEqual, Value: aaaRoleID},
 	}
 
 	// Apply soft delete filtering

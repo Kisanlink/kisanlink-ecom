@@ -16,20 +16,30 @@ import (
 	"kisanlink-ecom/internal/auth"
 	"kisanlink-ecom/internal/config"
 	"kisanlink-ecom/internal/database"
+	"kisanlink-ecom/internal/repositories/actors"
 	"kisanlink-ecom/internal/repositories/catalog"
 	"kisanlink-ecom/internal/repositories/collaborator"
+	"kisanlink-ecom/internal/repositories/discounts"
 	"kisanlink-ecom/internal/repositories/inventory"
 	"kisanlink-ecom/internal/repositories/orders"
+	"kisanlink-ecom/internal/repositories/roles"
 	"kisanlink-ecom/internal/repositories/sequence"
+	"kisanlink-ecom/internal/repositories/services"
+	"kisanlink-ecom/internal/repositories/taxation"
 	"kisanlink-ecom/internal/repositories/user"
 	"kisanlink-ecom/internal/routes"
+	actorsService "kisanlink-ecom/internal/services/actors"
 	catalogService "kisanlink-ecom/internal/services/catalog"
 	collaboratorService "kisanlink-ecom/internal/services/collaborator"
+	discountsService "kisanlink-ecom/internal/services/discounts"
 	integrationService "kisanlink-ecom/internal/services/integrations"
 	inventoryService "kisanlink-ecom/internal/services/inventory"
 	"kisanlink-ecom/internal/services/marketplace"
 	orderService "kisanlink-ecom/internal/services/orders"
+	rolesService "kisanlink-ecom/internal/services/roles"
 	sequenceService "kisanlink-ecom/internal/services/sequence"
+	slaService "kisanlink-ecom/internal/services/sla"
+	taxationService "kisanlink-ecom/internal/services/taxation"
 	userService "kisanlink-ecom/internal/services/user"
 )
 
@@ -115,12 +125,26 @@ func main() {
 	orderRepo := orders.NewOrderRepository(dbManager.GetManager(db.BackendGorm))
 	sequenceRepo := sequence.NewSequenceRepository(dbManager.GetManager(db.BackendGorm))
 	userRepo := user.NewUserRepository(dbManager.GetManager(db.BackendGorm))
+	userRoleRepo := roles.NewUserRoleRepository(dbManager.GetManager(db.BackendGorm))
+	orgRoleRepo := roles.NewOrganizationRoleRepository(dbManager.GetManager(db.BackendGorm))
+	ecomRoleRepo := roles.NewEcommerceRoleRepository(dbManager.GetManager(db.BackendGorm))
+	taxExemptionRepo := taxation.NewTaxExemptionRepository(dbManager.GetManager(db.BackendGorm))
+	serviceSLARepo := services.NewSLARepository(dbManager.GetManager(db.BackendGorm))
+	discountRuleRepo := discounts.NewDiscountRuleRepository(dbManager.GetManager(db.BackendGorm))
+	orgCollaboratorRepo := actors.NewCollaboratorRepository(dbManager.GetManager(db.BackendGorm))
 
 	// Initialize services with proper dependency injection
 	catalogSvc := catalogService.NewCatalogService(catalogRepo)
 	inventorySvc := inventoryService.NewInventoryService(inventoryRepo, catalogRepo)
 	sequenceSvc := sequenceService.NewSequenceService(sequenceRepo)
 	orderSvc := orderService.NewOrderService(orderRepo, catalogSvc, inventorySvc, sequenceSvc)
+	userRoleSvc := rolesService.NewUserRoleService(userRoleRepo)
+	orgRoleSvc := rolesService.NewOrganizationRoleService(orgRoleRepo)
+	ecomRoleSvc := rolesService.NewEcommerceRoleService(ecomRoleRepo)
+	taxExemptionSvc := taxationService.NewTaxExemptionService(taxExemptionRepo)
+	serviceSLASvc := slaService.NewServiceSLAService(serviceSLARepo)
+	discountRuleSvc := discountsService.NewDiscountRuleService(discountRuleRepo)
+	orgCollaboratorSvc := actorsService.NewOrganizationCollaboratorService(orgCollaboratorRepo)
 
 	log.Println("Database repositories and services initialized successfully")
 
@@ -155,8 +179,26 @@ func main() {
 	collaboratorSvc := collaboratorService.NewCollaboratorService(collaboratorRepo, logrusLogger)
 	log.Println("Collaborator service initialized")
 
+	// Create services container
+	services := &routes.Services{
+		CatalogSvc:         catalogSvc,
+		InventorySvc:       inventorySvc,
+		OrderSvc:           orderSvc,
+		UserSvc:            userSvc,
+		IntegrationSvc:     integrationSvc,
+		MarketplaceSvc:     &marketplace.MarketplaceServices{},
+		CollaboratorSvc:    collaboratorSvc,
+		UserRoleSvc:        userRoleSvc,
+		OrgRoleSvc:         orgRoleSvc,
+		EcomRoleSvc:        ecomRoleSvc,
+		TaxExemptionSvc:    taxExemptionSvc,
+		ServiceSLASvc:      serviceSLASvc,
+		DiscountRuleSvc:    discountRuleSvc,
+		OrgCollaboratorSvc: orgCollaboratorSvc,
+	}
+
 	// Setup router with services and database manager for health checks
-	router := routes.SetupRouter(aaaClient, catalogSvc, inventorySvc, orderSvc, userSvc, integrationSvc, &marketplace.MarketplaceServices{}, collaboratorSvc)
+	router := routes.SetupRouter(aaaClient, services)
 
 	// Add database manager to context for health checks
 	router.Use(func(c *gin.Context) {

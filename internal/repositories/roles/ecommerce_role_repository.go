@@ -121,6 +121,11 @@ func (r *EcommerceRoleRepository) GetByRoleName(ctx context.Context, roleName st
 	return items[0], nil
 }
 
+// GetByOrganizationID retrieves all roles scoped to a specific organization (implements interface method)
+func (r *EcommerceRoleRepository) GetByOrganizationID(ctx context.Context, organizationID string) ([]*roles.EcommerceRole, error) {
+	return r.GetOrgScopedRoles(ctx, organizationID, false)
+}
+
 // GetOrgScopedRoles retrieves all roles scoped to a specific organization
 func (r *EcommerceRoleRepository) GetOrgScopedRoles(ctx context.Context, organizationID string, activeOnly bool) ([]*roles.EcommerceRole, error) {
 	filter := base.NewFilter()

@@ -122,6 +122,11 @@ func (r *TaxExemptionRepository) GetByExemptionID(ctx context.Context, exemption
 	return items[0], nil
 }
 
+// GetByOrganizationID retrieves all tax exemptions for an organization (implements interface method)
+func (r *TaxExemptionRepository) GetByOrganizationID(ctx context.Context, orgID string) ([]*taxation.TaxExemption, error) {
+	return r.GetByOrgID(ctx, orgID, false)
+}
+
 // GetByOrgID retrieves all tax exemptions for an organization
 func (r *TaxExemptionRepository) GetByOrgID(ctx context.Context, orgID string, activeOnly bool) ([]*taxation.TaxExemption, error) {
 	filter := base.NewFilter()

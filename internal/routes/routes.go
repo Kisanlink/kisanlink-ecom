@@ -5,19 +5,30 @@ import (
 
 	"kisanlink-ecom/internal/auth"
 	"kisanlink-ecom/internal/handlers"
+	"kisanlink-ecom/internal/handlers/actors"
 	"kisanlink-ecom/internal/handlers/catalog"
 	"kisanlink-ecom/internal/handlers/collaborator"
+	"kisanlink-ecom/internal/handlers/discounts"
 	"kisanlink-ecom/internal/handlers/health"
 	"kisanlink-ecom/internal/handlers/integrations"
 	"kisanlink-ecom/internal/handlers/inventory"
 	"kisanlink-ecom/internal/handlers/orders"
+	"kisanlink-ecom/internal/handlers/roles"
+	"kisanlink-ecom/internal/handlers/sla"
+	"kisanlink-ecom/internal/handlers/taxation"
+	"kisanlink-ecom/internal/handlers/user"
 	"kisanlink-ecom/internal/middleware"
+	actorsService "kisanlink-ecom/internal/services/actors"
 	catalogService "kisanlink-ecom/internal/services/catalog"
 	collaboratorService "kisanlink-ecom/internal/services/collaborator"
+	discountsService "kisanlink-ecom/internal/services/discounts"
 	integrationService "kisanlink-ecom/internal/services/integrations"
 	inventoryService "kisanlink-ecom/internal/services/inventory"
 	marketplaceService "kisanlink-ecom/internal/services/marketplace"
 	orderService "kisanlink-ecom/internal/services/orders"
+	rolesService "kisanlink-ecom/internal/services/roles"
+	slaService "kisanlink-ecom/internal/services/sla"
+	taxationService "kisanlink-ecom/internal/services/taxation"
 	userService "kisanlink-ecom/internal/services/user"
 
 	scalar "github.com/MarceloPetrucio/go-scalar-api-reference"
@@ -25,17 +36,26 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Services container for all application services
+type Services struct {
+	CatalogSvc         catalogService.CatalogServiceInterface
+	InventorySvc       inventoryService.InventoryService
+	OrderSvc           orderService.OrderServiceInterface
+	UserSvc            *userService.UserService
+	IntegrationSvc     integrationService.IntegrationServiceInterface
+	MarketplaceSvc     *marketplaceService.MarketplaceServices
+	CollaboratorSvc    collaboratorService.CollaboratorServiceInterface
+	UserRoleSvc        rolesService.UserRoleServiceInterface
+	OrgRoleSvc         rolesService.OrganizationRoleServiceInterface
+	EcomRoleSvc        rolesService.EcommerceRoleServiceInterface
+	TaxExemptionSvc    taxationService.TaxExemptionServiceInterface
+	ServiceSLASvc      slaService.ServiceSLAServiceInterface
+	DiscountRuleSvc    discountsService.DiscountRuleServiceInterface
+	OrgCollaboratorSvc actorsService.OrganizationCollaboratorServiceInterface
+}
+
 // SetupRouter configures all routes and middleware
-func SetupRouter(
-	aaaClient auth.Client,
-	catalogSvc catalogService.CatalogServiceInterface,
-	inventorySvc inventoryService.InventoryService,
-	orderSvc orderService.OrderServiceInterface,
-	userSvc *userService.UserService,
-	integrationSvc integrationService.IntegrationServiceInterface,
-	marketplaceSvc *marketplaceService.MarketplaceServices,
-	collaboratorSvc collaboratorService.CollaboratorServiceInterface,
-) *gin.Engine {
+func SetupRouter(aaaClient auth.Client, services *Services) *gin.Engine {
 	// Set Gin mode
 	gin.SetMode(gin.ReleaseMode)
 
@@ -79,8 +99,8 @@ func SetupRouter(
 		// Auth routes (public)
 		authGroup := v1.Group("/auth")
 		{
-			if userSvc != nil {
-				authHandler := handlers.NewAuthHandler(userSvc)
+			if services.UserSvc != nil {
+				authHandler := handlers.NewAuthHandler(services.UserSvc)
 				authGroup.POST("/register", authHandler.Register)
 				authGroup.POST("/login", authHandler.Login)
 				authGroup.POST("/logout",
@@ -101,18 +121,228 @@ func SetupRouter(
 			}
 		}
 
-		// RBAC routes are now handled by AAA service via gRPC
-		// Roles and permissions are managed centrally in the AAA service
+		// User management routes
+		usersGroup := v1.Group("/users")
+		{
+			if services.UserSvc != nil {
+				userHandler := user.NewUserHandler(services.UserSvc)
+				usersGroup.POST("",
+					conditionalAuthMiddleware(aaaClient),
+					userHandler.CreateUser,
+				)
+				usersGroup.GET("", userHandler.ListUsers)
+				usersGroup.GET("/:id", userHandler.GetUser)
+				usersGroup.GET("/by-username/:username", userHandler.GetUserByUsername)
+				usersGroup.GET("/by-email/:email", userHandler.GetUserByEmail)
+				usersGroup.PUT("/:id",
+					conditionalAuthMiddleware(aaaClient),
+					userHandler.UpdateUser,
+				)
+				usersGroup.DELETE("/:id",
+					conditionalAuthMiddleware(aaaClient),
+					userHandler.DeleteUser,
+				)
+				usersGroup.POST("/:id/activate",
+					conditionalAuthMiddleware(aaaClient),
+					userHandler.ActivateUser,
+				)
+				usersGroup.POST("/:id/deactivate",
+					conditionalAuthMiddleware(aaaClient),
+					userHandler.DeactivateUser,
+				)
+			}
+		}
+
+		// User role management routes
+		userRolesGroup := v1.Group("/user-roles")
+		{
+			if services.UserRoleSvc != nil {
+				userRoleHandler := roles.NewUserRoleHandler(services.UserRoleSvc)
+				userRolesGroup.POST("",
+					conditionalAuthMiddleware(aaaClient),
+					userRoleHandler.AssignRole,
+				)
+				userRolesGroup.GET("", userRoleHandler.ListUserRoles)
+				userRolesGroup.GET("/:id", userRoleHandler.GetUserRole)
+				userRolesGroup.GET("/user/:userId", userRoleHandler.GetUserRoles)
+				userRolesGroup.GET("/role/:roleId", userRoleHandler.GetRoleUsers)
+				userRolesGroup.PUT("/:id",
+					conditionalAuthMiddleware(aaaClient),
+					userRoleHandler.UpdateUserRole,
+				)
+				userRolesGroup.DELETE("/:id",
+					conditionalAuthMiddleware(aaaClient),
+					userRoleHandler.DeleteUserRole,
+				)
+				userRolesGroup.POST("/:id/revoke",
+					conditionalAuthMiddleware(aaaClient),
+					userRoleHandler.RevokeRole,
+				)
+			}
+		}
+
+		// Organization role management routes
+		orgRolesGroup := v1.Group("/organization-roles")
+		{
+			if services.OrgRoleSvc != nil {
+				orgRoleHandler := roles.NewOrganizationRoleHandler(services.OrgRoleSvc)
+				orgRolesGroup.POST("",
+					conditionalAuthMiddleware(aaaClient),
+					orgRoleHandler.CreateOrganizationRole,
+				)
+				orgRolesGroup.GET("", orgRoleHandler.ListOrganizationRoles)
+				orgRolesGroup.GET("/:id", orgRoleHandler.GetOrganizationRole)
+				orgRolesGroup.GET("/organization/:orgId", orgRoleHandler.GetOrganizationRoles)
+				orgRolesGroup.POST("/organization/:orgId/set-default",
+					conditionalAuthMiddleware(aaaClient),
+					orgRoleHandler.SetDefaultRole,
+				)
+				orgRolesGroup.PUT("/:id",
+					conditionalAuthMiddleware(aaaClient),
+					orgRoleHandler.UpdateOrganizationRole,
+				)
+				orgRolesGroup.DELETE("/:id",
+					conditionalAuthMiddleware(aaaClient),
+					orgRoleHandler.DeleteOrganizationRole,
+				)
+			}
+		}
+
+		// E-commerce role management routes
+		ecomRolesGroup := v1.Group("/ecommerce-roles")
+		{
+			if services.EcomRoleSvc != nil {
+				ecomRoleHandler := roles.NewEcommerceRoleHandler(services.EcomRoleSvc)
+				ecomRolesGroup.POST("",
+					conditionalAuthMiddleware(aaaClient),
+					ecomRoleHandler.CreateEcommerceRole,
+				)
+				ecomRolesGroup.GET("", ecomRoleHandler.ListEcommerceRoles)
+				ecomRolesGroup.GET("/:id", ecomRoleHandler.GetEcommerceRole)
+				ecomRolesGroup.GET("/organization/:orgId", ecomRoleHandler.GetEcommerceRolesByOrganization)
+				ecomRolesGroup.POST("/check-permission", ecomRoleHandler.CheckPermission)
+				ecomRolesGroup.PUT("/:id",
+					conditionalAuthMiddleware(aaaClient),
+					ecomRoleHandler.UpdateEcommerceRole,
+				)
+				ecomRolesGroup.DELETE("/:id",
+					conditionalAuthMiddleware(aaaClient),
+					ecomRoleHandler.DeleteEcommerceRole,
+				)
+			}
+		}
+
+		// Tax exemption routes
+		taxExemptionsGroup := v1.Group("/tax-exemptions")
+		{
+			if services.TaxExemptionSvc != nil {
+				taxExemptionHandler := taxation.NewTaxExemptionHandler(services.TaxExemptionSvc)
+				taxExemptionsGroup.POST("",
+					conditionalAuthMiddleware(aaaClient),
+					taxExemptionHandler.CreateTaxExemption,
+				)
+				taxExemptionsGroup.GET("", taxExemptionHandler.ListTaxExemptions)
+				taxExemptionsGroup.GET("/:id", taxExemptionHandler.GetTaxExemption)
+				taxExemptionsGroup.GET("/organization/:orgId/valid", taxExemptionHandler.GetValidTaxExemptions)
+				taxExemptionsGroup.POST("/calculate", taxExemptionHandler.CalculateTaxExemption)
+				taxExemptionsGroup.PUT("/:id",
+					conditionalAuthMiddleware(aaaClient),
+					taxExemptionHandler.UpdateTaxExemption,
+				)
+				taxExemptionsGroup.DELETE("/:id",
+					conditionalAuthMiddleware(aaaClient),
+					taxExemptionHandler.DeleteTaxExemption,
+				)
+			}
+		}
+
+		// Service SLA routes
+		serviceSLAsGroup := v1.Group("/service-slas")
+		{
+			if services.ServiceSLASvc != nil {
+				serviceSLAHandler := sla.NewServiceSLAHandler(services.ServiceSLASvc)
+				serviceSLAsGroup.POST("",
+					conditionalAuthMiddleware(aaaClient),
+					serviceSLAHandler.CreateServiceSLA,
+				)
+				serviceSLAsGroup.GET("", serviceSLAHandler.ListServiceSLAs)
+				serviceSLAsGroup.GET("/:id", serviceSLAHandler.GetServiceSLA)
+				serviceSLAsGroup.GET("/catalog-item/:catalogItemId", serviceSLAHandler.GetCatalogItemSLAs)
+				serviceSLAsGroup.PUT("/:id",
+					conditionalAuthMiddleware(aaaClient),
+					serviceSLAHandler.UpdateServiceSLA,
+				)
+				serviceSLAsGroup.DELETE("/:id",
+					conditionalAuthMiddleware(aaaClient),
+					serviceSLAHandler.DeleteServiceSLA,
+				)
+			}
+		}
+
+		// Discount rule routes
+		discountRulesGroup := v1.Group("/discount-rules")
+		{
+			if services.DiscountRuleSvc != nil {
+				discountRuleHandler := discounts.NewDiscountRuleHandler(services.DiscountRuleSvc)
+				discountRulesGroup.POST("",
+					conditionalAuthMiddleware(aaaClient),
+					discountRuleHandler.CreateDiscountRule,
+				)
+				discountRulesGroup.GET("", discountRuleHandler.ListDiscountRules)
+				discountRulesGroup.GET("/:id", discountRuleHandler.GetDiscountRule)
+				discountRulesGroup.GET("/organization/:orgId", discountRuleHandler.GetOrganizationRules)
+				discountRulesGroup.GET("/organization/:orgId/active", discountRuleHandler.GetActiveRules)
+				discountRulesGroup.PUT("/:id",
+					conditionalAuthMiddleware(aaaClient),
+					discountRuleHandler.UpdateDiscountRule,
+				)
+				discountRulesGroup.DELETE("/:id",
+					conditionalAuthMiddleware(aaaClient),
+					discountRuleHandler.DeleteDiscountRule,
+				)
+			}
+		}
+
+		// Organization collaborator routes
+		orgCollaboratorsGroup := v1.Group("/organization-collaborators")
+		{
+			if services.OrgCollaboratorSvc != nil {
+				orgCollaboratorHandler := actors.NewOrganizationCollaboratorHandler(services.OrgCollaboratorSvc)
+				orgCollaboratorsGroup.POST("",
+					conditionalAuthMiddleware(aaaClient),
+					orgCollaboratorHandler.CreateOrganizationCollaborator,
+				)
+				orgCollaboratorsGroup.GET("", orgCollaboratorHandler.ListOrganizationCollaborators)
+				orgCollaboratorsGroup.GET("/:id", orgCollaboratorHandler.GetOrganizationCollaborator)
+				orgCollaboratorsGroup.GET("/organization/:orgId", orgCollaboratorHandler.GetOrganizationCollaborators)
+				orgCollaboratorsGroup.POST("/:id/invite",
+					conditionalAuthMiddleware(aaaClient),
+					orgCollaboratorHandler.InviteCollaborator,
+				)
+				orgCollaboratorsGroup.POST("/:id/activate",
+					conditionalAuthMiddleware(aaaClient),
+					orgCollaboratorHandler.ActivateCollaborator,
+				)
+				orgCollaboratorsGroup.PUT("/:id",
+					conditionalAuthMiddleware(aaaClient),
+					orgCollaboratorHandler.UpdateOrganizationCollaborator,
+				)
+				orgCollaboratorsGroup.DELETE("/:id",
+					conditionalAuthMiddleware(aaaClient),
+					orgCollaboratorHandler.DeleteOrganizationCollaborator,
+				)
+			}
+		}
 
 		// Catalog routes
 		catalogGroup := v1.Group("/catalog")
 		{
-			if catalogSvc != nil {
+			if services.CatalogSvc != nil {
 				// Create ETag service for cache validation
 				etagService := catalogService.NewETagService(nil)
 
 				// Generic catalog handlers
-				catalogHandler := catalog.NewCatalogHandler(catalogSvc, etagService)
+				catalogHandler := catalog.NewCatalogHandler(services.CatalogSvc, etagService)
 
 				// Create cache validation middleware
 				cacheMiddleware := middleware.NewCacheValidationMiddleware(nil)
@@ -170,7 +400,7 @@ func SetupRouter(
 				// Products
 				products := catalogGroup.Group("/products")
 				{
-					productHandler := catalog.NewProductHandler(catalogSvc, etagService)
+					productHandler := catalog.NewProductHandler(services.CatalogSvc, etagService)
 					products.POST("",
 						conditionalAuthMiddleware(aaaClient),
 						// TODO: Add proper authorization middleware
@@ -196,25 +426,25 @@ func SetupRouter(
 				}
 
 				// Services
-				services := catalogGroup.Group("/services")
+				servicesGroup := catalogGroup.Group("/services")
 				{
-					serviceHandler := catalog.NewServiceHandler(catalogSvc, etagService)
-					services.POST("",
+					serviceHandler := catalog.NewServiceHandler(services.CatalogSvc, etagService)
+					servicesGroup.POST("",
 						conditionalAuthMiddleware(aaaClient),
 						serviceHandler.CreateService,
 					)
-					services.GET("",
+					servicesGroup.GET("",
 						serviceHandler.ListServices,
 					)
-					services.GET("/:id",
+					servicesGroup.GET("/:id",
 						cacheMiddleware.CacheValidationHandler(),
 						serviceHandler.GetServiceByID,
 					)
-					services.PUT("/:id",
+					servicesGroup.PUT("/:id",
 						conditionalAuthMiddleware(aaaClient),
 						serviceHandler.UpdateService,
 					)
-					services.DELETE("/:id",
+					servicesGroup.DELETE("/:id",
 						conditionalAuthMiddleware(aaaClient),
 						serviceHandler.DeleteService,
 					)
@@ -223,7 +453,7 @@ func SetupRouter(
 				// Labour
 				labour := catalogGroup.Group("/labour")
 				{
-					labourHandler := catalog.NewLabourHandler(catalogSvc, etagService)
+					labourHandler := catalog.NewLabourHandler(services.CatalogSvc, etagService)
 					labour.POST("",
 						conditionalAuthMiddleware(aaaClient),
 						labourHandler.CreateLabour,
@@ -280,21 +510,21 @@ func SetupRouter(
 				}
 
 				// Services fallback
-				services := catalogGroup.Group("/services")
+				servicesGroupFallback := catalogGroup.Group("/services")
 				{
-					services.POST("", func(c *gin.Context) {
+					servicesGroupFallback.POST("", func(c *gin.Context) {
 						c.JSON(503, gin.H{"error": "Service unavailable"})
 					})
-					services.GET("", func(c *gin.Context) {
+					servicesGroupFallback.GET("", func(c *gin.Context) {
 						c.JSON(503, gin.H{"error": "Service unavailable"})
 					})
-					services.GET("/:id", func(c *gin.Context) {
+					servicesGroupFallback.GET("/:id", func(c *gin.Context) {
 						c.JSON(503, gin.H{"error": "Service unavailable"})
 					})
-					services.PUT("/:id", func(c *gin.Context) {
+					servicesGroupFallback.PUT("/:id", func(c *gin.Context) {
 						c.JSON(503, gin.H{"error": "Service unavailable"})
 					})
-					services.DELETE("/:id", func(c *gin.Context) {
+					servicesGroupFallback.DELETE("/:id", func(c *gin.Context) {
 						c.JSON(503, gin.H{"error": "Service unavailable"})
 					})
 				}
@@ -324,9 +554,9 @@ func SetupRouter(
 		// Legacy products routes (for backward compatibility)
 		productsGroup := v1.Group("/products")
 		{
-			if catalogSvc != nil {
+			if services.CatalogSvc != nil {
 				etagService := catalogService.NewETagService(nil)
-				productHandler := catalog.NewProductHandler(catalogSvc, etagService)
+				productHandler := catalog.NewProductHandler(services.CatalogSvc, etagService)
 				productsGroup.POST("",
 					conditionalAuthMiddleware(aaaClient),
 					productHandler.CreateProduct,
@@ -368,8 +598,8 @@ func SetupRouter(
 		// Order routes
 		ordersGroup := v1.Group("/orders")
 		{
-			if orderSvc != nil {
-				orderHandler := orders.NewOrderHandler(orderSvc)
+			if services.OrderSvc != nil {
+				orderHandler := orders.NewOrderHandler(services.OrderSvc)
 				ordersGroup.POST("",
 					conditionalAuthMiddleware(aaaClient),
 					// TODO: Add proper authorization middleware
@@ -456,8 +686,8 @@ func SetupRouter(
 		// Inventory routes
 		inventoryGroup := v1.Group("/inventory")
 		{
-			if inventorySvc != nil {
-				inventoryHandler := inventory.NewInventoryHandler(inventorySvc)
+			if services.InventorySvc != nil {
+				inventoryHandler := inventory.NewInventoryHandler(services.InventorySvc)
 
 				// Inventory lots management
 				lots := inventoryGroup.Group("/lots")
@@ -529,8 +759,8 @@ func SetupRouter(
 		// Integration routes
 		integrationsGroup := v1.Group("/integrations")
 		{
-			if integrationSvc != nil {
-				integrationHandler := integrations.NewIntegrationHandler(integrationSvc)
+			if services.IntegrationSvc != nil {
+				integrationHandler := integrations.NewIntegrationHandler(services.IntegrationSvc)
 
 				// Catalog integration endpoints
 				catalogIntegration := integrationsGroup.Group("/catalog")
@@ -606,8 +836,8 @@ func SetupRouter(
 		// Collaborator routes
 		collaboratorsGroup := v1.Group("/collaborators")
 		{
-			if collaboratorSvc != nil {
-				collaboratorHandler := collaborator.NewCollaboratorHandler(collaboratorSvc)
+			if services.CollaboratorSvc != nil {
+				collaboratorHandler := collaborator.NewCollaboratorHandler(services.CollaboratorSvc)
 
 				// Public endpoints (no auth required for some operations)
 				collaboratorsGroup.GET("/:id", collaboratorHandler.GetCollaboratorByID)
@@ -710,7 +940,7 @@ func SetupRouter(
 		}
 
 		// Marketplace routes
-		SetupMarketplaceRoutesConditional(v1, aaaClient, marketplaceSvc)
+		SetupMarketplaceRoutesConditional(v1, aaaClient, services.MarketplaceSvc)
 	}
 
 	// Swagger documentation using Scalar API Reference (like aaa-service)

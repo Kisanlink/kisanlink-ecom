@@ -100,8 +100,13 @@ func (r *SLARepository) List(ctx context.Context, filter *base.Filter, limit, of
 	return items, int(total), nil
 }
 
-// GetByOrganizationID retrieves all SLAs for an organization
-func (r *SLARepository) GetByOrganizationID(ctx context.Context, orgID string, activeOnly bool) ([]*services.SLA, error) {
+// GetByOrganizationID retrieves all SLAs for an organization (implements interface method)
+func (r *SLARepository) GetByOrganizationID(ctx context.Context, orgID string) ([]*services.SLA, error) {
+	return r.GetByOrganizationIDFiltered(ctx, orgID, false)
+}
+
+// GetByOrganizationIDFiltered retrieves all SLAs for an organization with optional active filtering
+func (r *SLARepository) GetByOrganizationIDFiltered(ctx context.Context, orgID string, activeOnly bool) ([]*services.SLA, error) {
 	filter := base.NewFilter()
 	filter.Group.Conditions = []base.FilterCondition{
 		{Field: "organization_id", Operator: base.OpEqual, Value: orgID},
@@ -127,8 +132,13 @@ func (r *SLARepository) GetByOrganizationID(ctx context.Context, orgID string, a
 	return items, nil
 }
 
-// GetByCatalogItemID retrieves all SLAs for a catalog item (service)
-func (r *SLARepository) GetByCatalogItemID(ctx context.Context, catalogItemID string, activeOnly bool) ([]*services.SLA, error) {
+// GetByCatalogItemID retrieves all SLAs for a catalog item (implements interface method)
+func (r *SLARepository) GetByCatalogItemID(ctx context.Context, catalogItemID string) ([]*services.SLA, error) {
+	return r.GetByCatalogItemIDFiltered(ctx, catalogItemID, false)
+}
+
+// GetByCatalogItemIDFiltered retrieves all SLAs for a catalog item with optional active filtering
+func (r *SLARepository) GetByCatalogItemIDFiltered(ctx context.Context, catalogItemID string, activeOnly bool) ([]*services.SLA, error) {
 	filter := base.NewFilter()
 	filter.Group.Conditions = []base.FilterCondition{
 		{Field: "catalog_item_id", Operator: base.OpEqual, Value: catalogItemID},
@@ -296,7 +306,7 @@ func (r *SLARepository) UpdateThresholds(ctx context.Context, id string, warning
 // In real implementation, this would check against actual metrics
 func (r *SLARepository) GetViolatedSLAs(ctx context.Context, orgID string) ([]*services.SLA, error) {
 	// Get all active SLAs for the organization
-	_, err := r.GetByOrganizationID(ctx, orgID, true)
+	_, err := r.GetByOrganizationIDFiltered(ctx, orgID, true)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get SLAs for violation check: %w", err)
 	}

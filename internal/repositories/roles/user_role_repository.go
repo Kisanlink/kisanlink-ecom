@@ -100,6 +100,11 @@ func (r *UserRoleRepository) List(ctx context.Context, filter *base.Filter, limi
 	return items, int(total), nil
 }
 
+// GetByUserID retrieves all roles assigned to a user (implements interface method)
+func (r *UserRoleRepository) GetByUserID(ctx context.Context, userID string) ([]*roles.UserRole, error) {
+	return r.GetUserRoles(ctx, userID, false)
+}
+
 // GetUserRoles retrieves all roles assigned to a user
 func (r *UserRoleRepository) GetUserRoles(ctx context.Context, userID string, activeOnly bool) ([]*roles.UserRole, error) {
 	filter := base.NewFilter()
@@ -125,6 +130,11 @@ func (r *UserRoleRepository) GetUserRoles(ctx context.Context, userID string, ac
 	}
 
 	return items, nil
+}
+
+// GetByRoleID retrieves all users with a specific role (implements interface method)
+func (r *UserRoleRepository) GetByRoleID(ctx context.Context, roleID string) ([]*roles.UserRole, error) {
+	return r.GetRoleUsers(ctx, roleID, false)
 }
 
 // GetRoleUsers retrieves all users with a specific role

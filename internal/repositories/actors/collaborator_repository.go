@@ -100,8 +100,13 @@ func (r *CollaboratorRepository) List(ctx context.Context, filter *base.Filter, 
 	return items, int(total), nil
 }
 
-// GetByContextOrganizationID retrieves all collaborators for a context organization
-func (r *CollaboratorRepository) GetByContextOrganizationID(ctx context.Context, contextOrgID string, statusFilter *actors.CollaboratorStatus) ([]*actors.Collaborator, error) {
+// GetByContextOrganizationID retrieves all collaborators for a context organization (implements interface method)
+func (r *CollaboratorRepository) GetByContextOrganizationID(ctx context.Context, contextOrgID string) ([]*actors.Collaborator, error) {
+	return r.GetByContextOrganizationIDFiltered(ctx, contextOrgID, nil)
+}
+
+// GetByContextOrganizationIDFiltered retrieves all collaborators for a context organization with optional status filtering
+func (r *CollaboratorRepository) GetByContextOrganizationIDFiltered(ctx context.Context, contextOrgID string, statusFilter *actors.CollaboratorStatus) ([]*actors.Collaborator, error) {
 	filter := base.NewFilter()
 	filter.Group.Conditions = []base.FilterCondition{
 		{Field: "context_organization_id", Operator: base.OpEqual, Value: contextOrgID},
@@ -127,8 +132,27 @@ func (r *CollaboratorRepository) GetByContextOrganizationID(ctx context.Context,
 	return items, nil
 }
 
-// GetByAAAEntityID retrieves a collaborator by AAA entity ID and type
-func (r *CollaboratorRepository) GetByAAAEntityID(ctx context.Context, aaaEntityID string, aaaEntityType actors.AAAEntityType, contextOrgID string) (*actors.Collaborator, error) {
+// GetByAAAEntityID retrieves all collaborators by AAA entity ID and type (implements interface method)
+func (r *CollaboratorRepository) GetByAAAEntityID(ctx context.Context, aaaEntityID string, aaaEntityType actors.AAAEntityType) ([]*actors.Collaborator, error) {
+	filter := base.NewFilter()
+	filter.Group.Conditions = []base.FilterCondition{
+		{Field: "aaa_entity_id", Operator: base.OpEqual, Value: aaaEntityID},
+		{Field: "aaa_entity_type", Operator: base.OpEqual, Value: string(aaaEntityType)},
+	}
+
+	// Apply soft delete filtering
+	filter = r.ApplyQueryOptions(ctx, filter)
+
+	var items []*actors.Collaborator
+	if err := r.dbManager.List(ctx, filter, &items); err != nil {
+		return nil, fmt.Errorf("failed to get collaborators by AAA entity: %w", err)
+	}
+
+	return items, nil
+}
+
+// GetByAAAEntityIDInOrg retrieves a collaborator by AAA entity ID, type, and organization
+func (r *CollaboratorRepository) GetByAAAEntityIDInOrg(ctx context.Context, aaaEntityID string, aaaEntityType actors.AAAEntityType, contextOrgID string) (*actors.Collaborator, error) {
 	filter := base.NewFilter()
 	filter.Group.Conditions = []base.FilterCondition{
 		{Field: "aaa_entity_id", Operator: base.OpEqual, Value: aaaEntityID},
@@ -141,7 +165,7 @@ func (r *CollaboratorRepository) GetByAAAEntityID(ctx context.Context, aaaEntity
 
 	var items []*actors.Collaborator
 	if err := r.dbManager.List(ctx, filter, &items); err != nil {
-		return nil, fmt.Errorf("failed to get collaborator by AAA entity: %w", err)
+		return nil, fmt.Errorf("failed to get collaborator by AAA entity in organization: %w", err)
 	}
 
 	if len(items) == 0 {
@@ -209,7 +233,7 @@ func (r *CollaboratorRepository) GetByRole(ctx context.Context, contextOrgID str
 // GetActiveCollaborators retrieves all active collaborators for an organization
 func (r *CollaboratorRepository) GetActiveCollaborators(ctx context.Context, contextOrgID string) ([]*actors.Collaborator, error) {
 	activeStatus := actors.CollaboratorStatusActive
-	return r.GetByContextOrganizationID(ctx, contextOrgID, &activeStatus)
+	return r.GetByContextOrganizationIDFiltered(ctx, contextOrgID, &activeStatus)
 }
 
 // GetByDepartment retrieves all collaborators in a specific department
