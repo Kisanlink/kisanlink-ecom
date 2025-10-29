@@ -82,7 +82,7 @@ type Collaborator struct {
 
 // TableName returns the table name for GORM
 func (Collaborator) TableName() string {
-	return "collaborators"
+	return "organization_collaborators"
 }
 
 // NewCollaborator creates a new Collaborator instance
