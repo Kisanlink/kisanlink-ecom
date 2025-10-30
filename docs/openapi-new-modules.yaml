@@ -1,0 +1,3647 @@
+openapi: 3.0.3
+info:
+  title: KisanLink E-commerce API - User Management & Business Logic Modules
+  description: |
+    Comprehensive API documentation for user management, role-based access control, taxation, SLA,
+    discounts, and collaborator management in the KisanLink E-commerce platform.
+
+    This API provides:
+    - User management and authentication
+    - Role-based access control (User Roles, Organization Roles, E-commerce Roles)
+    - Tax exemption management and calculations
+    - Service Level Agreement (SLA) management
+    - Discount rules and promotions
+    - Organization collaborator management
+
+    ## Authentication
+    All protected endpoints require JWT authentication via the `Authorization` header with `Bearer <token>` format.
+    Tokens are obtained from the AAA (Authentication, Authorization, Accounting) service.
+
+    **Note on Current Implementation:** As of the current implementation state:
+    - POST/PUT/DELETE operations: Authentication required (conditionalAuthMiddleware)
+    - GET operations: Currently public (no authentication middleware applied)
+    - This may change in future versions for security enhancement
+
+    ## Multi-tenancy
+    All endpoints support organization-level isolation. The organization context is extracted from:
+    - JWT token claims
+    - `organization_id` query parameter or request body field
+
+    ## Error Handling
+    All errors follow RFC 7807 Problem Details format with structured error codes.
+
+    ## Pagination
+    List endpoints support cursor-based pagination with `page` and `limit` parameters.
+    Default: page=1, limit=20, max=100
+
+    ## Soft Delete
+    Most resources support soft delete. Deleted resources can be recovered and are filtered from list queries by default.
+  version: 1.0.0
+  contact:
+    name: KisanLink API Support
+    email: api-support@kisanlink.com
+    url: https://docs.kisanlink.com
+  license:
+    name: Proprietary
+    url: https://kisanlink.com/license
+
+servers:
+  - url: https://api.kisanlink.com
+    description: Production server
+  - url: https://staging-api.kisanlink.com
+    description: Staging server
+  - url: http://localhost:8080
+    description: Development server
+
+tags:
+  - name: Users
+    description: User management operations (references AAA service users)
+  - name: User Roles
+    description: User-to-role assignment management
+  - name: Organization Roles
+    description: Organization-specific role configuration
+  - name: E-commerce Roles
+    description: E-commerce specific role definitions and permissions
+  - name: Tax Exemptions
+    description: Tax exemption management and calculation
+  - name: Service SLAs
+    description: Service Level Agreement management for services
+  - name: Discount Rules
+    description: Discount rule management and evaluation
+  - name: Organization Collaborators
+    description: Organization collaborator management
+  - name: Collaborators
+    description: Collaborator operations (fully implemented)
+
+paths:
+  # ============================================
+  # USER ENDPOINTS
+  # ============================================
+  /api/v1/users:
+    post:
+      tags: [Users]
+      summary: Create a new user
+      description: |
+        Creates a new user reference in the e-commerce service.
+        Note: This endpoint is currently not implemented (returns 501).
+        Users are created in the AAA service and synced to e-commerce service.
+      operationId: createUser
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserRequest"
+      responses:
+        "201":
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "501":
+          description: Not implemented
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    get:
+      tags: [Users]
+      summary: List all users
+      description: |
+        Retrieves a paginated list of users.
+        Note: This endpoint is currently not implemented (returns 501).
+        **Authentication:** Currently public (no auth middleware applied).
+      operationId: listUsers
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/LimitParam"
+        - name: is_active
+          in: query
+          description: Filter by active status
+          schema:
+            type: boolean
+        - name: search
+          in: query
+          description: Search by username, email, or name
+          schema:
+            type: string
+            maxLength: 255
+      responses:
+        "200":
+          description: Users retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserListResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "501":
+          description: Not implemented
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/users/{id}:
+    get:
+      tags: [Users]
+      summary: Get user by ID
+      description: |
+        Retrieves a specific user by their ID.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: getUserById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: User ID (same as AAA service user ID)
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    put:
+      tags: [Users]
+      summary: Update user
+      description: |
+        Updates user information.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: updateUser
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: User ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserRequest"
+      responses:
+        "200":
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    delete:
+      tags: [Users]
+      summary: Delete user
+      description: |
+        Soft deletes a user.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: deleteUser
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: User ID
+          schema:
+            type: string
+      responses:
+        "204":
+          description: User deleted successfully
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/users/by-username/{username}:
+    get:
+      tags: [Users]
+      summary: Get user by username
+      description: |
+        Retrieves a user by their username.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: getUserByUsername
+      parameters:
+        - name: username
+          in: path
+          required: true
+          description: Username
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+
+  /api/v1/users/by-email/{email}:
+    get:
+      tags: [Users]
+      summary: Get user by email
+      description: |
+        Retrieves a user by their email address.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: getUserByEmail
+      parameters:
+        - name: email
+          in: path
+          required: true
+          description: Email address
+          schema:
+            type: string
+            format: email
+      responses:
+        "200":
+          description: User retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+
+  /api/v1/users/{id}/activate:
+    post:
+      tags: [Users]
+      summary: Activate user
+      description: |
+        Activates a user account.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: activateUser
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: User ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User activated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+
+  /api/v1/users/{id}/deactivate:
+    post:
+      tags: [Users]
+      summary: Deactivate user
+      description: |
+        Deactivates a user account.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: deactivateUser
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: User ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User deactivated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+
+  # ============================================
+  # USER ROLE ENDPOINTS
+  # ============================================
+  /api/v1/user-roles:
+    post:
+      tags: [User Roles]
+      summary: Assign a role to a user
+      description: |
+        Creates a new user-role assignment. Assigns an e-commerce role to a user.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: assignRole
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - user_id
+                - role_id
+              properties:
+                user_id:
+                  type: string
+                  description: User ID from AAA service
+                role_id:
+                  type: string
+                  description: E-commerce role ID
+                notes:
+                  type: string
+                  description: Notes about this role assignment
+                  maxLength: 1000
+                expires_at:
+                  type: string
+                  format: date-time
+                  description: Optional expiration date for this role
+            example:
+              user_id: "usr_abc123"
+              role_id: "role_manager"
+              notes: "Temporary manager role for Q4"
+              expires_at: "2025-12-31T23:59:59Z"
+      responses:
+        "201":
+          description: Role assigned successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserRoleResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "409":
+          description: Role already assigned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "501":
+          description: Not implemented
+
+    get:
+      tags: [User Roles]
+      summary: List all user-role assignments
+      description: |
+        Retrieves a paginated list of all user-role assignments.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: listUserRoles
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/LimitParam"
+        - name: is_active
+          in: query
+          description: Filter by active status
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: User roles retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserRoleListResponse"
+        "501":
+          description: Not implemented
+
+  /api/v1/user-roles/{id}:
+    get:
+      tags: [User Roles]
+      summary: Get user role by ID
+      description: |
+        Retrieves a specific user-role assignment.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: getUserRoleById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: User role assignment ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User role retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserRoleResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+
+    put:
+      tags: [User Roles]
+      summary: Update user role assignment
+      description: |
+        Updates a user-role assignment.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: updateUserRole
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: User role assignment ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                notes:
+                  type: string
+                  maxLength: 1000
+                expires_at:
+                  type: string
+                  format: date-time
+                is_active:
+                  type: boolean
+      responses:
+        "200":
+          description: User role updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserRoleResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+
+    delete:
+      tags: [User Roles]
+      summary: Delete user role assignment
+      description: |
+        Deletes a user-role assignment.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: deleteUserRole
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: User role assignment ID
+          schema:
+            type: string
+      responses:
+        "204":
+          description: User role deleted successfully
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+
+  /api/v1/user-roles/user/{userId}:
+    get:
+      tags: [User Roles]
+      summary: Get roles for a specific user
+      description: |
+        Retrieves all role assignments for a specific user.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: getUserRoles
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: User ID
+          schema:
+            type: string
+        - name: is_active
+          in: query
+          description: Filter by active status
+          schema:
+            type: boolean
+            default: true
+      responses:
+        "200":
+          description: User roles retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserRoleResponse"
+        "501":
+          description: Not implemented
+
+  /api/v1/user-roles/role/{roleId}:
+    get:
+      tags: [User Roles]
+      summary: Get users with a specific role
+      description: |
+        Retrieves all users that have been assigned a specific role.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: getRoleUsers
+      parameters:
+        - name: roleId
+          in: path
+          required: true
+          description: Role ID
+          schema:
+            type: string
+        - name: is_active
+          in: query
+          description: Filter by active status
+          schema:
+            type: boolean
+            default: true
+      responses:
+        "200":
+          description: Role users retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserRoleResponse"
+        "501":
+          description: Not implemented
+
+  /api/v1/user-roles/{id}/revoke:
+    post:
+      tags: [User Roles]
+      summary: Revoke a role from a user
+      description: |
+        Revokes a role assignment (sets is_active to false).
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: revokeRole
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: User role assignment ID
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  description: Reason for revocation
+                  maxLength: 500
+      responses:
+        "200":
+          description: Role revoked successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserRoleResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+
+  # ============================================
+  # ORGANIZATION ROLE ENDPOINTS
+  # ============================================
+  /api/v1/organization-roles:
+    post:
+      tags: [Organization Roles]
+      summary: Create organization role configuration
+      description: |
+        Creates a new organization-role configuration. Maps an AAA service role to an organization.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: createOrganizationRole
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - organization_id
+                - role_id
+              properties:
+                organization_id:
+                  type: string
+                  description: Organization ID
+                role_id:
+                  type: string
+                  description: AAA service role ID
+                custom_permissions:
+                  type: object
+                  description: Custom permissions override
+                  additionalProperties:
+                    type: boolean
+                max_users:
+                  type: integer
+                  description: Maximum users that can have this role
+                  minimum: 1
+                is_default:
+                  type: boolean
+                  description: Set as default role for new users
+                  default: false
+                notes:
+                  type: string
+                  maxLength: 1000
+      responses:
+        "201":
+          description: Organization role created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationRoleResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "501":
+          description: Not implemented
+
+    get:
+      tags: [Organization Roles]
+      summary: List all organization roles
+      description: |
+        Retrieves a paginated list of all organization role configurations.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: listOrganizationRoles
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/LimitParam"
+        - name: organization_id
+          in: query
+          description: Filter by organization ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Organization roles retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationRoleListResponse"
+        "501":
+          description: Not implemented
+
+  /api/v1/organization-roles/{id}:
+    get:
+      tags: [Organization Roles]
+      summary: Get organization role by ID
+      description: |
+        Retrieves a specific organization role configuration.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: getOrganizationRoleById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Organization role ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Organization role retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationRoleResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+
+    put:
+      tags: [Organization Roles]
+      summary: Update organization role
+      description: |
+        Updates an organization role configuration.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: updateOrganizationRole
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Organization role ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                custom_permissions:
+                  type: object
+                  additionalProperties:
+                    type: boolean
+                max_users:
+                  type: integer
+                  minimum: 1
+                is_default:
+                  type: boolean
+                is_active:
+                  type: boolean
+      responses:
+        "200":
+          description: Organization role updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationRoleResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+
+    delete:
+      tags: [Organization Roles]
+      summary: Delete organization role
+      description: |
+        Deletes an organization role configuration.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: deleteOrganizationRole
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Organization role ID
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Organization role deleted successfully
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+
+  /api/v1/organization-roles/organization/{orgId}:
+    get:
+      tags: [Organization Roles]
+      summary: Get roles for a specific organization
+      description: |
+        Retrieves all role configurations for a specific organization.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: getOrganizationRoles
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Organization roles retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OrganizationRoleResponse"
+        "501":
+          description: Not implemented
+
+  /api/v1/organization-roles/organization/{orgId}/set-default:
+    post:
+      tags: [Organization Roles]
+      summary: Set default role for organization
+      description: |
+        Sets a role as the default for new users in the organization.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: setDefaultRole
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - role_id
+              properties:
+                role_id:
+                  type: string
+                  description: Role ID to set as default
+      responses:
+        "200":
+          description: Default role set successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationRoleResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+
+  # ============================================
+  # E-COMMERCE ROLE ENDPOINTS
+  # ============================================
+  /api/v1/ecommerce-roles:
+    post:
+      tags: [E-commerce Roles]
+      summary: Create e-commerce role
+      description: |
+        Creates a new e-commerce role with specific permissions.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: createEcommerceRole
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEcommerceRoleRequest"
+      responses:
+        "201":
+          description: E-commerce role created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EcommerceRoleResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "501":
+          description: Not implemented
+
+    get:
+      tags: [E-commerce Roles]
+      summary: List all e-commerce roles
+      description: |
+        Retrieves a paginated list of all e-commerce roles.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: listEcommerceRoles
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/LimitParam"
+        - name: is_active
+          in: query
+          description: Filter by active status
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: E-commerce roles retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EcommerceRoleListResponse"
+        "501":
+          description: Not implemented
+
+  /api/v1/ecommerce-roles/{id}:
+    get:
+      tags: [E-commerce Roles]
+      summary: Get e-commerce role by ID
+      description: |
+        Retrieves a specific e-commerce role.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: getEcommerceRoleById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: E-commerce role ID (same as AAA role ID)
+          schema:
+            type: string
+      responses:
+        "200":
+          description: E-commerce role retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EcommerceRoleResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+
+    put:
+      tags: [E-commerce Roles]
+      summary: Update e-commerce role
+      description: |
+        Updates e-commerce role permissions.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: updateEcommerceRole
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: E-commerce role ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateEcommerceRoleRequest"
+      responses:
+        "200":
+          description: E-commerce role updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EcommerceRoleResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+
+    delete:
+      tags: [E-commerce Roles]
+      summary: Delete e-commerce role
+      description: |
+        Deletes an e-commerce role.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: deleteEcommerceRole
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: E-commerce role ID
+          schema:
+            type: string
+      responses:
+        "204":
+          description: E-commerce role deleted successfully
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+
+  /api/v1/ecommerce-roles/organization/{orgId}:
+    get:
+      tags: [E-commerce Roles]
+      summary: Get e-commerce roles for organization
+      description: |
+        Retrieves all e-commerce roles scoped to a specific organization.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: getEcommerceRolesByOrganization
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: E-commerce roles retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EcommerceRoleResponse"
+        "501":
+          description: Not implemented
+
+  /api/v1/ecommerce-roles/check-permission:
+    post:
+      tags: [E-commerce Roles]
+      summary: Check if role has permission
+      description: |
+        Checks if a specific role has a given permission.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: checkPermission
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - role_id
+                - permission
+              properties:
+                role_id:
+                  type: string
+                  description: E-commerce role ID
+                permission:
+                  type: string
+                  description: Permission to check
+                  enum:
+                    - catalog.manage
+                    - orders.manage
+                    - inventory.manage
+                    - pricing.manage
+                    - customers.manage
+                    - analytics.view
+                    - users.manage
+                    - settings.manage
+              example:
+                role_id: "role_manager"
+                permission: "catalog.manage"
+      responses:
+        "200":
+          description: Permission check result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  has_permission:
+                    type: boolean
+                    description: Whether the role has the permission
+                  role_id:
+                    type: string
+                  permission:
+                    type: string
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+
+  # ============================================
+  # TAX EXEMPTION ENDPOINTS
+  # ============================================
+  /api/v1/tax-exemptions:
+    post:
+      tags: [Tax Exemptions]
+      summary: Create tax exemption
+      description: |
+        Creates a new tax exemption configuration.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: createTaxExemption
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTaxExemptionRequest"
+      responses:
+        "201":
+          description: Tax exemption created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaxExemptionResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "501":
+          description: Not implemented
+
+    get:
+      tags: [Tax Exemptions]
+      summary: List all tax exemptions
+      description: |
+        Retrieves a paginated list of tax exemptions.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: listTaxExemptions
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/LimitParam"
+        - name: organization_id
+          in: query
+          description: Filter by organization ID
+          schema:
+            type: string
+        - name: entity_type
+          in: query
+          description: Filter by entity type
+          schema:
+            type: string
+            enum: [product, service, labour, all]
+        - name: is_active
+          in: query
+          description: Filter by active status
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Tax exemptions retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaxExemptionListResponse"
+        "501":
+          description: Not implemented
+
+  /api/v1/tax-exemptions/{id}:
+    get:
+      tags: [Tax Exemptions]
+      summary: Get tax exemption by ID
+      description: |
+        Retrieves a specific tax exemption.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: getTaxExemptionById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Tax exemption ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Tax exemption retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaxExemptionResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+
+    put:
+      tags: [Tax Exemptions]
+      summary: Update tax exemption
+      description: |
+        Updates a tax exemption configuration.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: updateTaxExemption
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Tax exemption ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTaxExemptionRequest"
+      responses:
+        "200":
+          description: Tax exemption updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaxExemptionResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+
+    delete:
+      tags: [Tax Exemptions]
+      summary: Delete tax exemption
+      description: |
+        Deletes a tax exemption.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: deleteTaxExemption
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Tax exemption ID
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Tax exemption deleted successfully
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+
+  /api/v1/tax-exemptions/organization/{orgId}/valid:
+    get:
+      tags: [Tax Exemptions]
+      summary: Get valid tax exemptions for organization
+      description: |
+        Retrieves all currently valid tax exemptions for an organization.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: getValidTaxExemptions
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization ID
+          schema:
+            type: string
+        - name: entity_type
+          in: query
+          description: Filter by entity type
+          schema:
+            type: string
+            enum: [product, service, labour, all]
+      responses:
+        "200":
+          description: Valid tax exemptions retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TaxExemptionResponse"
+        "501":
+          description: Not implemented
+
+  /api/v1/tax-exemptions/calculate:
+    post:
+      tags: [Tax Exemptions]
+      summary: Calculate tax exemption
+      description: |
+        Calculates tax exemption for a given scenario.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: calculateTaxExemption
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - organization_id
+                - entity_type
+                - base_amount
+              properties:
+                organization_id:
+                  type: string
+                entity_type:
+                  type: string
+                  enum: [product, service, labour]
+                category:
+                  type: string
+                hsn_code:
+                  type: string
+                base_amount:
+                  type: number
+                  format: decimal
+                  minimum: 0
+              example:
+                organization_id: "org_123"
+                entity_type: "product"
+                category: "agricultural_produce"
+                hsn_code: "0701"
+                base_amount: 10000.00
+      responses:
+        "200":
+          description: Tax calculation result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  base_amount:
+                    type: number
+                    format: decimal
+                  tax_amount:
+                    type: number
+                    format: decimal
+                  exemption_amount:
+                    type: number
+                    format: decimal
+                  final_tax:
+                    type: number
+                    format: decimal
+                  applied_exemptions:
+                    type: array
+                    items:
+                      type: string
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "501":
+          description: Not implemented
+
+  # ============================================
+  # SERVICE SLA ENDPOINTS
+  # ============================================
+  /api/v1/service-slas:
+    post:
+      tags: [Service SLAs]
+      summary: Create service SLA
+      description: |
+        Creates a new service level agreement for a catalog service item.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: createServiceSLA
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateServiceSLARequest"
+      responses:
+        "201":
+          description: Service SLA created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceSLAResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "501":
+          description: Not implemented
+
+    get:
+      tags: [Service SLAs]
+      summary: List all service SLAs
+      description: |
+        Retrieves a paginated list of service SLAs.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: listServiceSLAs
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/LimitParam"
+        - name: organization_id
+          in: query
+          description: Filter by organization ID
+          schema:
+            type: string
+        - name: type
+          in: query
+          description: Filter by SLA type
+          schema:
+            type: string
+            enum: [service, support, delivery, availability]
+        - name: is_active
+          in: query
+          description: Filter by active status
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Service SLAs retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceSLAListResponse"
+        "501":
+          description: Not implemented
+
+  /api/v1/service-slas/{id}:
+    get:
+      tags: [Service SLAs]
+      summary: Get service SLA by ID
+      description: |
+        Retrieves a specific service SLA.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: getServiceSLAById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Service SLA ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Service SLA retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceSLAResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+
+    put:
+      tags: [Service SLAs]
+      summary: Update service SLA
+      description: |
+        Updates a service SLA configuration.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: updateServiceSLA
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Service SLA ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateServiceSLARequest"
+      responses:
+        "200":
+          description: Service SLA updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceSLAResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+
+    delete:
+      tags: [Service SLAs]
+      summary: Delete service SLA
+      description: |
+        Deletes a service SLA.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: deleteServiceSLA
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Service SLA ID
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Service SLA deleted successfully
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+
+  /api/v1/service-slas/catalog-item/{catalogItemId}:
+    get:
+      tags: [Service SLAs]
+      summary: Get SLAs for a catalog item
+      description: |
+        Retrieves all SLAs associated with a specific catalog service item.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: getCatalogItemSLAs
+      parameters:
+        - name: catalogItemId
+          in: path
+          required: true
+          description: Catalog item ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Catalog item SLAs retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ServiceSLAResponse"
+        "501":
+          description: Not implemented
+
+  # ============================================
+  # DISCOUNT RULE ENDPOINTS
+  # ============================================
+  /api/v1/discount-rules:
+    post:
+      tags: [Discount Rules]
+      summary: Create discount rule
+      description: |
+        Creates a new discount rule configuration.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: createDiscountRule
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDiscountRuleRequest"
+      responses:
+        "201":
+          description: Discount rule created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiscountRuleResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "501":
+          description: Not implemented
+
+    get:
+      tags: [Discount Rules]
+      summary: List all discount rules
+      description: |
+        Retrieves a paginated list of discount rules.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: listDiscountRules
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/LimitParam"
+        - name: organization_id
+          in: query
+          description: Filter by organization ID
+          schema:
+            type: string
+        - name: rule_type
+          in: query
+          description: Filter by rule type
+          schema:
+            type: string
+            enum: [stackable, exclusive, conditional]
+        - name: is_active
+          in: query
+          description: Filter by active status
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Discount rules retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiscountRuleListResponse"
+        "501":
+          description: Not implemented
+
+  /api/v1/discount-rules/{id}:
+    get:
+      tags: [Discount Rules]
+      summary: Get discount rule by ID
+      description: |
+        Retrieves a specific discount rule.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: getDiscountRuleById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Discount rule ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Discount rule retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiscountRuleResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+
+    put:
+      tags: [Discount Rules]
+      summary: Update discount rule
+      description: |
+        Updates a discount rule configuration.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: updateDiscountRule
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Discount rule ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateDiscountRuleRequest"
+      responses:
+        "200":
+          description: Discount rule updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiscountRuleResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+
+    delete:
+      tags: [Discount Rules]
+      summary: Delete discount rule
+      description: |
+        Deletes a discount rule.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: deleteDiscountRule
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Discount rule ID
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Discount rule deleted successfully
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+
+  /api/v1/discount-rules/organization/{orgId}:
+    get:
+      tags: [Discount Rules]
+      summary: Get discount rules for organization
+      description: |
+        Retrieves all discount rules for a specific organization.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: getOrganizationRules
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Organization discount rules retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DiscountRuleResponse"
+        "501":
+          description: Not implemented
+
+  /api/v1/discount-rules/organization/{orgId}/active:
+    get:
+      tags: [Discount Rules]
+      summary: Get active discount rules
+      description: |
+        Retrieves all currently active discount rules for an organization.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: getActiveRules
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Active discount rules retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DiscountRuleResponse"
+        "501":
+          description: Not implemented
+
+  # ============================================
+  # ORGANIZATION COLLABORATOR ENDPOINTS
+  # ============================================
+  /api/v1/organization-collaborators:
+    post:
+      tags: [Organization Collaborators]
+      summary: Create organization collaborator
+      description: |
+        Creates a new organization collaborator assignment.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: createOrganizationCollaborator
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrganizationCollaboratorRequest"
+      responses:
+        "201":
+          description: Organization collaborator created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationCollaboratorResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "501":
+          description: Not implemented
+
+    get:
+      tags: [Organization Collaborators]
+      summary: List all organization collaborators
+      description: |
+        Retrieves a paginated list of organization collaborators.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: listOrganizationCollaborators
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/LimitParam"
+        - name: organization_id
+          in: query
+          description: Filter by organization ID
+          schema:
+            type: string
+        - name: role
+          in: query
+          description: Filter by role
+          schema:
+            type: string
+            enum: [OWNER, ADMIN, MANAGER, EMPLOYEE, CONTRACTOR, VIEWER]
+        - name: status
+          in: query
+          description: Filter by status
+          schema:
+            type: string
+            enum: [ACTIVE, INACTIVE, SUSPENDED, PENDING]
+      responses:
+        "200":
+          description: Organization collaborators retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationCollaboratorListResponse"
+        "501":
+          description: Not implemented
+
+  /api/v1/organization-collaborators/{id}:
+    get:
+      tags: [Organization Collaborators]
+      summary: Get organization collaborator by ID
+      description: |
+        Retrieves a specific organization collaborator.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: getOrganizationCollaboratorById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Organization collaborator ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Organization collaborator retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationCollaboratorResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+
+    put:
+      tags: [Organization Collaborators]
+      summary: Update organization collaborator
+      description: |
+        Updates an organization collaborator.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: updateOrganizationCollaborator
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Organization collaborator ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateOrganizationCollaboratorRequest"
+      responses:
+        "200":
+          description: Organization collaborator updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationCollaboratorResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+
+    delete:
+      tags: [Organization Collaborators]
+      summary: Delete organization collaborator
+      description: |
+        Deletes an organization collaborator.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: deleteOrganizationCollaborator
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Organization collaborator ID
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Organization collaborator deleted successfully
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+
+  /api/v1/organization-collaborators/organization/{orgId}:
+    get:
+      tags: [Organization Collaborators]
+      summary: Get collaborators for organization
+      description: |
+        Retrieves all collaborators for a specific organization.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: getOrganizationCollaborators
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization ID
+          schema:
+            type: string
+        - name: role
+          in: query
+          description: Filter by role
+          schema:
+            type: string
+            enum: [OWNER, ADMIN, MANAGER, EMPLOYEE, CONTRACTOR, VIEWER]
+      responses:
+        "200":
+          description: Organization collaborators retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OrganizationCollaboratorResponse"
+        "501":
+          description: Not implemented
+
+  /api/v1/organization-collaborators/{id}/invite:
+    post:
+      tags: [Organization Collaborators]
+      summary: Invite collaborator
+      description: |
+        Sends an invitation to a collaborator.
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: inviteCollaborator
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Organization collaborator ID
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: Custom invitation message
+                  maxLength: 500
+      responses:
+        "200":
+          description: Invitation sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationCollaboratorResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+
+  /api/v1/organization-collaborators/{id}/activate:
+    post:
+      tags: [Organization Collaborators]
+      summary: Activate collaborator
+      description: |
+        Activates a collaborator (accepts invitation).
+        Note: This endpoint is currently not implemented (returns 501).
+      operationId: activateCollaborator
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Organization collaborator ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Collaborator activated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationCollaboratorResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "501":
+          description: Not implemented
+
+  # ============================================
+  # COLLABORATOR ENDPOINTS (FULLY IMPLEMENTED)
+  # ============================================
+  /api/v1/collaborators:
+    post:
+      tags: [Collaborators]
+      summary: Create collaborator
+      description: |
+        Creates a new collaborator. This endpoint is fully implemented.
+        Supports creating both user and organization collaborators.
+      operationId: createCollaborator
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCollaboratorRequest"
+      responses:
+        "201":
+          description: Collaborator created successfully
+          headers:
+            Location:
+              description: URL of the created collaborator
+              schema:
+                type: string
+                format: uri
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollaboratorResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          description: Collaborator already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    get:
+      tags: [Collaborators]
+      summary: List collaborators
+      description: |
+        Retrieves a paginated list of collaborators. This endpoint is fully implemented.
+      operationId: listCollaborators
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/LimitParam"
+        - name: context_organization_id
+          in: query
+          description: Filter by context organization
+          schema:
+            type: string
+        - name: role
+          in: query
+          description: Filter by role
+          schema:
+            $ref: "#/components/schemas/CollaboratorRole"
+        - name: status
+          in: query
+          description: Filter by status
+          schema:
+            $ref: "#/components/schemas/CollaboratorStatus"
+        - name: aaa_entity_type
+          in: query
+          description: Filter by AAA entity type
+          schema:
+            $ref: "#/components/schemas/AAAEntityType"
+      responses:
+        "200":
+          description: Collaborators retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollaboratorListResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/v1/collaborators/{id}:
+    get:
+      tags: [Collaborators]
+      summary: Get collaborator by ID
+      description: |
+        Retrieves a specific collaborator by ID. This endpoint is fully implemented.
+      operationId: getCollaboratorById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Collaborator ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Collaborator retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollaboratorResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    put:
+      tags: [Collaborators]
+      summary: Update collaborator
+      description: |
+        Updates a collaborator. This endpoint is fully implemented.
+      operationId: updateCollaborator
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Collaborator ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCollaboratorRequest"
+      responses:
+        "200":
+          description: Collaborator updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollaboratorResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    delete:
+      tags: [Collaborators]
+      summary: Delete collaborator
+      description: |
+        Soft deletes a collaborator. This endpoint is fully implemented.
+      operationId: deleteCollaborator
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Collaborator ID
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Collaborator deleted successfully
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/collaborators/user/{user_id}:
+    get:
+      tags: [Collaborators]
+      summary: Get collaborator by user ID
+      description: |
+        Retrieves a collaborator by their AAA user ID. This endpoint is fully implemented.
+      operationId: getCollaboratorByUserId
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: AAA User ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Collaborator retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollaboratorResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/collaborators/search:
+    get:
+      tags: [Collaborators]
+      summary: Search collaborators
+      description: |
+        Searches collaborators by name, email, or phone. This endpoint is fully implemented.
+      operationId: searchCollaborators
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Search query
+          schema:
+            type: string
+            minLength: 1
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/LimitParam"
+      responses:
+        "200":
+          description: Search results retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollaboratorListResponse"
+
+  /api/v1/collaborators/stats:
+    get:
+      tags: [Collaborators]
+      summary: Get collaborator statistics
+      description: |
+        Retrieves statistics about collaborators. This endpoint is fully implemented.
+      operationId: getCollaboratorStats
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: context_organization_id
+          in: query
+          description: Filter by context organization
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_collaborators:
+                    type: integer
+                  active_collaborators:
+                    type: integer
+                  by_role:
+                    type: object
+                    additionalProperties:
+                      type: integer
+                  by_status:
+                    type: object
+                    additionalProperties:
+                      type: integer
+
+  /api/v1/collaborators/{id}/profile:
+    get:
+      tags: [Collaborators]
+      summary: Get collaborator profile
+      description: |
+        Retrieves detailed profile information for a collaborator. This endpoint is fully implemented.
+      operationId: getCollaboratorProfile
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Collaborator ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Collaborator profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollaboratorProfileResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/collaborators/{id}/status:
+    patch:
+      tags: [Collaborators]
+      summary: Update collaborator status
+      description: |
+        Updates the status of a collaborator. This endpoint is fully implemented.
+      operationId: updateCollaboratorStatus
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Collaborator ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  $ref: "#/components/schemas/CollaboratorStatus"
+      responses:
+        "200":
+          description: Collaborator status updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollaboratorResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/collaborators/{id}/verify:
+    post:
+      tags: [Collaborators]
+      summary: Verify collaborator
+      description: |
+        Verifies a collaborator's identity/credentials. This endpoint is fully implemented.
+      operationId: verifyCollaborator
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Collaborator ID
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                verification_method:
+                  type: string
+                  enum: [email, phone, document]
+                verification_data:
+                  type: object
+                  additionalProperties: true
+      responses:
+        "200":
+          description: Collaborator verified successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollaboratorResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/collaborators/{id}/onboarding:
+    patch:
+      tags: [Collaborators]
+      summary: Update onboarding step
+      description: |
+        Updates the current onboarding step for a collaborator. This endpoint is fully implemented.
+      operationId: updateOnboardingStep
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Collaborator ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - step
+              properties:
+                step:
+                  type: string
+                  description: Current onboarding step
+                completed:
+                  type: boolean
+                  description: Whether the step is completed
+      responses:
+        "200":
+          description: Onboarding step updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollaboratorResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/collaborators/{id}/onboarding/complete:
+    post:
+      tags: [Collaborators]
+      summary: Complete onboarding
+      description: |
+        Marks the onboarding process as complete for a collaborator. This endpoint is fully implemented.
+      operationId: completeOnboarding
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Collaborator ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Onboarding completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollaboratorResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/collaborators/bulk:
+    patch:
+      tags: [Collaborators]
+      summary: Bulk update collaborators
+      description: |
+        Updates multiple collaborators in a single request. This endpoint is fully implemented.
+      operationId: bulkUpdateCollaborators
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - collaborator_ids
+                - updates
+              properties:
+                collaborator_ids:
+                  type: array
+                  items:
+                    type: string
+                  minItems: 1
+                  maxItems: 100
+                updates:
+                  type: object
+                  properties:
+                    status:
+                      $ref: "#/components/schemas/CollaboratorStatus"
+                    role:
+                      $ref: "#/components/schemas/CollaboratorRole"
+                    access_level:
+                      type: integer
+                      minimum: 1
+                      maximum: 10
+      responses:
+        "200":
+          description: Bulk update completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success_count:
+                    type: integer
+                  failure_count:
+                    type: integer
+                  updated_ids:
+                    type: array
+                    items:
+                      type: string
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        collaborator_id:
+                          type: string
+                        error:
+                          type: string
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from the AAA service
+
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      description: Page number (1-based)
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+
+    LimitParam:
+      name: limit
+      in: query
+      description: Number of items per page
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+  schemas:
+    # ============================================
+    # COMMON SCHEMAS
+    # ============================================
+    PaginationMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        total_pages:
+          type: integer
+        has_next:
+          type: boolean
+        has_prev:
+          type: boolean
+
+    ResponseMeta:
+      type: object
+      properties:
+        trace_id:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        pagination:
+          $ref: "#/components/schemas/PaginationMeta"
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: object
+              additionalProperties: true
+            trace_id:
+              type: string
+            timestamp:
+              type: string
+              format: date-time
+
+    # ============================================
+    # USER SCHEMAS
+    # ============================================
+    CreateUserRequest:
+      type: object
+      required:
+        - username
+        - email
+        - first_name
+        - last_name
+      properties:
+        username:
+          type: string
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          maxLength: 255
+        first_name:
+          type: string
+          maxLength: 100
+        last_name:
+          type: string
+          maxLength: 100
+        phone:
+          type: string
+          maxLength: 20
+        preferences:
+          type: object
+          description: User preferences JSON
+          additionalProperties: true
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        first_name:
+          type: string
+        last_name:
+          type: string
+        phone:
+          type: string
+        is_active:
+          type: boolean
+        preferences:
+          type: object
+          additionalProperties: true
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: User ID (same as AAA service)
+        username:
+          type: string
+        email:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        phone:
+          type: string
+        is_active:
+          type: boolean
+        last_login_at:
+          type: string
+          format: date-time
+        preferences:
+          type: object
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    UserListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserResponse"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
+    # ============================================
+    # USER ROLE SCHEMAS
+    # ============================================
+    UserRoleResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        user_id:
+          type: string
+          description: AAA service user ID
+        role_id:
+          type: string
+          description: E-commerce role ID
+        is_active:
+          type: boolean
+        assigned_by:
+          type: string
+        assigned_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        notes:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    UserRoleListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserRoleResponse"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
+    # ============================================
+    # ORGANIZATION ROLE SCHEMAS
+    # ============================================
+    OrganizationRoleResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        organization_id:
+          type: string
+        role_id:
+          type: string
+          description: AAA service role ID
+        is_active:
+          type: boolean
+        custom_permissions:
+          type: object
+          description: Custom permissions override
+          additionalProperties:
+            type: boolean
+        max_users:
+          type: integer
+        is_default:
+          type: boolean
+        configured_by:
+          type: string
+        configured_at:
+          type: string
+          format: date-time
+        notes:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    OrganizationRoleListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrganizationRoleResponse"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
+    # ============================================
+    # E-COMMERCE ROLE SCHEMAS
+    # ============================================
+    CreateEcommerceRoleRequest:
+      type: object
+      required:
+        - role_id
+        - role_name
+      properties:
+        role_id:
+          type: string
+          description: AAA service role ID
+        role_name:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+        can_manage_catalog:
+          type: boolean
+          default: false
+        can_manage_orders:
+          type: boolean
+          default: false
+        can_manage_inventory:
+          type: boolean
+          default: false
+        can_manage_pricing:
+          type: boolean
+          default: false
+        can_manage_customers:
+          type: boolean
+          default: false
+        can_view_analytics:
+          type: boolean
+          default: false
+        can_manage_users:
+          type: boolean
+          default: false
+        can_manage_settings:
+          type: boolean
+          default: false
+        organization_id:
+          type: string
+          description: Optional organization scope
+
+    UpdateEcommerceRoleRequest:
+      type: object
+      properties:
+        description:
+          type: string
+        can_manage_catalog:
+          type: boolean
+        can_manage_orders:
+          type: boolean
+        can_manage_inventory:
+          type: boolean
+        can_manage_pricing:
+          type: boolean
+        can_manage_customers:
+          type: boolean
+        can_view_analytics:
+          type: boolean
+        can_manage_users:
+          type: boolean
+        can_manage_settings:
+          type: boolean
+        is_active:
+          type: boolean
+
+    EcommerceRoleResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        role_name:
+          type: string
+        description:
+          type: string
+        can_manage_catalog:
+          type: boolean
+        can_manage_orders:
+          type: boolean
+        can_manage_inventory:
+          type: boolean
+        can_manage_pricing:
+          type: boolean
+        can_manage_customers:
+          type: boolean
+        can_view_analytics:
+          type: boolean
+        can_manage_users:
+          type: boolean
+        can_manage_settings:
+          type: boolean
+        organization_id:
+          type: string
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    EcommerceRoleListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/EcommerceRoleResponse"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
+    # ============================================
+    # TAX EXEMPTION SCHEMAS
+    # ============================================
+    CreateTaxExemptionRequest:
+      type: object
+      required:
+        - organization_id
+        - exemption_id
+        - name
+        - exemption_type
+      properties:
+        organization_id:
+          type: string
+        exemption_id:
+          type: string
+          maxLength: 255
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        exemption_type:
+          type: string
+          enum: [full, partial, threshold]
+        exemption_rate:
+          type: number
+          format: decimal
+          minimum: 0
+          maximum: 100
+        entity_type:
+          type: string
+          enum: [product, service, labour, all]
+        category:
+          type: string
+        hsn_code:
+          type: string
+        valid_from:
+          type: string
+          format: date-time
+        valid_to:
+          type: string
+          format: date-time
+
+    UpdateTaxExemptionRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        exemption_type:
+          type: string
+          enum: [full, partial, threshold]
+        exemption_rate:
+          type: number
+          format: decimal
+        entity_type:
+          type: string
+          enum: [product, service, labour, all]
+        category:
+          type: string
+        hsn_code:
+          type: string
+        valid_from:
+          type: string
+          format: date-time
+        valid_to:
+          type: string
+          format: date-time
+        is_active:
+          type: boolean
+
+    TaxExemptionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        organization_id:
+          type: string
+        exemption_id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        exemption_type:
+          type: string
+        exemption_rate:
+          type: number
+          format: decimal
+        entity_type:
+          type: string
+        category:
+          type: string
+        hsn_code:
+          type: string
+        valid_from:
+          type: string
+          format: date-time
+        valid_to:
+          type: string
+          format: date-time
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    TaxExemptionListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/TaxExemptionResponse"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
+    # ============================================
+    # SERVICE SLA SCHEMAS
+    # ============================================
+    CreateServiceSLARequest:
+      type: object
+      required:
+        - organization_id
+        - catalog_item_id
+        - name
+        - type
+      properties:
+        organization_id:
+          type: string
+          description: Organization ID
+        catalog_item_id:
+          type: string
+          description: Catalog item (service) ID
+        name:
+          type: string
+          maxLength: 255
+          description: SLA name
+        type:
+          type: string
+          enum: [service, support, delivery, availability]
+          description: Type of SLA
+        description:
+          type: string
+          description: SLA description
+        response_time_minutes:
+          type: integer
+          minimum: 1
+          description: Response time in minutes
+        resolution_time_minutes:
+          type: integer
+          minimum: 1
+          description: Resolution time in minutes
+        availability_percentage:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 100
+          description: Availability percentage guarantee (0-100)
+        uptime_percentage:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 100
+          description: Uptime percentage guarantee (0-100)
+        support_hours:
+          type: string
+          maxLength: 100
+          description: Support hours (e.g., "24/7", "9AM-5PM", "Business Hours")
+          example: "24/7"
+        penalty_clause:
+          type: string
+          description: Penalty terms for SLA breach
+        credit_policy:
+          type: string
+          description: Credit policy for SLA violations
+        valid_from:
+          type: string
+          format: date-time
+          description: SLA validity start date
+        valid_to:
+          type: string
+          format: date-time
+          description: SLA validity end date
+        created_by:
+          type: string
+          description: User ID who created this SLA
+        updated_by:
+          type: string
+          description: User ID who last updated this SLA
+
+    UpdateServiceSLARequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        response_time_minutes:
+          type: integer
+          minimum: 1
+        resolution_time_minutes:
+          type: integer
+          minimum: 1
+        availability_percentage:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 100
+        uptime_percentage:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 100
+        support_hours:
+          type: string
+          maxLength: 100
+        penalty_clause:
+          type: string
+        credit_policy:
+          type: string
+        valid_from:
+          type: string
+          format: date-time
+        valid_to:
+          type: string
+          format: date-time
+        is_active:
+          type: boolean
+        updated_by:
+          type: string
+
+    ServiceSLAResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: SLA ID
+        organization_id:
+          type: string
+          description: Organization ID
+        catalog_item_id:
+          type: string
+          description: Catalog item (service) ID
+        name:
+          type: string
+          description: SLA name
+        type:
+          type: string
+          enum: [service, support, delivery, availability]
+          description: Type of SLA
+        description:
+          type: string
+          description: SLA description
+        response_time_minutes:
+          type: integer
+          description: Response time SLA in minutes
+        resolution_time_minutes:
+          type: integer
+          description: Resolution time SLA in minutes
+        availability_percentage:
+          type: number
+          format: double
+          description: Availability percentage guarantee (0-100)
+        uptime_percentage:
+          type: number
+          format: double
+          description: Uptime percentage guarantee (0-100)
+        support_hours:
+          type: string
+          description: Support hours (e.g., "24/7", "9AM-5PM")
+        penalty_clause:
+          type: string
+          description: Penalty terms for SLA breach
+        credit_policy:
+          type: string
+          description: Credit policy for SLA violations
+        valid_from:
+          type: string
+          format: date-time
+          description: SLA validity start date
+        valid_to:
+          type: string
+          format: date-time
+          description: SLA validity end date
+        is_active:
+          type: boolean
+          description: Whether SLA is currently active
+        created_by:
+          type: string
+          description: User ID who created this SLA
+        updated_by:
+          type: string
+          description: User ID who last updated this SLA
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+        metadata:
+          type: object
+          description: Additional metadata
+          additionalProperties: true
+
+    ServiceSLAListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ServiceSLAResponse"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
+    # ============================================
+    # DISCOUNT RULE SCHEMAS
+    # ============================================
+    CreateDiscountRuleRequest:
+      type: object
+      required:
+        - organization_id
+        - name
+        - rule_type
+      properties:
+        organization_id:
+          type: string
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        rule_type:
+          type: string
+          enum: [stackable, exclusive, conditional]
+        rule_data:
+          type: object
+          description: Rule-specific data
+          additionalProperties: true
+        priority:
+          type: integer
+          default: 0
+        conditions:
+          type: object
+          description: Conditions for rule application
+          additionalProperties: true
+
+    UpdateDiscountRuleRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        rule_data:
+          type: object
+          additionalProperties: true
+        priority:
+          type: integer
+        conditions:
+          type: object
+          additionalProperties: true
+        is_active:
+          type: boolean
+
+    DiscountRuleResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        organization_id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        rule_type:
+          type: string
+        rule_data:
+          type: object
+          additionalProperties: true
+        priority:
+          type: integer
+        conditions:
+          type: object
+          additionalProperties: true
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    DiscountRuleListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/DiscountRuleResponse"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
+    # ============================================
+    # ORGANIZATION COLLABORATOR SCHEMAS
+    # ============================================
+    CreateOrganizationCollaboratorRequest:
+      type: object
+      required:
+        - aaa_entity_id
+        - aaa_entity_type
+        - context_organization_id
+        - role
+      properties:
+        aaa_entity_id:
+          type: string
+        aaa_entity_type:
+          $ref: "#/components/schemas/AAAEntityType"
+        context_organization_id:
+          type: string
+        role:
+          $ref: "#/components/schemas/CollaboratorRole"
+        display_name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        department:
+          type: string
+        job_title:
+          type: string
+
+    UpdateOrganizationCollaboratorRequest:
+      type: object
+      properties:
+        role:
+          $ref: "#/components/schemas/CollaboratorRole"
+        display_name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        department:
+          type: string
+        job_title:
+          type: string
+        access_level:
+          type: integer
+          minimum: 1
+          maximum: 10
+
+    OrganizationCollaboratorResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        aaa_entity_id:
+          type: string
+        aaa_entity_type:
+          $ref: "#/components/schemas/AAAEntityType"
+        context_organization_id:
+          type: string
+        role:
+          $ref: "#/components/schemas/CollaboratorRole"
+        status:
+          $ref: "#/components/schemas/CollaboratorStatus"
+        display_name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        department:
+          type: string
+        job_title:
+          type: string
+        access_level:
+          type: integer
+        invited_at:
+          type: string
+          format: date-time
+        accepted_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    OrganizationCollaboratorListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrganizationCollaboratorResponse"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
+    # ============================================
+    # COLLABORATOR SCHEMAS (FULLY IMPLEMENTED)
+    # ============================================
+    AAAEntityType:
+      type: string
+      enum: [USER, ORGANIZATION]
+      description: Type of AAA service entity
+
+    CollaboratorRole:
+      type: string
+      enum: [OWNER, ADMIN, MANAGER, EMPLOYEE, CONTRACTOR, VIEWER]
+      description: Role of the collaborator in the organization
+
+    CollaboratorStatus:
+      type: string
+      enum: [ACTIVE, INACTIVE, SUSPENDED, PENDING]
+      description: Current status of the collaborator
+
+    CreateCollaboratorRequest:
+      type: object
+      required:
+        - aaa_entity_id
+        - aaa_entity_type
+        - context_organization_id
+        - role
+      properties:
+        aaa_entity_id:
+          type: string
+          description: AAA service entity ID (user or organization)
+        aaa_entity_type:
+          $ref: "#/components/schemas/AAAEntityType"
+        user_id:
+          type: string
+          description: Optional user ID for caching
+        organization_id:
+          type: string
+          description: Optional organization ID for caching
+        context_organization_id:
+          type: string
+          description: The organization this collaborator belongs to
+        role:
+          $ref: "#/components/schemas/CollaboratorRole"
+        display_name:
+          type: string
+          maxLength: 255
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          maxLength: 20
+        permissions:
+          type: array
+          description: Specific permissions
+          items:
+            type: string
+        access_level:
+          type: integer
+          minimum: 1
+          maximum: 10
+          default: 1
+        can_invite_others:
+          type: boolean
+          default: false
+        employee_id:
+          type: string
+          maxLength: 100
+        department:
+          type: string
+          maxLength: 100
+        job_title:
+          type: string
+          maxLength: 100
+        start_date:
+          type: string
+          format: date
+        contract_type:
+          type: string
+          enum: [full-time, part-time, contract, consultant, intern]
+        metadata:
+          type: object
+          additionalProperties: true
+
+    UpdateCollaboratorRequest:
+      type: object
+      properties:
+        role:
+          $ref: "#/components/schemas/CollaboratorRole"
+        display_name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        permissions:
+          type: array
+          items:
+            type: string
+        access_level:
+          type: integer
+          minimum: 1
+          maximum: 10
+        can_invite_others:
+          type: boolean
+        department:
+          type: string
+        job_title:
+          type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        contract_type:
+          type: string
+          enum: [full-time, part-time, contract, consultant, intern]
+        metadata:
+          type: object
+          additionalProperties: true
+
+    CollaboratorResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        aaa_entity_id:
+          type: string
+        aaa_entity_type:
+          $ref: "#/components/schemas/AAAEntityType"
+        user_id:
+          type: string
+        organization_id:
+          type: string
+        context_organization_id:
+          type: string
+        role:
+          $ref: "#/components/schemas/CollaboratorRole"
+        status:
+          $ref: "#/components/schemas/CollaboratorStatus"
+        display_name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        permissions:
+          type: array
+          items:
+            type: string
+        access_level:
+          type: integer
+        can_invite_others:
+          type: boolean
+        employee_id:
+          type: string
+        department:
+          type: string
+        job_title:
+          type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        contract_type:
+          type: string
+        invited_by_user_id:
+          type: string
+        invited_at:
+          type: string
+          format: date-time
+        accepted_at:
+          type: string
+          format: date-time
+        metadata:
+          type: object
+          additionalProperties: true
+        created_by:
+          type: string
+        updated_by:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    CollaboratorListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/CollaboratorResponse"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
+    CollaboratorProfileResponse:
+      allOf:
+        - $ref: "#/components/schemas/CollaboratorResponse"
+        - type: object
+          properties:
+            organization_details:
+              type: object
+              description: Details about the context organization
+              additionalProperties: true
+            activity_summary:
+              type: object
+              description: Summary of collaborator's activity
+              properties:
+                last_active:
+                  type: string
+                  format: date-time
+                total_actions:
+                  type: integer
+                recent_actions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      action:
+                        type: string
+                      timestamp:
+                        type: string
+                        format: date-time
+
+  responses:
+    BadRequest:
+      description: Bad request - invalid parameters or request body
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    Unauthorized:
+      description: Unauthorized - missing or invalid authentication
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    Forbidden:
+      description: Forbidden - insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+security:
+  - BearerAuth: []
