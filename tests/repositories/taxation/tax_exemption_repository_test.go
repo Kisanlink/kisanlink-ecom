@@ -667,8 +667,6 @@ func TestTaxExemptionRepository_DeactivateExemption(t *testing.T) {
 	}
 }
 
-//nolint:dupl // Intentional test code duplication for comprehensive coverage
-
 func TestTaxExemptionRepository_ActivateExemption(t *testing.T) {
 	testExemption := data.CreateTestInactiveTaxExemption()
 	testExemption.ID = "exempt-test-id-123"

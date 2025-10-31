@@ -565,8 +565,6 @@ func TestCollaboratorRepository_ActivateCollaborator(t *testing.T) {
 	}
 }
 
-//nolint:dupl // Intentional test code duplication for comprehensive coverage
-
 func TestCollaboratorRepository_DeactivateCollaborator(t *testing.T) {
 	testCollab := data.CreateTestCollaborator()
 	testCollab.ID = "collab-test-id-123"

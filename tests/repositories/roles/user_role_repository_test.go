@@ -73,6 +73,7 @@ func TestUserRoleRepository_Create(t *testing.T) {
 	}
 }
 
+//nolint:dupl // Intentional test code duplication for comprehensive coverage
 func TestUserRoleRepository_GetByID(t *testing.T) {
 	testUserRole := data.CreateTestUserRole()
 
@@ -153,6 +154,7 @@ func TestUserRoleRepository_GetByID(t *testing.T) {
 	}
 }
 
+//nolint:dupl // Intentional test code duplication for comprehensive coverage
 func TestUserRoleRepository_Update(t *testing.T) {
 	testUserRole := data.CreateTestUserRole()
 
@@ -247,6 +249,7 @@ func TestUserRoleRepository_Delete(t *testing.T) {
 	}
 }
 
+//nolint:dupl // Intentional test code duplication for comprehensive coverage
 func TestUserRoleRepository_List(t *testing.T) {
 	testUserRoles := data.CreateTestUserRolesArray(5, "user-test-id-123")
 

@@ -453,7 +453,6 @@ func TestEcommerceRoleRepository_DeactivateRole(t *testing.T) {
 	}
 }
 
-//nolint:dupl // Intentional test code duplication for comprehensive coverage
 func TestEcommerceRoleRepository_ActivateRole(t *testing.T) {
 	testRole := data.CreateTestEcommerceRole()
 	testRole.IsActive = false

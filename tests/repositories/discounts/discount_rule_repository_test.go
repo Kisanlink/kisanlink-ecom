@@ -626,7 +626,7 @@ func TestDiscountRuleRepository_ActivateRule(t *testing.T) {
 		name      string
 		id        string
 		setupMock func(*mocks.MockDBManager)
-		//nolint:dupl // Intentional test code duplication for comprehensive coverage
+
 		wantErr bool
 	}{
 		{

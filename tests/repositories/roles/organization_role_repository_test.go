@@ -200,7 +200,6 @@ func TestOrganizationRoleRepository_Update(t *testing.T) {
 	}
 }
 
-//nolint:dupl // Intentional test code duplication for comprehensive coverage
 func TestOrganizationRoleRepository_Delete(t *testing.T) {
 	testID := "org-role-test-id-123"
 
@@ -435,6 +434,7 @@ func TestOrganizationRoleRepository_GetByOrganizationID(t *testing.T) {
 	}
 }
 
+//nolint:dupl // Intentional test code duplication for comprehensive coverage
 func TestOrganizationRoleRepository_GetByAAARoleID(t *testing.T) {
 	aaaRoleID := "aaa-role-test-id-123"
 	testOrgRole1 := data.CreateTestOrganizationRole()

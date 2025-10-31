@@ -630,7 +630,7 @@ func TestSLARepository_ActivateSLA(t *testing.T) {
 
 			if tt.wantErr {
 				assert.Error(t, err)
-				//nolint:dupl // Intentional test code duplication for comprehensive coverage
+
 			} else {
 				assert.NoError(t, err)
 			}
@@ -680,7 +680,6 @@ func TestSLARepository_UpdateThresholds(t *testing.T) {
 		},
 	}
 
-	//nolint:dupl // Intentional test code duplication for comprehensive coverage
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mockDB := mocks.NewMockDBManager()
