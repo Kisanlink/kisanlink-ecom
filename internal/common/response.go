@@ -166,12 +166,20 @@ func GetSubjectID(c *gin.Context) (string, bool) {
 
 // GetUserRoles retrieves the user roles from the gin context
 func GetUserRoles(c *gin.Context) ([]string, bool) {
-	// Try to get from userRoles key
+	// Try snake_case first (primary key set by middleware)
+	if roles, exists := c.Get("user_roles"); exists {
+		if roleList, ok := roles.([]string); ok {
+			return roleList, true
+		}
+	}
+
+	// Try camelCase as fallback for backward compatibility
 	if roles, exists := c.Get("userRoles"); exists {
 		if roleList, ok := roles.([]string); ok {
 			return roleList, true
 		}
 	}
+
 	return nil, false
 }
 
