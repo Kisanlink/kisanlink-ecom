@@ -92,8 +92,8 @@ func (m *MockOrderService) GetOrderByNumber(ctx context.Context, orderNumber str
 	return args.Get(0).(*orderModels.Order), args.Error(1)
 }
 
-func (m *MockOrderService) ListOrders(ctx context.Context, filter *orderRequests.ListOrdersRequest, userID, orgID string, offset, limit int) ([]*orderModels.Order, int, error) {
-	args := m.Called(ctx, filter, userID, orgID, offset, limit)
+func (m *MockOrderService) ListOrders(ctx context.Context, filter *orderRequests.ListOrdersRequest, userID, orgID string, isAdmin bool, offset, limit int) ([]*orderModels.Order, int, error) {
+	args := m.Called(ctx, filter, userID, orgID, isAdmin, offset, limit)
 	if args.Get(0) == nil {
 		return nil, 0, args.Error(2)
 	}
@@ -521,7 +521,7 @@ func TestOrderHandler_ListOrders_Success(t *testing.T) {
 
 	expectedOrders := []*orderModels.Order{createTestOrder()}
 
-	mockService.On("ListOrders", mock.Anything, mock.AnythingOfType("*orders.ListOrdersRequest"), "user-1", "buyer-org-1", 0, 20).Return(expectedOrders, 1, nil)
+	mockService.On("ListOrders", mock.Anything, mock.AnythingOfType("*orders.ListOrdersRequest"), "user-1", "buyer-org-1", false, 0, 20).Return(expectedOrders, 1, nil)
 
 	w := httptest.NewRecorder()
 	httpReq, _ := http.NewRequest("GET", "/orders", nil)
@@ -556,7 +556,7 @@ func TestOrderHandler_ListOrders_WithFilters(t *testing.T) {
 
 	mockService.On("ListOrders", mock.Anything, mock.MatchedBy(func(filter *orderRequests.ListOrdersRequest) bool {
 		return filter.Status != nil && *filter.Status == orderModels.OrderStatusPending
-	}), "user-1", "buyer-org-1", 0, 20).Return(expectedOrders, int64(1), nil)
+	}), "user-1", "buyer-org-1", false, 0, 20).Return(expectedOrders, int64(1), nil)
 
 	w := httptest.NewRecorder()
 	httpReq, _ := http.NewRequest("GET", "/orders?status=pending", nil)
@@ -589,7 +589,7 @@ func TestOrderHandler_ListOrders_WithPagination(t *testing.T) {
 
 	mockService.On("ListOrders", mock.Anything, mock.MatchedBy(func(filter *orderRequests.ListOrdersRequest) bool {
 		return filter.Page == 2 && filter.PageSize == 10
-	}), "user-1", "buyer-org-1", 10, 10).Return(expectedOrders, int64(25), nil)
+	}), "user-1", "buyer-org-1", false, 10, 10).Return(expectedOrders, int64(25), nil)
 
 	w := httptest.NewRecorder()
 	httpReq, _ := http.NewRequest("GET", "/orders?page=2&limit=10", nil)
@@ -761,7 +761,7 @@ func TestOrderHandler_ListOrders_InvalidPaginationParameters(t *testing.T) {
 	// Handler should normalize invalid pagination parameters
 	mockService.On("ListOrders", mock.Anything, mock.MatchedBy(func(filter *orderRequests.ListOrdersRequest) bool {
 		return filter.Page == 1 && filter.PageSize == 20 // Default values
-	}), "user-1", "buyer-org-1", 0, 20).Return(expectedOrders, int64(0), nil)
+	}), "user-1", "buyer-org-1", false, 0, 20).Return(expectedOrders, int64(0), nil)
 
 	w := httptest.NewRecorder()
 	httpReq, _ := http.NewRequest("GET", "/orders?page=0&limit=0", nil) // Invalid values
@@ -787,7 +787,7 @@ func TestOrderHandler_ListOrders_ExcessiveLimit(t *testing.T) {
 	// Handler should cap the limit to maximum allowed
 	mockService.On("ListOrders", mock.Anything, mock.MatchedBy(func(filter *orderRequests.ListOrdersRequest) bool {
 		return filter.PageSize == 20 // Capped to default
-	}), "user-1", "buyer-org-1", 0, 20).Return(expectedOrders, int64(0), nil)
+	}), "user-1", "buyer-org-1", false, 0, 20).Return(expectedOrders, int64(0), nil)
 
 	w := httptest.NewRecorder()
 	httpReq, _ := http.NewRequest("GET", "/orders?limit=1000", nil) // Excessive limit

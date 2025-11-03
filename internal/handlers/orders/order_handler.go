@@ -312,14 +312,14 @@ func (h *OrderHandler) ListOrders(c *gin.Context) {
 	}
 
 	// Get organization ID from context
-	orgID, exists := common.GetOrganizationID(c)
-	if !exists {
-		common.Unauthorized(c, "INVALID_ORG", "Valid organization ID is required", nil)
-		return
-	}
+	// For admins, this may not be used for filtering
+	orgID, _ := common.GetOrganizationID(c)
+
+	// Check if user is admin
+	isAdmin := common.IsAdmin(c)
 
 	// Get orders
-	orders, total, err := h.orderService.ListOrders(c.Request.Context(), filter, userID, orgID, offset, limit)
+	orders, total, err := h.orderService.ListOrders(c.Request.Context(), filter, userID, orgID, isAdmin, offset, limit)
 	if err != nil {
 		common.InternalServerError(c, "LIST_FAILED", "Failed to list orders", map[string]interface{}{
 			"error": err.Error(),

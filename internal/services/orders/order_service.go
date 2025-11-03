@@ -23,7 +23,7 @@ type OrderServiceInterface interface {
 	GetOrderByNumber(ctx context.Context, orderNumber string) (*orderModels.Order, error)
 	UpdateOrder(ctx context.Context, id string, req *orderRequests.UpdateOrderRequest, userID string, orgID string) (*orderModels.Order, error)
 	UpdateOrderStatus(ctx context.Context, id string, req *orderRequests.UpdateOrderStatusRequest, userID string, orgID string) error
-	ListOrders(ctx context.Context, filter *orderRequests.ListOrdersRequest, userID string, orgID string, offset, limit int) ([]*orderModels.Order, int, error)
+	ListOrders(ctx context.Context, filter *orderRequests.ListOrdersRequest, userID string, orgID string, isAdmin bool, offset, limit int) ([]*orderModels.Order, int, error)
 	GetOrdersByBuyer(ctx context.Context, buyerID string, limit, offset int) ([]*orderModels.Order, error)
 	GetOrdersBySeller(ctx context.Context, sellerID string, limit, offset int) ([]*orderModels.Order, error)
 	GetOrderSummary(ctx context.Context, id string) (*orderModels.OrderSummary, error)
@@ -338,13 +338,10 @@ func (s *OrderService) UpdateOrderStatus(ctx context.Context, id string, req *or
 }
 
 // ListOrders retrieves orders with filtering and pagination
-func (s *OrderService) ListOrders(ctx context.Context, filter *orderRequests.ListOrdersRequest, userID string, orgID string, offset, limit int) ([]*orderModels.Order, int, error) {
+func (s *OrderService) ListOrders(ctx context.Context, filter *orderRequests.ListOrdersRequest, userID string, orgID string, isAdmin bool, offset, limit int) ([]*orderModels.Order, int, error) {
 	// Validate input parameters
 	if userID == "" {
 		return nil, 0, fmt.Errorf("user ID is required")
-	}
-	if orgID == "" {
-		return nil, 0, fmt.Errorf("organization ID is required")
 	}
 
 	// Ensure filter is not nil
@@ -352,20 +349,30 @@ func (s *OrderService) ListOrders(ctx context.Context, filter *orderRequests.Lis
 		filter = &orderRequests.ListOrdersRequest{}
 	}
 
-	// Apply organization-based filtering - users can only see orders from their organization
-	// Either as buyer or seller
-	if filter.BuyerOrganizationID == nil && filter.SellerOrganizationID == nil {
-		// If no organization filter is specified, show orders where user's org is buyer or seller
-		filter.BuyerOrganizationID = &orgID
-		// Note: We could also create a more complex filter to include both buyer and seller,
-		// but for now we'll default to showing orders where the user's org is the buyer
-	} else {
-		// Validate that the user can only filter by their own organization
-		if filter.BuyerOrganizationID != nil && *filter.BuyerOrganizationID != orgID {
-			return nil, 0, fmt.Errorf("user can only filter orders for their own organization")
+	// Apply organization-based filtering based on user role
+	// Admins can see all orders without automatic organization filtering
+	// They can optionally filter by specific organization if desired
+	if !isAdmin {
+		// Non-admin users can only see orders from their organization
+		if orgID == "" {
+			return nil, 0, fmt.Errorf("organization ID is required for non-admin users")
 		}
-		if filter.SellerOrganizationID != nil && *filter.SellerOrganizationID != orgID {
-			return nil, 0, fmt.Errorf("user can only filter orders for their own organization")
+
+		// Apply organization-based filtering - users can only see orders from their organization
+		// Either as buyer or seller
+		if filter.BuyerOrganizationID == nil && filter.SellerOrganizationID == nil {
+			// If no organization filter is specified, show orders where user's org is buyer or seller
+			filter.BuyerOrganizationID = &orgID
+			// Note: We could also create a more complex filter to include both buyer and seller,
+			// but for now we'll default to showing orders where the user's org is the buyer
+		} else {
+			// Validate that the user can only filter by their own organization
+			if filter.BuyerOrganizationID != nil && *filter.BuyerOrganizationID != orgID {
+				return nil, 0, fmt.Errorf("user can only filter orders for their own organization")
+			}
+			if filter.SellerOrganizationID != nil && *filter.SellerOrganizationID != orgID {
+				return nil, 0, fmt.Errorf("user can only filter orders for their own organization")
+			}
 		}
 	}
 

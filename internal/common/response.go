@@ -164,6 +164,32 @@ func GetSubjectID(c *gin.Context) (string, bool) {
 	return "", false
 }
 
+// GetUserRoles retrieves the user roles from the gin context
+func GetUserRoles(c *gin.Context) ([]string, bool) {
+	// Try to get from userRoles key
+	if roles, exists := c.Get("userRoles"); exists {
+		if roleList, ok := roles.([]string); ok {
+			return roleList, true
+		}
+	}
+	return nil, false
+}
+
+// IsAdmin checks if the user has admin or super_admin role
+func IsAdmin(c *gin.Context) bool {
+	roles, exists := GetUserRoles(c)
+	if !exists {
+		return false
+	}
+
+	for _, role := range roles {
+		if role == "admin" || role == "super_admin" {
+			return true
+		}
+	}
+	return false
+}
+
 // NewPaginationMeta creates pagination metadata
 func NewPaginationMeta(page, limit, total int) *PaginationMeta {
 	totalPages := (total + limit - 1) / limit // Ceiling division
