@@ -179,7 +179,6 @@ func createTestOrder() *orderModels.Order {
 	order.Status = orderModels.OrderStatusPending
 
 	item := orderModels.NewOrderItem(
-		"item-1", // ID
 		order.ID,
 		"catalog-item-1",
 		"product",

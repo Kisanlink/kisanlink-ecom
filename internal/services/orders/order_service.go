@@ -117,16 +117,9 @@ func (s *OrderService) CreateOrder(ctx context.Context, req *orderRequests.Creat
 			unitPrice = catalogItem.BasePrice
 		}
 
-		// Generate unique ID for order item using sequence service
-		itemID, err := s.sequenceSvc.GenerateID(ctx, "ITEM", &req.SellerOrganizationID)
-		if err != nil {
-			return nil, fmt.Errorf("failed to generate order item ID: %w", err)
-		}
-
 		// Create order item with proper calculations
 		quantity := itemReq.Quantity
 		orderItem := orderModels.NewOrderItem(
-			itemID, // Use sequence-based ID instead of timestamp hash
 			ord.ID,
 			itemReq.CatalogItemID,
 			itemReq.CatalogItemType,

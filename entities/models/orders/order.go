@@ -126,13 +126,9 @@ func (OrderItem) TableName() string {
 }
 
 // NewOrderItem creates a new OrderItem instance
-// id: unique ID for the order item (should be generated via sequence service)
-func NewOrderItem(id, orderID, catalogItemID, catalogItemType, catalogItemName, catalogItemSKU string, quantity, unitPrice decimal.Decimal) *OrderItem {
-	baseModel := base.NewBaseModel("ITEM", "large")
-	baseModel.ID = id // Override the auto-generated ID with sequence-based ID
-
+func NewOrderItem(orderID, catalogItemID, catalogItemType, catalogItemName, catalogItemSKU string, quantity, unitPrice decimal.Decimal) *OrderItem {
 	return &OrderItem{
-		BaseModel:       *baseModel,
+		BaseModel:       *base.NewBaseModel("ITEM", "large"),
 		OrderID:         orderID,
 		CatalogItemID:   catalogItemID,
 		CatalogItemType: catalogItemType,
