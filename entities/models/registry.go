@@ -39,6 +39,7 @@ func AllModels() []interface{} {
 		&catalog.InventoryLot{},
 		&catalog.InventoryAuditLog{},
 		&catalog.SLA{},
+		&catalog.PublishState{},
 
 		// Service models
 		&services.SLA{},
@@ -99,6 +100,7 @@ func CatalogModels() []interface{} {
 		&catalog.Availability{},
 		&catalog.InventoryLot{},
 		&catalog.SLA{},
+		&catalog.PublishState{},
 	}
 }
 
@@ -232,6 +234,7 @@ func ModelsByPriority() []interface{} {
 		&catalog.Availability{},
 		&catalog.InventoryLot{},
 		&catalog.SLA{},
+		&catalog.PublishState{}, // Depends on CatalogItem
 		&services.SLA{},
 		&media.Media{},
 
