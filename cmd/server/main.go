@@ -119,8 +119,15 @@ func main() {
 		log.Printf("Performance may be degraded")
 	}
 
+	// Initialize ID counters for all models to prevent duplicate key violations
+	if err := database.InitializeAllCounters(dbManager.GetManager(db.BackendGorm)); err != nil {
+		log.Printf("Warning: Counter initialization failed: %v", err)
+		log.Printf("May experience ID collisions on first requests")
+	}
+
 	// Initialize repositories with proper database manager injection
 	catalogRepo := catalog.NewCatalogRepository(dbManager.GetManager(db.BackendGorm))
+	publishStateRepo := catalog.NewPublishStateRepository(dbManager.GetManager(db.BackendGorm))
 	inventoryRepo := inventory.NewInventoryRepository(dbManager.GetManager(db.BackendGorm))
 	orderRepo := orders.NewOrderRepository(dbManager.GetManager(db.BackendGorm))
 	sequenceRepo := sequence.NewSequenceRepository(dbManager.GetManager(db.BackendGorm))
@@ -133,8 +140,12 @@ func main() {
 	discountRuleRepo := discounts.NewDiscountRuleRepository(dbManager.GetManager(db.BackendGorm))
 	orgCollaboratorRepo := actors.NewCollaboratorRepository(dbManager.GetManager(db.BackendGorm))
 
+	// Create a shared logrus logger for services
+	logrusLogger := logrus.New()
+
 	// Initialize services with proper dependency injection
 	catalogSvc := catalogService.NewCatalogService(catalogRepo)
+	publishSvc := catalogService.NewPublishService(publishStateRepo, catalogRepo, logrusLogger)
 	inventorySvc := inventoryService.NewInventoryService(inventoryRepo, catalogRepo)
 	sequenceSvc := sequenceService.NewSequenceService(sequenceRepo)
 	orderSvc := orderService.NewOrderService(orderRepo, catalogSvc, inventorySvc, sequenceSvc)
@@ -169,8 +180,6 @@ func main() {
 		log.Println("Warning: Using default webhook secret. Set WEBHOOK_SECRET environment variable in production.")
 	}
 
-	// Create a logrus logger for the integration service
-	logrusLogger := logrus.New()
 	integrationSvc := integrationService.NewIntegrationService(catalogSvc, orderSvc, logrusLogger, webhookSecret)
 	log.Println("Integration service initialized")
 
@@ -182,6 +191,7 @@ func main() {
 	// Create services container
 	services := &routes.Services{
 		CatalogSvc:         catalogSvc,
+		PublishSvc:         publishSvc,
 		InventorySvc:       inventorySvc,
 		OrderSvc:           orderSvc,
 		UserSvc:            userSvc,

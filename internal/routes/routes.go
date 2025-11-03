@@ -39,6 +39,7 @@ import (
 // Services container for all application services
 type Services struct {
 	CatalogSvc         catalogService.CatalogServiceInterface
+	PublishSvc         catalogService.PublishService
 	InventorySvc       inventoryService.InventoryService
 	OrderSvc           orderService.OrderServiceInterface
 	UserSvc            *userService.UserService
@@ -423,6 +424,31 @@ func SetupRouter(aaaClient auth.Client, services *Services) *gin.Engine {
 						// TODO: Add proper authorization middleware
 						productHandler.DeleteProduct,
 					)
+
+					// FPO Publishing endpoints (requires PublishService)
+					if services.PublishSvc != nil {
+						fpoPublishHandler := catalog.NewFPOPublishHandler(services.PublishSvc)
+
+						products.POST("/:id/publish",
+							conditionalAuthMiddleware(aaaClient),
+							// TODO: Add RBAC for Super Admin only
+							fpoPublishHandler.PublishProductToFPOs,
+						)
+						products.GET("/:id/publish-status",
+							conditionalAuthMiddleware(aaaClient),
+							fpoPublishHandler.GetPublishStatus,
+						)
+						products.PATCH("/:id/delivery-costs",
+							conditionalAuthMiddleware(aaaClient),
+							// TODO: Add RBAC for Super Admin only
+							fpoPublishHandler.UpdateProductDeliveryCosts,
+						)
+						products.DELETE("/:id/fpo-access/:fpo_id",
+							conditionalAuthMiddleware(aaaClient),
+							// TODO: Add RBAC for Super Admin only
+							fpoPublishHandler.RevokeFPOAccess,
+						)
+					}
 				}
 
 				// Services
