@@ -288,6 +288,16 @@ func (c *client) ValidateToken(ctx context.Context, token string) (*TokenClaims,
 		}
 	}
 
+	// Extract role names from user_context.roles if Claims.Roles is empty
+	var roles []string
+	if len(resp.Claims.Roles) > 0 {
+		// Use roles from Claims if available
+		roles = resp.Claims.Roles
+	} else if resp.UserContext != nil && len(resp.UserContext.Roles) > 0 {
+		// Use roles from UserContext (already a []string)
+		roles = resp.UserContext.Roles
+	}
+
 	// Convert response to TokenClaims
 	claims := &TokenClaims{
 		UserID:           resp.Claims.UserId,
@@ -295,7 +305,7 @@ func (c *client) ValidateToken(ctx context.Context, token string) (*TokenClaims,
 		Email:            resp.Claims.Email,
 		OrganizationID:   organizationID,
 		OrganizationName: organizationName,
-		Roles:            resp.Claims.Roles,
+		Roles:            roles,
 		Permissions:      resp.Claims.Permissions,
 		Scopes:           resp.Claims.Scopes,
 		IssuedAt:         issuedAt,
