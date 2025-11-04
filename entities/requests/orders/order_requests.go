@@ -54,6 +54,7 @@ type ListOrdersRequest struct {
 	BuyerOrganizationID  *string             `form:"buyer_organization_id" validate:"omitempty,uuid4" example:"123e4567-e89b-12d3-a456-426614174000"`
 	SellerOrganizationID *string             `form:"seller_organization_id" validate:"omitempty,uuid4" example:"123e4567-e89b-12d3-a456-426614174001"`
 	BuyerUserID          *string             `form:"buyer_user_id" validate:"omitempty,uuid4" example:"123e4567-e89b-12d3-a456-426614174002"`
+	IsAdmin              *bool               `json:"-" form:"-"` // Set internally by service layer, not from request params
 
 	// Date range
 	CreatedAfter  *string `form:"created_after" binding:"omitempty,datetime=2006-01-02T15:04:05Z07:00" validate:"omitempty,datetime=2006-01-02T15:04:05Z07:00" example:"2024-01-01T00:00:00Z"`

@@ -349,9 +349,11 @@ func (s *OrderService) ListOrders(ctx context.Context, filter *orderRequests.Lis
 		filter = &orderRequests.ListOrdersRequest{}
 	}
 
+	// Set the IsAdmin field in the filter for the repository layer
+	filter.IsAdmin = &isAdmin
+
 	// Apply organization-based filtering based on user role
 	// Admins can see all orders without automatic organization filtering
-	// They can optionally filter by specific organization if desired
 	if !isAdmin {
 		// Non-admin users can only see orders from their organization
 		if orgID == "" {
@@ -359,12 +361,9 @@ func (s *OrderService) ListOrders(ctx context.Context, filter *orderRequests.Lis
 		}
 
 		// Apply organization-based filtering - users can only see orders from their organization
-		// Either as buyer or seller
 		if filter.BuyerOrganizationID == nil && filter.SellerOrganizationID == nil {
-			// If no organization filter is specified, show orders where user's org is buyer or seller
+			// Default to showing orders where user's org is the buyer
 			filter.BuyerOrganizationID = &orgID
-			// Note: We could also create a more complex filter to include both buyer and seller,
-			// but for now we'll default to showing orders where the user's org is the buyer
 		} else {
 			// Validate that the user can only filter by their own organization
 			if filter.BuyerOrganizationID != nil && *filter.BuyerOrganizationID != orgID {

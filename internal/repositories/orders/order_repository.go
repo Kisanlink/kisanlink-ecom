@@ -262,20 +262,23 @@ func (r *OrderRepository) ListOrders(ctx context.Context, filter *ordersRequests
 	dbFilter := base.NewFilter()
 
 	// Add conditions based on the order filter
-	if filter.BuyerOrganizationID != nil {
-		dbFilter.Group.Conditions = append(dbFilter.Group.Conditions, base.FilterCondition{
-			Field:    "buyer_organization_id",
-			Operator: base.OpEqual,
-			Value:    *filter.BuyerOrganizationID,
-		})
-	}
+	// Skip organization filters for admin users
+	if filter.IsAdmin == nil || !*filter.IsAdmin {
+		if filter.BuyerOrganizationID != nil {
+			dbFilter.Group.Conditions = append(dbFilter.Group.Conditions, base.FilterCondition{
+				Field:    "buyer_organization_id",
+				Operator: base.OpEqual,
+				Value:    *filter.BuyerOrganizationID,
+			})
+		}
 
-	if filter.SellerOrganizationID != nil {
-		dbFilter.Group.Conditions = append(dbFilter.Group.Conditions, base.FilterCondition{
-			Field:    "seller_organization_id",
-			Operator: base.OpEqual,
-			Value:    *filter.SellerOrganizationID,
-		})
+		if filter.SellerOrganizationID != nil {
+			dbFilter.Group.Conditions = append(dbFilter.Group.Conditions, base.FilterCondition{
+				Field:    "seller_organization_id",
+				Operator: base.OpEqual,
+				Value:    *filter.SellerOrganizationID,
+			})
+		}
 	}
 
 	if filter.BuyerUserID != nil {
