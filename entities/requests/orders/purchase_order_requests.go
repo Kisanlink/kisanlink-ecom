@@ -8,13 +8,13 @@ import (
 
 // CreatePurchaseOrderRequest represents the request to create a manual purchase order
 type CreatePurchaseOrderRequest struct {
-	VendorName      string                   `json:"vendor_name" binding:"required,max=255" validate:"required,min=1,max=255" example:"ABC Suppliers"`
-	VendorContact   string                   `json:"vendor_contact" binding:"omitempty,max=100" validate:"omitempty,max=100" example:"+91-9876543210"`
-	VendorID        *string                  `json:"vendor_id" binding:"omitempty" validate:"omitempty,uuid4" example:"123e4567-e89b-12d3-a456-426614174000"`
-	Items           []CreatePOItemRequest    `json:"items" binding:"required,min=1,dive" validate:"required,min=1,dive"`
-	DeliveryAddress *Address                 `json:"delivery_address" validate:"omitempty"`
-	Notes           string                   `json:"notes" validate:"omitempty,max=1000" example:"Urgent delivery required"`
-	Metadata        map[string]interface{}   `json:"metadata" validate:"omitempty"`
+	VendorName      string                 `json:"vendor_name" binding:"required,max=255" validate:"required,min=1,max=255" example:"ABC Suppliers"`
+	VendorContact   string                 `json:"vendor_contact" binding:"omitempty,max=100" validate:"omitempty,max=100" example:"+91-9876543210"`
+	VendorID        *string                `json:"vendor_id" binding:"omitempty" validate:"omitempty,uuid4" example:"123e4567-e89b-12d3-a456-426614174000"`
+	Items           []CreatePOItemRequest  `json:"items" binding:"required,min=1,dive" validate:"required,min=1,dive"`
+	DeliveryAddress *Address               `json:"delivery_address" validate:"omitempty"`
+	Notes           string                 `json:"notes" validate:"omitempty,max=1000" example:"Urgent delivery required"`
+	Metadata        map[string]interface{} `json:"metadata" validate:"omitempty"`
 }
 
 // CreatePOItemRequest represents an item in a purchase order
@@ -40,9 +40,9 @@ type ListPurchaseOrdersRequest struct {
 	PageSize int `form:"page_size" binding:"omitempty,min=1,max=100" validate:"omitempty,min=1,max=100" example:"20"`
 
 	// Filtering
-	Status    *orders.POStatus `form:"status" binding:"omitempty,oneof=PLACED CONFIRMED DELIVERED PAID CANCELLED" validate:"omitempty,oneof=PLACED CONFIRMED DELIVERED PAID CANCELLED" example:"PLACED"`
-	Source    *orders.POSource `form:"source" binding:"omitempty,oneof=KISANLINK MANUAL" validate:"omitempty,oneof=KISANLINK MANUAL" example:"MANUAL"`
-	VendorID  *string          `form:"vendor_id" validate:"omitempty,uuid4" example:"123e4567-e89b-12d3-a456-426614174000"`
+	Status   *orders.POStatus `form:"status" binding:"omitempty,oneof=PLACED CONFIRMED DELIVERED PAID CANCELLED" validate:"omitempty,oneof=PLACED CONFIRMED DELIVERED PAID CANCELLED" example:"PLACED"`
+	Source   *orders.POSource `form:"source" binding:"omitempty,oneof=KISANLINK MANUAL" validate:"omitempty,oneof=KISANLINK MANUAL" example:"MANUAL"`
+	VendorID *string          `form:"vendor_id" validate:"omitempty,uuid4" example:"123e4567-e89b-12d3-a456-426614174000"`
 
 	// Date range
 	CreatedAfter  *string `form:"created_after" binding:"omitempty,datetime=2006-01-02T15:04:05Z07:00" validate:"omitempty,datetime=2006-01-02T15:04:05Z07:00" example:"2024-01-01T00:00:00Z"`
@@ -68,10 +68,10 @@ type CreateGRNRequest struct {
 
 // CreateGRNItemRequest represents an item in a GRN
 type CreateGRNItemRequest struct {
-	POItemID         string                 `json:"po_item_id" binding:"required" validate:"required,uuid4" example:"123e4567-e89b-12d3-a456-426614174000"`
-	QuantityReceived decimal.Decimal        `json:"quantity_received" binding:"required" validate:"required,gt=0" example:"100.0"`
-	Condition        orders.ItemCondition   `json:"condition" binding:"required,oneof=GOOD DAMAGED PARTIAL" validate:"required,oneof=GOOD DAMAGED PARTIAL" example:"GOOD"`
-	Notes            string                 `json:"notes" validate:"omitempty,max=500" example:"No issues noted"`
+	POItemID         string               `json:"po_item_id" binding:"required" validate:"required,uuid4" example:"123e4567-e89b-12d3-a456-426614174000"`
+	QuantityReceived decimal.Decimal      `json:"quantity_received" binding:"required" validate:"required,gt=0" example:"100.0"`
+	Condition        orders.ItemCondition `json:"condition" binding:"required,oneof=GOOD DAMAGED PARTIAL" validate:"required,oneof=GOOD DAMAGED PARTIAL" example:"GOOD"`
+	Notes            string               `json:"notes" validate:"omitempty,max=500" example:"No issues noted"`
 }
 
 // UpdateGRNStatusRequest represents the request to update GRN status

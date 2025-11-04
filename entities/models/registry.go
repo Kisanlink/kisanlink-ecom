@@ -63,6 +63,10 @@ func AllModels() []interface{} {
 		&orders.Order{},
 		&orders.OrderItem{},
 		&orders.OrderStatusHistory{},
+		&orders.PurchaseOrder{},
+		&orders.POItem{},
+		&orders.GRN{},
+		&orders.GRNItem{},
 
 		// Taxation models
 		&taxation.TaxRate{},
@@ -141,6 +145,10 @@ func OrderModels() []interface{} {
 		&orders.Order{},
 		&orders.OrderItem{},
 		&orders.OrderStatusHistory{},
+		&orders.PurchaseOrder{},
+		&orders.POItem{},
+		&orders.GRN{},
+		&orders.GRNItem{},
 	}
 }
 
@@ -262,6 +270,10 @@ func ModelsByPriority() []interface{} {
 		&orders.Order{},
 		&orders.OrderItem{},
 		&orders.OrderStatusHistory{},
+		&orders.PurchaseOrder{},
+		&orders.POItem{},
+		&orders.GRN{},
+		&orders.GRNItem{},
 
 		// Marketplace models (depend on products)
 		&marketplace.Listing{},

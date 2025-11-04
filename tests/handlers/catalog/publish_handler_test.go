@@ -351,7 +351,7 @@ func TestGetPublishStatus_Success(t *testing.T) {
 	c, _ := gin.CreateTestContext(w)
 	c.Request = req
 	c.Params = gin.Params{
-		{Key: "id", Value: productID},
+		{Key: "id", Value: testProductID},
 	}
 
 	// Execute
@@ -392,7 +392,7 @@ func TestGetPublishStatus_NotFound(t *testing.T) {
 	c, _ := gin.CreateTestContext(w)
 	c.Request = req
 	c.Params = gin.Params{
-		{Key: "id", Value: productID},
+		{Key: "id", Value: testProductID},
 	}
 
 	// Execute
@@ -448,7 +448,7 @@ func TestUpdateProductDeliveryCosts_Success(t *testing.T) {
 	c, _ := gin.CreateTestContext(w)
 	c.Request = req
 	c.Params = gin.Params{
-		{Key: "id", Value: productID},
+		{Key: "id", Value: testProductID},
 	}
 
 	// Execute
@@ -585,7 +585,7 @@ func TestRevokeFPOAccess_Success(t *testing.T) {
 	c, _ := gin.CreateTestContext(w)
 	c.Request = req
 	c.Params = gin.Params{
-		{Key: "id", Value: productID},
+		{Key: "id", Value: testProductID},
 		{Key: "fpo_id", Value: fpoOrgID},
 	}
 

@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	orderModels "kisanlink-ecom/entities/models/orders"
 	orders "kisanlink-ecom/entities/requests/orders"
 	"kisanlink-ecom/internal/common"
 	orderService "kisanlink-ecom/internal/services/orders"
@@ -127,9 +128,11 @@ func (h *PurchaseOrderHandler) ListPurchaseOrders(c *gin.Context) {
 		TraceID: common.GetTraceID(c),
 		Pagination: &common.PaginationMeta{
 			Page:       page,
-			PageSize:   pageSize,
-			TotalItems: total,
+			Limit:      pageSize,
+			Total:      total,
 			TotalPages: (total + pageSize - 1) / pageSize,
+			HasNext:    page*pageSize < total,
+			HasPrev:    page > 1,
 		},
 	})
 }
@@ -438,9 +441,11 @@ func (h *AdminDashboardHandler) GetOrderDashboard(c *gin.Context) {
 		TraceID: common.GetTraceID(c),
 		Pagination: &common.PaginationMeta{
 			Page:       page,
-			PageSize:   pageSize,
-			TotalItems: total,
+			Limit:      pageSize,
+			Total:      total,
 			TotalPages: (total + pageSize - 1) / pageSize,
+			HasNext:    page*pageSize < total,
+			HasPrev:    page > 1,
 		},
 	})
 }
@@ -463,9 +468,9 @@ func calculateOrderMetrics(orderList []*orderModels.Order) map[string]interface{
 	}
 
 	return map[string]interface{}{
-		"total_orders":     totalOrders,
-		"total_revenue":    totalRevenue,
+		"total_orders":        totalOrders,
+		"total_revenue":       totalRevenue,
 		"average_order_value": avgOrderValue,
-		"status_breakdown": statusBreakdown,
+		"status_breakdown":    statusBreakdown,
 	}
 }
