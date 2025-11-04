@@ -33,8 +33,8 @@ func NewServiceHandler(catalogService catalogService.CatalogServiceInterface, et
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer token"
-// @Param service body catalog.CreateServiceRequest true "Service information"
-// @Success 201 {object} common.Response{data=catalog.ServiceResponse}
+// @Param service body catalogRequests.CreateServiceRequest true "Service information"
+// @Success 201 {object} common.Response{data=catalogResponses.ServiceResponse}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -83,7 +83,7 @@ func (h *ServiceHandler) CreateService(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Service ID"
 // @Param If-None-Match header string false "ETag for conditional requests"
-// @Success 200 {object} common.Response{data=catalog.ServiceResponse}
+// @Success 200 {object} common.Response{data=catalogResponses.ServiceResponse}
 // @Success 304 "Not modified"
 // @Failure 404 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/catalog/services/{id} [get]
@@ -143,8 +143,8 @@ func (h *ServiceHandler) GetServiceByID(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param id path string true "Service ID"
-// @Param service body catalog.UpdateCatalogItemRequest true "Service updates"
-// @Success 200 {object} common.Response{data=catalog.ServiceResponse}
+// @Param service body catalogRequests.UpdateCatalogItemRequest true "Service updates"
+// @Success 200 {object} common.Response{data=catalogResponses.ServiceResponse}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -253,7 +253,7 @@ func (h *ServiceHandler) DeleteService(c *gin.Context) {
 // @Param is_active query bool false "Filter by active status"
 // @Param search query string false "Search term"
 // @Param include_deleted query bool false "Include soft-deleted items (admin only)" default(false)
-// @Success 200 {object} common.Response{data=[]catalog.ServiceResponse,meta=common.ResponseMeta{pagination=common.PaginationMeta}}
+// @Success 200 {object} common.Response{data=[]catalogResponses.ServiceResponse,meta=common.ResponseMeta{pagination=common.PaginationMeta}}
 // @Router /api/v1/catalog/services [get]
 func (h *ServiceHandler) ListServices(c *gin.Context) {
 	// Extract query options (includes deleted items if user is admin and include_deleted=true)
@@ -308,18 +308,21 @@ func (h *ServiceHandler) ListServices(c *gin.Context) {
 }
 
 // ActivateService godoc
-// @Summary Activate a service
-// @Description Activate a service to make it visible and usable (Admin only)
-// @Tags services
+// @Summary Activate a catalog service
+// @Description Activate an inactive service to make it available for publishing and ordering. Only admins can activate services. Services are created as inactive by default and must be activated before they can be published.
+// @Tags catalog-services
 // @Accept json
 // @Produce json
-// @Param Authorization header string true "Bearer token"
-// @Param id path string true "Service ID"
-// @Success 200 {object} common.Response{data=string}
-// @Failure 400 {object} common.Response{error=common.ResponseError}
-// @Failure 403 {object} common.Response{error=common.ResponseError}
-// @Failure 404 {object} common.Response{error=common.ResponseError}
+// @Param Authorization header string true "Bearer token (Admin only)" example("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
+// @Param id path string true "Service ID" example("SERV00000001")
+// @Success 200 {object} common.Response{data=string} "Service activated successfully"
+// @Failure 400 {object} common.Response{error=common.ResponseError} "Activation failed"
+// @Failure 401 {object} common.Response{error=common.ResponseError} "Unauthorized - missing or invalid token"
+// @Failure 403 {object} common.Response{error=common.ResponseError} "Forbidden - admin access required"
+// @Failure 404 {object} common.Response{error=common.ResponseError} "Service not found"
+// @Failure 500 {object} common.Response{error=common.ResponseError} "Internal server error"
 // @Router /api/v1/catalog/services/{id}/activate [patch]
+// @Security BearerAuth
 func (h *ServiceHandler) ActivateService(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -348,18 +351,21 @@ func (h *ServiceHandler) ActivateService(c *gin.Context) {
 }
 
 // DeactivateService godoc
-// @Summary Deactivate a service
-// @Description Deactivate a service to make it invisible and unusable (Admin only)
-// @Tags services
+// @Summary Deactivate a catalog service
+// @Description Deactivate an active service to make it unavailable for new orders. Existing orders are not affected. Only admins can deactivate services.
+// @Tags catalog-services
 // @Accept json
 // @Produce json
-// @Param Authorization header string true "Bearer token"
-// @Param id path string true "Service ID"
-// @Success 200 {object} common.Response{data=string}
-// @Failure 400 {object} common.Response{error=common.ResponseError}
-// @Failure 403 {object} common.Response{error=common.ResponseError}
-// @Failure 404 {object} common.Response{error=common.ResponseError}
+// @Param Authorization header string true "Bearer token (Admin only)" example("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
+// @Param id path string true "Service ID" example("SERV00000001")
+// @Success 200 {object} common.Response{data=string} "Service deactivated successfully"
+// @Failure 400 {object} common.Response{error=common.ResponseError} "Deactivation failed"
+// @Failure 401 {object} common.Response{error=common.ResponseError} "Unauthorized - missing or invalid token"
+// @Failure 403 {object} common.Response{error=common.ResponseError} "Forbidden - admin access required"
+// @Failure 404 {object} common.Response{error=common.ResponseError} "Service not found"
+// @Failure 500 {object} common.Response{error=common.ResponseError} "Internal server error"
 // @Router /api/v1/catalog/services/{id}/deactivate [patch]
+// @Security BearerAuth
 func (h *ServiceHandler) DeactivateService(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {

@@ -18,6 +18,7 @@ type CatalogServiceInterface interface {
 	UpdateProduct(ctx context.Context, product *catalogModels.Product, userID string) (*catalogModels.Product, error)
 	DeleteProduct(ctx context.Context, productID string, userID string) error
 	ListProducts(ctx context.Context, limit, offset int, category, status string) ([]*catalogModels.CatalogItem, error)
+	ListProductsForFPO(ctx context.Context, fpoOrgID string, filters *catalogRequests.CatalogFilter, offset, limit int) ([]*catalogModels.ProductWithFPOPricing, error)
 	CreateService(ctx context.Context, req *catalogRequests.CreateServiceRequest, userID string) (*catalogModels.Service, error)
 	GetServiceByID(ctx context.Context, serviceID string) (*catalogModels.Service, error)
 	GetServiceBySKU(ctx context.Context, sku string) (*catalogModels.Service, error)
@@ -57,7 +58,8 @@ type CatalogRepositoryInterface interface {
 
 // CatalogService provides business logic for catalog operations
 type CatalogService struct {
-	catalogRepo CatalogRepositoryInterface
+	catalogRepo    CatalogRepositoryInterface
+	publishService PublishService
 }
 
 // NewCatalogService creates a new catalog service
@@ -65,6 +67,11 @@ func NewCatalogService(catalogRepo CatalogRepositoryInterface) *CatalogService {
 	return &CatalogService{
 		catalogRepo: catalogRepo,
 	}
+}
+
+// SetPublishService sets the publish service (used for dependency injection after creation)
+func (s *CatalogService) SetPublishService(publishService PublishService) {
+	s.publishService = publishService
 }
 
 // CreateProduct creates a new product
@@ -1051,4 +1058,110 @@ func (s *CatalogService) UpdateActiveStatus(ctx context.Context, id string, isAc
 	}
 
 	return nil
+}
+
+// ListProductsForFPO retrieves products visible to a specific FPO with FPO-specific pricing
+// Only returns products that have been explicitly published to this FPO
+func (s *CatalogService) ListProductsForFPO(ctx context.Context, fpoOrgID string, filters *catalogRequests.CatalogFilter, offset, limit int) ([]*catalogModels.ProductWithFPOPricing, error) {
+	// Validate that publish service is available
+	if s.publishService == nil {
+		return nil, fmt.Errorf("publish service not available")
+	}
+
+	// Use the publish service to get products visible to this FPO with pricing
+	productsWithPricing, err := s.publishService.GetProductsForFPO(ctx, fpoOrgID, offset, limit)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get products for FPO: %w", err)
+	}
+
+	// If no filters specified, return all published products
+	if filters == nil {
+		return productsWithPricing, nil
+	}
+
+	// Apply additional filters if specified
+	filteredProducts := make([]*catalogModels.ProductWithFPOPricing, 0)
+	for _, productWithPricing := range productsWithPricing {
+		// Apply category filter
+		if filters.Category != nil && *filters.Category != "" {
+			if productWithPricing.Category != *filters.Category {
+				continue
+			}
+		}
+
+		// Apply subcategory filter
+		if filters.Subcategory != nil && *filters.Subcategory != "" {
+			if productWithPricing.Subcategory != *filters.Subcategory {
+				continue
+			}
+		}
+
+		// Apply price range filter (using retail price for FPO)
+		if filters.MinPrice != nil {
+			if productWithPricing.Pricing.RetailPrice.LessThan(*filters.MinPrice) {
+				continue
+			}
+		}
+		if filters.MaxPrice != nil {
+			if productWithPricing.Pricing.RetailPrice.GreaterThan(*filters.MaxPrice) {
+				continue
+			}
+		}
+
+		// Apply search filter
+		if filters.Search != nil && *filters.Search != "" {
+			searchTerm := *filters.Search
+			// Simple case-insensitive substring match on name and description
+			nameMatch := false
+			if len(productWithPricing.Name) > 0 {
+				// Basic substring search (in production, use proper full-text search)
+				nameMatch = containsIgnoreCase(productWithPricing.Name, searchTerm)
+			}
+			descMatch := false
+			if len(productWithPricing.Description) > 0 {
+				descMatch = containsIgnoreCase(productWithPricing.Description, searchTerm)
+			}
+			if !nameMatch && !descMatch {
+				continue
+			}
+		}
+
+		// Product passed all filters
+		filteredProducts = append(filteredProducts, productWithPricing)
+	}
+
+	return filteredProducts, nil
+}
+
+// containsIgnoreCase performs case-insensitive substring matching
+// This is a simple implementation; production code should use proper search
+func containsIgnoreCase(str, substr string) bool {
+	// Convert to lowercase for case-insensitive comparison
+	strLower := ""
+	substrLower := ""
+	for _, r := range str {
+		if r >= 'A' && r <= 'Z' {
+			strLower += string(r + 32)
+		} else {
+			strLower += string(r)
+		}
+	}
+	for _, r := range substr {
+		if r >= 'A' && r <= 'Z' {
+			substrLower += string(r + 32)
+		} else {
+			substrLower += string(r)
+		}
+	}
+
+	// Check if substr exists in str
+	if len(substrLower) > len(strLower) {
+		return false
+	}
+	for i := 0; i <= len(strLower)-len(substrLower); i++ {
+		if strLower[i:i+len(substrLower)] == substrLower {
+			return true
+		}
+	}
+	return false
 }

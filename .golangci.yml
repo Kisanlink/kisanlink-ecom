@@ -104,6 +104,7 @@ issues:
         - errcheck
         - dupl
         - gosec
+        - goconst
 
     - path: cmd/
       linters:

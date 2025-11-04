@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"kisanlink-ecom/entities/requests/auth"
+	authRequests "kisanlink-ecom/entities/requests/auth"
 	"kisanlink-ecom/internal/services/user"
 	"kisanlink-ecom/internal/utils"
 
@@ -29,13 +29,13 @@ func NewAuthHandler(userService *user.UserService) *AuthHandler {
 // @Tags         Authentication
 // @Accept       json
 // @Produce      json
-// @Param        request  body      auth.LoginRequest  true  "Login credentials"
-// @Success      200      {object}  common.Response  "Login successful"
+// @Param        request  body      authRequests.LoginRequest  true  "Login credentials"
+// @Success      200      {object}  common.Response{data=map[string]interface{}}  "Login successful"
 // @Failure      400      {object}  common.Response{error=common.ResponseError}  "Invalid request"
 // @Failure      401      {object}  common.Response{error=common.ResponseError}  "Invalid credentials"
 // @Router       /api/v1/auth/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
-	var req auth.LoginRequest
+	var req authRequests.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.ValidationErrorResponse(c, err.Error())
 		return
@@ -65,14 +65,14 @@ func (h *AuthHandler) Login(c *gin.Context) {
 // @Tags         Authentication
 // @Accept       json
 // @Produce      json
-// @Param        request  body      auth.RegisterRequest  true  "User registration data"
-// @Success      201      {object}  common.Response  "Registration successful"
+// @Param        request  body      authRequests.RegisterRequest  true  "User registration data"
+// @Success      201      {object}  common.Response{data=map[string]interface{}}  "Registration successful"
 // @Failure      400      {object}  common.Response{error=common.ResponseError}  "Invalid request"
 // @Failure      409      {object}  common.Response{error=common.ResponseError}  "User already exists"
 // @Failure      500      {object}  common.Response{error=common.ResponseError}  "Internal server error"
 // @Router       /api/v1/auth/register [post]
 func (h *AuthHandler) Register(c *gin.Context) {
-	var req auth.RegisterRequest
+	var req authRequests.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.ValidationErrorResponse(c, err.Error())
 		return
@@ -102,7 +102,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Success      200      {object}  common.Response  "Logout successful"
+// @Success      200      {object}  common.Response{data=string}  "Logout successful"
 // @Failure      401      {object}  common.Response{error=common.ResponseError}  "Unauthorized"
 // @Router       /api/v1/auth/logout [post]
 func (h *AuthHandler) Logout(c *gin.Context) {

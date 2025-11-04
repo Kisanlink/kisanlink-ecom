@@ -46,7 +46,7 @@ type PriceUpdateRequest struct {
 // @Param type path string true "Item type (products, services, labour, contracts)"
 // @Param id path string true "Item ID"
 // @Param request body PublishRequest false "Publish options"
-// @Success 200 {object} common.Response{data=catalog.CatalogItemResponse}
+// @Success 200 {object} common.Response{data=catalogResponses.CatalogItemResponse}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -141,7 +141,7 @@ func (h *CatalogHandler) PublishCatalogItem(c *gin.Context) {
 // @Param type path string true "Item type (products, services, labour, contracts)"
 // @Param id path string true "Item ID"
 // @Param request body UnpublishRequest false "Unpublish options"
-// @Success 200 {object} common.Response{data=catalog.CatalogItemResponse}
+// @Success 200 {object} common.Response{data=catalogResponses.CatalogItemResponse}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -221,7 +221,7 @@ func (h *CatalogHandler) UnpublishCatalogItem(c *gin.Context) {
 // @Param type path string true "Item type (products, services, labour, contracts)"
 // @Param id path string true "Item ID"
 // @Param request body PriceUpdateRequest true "Price update data"
-// @Success 200 {object} common.Response{data=catalog.CatalogItemResponse}
+// @Success 200 {object} common.Response{data=catalogResponses.CatalogItemResponse}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -311,42 +311,70 @@ func NewFPOPublishHandler(publishService catalogService.PublishService) *FPOPubl
 }
 
 // PublishProductToFPOsRequest represents the request to publish a product to FPOs
+// @Description Request body for publishing a product to specific FPOs with pricing configuration
 type PublishProductToFPOsRequest struct {
-	FPOIDs             []string           `json:"fpo_ids" binding:"required,min=1"`
-	DeliveryCosts      map[string]float64 `json:"delivery_costs" binding:"required"`
-	PlatformFeePercent float64            `json:"platform_fee_percent" binding:"required,min=0,max=100"`
+	// FPO organization IDs that should have access to this product
+	FPOIDs []string `json:"fpo_ids" binding:"required,min=1"`
+
+	// Delivery costs per FPO (map of FPO ID to cost in INR)
+	DeliveryCosts map[string]float64 `json:"delivery_costs" binding:"required"`
+
+	// Platform commission percentage (0-100)
+	PlatformFeePercent float64 `json:"platform_fee_percent" binding:"required,min=0,max=100" example:"10.0"`
 }
 
 // PublishProductToFPOsResponse represents the response for publishing a product to FPOs
+// @Description Response after successfully publishing a product to FPOs
 type PublishProductToFPOsResponse struct {
-	ProductID      string    `json:"product_id"`
-	Status         string    `json:"status"`
-	VisibleToFPOs  int       `json:"visible_to_fpos"`
-	PublishedAt    time.Time `json:"published_at"`
-	PlatformFee    float64   `json:"platform_fee_percent"`
-	PublishStateID string    `json:"publish_state_id"`
+	// Product ID that was published
+	// @example "PROD00000001"
+	ProductID string `json:"product_id" example:"PROD00000001"`
+
+	// Publishing status
+	// @example "published"
+	Status string `json:"status" example:"published"`
+
+	// Number of FPOs that can now access this product
+	// @example 2
+	VisibleToFPOs int `json:"visible_to_fpos" example:"2"`
+
+	// Timestamp when the product was published
+	// @example "2025-11-04T10:30:00Z"
+	PublishedAt time.Time `json:"published_at" example:"2025-11-04T10:30:00Z"`
+
+	// Platform commission percentage applied
+	// @example 10.0
+	PlatformFee float64 `json:"platform_fee_percent" example:"10.0"`
+
+	// Unique identifier for the publish state record
+	// @example "PUB00000001"
+	PublishStateID string `json:"publish_state_id" example:"PUB00000001"`
 }
 
 // UpdateDeliveryCostsRequest represents the request to update delivery costs
+// @Description Request body for updating delivery costs for specific FPOs
 type UpdateDeliveryCostsRequest struct {
+	// Updated delivery costs per FPO (map of FPO ID to cost in INR)
 	DeliveryCosts map[string]float64 `json:"delivery_costs" binding:"required"`
 }
 
 // PublishProductToFPOs godoc
-// @Summary Publish product to FPOs
-// @Description Publish a product to specific FPOs with delivery costs and platform fee configuration
-// @Tags Product Publishing
+// @Summary Publish a product to selected FPOs
+// @Description Publish a product to specific FPO organizations with custom delivery costs and platform fees. This makes the product visible in the FPO marketplace with calculated retail pricing (base price + delivery cost + commission). Only admin users can publish products to FPOs.
+// @Tags catalog-publishing
 // @Accept json
 // @Produce json
-// @Param Authorization header string true "Bearer token"
-// @Param id path string true "Product ID"
-// @Param request body PublishProductToFPOsRequest true "Publish configuration"
-// @Success 200 {object} common.Response{data=PublishProductToFPOsResponse}
-// @Failure 400 {object} common.Response{error=common.ResponseError}
-// @Failure 401 {object} common.Response{error=common.ResponseError}
-// @Failure 403 {object} common.Response{error=common.ResponseError}
-// @Failure 404 {object} common.Response{error=common.ResponseError}
+// @Param Authorization header string true "Bearer token (Admin only)" example("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
+// @Param id path string true "Product ID" example("PROD00000001")
+// @Param request body PublishProductToFPOsRequest true "Publishing configuration"
+// @Success 200 {object} common.Response{data=PublishProductToFPOsResponse} "Product published successfully"
+// @Failure 400 {object} common.Response{error=common.ResponseError} "Invalid request or validation error"
+// @Failure 401 {object} common.Response{error=common.ResponseError} "Unauthorized - missing or invalid token"
+// @Failure 403 {object} common.Response{error=common.ResponseError} "Forbidden - admin access required"
+// @Failure 404 {object} common.Response{error=common.ResponseError} "Product not found"
+// @Failure 500 {object} common.Response{error=common.ResponseError} "Internal server error"
 // @Router /api/v1/catalog/products/{id}/publish [post]
+// @Security BearerAuth
 func (h *FPOPublishHandler) PublishProductToFPOs(c *gin.Context) {
 	productID := c.Param("id")
 	if productID == "" {
@@ -419,18 +447,19 @@ func (h *FPOPublishHandler) PublishProductToFPOs(c *gin.Context) {
 }
 
 // GetPublishStatus godoc
-// @Summary Get product publish status
-// @Description Retrieve the publish status and FPO access configuration for a product
-// @Tags Product Publishing
+// @Summary Get product publishing status
+// @Description Retrieve the current publishing status of a product, including which FPOs have access, delivery costs, and platform fees. Returns 404 if the product is not published.
+// @Tags catalog-publishing
 // @Accept json
 // @Produce json
-// @Param Authorization header string true "Bearer token"
-// @Param id path string true "Product ID"
-// @Success 200 {object} common.Response{data=catalog.PublishState}
-// @Failure 400 {object} common.Response{error=common.ResponseError}
-// @Failure 401 {object} common.Response{error=common.ResponseError}
-// @Failure 404 {object} common.Response{error=common.ResponseError}
+// @Param Authorization header string true "Bearer token" example("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
+// @Param id path string true "Product ID" example("PROD00000001")
+// @Success 200 {object} common.Response{data=catalogModels.PublishState} "Publishing status retrieved successfully"
+// @Failure 401 {object} common.Response{error=common.ResponseError} "Unauthorized - missing or invalid token"
+// @Failure 404 {object} common.Response{error=common.ResponseError} "Product not found or not published"
+// @Failure 500 {object} common.Response{error=common.ResponseError} "Internal server error"
 // @Router /api/v1/catalog/products/{id}/publish-status [get]
+// @Security BearerAuth
 func (h *FPOPublishHandler) GetPublishStatus(c *gin.Context) {
 	productID := c.Param("id")
 	if productID == "" {
@@ -454,20 +483,22 @@ func (h *FPOPublishHandler) GetPublishStatus(c *gin.Context) {
 }
 
 // UpdateProductDeliveryCosts godoc
-// @Summary Update delivery costs for a product
-// @Description Update the delivery costs for specific FPOs for a published product
-// @Tags Product Publishing
+// @Summary Update delivery costs for FPOs
+// @Description Update the delivery costs for one or more FPOs for a published product. This will affect the retail price calculation for those FPOs. Only admin users can update delivery costs.
+// @Tags catalog-publishing
 // @Accept json
 // @Produce json
-// @Param Authorization header string true "Bearer token"
-// @Param id path string true "Product ID"
+// @Param Authorization header string true "Bearer token (Admin only)" example("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
+// @Param id path string true "Product ID" example("PROD00000001")
 // @Param request body UpdateDeliveryCostsRequest true "Updated delivery costs"
-// @Success 200 {object} common.Response{data=map[string]string}
-// @Failure 400 {object} common.Response{error=common.ResponseError}
-// @Failure 401 {object} common.Response{error=common.ResponseError}
-// @Failure 403 {object} common.Response{error=common.ResponseError}
-// @Failure 404 {object} common.Response{error=common.ResponseError}
+// @Success 200 {object} common.Response{data=map[string]string} "Delivery costs updated successfully"
+// @Failure 400 {object} common.Response{error=common.ResponseError} "Invalid request or negative costs"
+// @Failure 401 {object} common.Response{error=common.ResponseError} "Unauthorized - missing or invalid token"
+// @Failure 403 {object} common.Response{error=common.ResponseError} "Forbidden - admin access required"
+// @Failure 404 {object} common.Response{error=common.ResponseError} "Product not found or not published"
+// @Failure 500 {object} common.Response{error=common.ResponseError} "Internal server error"
 // @Router /api/v1/catalog/products/{id}/delivery-costs [patch]
+// @Security BearerAuth
 func (h *FPOPublishHandler) UpdateProductDeliveryCosts(c *gin.Context) {
 	productID := c.Param("id")
 	if productID == "" {
@@ -507,19 +538,20 @@ func (h *FPOPublishHandler) UpdateProductDeliveryCosts(c *gin.Context) {
 
 // RevokeFPOAccess godoc
 // @Summary Revoke FPO access to a product
-// @Description Remove a specific FPO's access to a published product
-// @Tags Product Publishing
+// @Description Remove a specific FPO's access to a published product. The product will no longer be visible in that FPO's marketplace. Only admin users can revoke access.
+// @Tags catalog-publishing
 // @Accept json
 // @Produce json
-// @Param Authorization header string true "Bearer token"
-// @Param id path string true "Product ID"
-// @Param fpo_id path string true "FPO Organization ID"
-// @Success 200 {object} common.Response{data=map[string]string}
-// @Failure 400 {object} common.Response{error=common.ResponseError}
-// @Failure 401 {object} common.Response{error=common.ResponseError}
-// @Failure 403 {object} common.Response{error=common.ResponseError}
-// @Failure 404 {object} common.Response{error=common.ResponseError}
+// @Param Authorization header string true "Bearer token (Admin only)" example("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
+// @Param id path string true "Product ID" example("PROD00000001")
+// @Param fpo_id path string true "FPO Organization ID" example("ORGN00000002")
+// @Success 200 {object} common.Response{data=map[string]string} "FPO access revoked successfully"
+// @Failure 401 {object} common.Response{error=common.ResponseError} "Unauthorized - missing or invalid token"
+// @Failure 403 {object} common.Response{error=common.ResponseError} "Forbidden - admin access required"
+// @Failure 404 {object} common.Response{error=common.ResponseError} "Product not found or not published"
+// @Failure 500 {object} common.Response{error=common.ResponseError} "Internal server error"
 // @Router /api/v1/catalog/products/{id}/fpo-access/{fpo_id} [delete]
+// @Security BearerAuth
 func (h *FPOPublishHandler) RevokeFPOAccess(c *gin.Context) {
 	productID := c.Param("id")
 	fpoOrgID := c.Param("fpo_id")

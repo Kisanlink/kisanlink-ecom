@@ -33,8 +33,8 @@ func NewLabourHandler(catalogService catalogService.CatalogServiceInterface, eta
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer token"
-// @Param labour body catalog.CreateLabourRequest true "Labour information"
-// @Success 201 {object} common.Response{data=catalog.LabourResponse}
+// @Param labour body catalogRequests.CreateLabourRequest true "Labour information"
+// @Success 201 {object} common.Response{data=catalogResponses.LabourResponse}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -83,7 +83,7 @@ func (h *LabourHandler) CreateLabour(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Labour ID"
 // @Param If-None-Match header string false "ETag for conditional requests"
-// @Success 200 {object} common.Response{data=catalog.LabourResponse}
+// @Success 200 {object} common.Response{data=catalogResponses.LabourResponse}
 // @Success 304 "Not modified"
 // @Failure 404 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/catalog/labour/{id} [get]
@@ -143,8 +143,8 @@ func (h *LabourHandler) GetLabourByID(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param id path string true "Labour ID"
-// @Param labour body catalog.UpdateCatalogItemRequest true "Labour updates"
-// @Success 200 {object} common.Response{data=catalog.LabourResponse}
+// @Param labour body catalogRequests.UpdateCatalogItemRequest true "Labour updates"
+// @Success 200 {object} common.Response{data=catalogResponses.LabourResponse}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -253,7 +253,7 @@ func (h *LabourHandler) DeleteLabour(c *gin.Context) {
 // @Param is_active query bool false "Filter by active status"
 // @Param search query string false "Search term"
 // @Param include_deleted query bool false "Include soft-deleted items (admin only)" default(false)
-// @Success 200 {object} common.Response{data=[]catalog.LabourResponse,meta=common.ResponseMeta{pagination=common.PaginationMeta}}
+// @Success 200 {object} common.Response{data=[]catalogResponses.LabourResponse,meta=common.ResponseMeta{pagination=common.PaginationMeta}}
 // @Router /api/v1/catalog/labour [get]
 func (h *LabourHandler) ListLabour(c *gin.Context) {
 	// Extract query options (includes deleted items if user is admin and include_deleted=true)
@@ -308,18 +308,21 @@ func (h *LabourHandler) ListLabour(c *gin.Context) {
 }
 
 // ActivateLabour godoc
-// @Summary Activate a labour offering
-// @Description Activate a labour offering to make it visible and usable (Admin only)
-// @Tags labour
+// @Summary Activate a catalog labour offering
+// @Description Activate an inactive labour offering to make it available for publishing and ordering. Only admins can activate labour offerings. Labour offerings are created as inactive by default and must be activated before they can be published.
+// @Tags catalog-labour
 // @Accept json
 // @Produce json
-// @Param Authorization header string true "Bearer token"
-// @Param id path string true "Labour ID"
-// @Success 200 {object} common.Response{data=string}
-// @Failure 400 {object} common.Response{error=common.ResponseError}
-// @Failure 403 {object} common.Response{error=common.ResponseError}
-// @Failure 404 {object} common.Response{error=common.ResponseError}
+// @Param Authorization header string true "Bearer token (Admin only)" example("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
+// @Param id path string true "Labour ID" example("LABR00000001")
+// @Success 200 {object} common.Response{data=string} "Labour activated successfully"
+// @Failure 400 {object} common.Response{error=common.ResponseError} "Activation failed"
+// @Failure 401 {object} common.Response{error=common.ResponseError} "Unauthorized - missing or invalid token"
+// @Failure 403 {object} common.Response{error=common.ResponseError} "Forbidden - admin access required"
+// @Failure 404 {object} common.Response{error=common.ResponseError} "Labour not found"
+// @Failure 500 {object} common.Response{error=common.ResponseError} "Internal server error"
 // @Router /api/v1/catalog/labour/{id}/activate [patch]
+// @Security BearerAuth
 func (h *LabourHandler) ActivateLabour(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -348,18 +351,21 @@ func (h *LabourHandler) ActivateLabour(c *gin.Context) {
 }
 
 // DeactivateLabour godoc
-// @Summary Deactivate a labour offering
-// @Description Deactivate a labour offering to make it invisible and unusable (Admin only)
-// @Tags labour
+// @Summary Deactivate a catalog labour offering
+// @Description Deactivate an active labour offering to make it unavailable for new orders. Existing orders are not affected. Only admins can deactivate labour offerings.
+// @Tags catalog-labour
 // @Accept json
 // @Produce json
-// @Param Authorization header string true "Bearer token"
-// @Param id path string true "Labour ID"
-// @Success 200 {object} common.Response{data=string}
-// @Failure 400 {object} common.Response{error=common.ResponseError}
-// @Failure 403 {object} common.Response{error=common.ResponseError}
-// @Failure 404 {object} common.Response{error=common.ResponseError}
+// @Param Authorization header string true "Bearer token (Admin only)" example("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
+// @Param id path string true "Labour ID" example("LABR00000001")
+// @Success 200 {object} common.Response{data=string} "Labour deactivated successfully"
+// @Failure 400 {object} common.Response{error=common.ResponseError} "Deactivation failed"
+// @Failure 401 {object} common.Response{error=common.ResponseError} "Unauthorized - missing or invalid token"
+// @Failure 403 {object} common.Response{error=common.ResponseError} "Forbidden - admin access required"
+// @Failure 404 {object} common.Response{error=common.ResponseError} "Labour not found"
+// @Failure 500 {object} common.Response{error=common.ResponseError} "Internal server error"
 // @Router /api/v1/catalog/labour/{id}/deactivate [patch]
+// @Security BearerAuth
 func (h *LabourHandler) DeactivateLabour(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {

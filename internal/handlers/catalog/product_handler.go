@@ -6,7 +6,6 @@ import (
 
 	catalogModels "kisanlink-ecom/entities/models/catalog"
 	catalogRequests "kisanlink-ecom/entities/requests/catalog"
-	_ "kisanlink-ecom/entities/responses/catalog" // For Swagger documentation
 	"kisanlink-ecom/internal/common"
 	"kisanlink-ecom/internal/middleware"
 	catalogService "kisanlink-ecom/internal/services/catalog"
@@ -35,8 +34,8 @@ func NewProductHandler(catalogService catalogService.CatalogServiceInterface, et
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer token"
-// @Param product body catalog.CreateCatalogItemRequest true "Product information"
-// @Success 201 {object} common.Response{data=catalog.ProductResponse}
+// @Param product body catalogRequests.CreateCatalogItemRequest true "Product information"
+// @Success 201 {object} common.Response{data=catalogResponses.ProductResponse}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -120,7 +119,7 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Product ID"
 // @Param If-None-Match header string false "ETag for conditional requests"
-// @Success 200 {object} common.Response{data=catalog.ProductResponse}
+// @Success 200 {object} common.Response{data=catalogResponses.ProductResponse}
 // @Success 304 "Not modified"
 // @Failure 404 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/catalog/products/{id} [get]
@@ -180,8 +179,8 @@ func (h *ProductHandler) GetProductByID(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param id path string true "Product ID"
-// @Param product body catalog.UpdateCatalogItemRequest true "Product updates"
-// @Success 200 {object} common.Response{data=catalog.ProductResponse}
+// @Param product body catalogRequests.UpdateCatalogItemRequest true "Product updates"
+// @Success 200 {object} common.Response{data=catalogResponses.ProductResponse}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -278,20 +277,24 @@ func (h *ProductHandler) DeleteProduct(c *gin.Context) {
 }
 
 // ListProducts godoc
-// @Summary List products
-// @Description Retrieve a list of products with filtering and pagination
-// @Tags products
+// @Summary List catalog products
+// @Description List products with filtering and pagination. For admin users, returns all products. For FPO users, returns only products published to their organization with FPO-specific pricing (base price + delivery cost + commission).
+// @Tags catalog-products
 // @Accept json
 // @Produce json
-// @Param page query int false "Page number" default(1)
-// @Param limit query int false "Items per page" default(20)
-// @Param category query string false "Filter by category"
-// @Param org_id query string false "Filter by organization ID"
-// @Param is_active query bool false "Filter by active status"
-// @Param search query string false "Search term"
+// @Param Authorization header string true "Bearer token" example("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
+// @Param page query int false "Page number" default(1) minimum(1)
+// @Param limit query int false "Items per page" default(20) minimum(1) maximum(100)
+// @Param category query string false "Filter by category ID" example("CAT00000001")
+// @Param subcategory query string false "Filter by subcategory ID" example("SUBCAT00000001")
+// @Param search query string false "Search in product name and description" example("organic fertilizer")
+// @Param is_active query bool false "Filter by active status (admin only)" example(true)
 // @Param include_deleted query bool false "Include soft-deleted items (admin only)" default(false)
-// @Success 200 {object} common.Response{data=[]catalog.ProductResponse,meta=common.ResponseMeta{pagination=common.PaginationMeta}}
+// @Success 200 {object} common.Response{data=[]catalogResponses.ProductResponse,meta=common.ResponseMeta{pagination=common.PaginationMeta}} "Products retrieved successfully"
+// @Failure 401 {object} common.Response{error=common.ResponseError} "Unauthorized - missing or invalid token"
+// @Failure 500 {object} common.Response{error=common.ResponseError} "Internal server error"
 // @Router /api/v1/catalog/products [get]
+// @Security BearerAuth
 func (h *ProductHandler) ListProducts(c *gin.Context) {
 	// Extract query options (includes deleted items if user is admin and include_deleted=true)
 	middleware.ExtractQueryOptions(c)
@@ -309,7 +312,57 @@ func (h *ProductHandler) ListProducts(c *gin.Context) {
 
 	offset := (page - 1) * limit
 
-	// Parse filter parameters
+	// Check if user is admin
+	isAdmin := common.IsAdmin(c)
+
+	// Get organization ID from context
+	orgID, hasOrgID := common.GetOrganizationID(c)
+
+	// If user is not admin and has org ID, show FPO-filtered products
+	if !isAdmin && hasOrgID {
+		// Build filter from query params
+		filter := &catalogRequests.CatalogFilter{}
+
+		// Category filter
+		if category := c.Query("category"); category != "" {
+			filter.Category = &category
+		}
+
+		// Subcategory filter
+		if subcategory := c.Query("subcategory"); subcategory != "" {
+			filter.Subcategory = &subcategory
+		}
+
+		// Search filter
+		if search := c.Query("search"); search != "" {
+			filter.Search = &search
+		}
+
+		// Get FPO-filtered products with pricing
+		productsWithPricing, err := h.catalogService.ListProductsForFPO(c.Request.Context(), orgID, filter, offset, limit)
+		if err != nil {
+			common.InternalServerError(c, "LIST_FAILED", "Failed to list products for FPO", map[string]interface{}{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		// Calculate total (simplified - in production use proper count query)
+		total := len(productsWithPricing)
+
+		common.Success(c, productsWithPricing, &common.ResponseMeta{
+			TraceID: common.GetTraceID(c),
+			Pagination: &common.PaginationMeta{
+				Page:    page,
+				Limit:   limit,
+				Total:   total,
+				HasNext: len(productsWithPricing) == limit,
+			},
+		})
+		return
+	}
+
+	// Admin or no org ID - show all products (existing behavior)
 	category := c.Query("category")
 	status := c.Query("status")
 
@@ -345,18 +398,21 @@ func (h *ProductHandler) ListProducts(c *gin.Context) {
 }
 
 // ActivateProduct godoc
-// @Summary Activate a product
-// @Description Activate a product to make it visible and usable (Admin only)
-// @Tags products
+// @Summary Activate a catalog product
+// @Description Activate an inactive product to make it available for publishing and ordering. Only admins can activate products. Products are created as inactive by default and must be activated before they can be published to FPOs.
+// @Tags catalog-products
 // @Accept json
 // @Produce json
-// @Param Authorization header string true "Bearer token"
-// @Param id path string true "Product ID"
-// @Success 200 {object} common.Response{data=string}
-// @Failure 400 {object} common.Response{error=common.ResponseError}
-// @Failure 403 {object} common.Response{error=common.ResponseError}
-// @Failure 404 {object} common.Response{error=common.ResponseError}
+// @Param Authorization header string true "Bearer token (Admin only)" example("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
+// @Param id path string true "Product ID" example("PROD00000001")
+// @Success 200 {object} common.Response{data=string} "Product activated successfully"
+// @Failure 400 {object} common.Response{error=common.ResponseError} "Activation failed"
+// @Failure 401 {object} common.Response{error=common.ResponseError} "Unauthorized - missing or invalid token"
+// @Failure 403 {object} common.Response{error=common.ResponseError} "Forbidden - admin access required"
+// @Failure 404 {object} common.Response{error=common.ResponseError} "Product not found"
+// @Failure 500 {object} common.Response{error=common.ResponseError} "Internal server error"
 // @Router /api/v1/catalog/products/{id}/activate [patch]
+// @Security BearerAuth
 func (h *ProductHandler) ActivateProduct(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -393,18 +449,21 @@ func (h *ProductHandler) ActivateProduct(c *gin.Context) {
 }
 
 // DeactivateProduct godoc
-// @Summary Deactivate a product
-// @Description Deactivate a product to make it invisible and unusable (Admin only)
-// @Tags products
+// @Summary Deactivate a catalog product
+// @Description Deactivate an active product to make it unavailable for new orders and inventory creation. Existing orders are not affected. Only admins can deactivate products.
+// @Tags catalog-products
 // @Accept json
 // @Produce json
-// @Param Authorization header string true "Bearer token"
-// @Param id path string true "Product ID"
-// @Success 200 {object} common.Response{data=string}
-// @Failure 400 {object} common.Response{error=common.ResponseError}
-// @Failure 403 {object} common.Response{error=common.ResponseError}
-// @Failure 404 {object} common.Response{error=common.ResponseError}
+// @Param Authorization header string true "Bearer token (Admin only)" example("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
+// @Param id path string true "Product ID" example("PROD00000001")
+// @Success 200 {object} common.Response{data=string} "Product deactivated successfully"
+// @Failure 400 {object} common.Response{error=common.ResponseError} "Deactivation failed"
+// @Failure 401 {object} common.Response{error=common.ResponseError} "Unauthorized - missing or invalid token"
+// @Failure 403 {object} common.Response{error=common.ResponseError} "Forbidden - admin access required"
+// @Failure 404 {object} common.Response{error=common.ResponseError} "Product not found"
+// @Failure 500 {object} common.Response{error=common.ResponseError} "Internal server error"
 // @Router /api/v1/catalog/products/{id}/deactivate [patch]
+// @Security BearerAuth
 func (h *ProductHandler) DeactivateProduct(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {

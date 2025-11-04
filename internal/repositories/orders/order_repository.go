@@ -96,20 +96,12 @@ func (r *OrderRepository) createOrderWithTransaction(ctx context.Context, ord *o
 	// Calculate total before creating
 	ord.CalculateTotal()
 
-	// Create the main order record
-	if err := r.BaseFilterableRepository.Create(ctx, ord); err != nil {
-		return fmt.Errorf("failed to create order: %w", err)
-	}
-
-	// Create order items
+	// Set OrderID for all items before creating (GORM associations require this)
 	for i := range ord.Items {
 		ord.Items[i].OrderID = ord.ID
-		if err := r.dbManager.Create(ctx, &ord.Items[i]); err != nil {
-			return fmt.Errorf("failed to create order item %d: %w", i, err)
-		}
 	}
 
-	// Create initial status history entry
+	// Create initial status history entry before creating order
 	if len(ord.StatusHistory) == 0 {
 		initialHistory := orders.NewOrderStatusHistory(
 			ord.ID,
@@ -119,17 +111,13 @@ func (r *OrderRepository) createOrderWithTransaction(ctx context.Context, ord *o
 			ord.BuyerUserID,
 			ord.BuyerOrganizationID,
 		)
-		if err := r.dbManager.Create(ctx, initialHistory); err != nil {
-			return fmt.Errorf("failed to create initial status history: %w", err)
-		}
 		ord.StatusHistory = append(ord.StatusHistory, *initialHistory)
-	} else {
-		// Create all status history entries
-		for i := range ord.StatusHistory {
-			if err := r.dbManager.Create(ctx, &ord.StatusHistory[i]); err != nil {
-				return fmt.Errorf("failed to create status history %d: %w", i, err)
-			}
-		}
+	}
+
+	// Create the order with all its items and status history via GORM associations
+	// r.Create() delegates to BaseFilterableRepository which handles all associated records
+	if err := r.Create(ctx, ord); err != nil {
+		return fmt.Errorf("failed to create order: %w", err)
 	}
 
 	return nil
@@ -140,22 +128,12 @@ func (r *OrderRepository) createOrderWithoutTransaction(ctx context.Context, ord
 	// Calculate total before creating
 	ord.CalculateTotal()
 
-	// Create the main order record
-	if err := r.BaseFilterableRepository.Create(ctx, ord); err != nil {
-		return fmt.Errorf("failed to create order: %w", err)
-	}
-
-	// Create order items
+	// Set OrderID for all items before creating (GORM associations require this)
 	for i := range ord.Items {
 		ord.Items[i].OrderID = ord.ID
-		if err := r.dbManager.Create(ctx, &ord.Items[i]); err != nil {
-			// Try to clean up the order if item creation fails
-			r.BaseFilterableRepository.Delete(ctx, ord.ID, ord)
-			return fmt.Errorf("failed to create order item %d: %w", i, err)
-		}
 	}
 
-	// Create initial status history entry
+	// Create initial status history entry before creating order
 	if len(ord.StatusHistory) == 0 {
 		initialHistory := orders.NewOrderStatusHistory(
 			ord.ID,
@@ -165,10 +143,13 @@ func (r *OrderRepository) createOrderWithoutTransaction(ctx context.Context, ord
 			ord.BuyerUserID,
 			ord.BuyerOrganizationID,
 		)
-		if err := r.dbManager.Create(ctx, initialHistory); err != nil {
-			return fmt.Errorf("failed to create initial status history: %w", err)
-		}
 		ord.StatusHistory = append(ord.StatusHistory, *initialHistory)
+	}
+
+	// Create the order with all its items and status history via GORM associations
+	// r.Create() delegates to BaseFilterableRepository which handles all associated records
+	if err := r.Create(ctx, ord); err != nil {
+		return fmt.Errorf("failed to create order: %w", err)
 	}
 
 	return nil

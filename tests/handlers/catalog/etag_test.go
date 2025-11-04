@@ -107,6 +107,9 @@ func (m *MockCatalogService) UpdateInventory(_ context.Context, _ string, _ floa
 func (m *MockCatalogService) UpdateActiveStatus(_ context.Context, _ string, _ bool, _ string) error {
 	return nil
 }
+func (m *MockCatalogService) ListProductsForFPO(_ context.Context, _ string, _ *catalogRequests.CatalogFilter, _, _ int) ([]*catalogModels.ProductWithFPOPricing, error) {
+	return nil, nil
+}
 
 func TestETagSupport(t *testing.T) {
 	gin.SetMode(gin.TestMode)
