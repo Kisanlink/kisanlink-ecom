@@ -261,6 +261,16 @@ func (r *OrderRepository) ListOrders(ctx context.Context, filter *ordersRequests
 
 	dbFilter := base.NewFilter()
 
+	// Debug logging
+	isAdminPtr := "nil"
+	isAdminValue := false
+	if filter.IsAdmin != nil {
+		isAdminPtr = fmt.Sprintf("%v", *filter.IsAdmin)
+		isAdminValue = *filter.IsAdmin
+	}
+	fmt.Printf("[DEBUG] OrderRepository.ListOrders: filter_is_admin_ptr=%s, filter_is_admin_value=%v, filter_buyer_org=%v, filter_seller_org=%v\n",
+		isAdminPtr, isAdminValue, filter.BuyerOrganizationID, filter.SellerOrganizationID)
+
 	// Add conditions based on the order filter
 	// Skip organization filters for admin users
 	if filter.IsAdmin == nil || !*filter.IsAdmin {

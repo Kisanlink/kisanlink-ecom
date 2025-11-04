@@ -1,6 +1,7 @@
 package orders
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
@@ -316,7 +317,12 @@ func (h *OrderHandler) ListOrders(c *gin.Context) {
 	orgID, _ := common.GetOrganizationID(c)
 
 	// Check if user is admin
+	roles, rolesExist := common.GetUserRoles(c)
 	isAdmin := common.IsAdmin(c)
+
+	// Debug logging
+	fmt.Printf("[DEBUG] OrderHandler.ListOrders: roles_exist=%v, roles=%v, is_admin=%v, org_id=%s, user_id=%s\n",
+		rolesExist, roles, isAdmin, orgID, userID)
 
 	// Get orders
 	orders, total, err := h.orderService.ListOrders(c.Request.Context(), filter, userID, orgID, isAdmin, offset, limit)

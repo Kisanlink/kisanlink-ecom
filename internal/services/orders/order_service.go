@@ -352,6 +352,10 @@ func (s *OrderService) ListOrders(ctx context.Context, filter *orderRequests.Lis
 	// Set the IsAdmin field in the filter for the repository layer
 	filter.IsAdmin = &isAdmin
 
+	// Debug logging
+	fmt.Printf("[DEBUG] OrderService.ListOrders: is_admin_param=%v, filter_is_admin=%v, filter_buyer_org=%v, filter_seller_org=%v\n",
+		isAdmin, filter.IsAdmin, filter.BuyerOrganizationID, filter.SellerOrganizationID)
+
 	// Apply organization-based filtering based on user role
 	// Admins can see all orders without automatic organization filtering
 	if !isAdmin {
