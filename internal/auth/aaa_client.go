@@ -288,6 +288,18 @@ func (c *client) ValidateToken(ctx context.Context, token string) (*TokenClaims,
 		}
 	}
 
+	// Debug: Print ALL response fields to understand what AAA is sending
+	fmt.Printf("[DEBUG] AAA Client Response: Claims present: %v, UserContext present: %v\n",
+		resp.Claims != nil, resp.UserContext != nil)
+	if resp.Claims != nil {
+		fmt.Printf("[DEBUG] AAA Claims: Roles=%v, Permissions=%v, Scopes=%v\n",
+			resp.Claims.Roles, resp.Claims.Permissions, resp.Claims.Scopes)
+	}
+	if resp.UserContext != nil {
+		fmt.Printf("[DEBUG] AAA UserContext: Roles=%v, Permissions=%v, Groups=%v\n",
+			resp.UserContext.Roles, resp.UserContext.Permissions, resp.UserContext.Groups)
+	}
+
 	// Extract role names from user_context.roles if Claims.Roles is empty
 	var roles []string
 	if len(resp.Claims.Roles) > 0 {
@@ -300,19 +312,11 @@ func (c *client) ValidateToken(ctx context.Context, token string) (*TokenClaims,
 		fmt.Printf("[DEBUG] AAA Client: Using roles from UserContext.Roles: %v\n", roles)
 	} else {
 		// Debug: show what we got
-		fmt.Printf("[DEBUG] AAA Client: NO ROLES FOUND - Claims.Roles length: %d, UserContext: %v, UserContext.Roles length: %d\n",
-			len(resp.Claims.Roles),
-			resp.UserContext != nil,
-			func() int {
-				if resp.UserContext != nil {
-					return len(resp.UserContext.Roles)
-				}
-				return 0
-			}(),
-		)
-		if resp.UserContext != nil {
-			fmt.Printf("[DEBUG] AAA Client: UserContext.Roles content: %v\n", resp.UserContext.Roles)
-		}
+		fmt.Printf("[DEBUG] AAA Client: NO ROLES FOUND in any field - This is an AAA SERVICE ISSUE\n")
+		fmt.Printf("[DEBUG] The AAA ValidateToken endpoint is not returning roles. Check:\n")
+		fmt.Printf("[DEBUG]   1. AAA service configuration\n")
+		fmt.Printf("[DEBUG]   2. Token generation - does token have roles encoded?\n")
+		fmt.Printf("[DEBUG]   3. AAA service version - does it support role population?\n")
 	}
 
 	// Convert response to TokenClaims
