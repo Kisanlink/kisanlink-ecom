@@ -44,8 +44,8 @@ type InventoryService interface {
 // CreateInventoryLotRequest represents a request to create an inventory lot
 type CreateInventoryLotRequest struct {
 	CatalogItemID     string           `json:"catalog_item_id" validate:"required"`
-	LotNumber         string           `json:"lot_number" validate:"required"`
-	BatchNumber       string           `json:"batch_number"`
+	LotNumber         string           `json:"lot_number"` // Optional - auto-generated if not provided
+	BatchNumber       string           `json:"batch_number"` // Optional - auto-generated if not provided
 	InitialQuantity   decimal.Decimal  `json:"initial_quantity" validate:"required,gt=0"`
 	QualityGrade      string           `json:"quality_grade"`
 	HarvestDate       *time.Time       `json:"harvest_date"`
@@ -98,10 +98,16 @@ type CatalogRepository interface {
 	GetByID(ctx context.Context, id string, model interface{}) (interface{}, error)
 }
 
+// SequenceService interface for generating unique IDs
+type SequenceService interface {
+	GenerateID(ctx context.Context, prefix string, orgID *string) (string, error)
+}
+
 // inventoryService implements the InventoryService interface
 type inventoryService struct {
 	inventoryRepo inventoryRepo.InventoryRepository
 	catalogRepo   CatalogRepository
+	sequenceRepo  SequenceService
 }
 
 // NewInventoryService creates a new inventory service
@@ -109,7 +115,13 @@ func NewInventoryService(inventoryRepo inventoryRepo.InventoryRepository, catalo
 	return &inventoryService{
 		inventoryRepo: inventoryRepo,
 		catalogRepo:   catalogRepo,
+		sequenceRepo:  nil, // Will be set separately if needed
 	}
+}
+
+// SetSequenceService sets the sequence service for auto-generating IDs
+func (s *inventoryService) SetSequenceService(sequenceRepo SequenceService) {
+	s.sequenceRepo = sequenceRepo
 }
 
 // CreateInventoryLot creates a new inventory lot with product validation
@@ -131,8 +143,45 @@ func (s *inventoryService) CreateInventoryLot(ctx context.Context, req *CreateIn
 		return nil, fmt.Errorf("inventory lots can only be created for products")
 	}
 
+	// Validate that the catalog item is active
+	if !catalogItem.IsActive {
+		return nil, fmt.Errorf("cannot create inventory lot for deactivated catalog item (id: %s)", req.CatalogItemID)
+	}
+
+	// Auto-generate lot number if not provided
+	lotNumber := req.LotNumber
+	if lotNumber == "" {
+		if s.sequenceRepo != nil {
+			// Use sequence service if available
+			generatedLotNum, err := s.sequenceRepo.GenerateID(ctx, "LOT", &orgID)
+			if err != nil {
+				return nil, fmt.Errorf("failed to generate lot number: %w", err)
+			}
+			lotNumber = generatedLotNum
+		} else {
+			// Fallback to simple timestamp-based generation
+			lotNumber = s.generateSimpleLotNumber()
+		}
+	}
+
+	// Auto-generate batch number if not provided
+	batchNumber := req.BatchNumber
+	if batchNumber == "" {
+		if s.sequenceRepo != nil {
+			// Use sequence service if available
+			generatedBatchNum, err := s.sequenceRepo.GenerateID(ctx, "BATCH", &orgID)
+			if err != nil {
+				return nil, fmt.Errorf("failed to generate batch number: %w", err)
+			}
+			batchNumber = generatedBatchNum
+		} else {
+			// Fallback to simple timestamp-based generation
+			batchNumber = s.generateSimpleBatchNumber()
+		}
+	}
+
 	// Check if lot number is unique within the organization
-	existingLot, err := s.inventoryRepo.GetByLotNumber(ctx, orgID, req.LotNumber)
+	existingLot, err := s.inventoryRepo.GetByLotNumber(ctx, orgID, lotNumber)
 	if err == nil && existingLot != nil {
 		return nil, fmt.Errorf("lot number already exists in organization")
 	}
@@ -143,8 +192,8 @@ func (s *inventoryService) CreateInventoryLot(ctx context.Context, req *CreateIn
 	}
 
 	// Create inventory lot
-	lot := catalogModels.NewInventoryLot(orgID, req.LotNumber, req.InitialQuantity, "kg") // Default unit
-	lot.BatchNumber = req.BatchNumber
+	lot := catalogModels.NewInventoryLot(orgID, lotNumber, req.InitialQuantity, "kg") // Default unit
+	lot.BatchNumber = batchNumber
 	lot.QualityGrade = req.QualityGrade
 	lot.HarvestDate = req.HarvestDate
 	lot.ExpiryDate = req.ExpiryDate
@@ -848,4 +897,16 @@ func (s *inventoryService) GetAuditTrail(ctx context.Context, lotID string, offs
 		Offset: offset,
 		Limit:  limit,
 	}, nil
+}
+
+// generateSimpleLotNumber generates a simple lot number using timestamp
+func (s *inventoryService) generateSimpleLotNumber() string {
+	timestamp := time.Now().Format("20060102150405")
+	return fmt.Sprintf("LOT-%s", timestamp)
+}
+
+// generateSimpleBatchNumber generates a simple batch number using timestamp
+func (s *inventoryService) generateSimpleBatchNumber() string {
+	timestamp := time.Now().Format("20060102150405")
+	return fmt.Sprintf("BATCH-%s", timestamp)
 }
