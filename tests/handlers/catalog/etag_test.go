@@ -104,6 +104,9 @@ func (m *MockCatalogService) GetInventoryLevel(_ context.Context, _ string) (flo
 func (m *MockCatalogService) UpdateInventory(_ context.Context, _ string, _ float64, _ string) error {
 	return nil
 }
+func (m *MockCatalogService) UpdateActiveStatus(_ context.Context, _ string, _ bool, _ string) error {
+	return nil
+}
 
 func TestETagSupport(t *testing.T) {
 	gin.SetMode(gin.TestMode)

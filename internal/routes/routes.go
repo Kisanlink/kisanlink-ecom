@@ -424,6 +424,16 @@ func SetupRouter(aaaClient auth.Client, services *Services) *gin.Engine {
 						// TODO: Add proper authorization middleware
 						productHandler.DeleteProduct,
 					)
+					products.PATCH("/:id/activate",
+						conditionalAuthMiddleware(aaaClient),
+						// TODO: Add proper admin authorization middleware
+						productHandler.ActivateProduct,
+					)
+					products.PATCH("/:id/deactivate",
+						conditionalAuthMiddleware(aaaClient),
+						// TODO: Add proper admin authorization middleware
+						productHandler.DeactivateProduct,
+					)
 
 					// FPO Publishing endpoints (requires PublishService)
 					if services.PublishSvc != nil {
@@ -474,6 +484,16 @@ func SetupRouter(aaaClient auth.Client, services *Services) *gin.Engine {
 						conditionalAuthMiddleware(aaaClient),
 						serviceHandler.DeleteService,
 					)
+					servicesGroup.PATCH("/:id/activate",
+						conditionalAuthMiddleware(aaaClient),
+						// TODO: Add proper admin authorization middleware
+						serviceHandler.ActivateService,
+					)
+					servicesGroup.PATCH("/:id/deactivate",
+						conditionalAuthMiddleware(aaaClient),
+						// TODO: Add proper admin authorization middleware
+						serviceHandler.DeactivateService,
+					)
 				}
 
 				// Labour
@@ -498,6 +518,16 @@ func SetupRouter(aaaClient auth.Client, services *Services) *gin.Engine {
 					labour.DELETE("/:id",
 						conditionalAuthMiddleware(aaaClient),
 						labourHandler.DeleteLabour,
+					)
+					labour.PATCH("/:id/activate",
+						conditionalAuthMiddleware(aaaClient),
+						// TODO: Add proper admin authorization middleware
+						labourHandler.ActivateLabour,
+					)
+					labour.PATCH("/:id/deactivate",
+						conditionalAuthMiddleware(aaaClient),
+						// TODO: Add proper admin authorization middleware
+						labourHandler.DeactivateLabour,
 					)
 				}
 			} else {

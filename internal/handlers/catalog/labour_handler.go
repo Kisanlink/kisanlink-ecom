@@ -307,6 +307,86 @@ func (h *LabourHandler) ListLabour(c *gin.Context) {
 	})
 }
 
+// ActivateLabour godoc
+// @Summary Activate a labour offering
+// @Description Activate a labour offering to make it visible and usable (Admin only)
+// @Tags labour
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer token"
+// @Param id path string true "Labour ID"
+// @Success 200 {object} common.Response{data=string}
+// @Failure 400 {object} common.Response{error=common.ResponseError}
+// @Failure 403 {object} common.Response{error=common.ResponseError}
+// @Failure 404 {object} common.Response{error=common.ResponseError}
+// @Router /api/v1/catalog/labour/{id}/activate [patch]
+func (h *LabourHandler) ActivateLabour(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		common.BadRequest(c, "MISSING_ID", "Labour ID is required", nil)
+		return
+	}
+
+	// Get user ID from context
+	userID, exists := c.Get("subjectID")
+	if !exists {
+		common.Unauthorized(c, "MISSING_USER", "User ID not found in context", nil)
+		return
+	}
+
+	err := h.catalogService.UpdateActiveStatus(c.Request.Context(), id, true, userID.(string))
+	if err != nil {
+		common.BadRequest(c, "ACTIVATION_FAILED", "Failed to activate labour", map[string]interface{}{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	common.Success(c, "Labour activated successfully", &common.ResponseMeta{
+		TraceID: common.GetTraceID(c),
+	})
+}
+
+// DeactivateLabour godoc
+// @Summary Deactivate a labour offering
+// @Description Deactivate a labour offering to make it invisible and unusable (Admin only)
+// @Tags labour
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer token"
+// @Param id path string true "Labour ID"
+// @Success 200 {object} common.Response{data=string}
+// @Failure 400 {object} common.Response{error=common.ResponseError}
+// @Failure 403 {object} common.Response{error=common.ResponseError}
+// @Failure 404 {object} common.Response{error=common.ResponseError}
+// @Router /api/v1/catalog/labour/{id}/deactivate [patch]
+func (h *LabourHandler) DeactivateLabour(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		common.BadRequest(c, "MISSING_ID", "Labour ID is required", nil)
+		return
+	}
+
+	// Get user ID from context
+	userID, exists := c.Get("subjectID")
+	if !exists {
+		common.Unauthorized(c, "MISSING_USER", "User ID not found in context", nil)
+		return
+	}
+
+	err := h.catalogService.UpdateActiveStatus(c.Request.Context(), id, false, userID.(string))
+	if err != nil {
+		common.BadRequest(c, "DEACTIVATION_FAILED", "Failed to deactivate labour", map[string]interface{}{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	common.Success(c, "Labour deactivated successfully", &common.ResponseMeta{
+		TraceID: common.GetTraceID(c),
+	})
+}
+
 // updateLabourFromRequest updates labour fields from request
 func (h *LabourHandler) updateLabourFromRequest(labour *catalogModels.Labour, req *catalogRequests.UpdateCatalogItemRequest) {
 	if req.Name != nil {

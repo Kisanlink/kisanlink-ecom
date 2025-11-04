@@ -176,7 +176,7 @@ func NewCatalogItem(orgID string, itemType CatalogItemType, name string, basePri
 		Name:           name,
 		BasePrice:      basePrice,
 		Currency:       "INR",
-		IsActive:       true,
+		IsActive:       false, // Default to inactive - admin must activate
 		Visibility:     VisibilityPrivate,
 		Version:        1,
 	}

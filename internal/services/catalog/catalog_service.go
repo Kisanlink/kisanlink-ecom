@@ -32,6 +32,7 @@ type CatalogServiceInterface interface {
 	ListLabour(ctx context.Context, limit, offset int, category, status string) ([]*catalogModels.CatalogItem, error)
 	GetCatalogItemByID(ctx context.Context, id string) (*catalogModels.CatalogItem, error)
 	UpdateCatalogItem(ctx context.Context, catalogItem *catalogModels.CatalogItem, userID string) (*catalogModels.CatalogItem, error)
+	UpdateActiveStatus(ctx context.Context, id string, isActive bool, userID string) error
 	DeleteContract(ctx context.Context, contractID string, userID string) error
 	ListCatalogItems(ctx context.Context, filter *catalogRequests.CatalogFilter, offset, limit int) ([]*catalogModels.CatalogItem, int, error)
 	SearchCatalog(ctx context.Context, query string, filter *catalogRequests.CatalogFilter, offset, limit int) ([]*catalogModels.CatalogItem, int, error)
@@ -1026,6 +1027,27 @@ func (s *CatalogService) DeleteContract(ctx context.Context, contractID string, 
 	// Soft delete the contract
 	if err := s.catalogRepo.Delete(ctx, contractID, catalogItem); err != nil {
 		return fmt.Errorf("failed to delete contract: %w", err)
+	}
+
+	return nil
+}
+
+// UpdateActiveStatus updates the is_active field of a catalog item
+func (s *CatalogService) UpdateActiveStatus(ctx context.Context, id string, isActive bool, userID string) error {
+	catalogItem := &catalogModels.CatalogItem{}
+	result, err := s.catalogRepo.GetByID(ctx, id, catalogItem)
+	if err != nil {
+		return fmt.Errorf("catalog item not found: %w", err)
+	}
+	catalogItem = result.(*catalogModels.CatalogItem)
+
+	// Update the is_active field
+	catalogItem.IsActive = isActive
+	catalogItem.SetUpdatedBy(userID)
+
+	// Save the updated item
+	if err := s.catalogRepo.Update(ctx, catalogItem); err != nil {
+		return fmt.Errorf("failed to update catalog item active status: %w", err)
 	}
 
 	return nil

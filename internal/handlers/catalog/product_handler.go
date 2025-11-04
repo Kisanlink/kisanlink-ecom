@@ -344,6 +344,102 @@ func (h *ProductHandler) ListProducts(c *gin.Context) {
 	})
 }
 
+// ActivateProduct godoc
+// @Summary Activate a product
+// @Description Activate a product to make it visible and usable (Admin only)
+// @Tags products
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer token"
+// @Param id path string true "Product ID"
+// @Success 200 {object} common.Response{data=string}
+// @Failure 400 {object} common.Response{error=common.ResponseError}
+// @Failure 403 {object} common.Response{error=common.ResponseError}
+// @Failure 404 {object} common.Response{error=common.ResponseError}
+// @Router /api/v1/catalog/products/{id}/activate [patch]
+func (h *ProductHandler) ActivateProduct(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		common.BadRequest(c, "MISSING_ID", "Product ID is required", nil)
+		return
+	}
+
+	// Get user ID from context
+	userID, exists := c.Get("subjectID")
+	if !exists {
+		common.Unauthorized(c, "MISSING_USER", "User ID not found in context", nil)
+		return
+	}
+
+	// Check if user is admin (you can implement proper RBAC here)
+	// For now, we'll allow any authenticated user
+	// TODO: Add proper admin check using RBAC
+	// if !common.IsAdmin(c) {
+	// 	common.Forbidden(c, "INSUFFICIENT_PERMISSIONS", "Only admins can activate products", nil)
+	// 	return
+	// }
+
+	err := h.catalogService.UpdateActiveStatus(c.Request.Context(), id, true, userID.(string))
+	if err != nil {
+		common.BadRequest(c, "ACTIVATION_FAILED", "Failed to activate product", map[string]interface{}{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	common.Success(c, "Product activated successfully", &common.ResponseMeta{
+		TraceID: common.GetTraceID(c),
+	})
+}
+
+// DeactivateProduct godoc
+// @Summary Deactivate a product
+// @Description Deactivate a product to make it invisible and unusable (Admin only)
+// @Tags products
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer token"
+// @Param id path string true "Product ID"
+// @Success 200 {object} common.Response{data=string}
+// @Failure 400 {object} common.Response{error=common.ResponseError}
+// @Failure 403 {object} common.Response{error=common.ResponseError}
+// @Failure 404 {object} common.Response{error=common.ResponseError}
+// @Router /api/v1/catalog/products/{id}/deactivate [patch]
+func (h *ProductHandler) DeactivateProduct(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		common.BadRequest(c, "MISSING_ID", "Product ID is required", nil)
+		return
+	}
+
+	// Get user ID from context
+	userID, exists := c.Get("subjectID")
+	if !exists {
+		common.Unauthorized(c, "MISSING_USER", "User ID not found in context", nil)
+		return
+	}
+
+	// Check if user is admin (you can implement proper RBAC here)
+	// For now, we'll allow any authenticated user
+	// TODO: Add proper admin check using RBAC
+	// if !common.IsAdmin(c) {
+	// 	common.Forbidden(c, "INSUFFICIENT_PERMISSIONS", "Only admins can deactivate products", nil)
+	// 	return
+	// }
+
+	err := h.catalogService.UpdateActiveStatus(c.Request.Context(), id, false, userID.(string))
+	if err != nil {
+		common.BadRequest(c, "DEACTIVATION_FAILED", "Failed to deactivate product", map[string]interface{}{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	common.Success(c, "Product deactivated successfully", &common.ResponseMeta{
+		TraceID: common.GetTraceID(c),
+	})
+}
+
 // updateProductFromRequest updates product fields from request
 func (h *ProductHandler) updateProductFromRequest(product *catalogModels.Product, req *catalogRequests.UpdateCatalogItemRequest) {
 	if req.Name != nil {

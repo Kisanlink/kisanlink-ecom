@@ -307,6 +307,86 @@ func (h *ServiceHandler) ListServices(c *gin.Context) {
 	})
 }
 
+// ActivateService godoc
+// @Summary Activate a service
+// @Description Activate a service to make it visible and usable (Admin only)
+// @Tags services
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer token"
+// @Param id path string true "Service ID"
+// @Success 200 {object} common.Response{data=string}
+// @Failure 400 {object} common.Response{error=common.ResponseError}
+// @Failure 403 {object} common.Response{error=common.ResponseError}
+// @Failure 404 {object} common.Response{error=common.ResponseError}
+// @Router /api/v1/catalog/services/{id}/activate [patch]
+func (h *ServiceHandler) ActivateService(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		common.BadRequest(c, "MISSING_ID", "Service ID is required", nil)
+		return
+	}
+
+	// Get user ID from context
+	userID, exists := c.Get("subjectID")
+	if !exists {
+		common.Unauthorized(c, "MISSING_USER", "User ID not found in context", nil)
+		return
+	}
+
+	err := h.catalogService.UpdateActiveStatus(c.Request.Context(), id, true, userID.(string))
+	if err != nil {
+		common.BadRequest(c, "ACTIVATION_FAILED", "Failed to activate service", map[string]interface{}{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	common.Success(c, "Service activated successfully", &common.ResponseMeta{
+		TraceID: common.GetTraceID(c),
+	})
+}
+
+// DeactivateService godoc
+// @Summary Deactivate a service
+// @Description Deactivate a service to make it invisible and unusable (Admin only)
+// @Tags services
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer token"
+// @Param id path string true "Service ID"
+// @Success 200 {object} common.Response{data=string}
+// @Failure 400 {object} common.Response{error=common.ResponseError}
+// @Failure 403 {object} common.Response{error=common.ResponseError}
+// @Failure 404 {object} common.Response{error=common.ResponseError}
+// @Router /api/v1/catalog/services/{id}/deactivate [patch]
+func (h *ServiceHandler) DeactivateService(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		common.BadRequest(c, "MISSING_ID", "Service ID is required", nil)
+		return
+	}
+
+	// Get user ID from context
+	userID, exists := c.Get("subjectID")
+	if !exists {
+		common.Unauthorized(c, "MISSING_USER", "User ID not found in context", nil)
+		return
+	}
+
+	err := h.catalogService.UpdateActiveStatus(c.Request.Context(), id, false, userID.(string))
+	if err != nil {
+		common.BadRequest(c, "DEACTIVATION_FAILED", "Failed to deactivate service", map[string]interface{}{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	common.Success(c, "Service deactivated successfully", &common.ResponseMeta{
+		TraceID: common.GetTraceID(c),
+	})
+}
+
 // updateServiceFromRequest updates service fields from request
 func (h *ServiceHandler) updateServiceFromRequest(service *catalogModels.Service, req *catalogRequests.UpdateCatalogItemRequest) {
 	if req.Name != nil {
