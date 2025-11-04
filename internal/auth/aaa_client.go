@@ -293,9 +293,26 @@ func (c *client) ValidateToken(ctx context.Context, token string) (*TokenClaims,
 	if len(resp.Claims.Roles) > 0 {
 		// Use roles from Claims if available
 		roles = resp.Claims.Roles
+		fmt.Printf("[DEBUG] AAA Client: Using roles from Claims.Roles: %v\n", roles)
 	} else if resp.UserContext != nil && len(resp.UserContext.Roles) > 0 {
 		// Use roles from UserContext (already a []string)
 		roles = resp.UserContext.Roles
+		fmt.Printf("[DEBUG] AAA Client: Using roles from UserContext.Roles: %v\n", roles)
+	} else {
+		// Debug: show what we got
+		fmt.Printf("[DEBUG] AAA Client: NO ROLES FOUND - Claims.Roles length: %d, UserContext: %v, UserContext.Roles length: %d\n",
+			len(resp.Claims.Roles),
+			resp.UserContext != nil,
+			func() int {
+				if resp.UserContext != nil {
+					return len(resp.UserContext.Roles)
+				}
+				return 0
+			}(),
+		)
+		if resp.UserContext != nil {
+			fmt.Printf("[DEBUG] AAA Client: UserContext.Roles content: %v\n", resp.UserContext.Roles)
+		}
 	}
 
 	// Convert response to TokenClaims
