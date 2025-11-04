@@ -23,6 +23,8 @@ func GetAllModelConfigs() []ModelCounterConfig {
 		{TableIdentifier: "ORD", TableName: "orders", TableSize: "large"},
 		{TableIdentifier: "ITEM", TableName: "order_items", TableSize: "large"},
 		{TableIdentifier: "HIST", TableName: "order_status_history", TableSize: "large"},
+		{TableIdentifier: "INV", TableName: "invoices", TableSize: "large"},
+		{TableIdentifier: "INVLI", TableName: "invoice_line_items", TableSize: "large"},
 
 		// Catalog models
 		{TableIdentifier: "CAT", TableName: "catalog_items", TableSize: "large"},

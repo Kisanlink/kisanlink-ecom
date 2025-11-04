@@ -134,6 +134,7 @@ func main() {
 	publishStateRepo := catalog.NewPublishStateRepository(dbManager.GetManager(db.BackendGorm))
 	inventoryRepo := inventory.NewInventoryRepository(dbManager.GetManager(db.BackendGorm))
 	orderRepo := orders.NewOrderRepository(dbManager.GetManager(db.BackendGorm))
+	invoiceRepo := orders.NewInvoiceRepository(dbManager.GetManager(db.BackendGorm))
 	sequenceRepo := sequence.NewSequenceRepository(dbManager.GetManager(db.BackendGorm))
 	userRepo := user.NewUserRepository(dbManager.GetManager(db.BackendGorm))
 	userRoleRepo := roles.NewUserRoleRepository(dbManager.GetManager(db.BackendGorm))
@@ -153,6 +154,7 @@ func main() {
 	inventorySvc := inventoryService.NewInventoryService(inventoryRepo, catalogRepo)
 	sequenceSvc := sequenceService.NewSequenceService(sequenceRepo)
 	orderSvc := orderService.NewOrderService(orderRepo, catalogSvc, inventorySvc, sequenceSvc)
+	invoiceSvc := orderService.NewInvoiceService(invoiceRepo, orderRepo)
 	userRoleSvc := rolesService.NewUserRoleService(userRoleRepo)
 	orgRoleSvc := rolesService.NewOrganizationRoleService(orgRoleRepo)
 	ecomRoleSvc := rolesService.NewEcommerceRoleService(ecomRoleRepo)
@@ -198,6 +200,7 @@ func main() {
 		PublishSvc:         publishSvc,
 		InventorySvc:       inventorySvc,
 		OrderSvc:           orderSvc,
+		InvoiceSvc:         invoiceSvc,
 		UserSvc:            userSvc,
 		IntegrationSvc:     integrationSvc,
 		MarketplaceSvc:     &marketplace.MarketplaceServices{},

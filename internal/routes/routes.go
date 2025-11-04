@@ -42,6 +42,7 @@ type Services struct {
 	PublishSvc         catalogService.PublishService
 	InventorySvc       inventoryService.InventoryService
 	OrderSvc           orderService.OrderServiceInterface
+	InvoiceSvc         orderService.InvoiceServiceInterface
 	UserSvc            *userService.UserService
 	IntegrationSvc     integrationService.IntegrationServiceInterface
 	MarketplaceSvc     *marketplaceService.MarketplaceServices
@@ -704,6 +705,23 @@ func SetupRouter(aaaClient auth.Client, services *Services) *gin.Engine {
 					// TODO: Add proper authorization middleware
 					orderHandler.GetPaymentStatus,
 				)
+
+				// Invoice routes for orders
+				if services.InvoiceSvc != nil {
+					invoiceHandler := orders.NewInvoiceHandler(services.InvoiceSvc)
+					ordersGroup.POST("/:id/invoice",
+						conditionalAuthMiddleware(aaaClient),
+						invoiceHandler.GenerateInvoice,
+					)
+					ordersGroup.GET("/:id/invoice",
+						conditionalAuthMiddleware(aaaClient),
+						invoiceHandler.GetInvoiceByOrderID,
+					)
+					ordersGroup.GET("/:id/invoice/pdf",
+						conditionalAuthMiddleware(aaaClient),
+						invoiceHandler.DownloadInvoicePDF,
+					)
+				}
 			} else {
 				// Fallback handlers when service is not available
 				ordersGroup.POST("", func(c *gin.Context) {
@@ -734,6 +752,51 @@ func SetupRouter(aaaClient auth.Client, services *Services) *gin.Engine {
 					c.JSON(503, gin.H{"error": "Service unavailable"})
 				})
 				ordersGroup.GET("/:id/payment/status", func(c *gin.Context) {
+					c.JSON(503, gin.H{"error": "Service unavailable"})
+				})
+			}
+		}
+
+		// Invoice routes
+		invoicesGroup := v1.Group("/invoices")
+		{
+			if services.InvoiceSvc != nil {
+				invoiceHandler := orders.NewInvoiceHandler(services.InvoiceSvc)
+				invoicesGroup.GET("",
+					conditionalAuthMiddleware(aaaClient),
+					invoiceHandler.ListInvoices,
+				)
+				invoicesGroup.GET("/:id",
+					conditionalAuthMiddleware(aaaClient),
+					invoiceHandler.GetInvoiceByID,
+				)
+				invoicesGroup.POST("/:id/finalize",
+					conditionalAuthMiddleware(aaaClient),
+					invoiceHandler.FinalizeInvoice,
+				)
+				invoicesGroup.POST("/:id/mark-paid",
+					conditionalAuthMiddleware(aaaClient),
+					invoiceHandler.MarkInvoiceAsPaid,
+				)
+				invoicesGroup.POST("/:id/void",
+					conditionalAuthMiddleware(aaaClient),
+					invoiceHandler.VoidInvoice,
+				)
+			} else {
+				// Fallback handlers when service is not available
+				invoicesGroup.GET("", func(c *gin.Context) {
+					c.JSON(503, gin.H{"error": "Service unavailable"})
+				})
+				invoicesGroup.GET("/:id", func(c *gin.Context) {
+					c.JSON(503, gin.H{"error": "Service unavailable"})
+				})
+				invoicesGroup.POST("/:id/finalize", func(c *gin.Context) {
+					c.JSON(503, gin.H{"error": "Service unavailable"})
+				})
+				invoicesGroup.POST("/:id/mark-paid", func(c *gin.Context) {
+					c.JSON(503, gin.H{"error": "Service unavailable"})
+				})
+				invoicesGroup.POST("/:id/void", func(c *gin.Context) {
 					c.JSON(503, gin.H{"error": "Service unavailable"})
 				})
 			}
