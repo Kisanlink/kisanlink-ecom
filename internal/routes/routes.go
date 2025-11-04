@@ -41,8 +41,10 @@ type Services struct {
 	CatalogSvc         catalogService.CatalogServiceInterface
 	PublishSvc         catalogService.PublishService
 	InventorySvc       inventoryService.InventoryService
+	AlertSvc           inventoryService.AlertService
 	OrderSvc           orderService.OrderServiceInterface
 	InvoiceSvc         orderService.InvoiceServiceInterface
+	PurchaseOrderSvc   orderService.PurchaseOrderServiceInterface
 	UserSvc            *userService.UserService
 	IntegrationSvc     integrationService.IntegrationServiceInterface
 	MarketplaceSvc     *marketplaceService.MarketplaceServices
@@ -799,6 +801,60 @@ func SetupRouter(aaaClient auth.Client, services *Services) *gin.Engine {
 				invoicesGroup.POST("/:id/void", func(c *gin.Context) {
 					c.JSON(503, gin.H{"error": "Service unavailable"})
 				})
+			}
+		}
+
+		// FPO Purchase Order routes
+		fpoGroup := v1.Group("/fpo")
+		{
+			if services.PurchaseOrderSvc != nil {
+				poHandler := orders.NewPurchaseOrderHandler(services.PurchaseOrderSvc)
+				purchaseOrdersGroup := fpoGroup.Group("/purchase-orders")
+				{
+					purchaseOrdersGroup.POST("",
+						conditionalAuthMiddleware(aaaClient),
+						poHandler.CreateManualPO,
+					)
+					purchaseOrdersGroup.GET("",
+						conditionalAuthMiddleware(aaaClient),
+						poHandler.ListPurchaseOrders,
+					)
+					purchaseOrdersGroup.GET("/:id",
+						conditionalAuthMiddleware(aaaClient),
+						poHandler.GetPurchaseOrderByID,
+					)
+					purchaseOrdersGroup.PATCH("/:id/status",
+						conditionalAuthMiddleware(aaaClient),
+						poHandler.UpdatePurchaseOrderStatus,
+					)
+					purchaseOrdersGroup.GET("/:id/pdf",
+						conditionalAuthMiddleware(aaaClient),
+						poHandler.DownloadPurchaseOrderPDF,
+					)
+					purchaseOrdersGroup.POST("/:id/grn",
+						conditionalAuthMiddleware(aaaClient),
+						poHandler.CreateGRN,
+					)
+					purchaseOrdersGroup.GET("/:id/grn",
+						conditionalAuthMiddleware(aaaClient),
+						poHandler.GetGRNsByPO,
+					)
+				}
+			}
+		}
+
+		// Admin Dashboard routes
+		adminGroup := v1.Group("/admin")
+		{
+			if services.OrderSvc != nil && services.PurchaseOrderSvc != nil {
+				adminDashboardHandler := orders.NewAdminDashboardHandler(services.OrderSvc, services.PurchaseOrderSvc)
+				ordersAdminGroup := adminGroup.Group("/orders")
+				{
+					ordersAdminGroup.GET("/dashboard",
+						conditionalAuthMiddleware(aaaClient),
+						adminDashboardHandler.GetOrderDashboard,
+					)
+				}
 			}
 		}
 

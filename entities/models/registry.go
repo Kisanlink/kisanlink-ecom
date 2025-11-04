@@ -6,6 +6,7 @@ import (
 	"kisanlink-ecom/entities/models/collaborator"
 	"kisanlink-ecom/entities/models/common"
 	"kisanlink-ecom/entities/models/discounts"
+	"kisanlink-ecom/entities/models/inventory"
 	"kisanlink-ecom/entities/models/marketplace"
 	"kisanlink-ecom/entities/models/media"
 	"kisanlink-ecom/entities/models/orders"
@@ -77,6 +78,10 @@ func AllModels() []interface{} {
 		&marketplace.Listing{},
 		&marketplace.Bid{},
 		&marketplace.AuctionEvent{},
+
+		// Inventory Alert models
+		&inventory.InventoryAlert{},
+		&inventory.AlertConfig{},
 
 		// Outbox models
 		&outbox.OutboxEvent{},
@@ -262,6 +267,10 @@ func ModelsByPriority() []interface{} {
 		&marketplace.Listing{},
 		&marketplace.Bid{},
 		&marketplace.AuctionEvent{},
+
+		// Inventory Alert models (depend on inventory lots)
+		&inventory.InventoryAlert{},
+		&inventory.AlertConfig{},
 
 		// Outbox models (event processing)
 		&outbox.OutboxEvent{},

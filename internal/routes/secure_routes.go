@@ -28,6 +28,7 @@ func SetupSecureRouter(
 	aaaClient auth.Client,
 	catalogSvc catalogService.CatalogServiceInterface,
 	inventorySvc inventoryService.InventoryService,
+	alertSvc inventoryService.AlertService,
 	orderSvc orderService.OrderServiceInterface,
 	userSvc *userService.UserService,
 	integrationSvc integrationService.IntegrationServiceInterface,
@@ -291,6 +292,40 @@ func SetupSecureRouter(
 					rbacMiddleware.RequirePermission("inventory", "read"),
 					inventoryHandler.CheckInventoryAvailability,
 				)
+
+				// Alert management (FPO routes)
+				if alertSvc != nil {
+					alertHandler := inventory.NewAlertHandler(alertSvc)
+
+					alertGroup := inventoryGroup.Group("/alerts")
+					{
+						alertGroup.GET("",
+							rbacMiddleware.RequirePermission("inventory.alerts", "read"),
+							alertHandler.GetAlerts,
+						)
+						alertGroup.GET("/active",
+							rbacMiddleware.RequirePermission("inventory.alerts", "read"),
+							alertHandler.GetActiveAlerts,
+						)
+						alertGroup.POST("/:id/acknowledge",
+							rbacMiddleware.RequirePermission("inventory.alerts", "acknowledge"),
+							alertHandler.AcknowledgeAlert,
+						)
+					}
+
+					// Alert configuration (FPO routes)
+					alertConfigGroup := inventoryGroup.Group("/alert-config")
+					{
+						alertConfigGroup.GET("",
+							rbacMiddleware.RequirePermission("inventory.alerts", "read"),
+							alertHandler.GetAlertConfig,
+						)
+						alertConfigGroup.PUT("",
+							rbacMiddleware.RequirePermission("inventory.alerts", "configure"),
+							alertHandler.UpdateAlertConfig,
+						)
+					}
+				}
 			} else {
 				setupFallbackHandlers(inventoryGroup)
 			}

@@ -35,6 +35,7 @@ import (
 	integrationService "kisanlink-ecom/internal/services/integrations"
 	inventoryService "kisanlink-ecom/internal/services/inventory"
 	"kisanlink-ecom/internal/services/marketplace"
+	"kisanlink-ecom/internal/services/notifications"
 	orderService "kisanlink-ecom/internal/services/orders"
 	rolesService "kisanlink-ecom/internal/services/roles"
 	sequenceService "kisanlink-ecom/internal/services/sequence"
@@ -133,8 +134,10 @@ func main() {
 	catalogRepo := catalog.NewCatalogRepository(dbManager.GetManager(db.BackendGorm))
 	publishStateRepo := catalog.NewPublishStateRepository(dbManager.GetManager(db.BackendGorm))
 	inventoryRepo := inventory.NewInventoryRepository(dbManager.GetManager(db.BackendGorm))
+	alertRepo := inventory.NewAlertRepository(dbManager.GetManager(db.BackendGorm))
 	orderRepo := orders.NewOrderRepository(dbManager.GetManager(db.BackendGorm))
 	invoiceRepo := orders.NewInvoiceRepository(dbManager.GetManager(db.BackendGorm))
+	purchaseOrderRepo := orders.NewPurchaseOrderRepository(dbManager.GetManager(db.BackendGorm))
 	sequenceRepo := sequence.NewSequenceRepository(dbManager.GetManager(db.BackendGorm))
 	userRepo := user.NewUserRepository(dbManager.GetManager(db.BackendGorm))
 	userRoleRepo := roles.NewUserRoleRepository(dbManager.GetManager(db.BackendGorm))
@@ -152,9 +155,12 @@ func main() {
 	catalogSvc := catalogService.NewCatalogService(catalogRepo)
 	publishSvc := catalogService.NewPublishService(publishStateRepo, catalogRepo, logrusLogger)
 	inventorySvc := inventoryService.NewInventoryService(inventoryRepo, catalogRepo)
+	notificationSvc := notifications.NewNotificationService()
+	alertSvc := inventoryService.NewAlertService(alertRepo, inventoryRepo, notificationSvc)
 	sequenceSvc := sequenceService.NewSequenceService(sequenceRepo)
 	orderSvc := orderService.NewOrderService(orderRepo, catalogSvc, inventorySvc, sequenceSvc)
 	invoiceSvc := orderService.NewInvoiceService(invoiceRepo, orderRepo)
+	purchaseOrderSvc := orderService.NewPurchaseOrderService(purchaseOrderRepo)
 	userRoleSvc := rolesService.NewUserRoleService(userRoleRepo)
 	orgRoleSvc := rolesService.NewOrganizationRoleService(orgRoleRepo)
 	ecomRoleSvc := rolesService.NewEcommerceRoleService(ecomRoleRepo)
@@ -199,8 +205,10 @@ func main() {
 		CatalogSvc:         catalogSvc,
 		PublishSvc:         publishSvc,
 		InventorySvc:       inventorySvc,
+		AlertSvc:           alertSvc,
 		OrderSvc:           orderSvc,
 		InvoiceSvc:         invoiceSvc,
+		PurchaseOrderSvc:   purchaseOrderSvc,
 		UserSvc:            userSvc,
 		IntegrationSvc:     integrationSvc,
 		MarketplaceSvc:     &marketplace.MarketplaceServices{},
