@@ -183,7 +183,7 @@ func GetUserRoles(c *gin.Context) ([]string, bool) {
 	return nil, false
 }
 
-// IsAdmin checks if the user has admin or super_admin role
+// IsAdmin checks if the user has admin, super_admin, or ecom_admin role
 func IsAdmin(c *gin.Context) bool {
 	roles, exists := GetUserRoles(c)
 	if !exists {
@@ -191,7 +191,7 @@ func IsAdmin(c *gin.Context) bool {
 	}
 
 	for _, role := range roles {
-		if role == "admin" || role == "super_admin" {
+		if role == "admin" || role == "super_admin" || role == "ecom_admin" {
 			return true
 		}
 	}

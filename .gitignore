@@ -67,3 +67,4 @@ testdata/
 *.test
 node_modules/.cache/
 /server
+scheduler
