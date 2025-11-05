@@ -1,12 +1,10 @@
 package inventory
 
 import (
-	"net/http"
 	"strconv"
 
 	"kisanlink-ecom/internal/common"
 	inventoryService "kisanlink-ecom/internal/services/inventory"
-	"kisanlink-ecom/internal/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -48,13 +46,13 @@ func (h *AlertHandler) GetAlerts(c *gin.Context) {
 	// Get user context
 	userID, exists := common.GetSubjectID(c)
 	if !exists {
-		utils.ErrorResponse(c, http.StatusUnauthorized, "UNAUTHORIZED", "User not authenticated", "")
+		common.Unauthorized(c, "UNAUTHORIZED", "User not authenticated", nil)
 		return
 	}
 
 	orgID, exists := common.GetOrganizationID(c)
 	if !exists {
-		utils.ErrorResponse(c, http.StatusForbidden, "FORBIDDEN", "Organization context required", "")
+		common.Forbidden(c, "FORBIDDEN", "Organization context required", nil)
 		return
 	}
 
@@ -77,11 +75,11 @@ func (h *AlertHandler) GetAlerts(c *gin.Context) {
 	// Get alerts
 	response, err := h.alertService.GetAlertsByFPO(c.Request.Context(), orgID, offset, limit, userID)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusInternalServerError, "INTERNAL_ERROR", err.Error(), "")
+		common.InternalServerError(c, "INTERNAL_ERROR", err.Error(), nil)
 		return
 	}
 
-	utils.SuccessResponse(c, http.StatusOK, "Alerts retrieved successfully", response)
+	common.Success(c, response, nil)
 }
 
 // GetActiveAlerts lists active inventory alerts for an FPO
@@ -102,13 +100,13 @@ func (h *AlertHandler) GetActiveAlerts(c *gin.Context) {
 	// Get user context
 	userID, exists := common.GetSubjectID(c)
 	if !exists {
-		utils.ErrorResponse(c, http.StatusUnauthorized, "UNAUTHORIZED", "User not authenticated", "")
+		common.Unauthorized(c, "UNAUTHORIZED", "User not authenticated", nil)
 		return
 	}
 
 	orgID, exists := common.GetOrganizationID(c)
 	if !exists {
-		utils.ErrorResponse(c, http.StatusForbidden, "FORBIDDEN", "Organization context required", "")
+		common.Forbidden(c, "FORBIDDEN", "Organization context required", nil)
 		return
 	}
 
@@ -131,11 +129,11 @@ func (h *AlertHandler) GetActiveAlerts(c *gin.Context) {
 	// Get active alerts
 	response, err := h.alertService.GetActiveAlerts(c.Request.Context(), orgID, offset, limit, userID)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusInternalServerError, "INTERNAL_ERROR", err.Error(), "")
+		common.InternalServerError(c, "INTERNAL_ERROR", err.Error(), nil)
 		return
 	}
 
-	utils.SuccessResponse(c, http.StatusOK, "Active alerts retrieved successfully", response)
+	common.Success(c, response, nil)
 }
 
 // AcknowledgeAlert acknowledges an inventory alert
@@ -155,30 +153,30 @@ func (h *AlertHandler) GetActiveAlerts(c *gin.Context) {
 func (h *AlertHandler) AcknowledgeAlert(c *gin.Context) {
 	alertID := c.Param("id")
 	if alertID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "VALIDATION_ERROR", "Alert ID is required", "")
+		common.BadRequest(c, "VALIDATION_ERROR", "Alert ID is required", nil)
 		return
 	}
 
 	// Get user context
 	userID, exists := common.GetSubjectID(c)
 	if !exists {
-		utils.ErrorResponse(c, http.StatusUnauthorized, "UNAUTHORIZED", "User not authenticated", "")
+		common.Unauthorized(c, "UNAUTHORIZED", "User not authenticated", nil)
 		return
 	}
 
 	orgID, exists := common.GetOrganizationID(c)
 	if !exists {
-		utils.ErrorResponse(c, http.StatusForbidden, "FORBIDDEN", "Organization context required", "")
+		common.Forbidden(c, "FORBIDDEN", "Organization context required", nil)
 		return
 	}
 
 	// Acknowledge alert
 	if err := h.alertService.AcknowledgeAlert(c.Request.Context(), alertID, userID, orgID); err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "SERVICE_ERROR", err.Error(), "")
+		common.BadRequest(c, "SERVICE_ERROR", err.Error(), nil)
 		return
 	}
 
-	utils.SuccessResponse(c, http.StatusOK, "Alert acknowledged successfully", nil)
+	common.Success(c, nil, nil)
 }
 
 // GetAlertConfig retrieves alert configuration for an FPO
@@ -197,24 +195,24 @@ func (h *AlertHandler) GetAlertConfig(c *gin.Context) {
 	// Get user context
 	userID, exists := common.GetSubjectID(c)
 	if !exists {
-		utils.ErrorResponse(c, http.StatusUnauthorized, "UNAUTHORIZED", "User not authenticated", "")
+		common.Unauthorized(c, "UNAUTHORIZED", "User not authenticated", nil)
 		return
 	}
 
 	orgID, exists := common.GetOrganizationID(c)
 	if !exists {
-		utils.ErrorResponse(c, http.StatusForbidden, "FORBIDDEN", "Organization context required", "")
+		common.Forbidden(c, "FORBIDDEN", "Organization context required", nil)
 		return
 	}
 
 	// Get alert config
 	config, err := h.alertService.GetAlertConfig(c.Request.Context(), orgID, userID)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusInternalServerError, "INTERNAL_ERROR", err.Error(), "")
+		common.InternalServerError(c, "INTERNAL_ERROR", err.Error(), nil)
 		return
 	}
 
-	utils.SuccessResponse(c, http.StatusOK, "Alert configuration retrieved successfully", config)
+	common.Success(c, config, nil)
 }
 
 // UpdateAlertConfig updates alert configuration for an FPO
@@ -233,20 +231,20 @@ func (h *AlertHandler) GetAlertConfig(c *gin.Context) {
 func (h *AlertHandler) UpdateAlertConfig(c *gin.Context) {
 	var req UpdateAlertConfigRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ValidationErrorResponse(c, err.Error())
+		common.BadRequest(c, "VALIDATION_ERROR", err.Error(), nil)
 		return
 	}
 
 	// Get user context
 	userID, exists := common.GetSubjectID(c)
 	if !exists {
-		utils.ErrorResponse(c, http.StatusUnauthorized, "UNAUTHORIZED", "User not authenticated", "")
+		common.Unauthorized(c, "UNAUTHORIZED", "User not authenticated", nil)
 		return
 	}
 
 	orgID, exists := common.GetOrganizationID(c)
 	if !exists {
-		utils.ErrorResponse(c, http.StatusForbidden, "FORBIDDEN", "Organization context required", "")
+		common.Forbidden(c, "FORBIDDEN", "Organization context required", nil)
 		return
 	}
 
@@ -260,11 +258,11 @@ func (h *AlertHandler) UpdateAlertConfig(c *gin.Context) {
 	// Update alert config
 	config, err := h.alertService.UpdateAlertConfig(c.Request.Context(), orgID, serviceReq, userID)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "SERVICE_ERROR", err.Error(), "")
+		common.BadRequest(c, "SERVICE_ERROR", err.Error(), nil)
 		return
 	}
 
-	utils.SuccessResponse(c, http.StatusOK, "Alert configuration updated successfully", config)
+	common.Success(c, config, nil)
 }
 
 // GetAllAlerts lists all alerts across all FPOs (admin only)
@@ -286,7 +284,7 @@ func (h *AlertHandler) GetAllAlerts(c *gin.Context) {
 	// Get user context
 	userID, exists := common.GetSubjectID(c)
 	if !exists {
-		utils.ErrorResponse(c, http.StatusUnauthorized, "UNAUTHORIZED", "User not authenticated", "")
+		common.Unauthorized(c, "UNAUTHORIZED", "User not authenticated", nil)
 		return
 	}
 
@@ -309,16 +307,16 @@ func (h *AlertHandler) GetAllAlerts(c *gin.Context) {
 	// Get FPO filter if provided
 	fpoOrgID := c.Query("fpo_org_id")
 	if fpoOrgID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "VALIDATION_ERROR", "fpo_org_id is required for admin view", "")
+		common.BadRequest(c, "VALIDATION_ERROR", "fpo_org_id is required for admin view", nil)
 		return
 	}
 
 	// Get alerts for the specified FPO
 	response, err := h.alertService.GetAlertsByFPO(c.Request.Context(), fpoOrgID, offset, limit, userID)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusInternalServerError, "INTERNAL_ERROR", err.Error(), "")
+		common.InternalServerError(c, "INTERNAL_ERROR", err.Error(), nil)
 		return
 	}
 
-	utils.SuccessResponse(c, http.StatusOK, "Alerts retrieved successfully", response)
+	common.Success(c, response, nil)
 }
