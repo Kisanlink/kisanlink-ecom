@@ -63,11 +63,11 @@ type MarketplaceStatsResponse struct {
 // @Param max_price query string false "Filter by maximum price"
 // @Param page query int false "Page number" default(1)
 // @Param limit query int false "Items per page" default(20)
-// @Success 200 {object} common.APIResponse{data=ListingListResponse} "Listings retrieved successfully"
-// @Failure 400 {object} common.APIResponse{error=common.APIError} "Invalid request parameters"
-// @Failure 401 {object} common.APIResponse{error=common.APIError} "Unauthorized"
-// @Failure 403 {object} common.APIResponse{error=common.APIError} "Insufficient privileges"
-// @Failure 500 {object} common.APIResponse{error=common.APIError} "Internal server error"
+// @Success 200 {object} common.Response{data=ListingListResponse} "Listings retrieved successfully"
+// @Failure 400 {object} common.Response{error=common.ResponseError} "Invalid request parameters"
+// @Failure 401 {object} common.Response{error=common.ResponseError} "Unauthorized"
+// @Failure 403 {object} common.Response{error=common.ResponseError} "Insufficient privileges"
+// @Failure 500 {object} common.Response{error=common.ResponseError} "Internal server error"
 // @Router /admin/v1/marketplace/listings [get]
 // @Security BearerAuth
 func (h *AdminHandler) GetAllListings(c *gin.Context) {
@@ -123,12 +123,12 @@ func (h *AdminHandler) GetAllListings(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Listing ID"
 // @Param request body ForceCloseListingRequest true "Force close request"
-// @Success 200 {object} common.APIResponse{data=ListingResponse} "Listing force closed successfully"
-// @Failure 400 {object} common.APIResponse{error=common.APIError} "Invalid request data"
-// @Failure 401 {object} common.APIResponse{error=common.APIError} "Unauthorized"
-// @Failure 403 {object} common.APIResponse{error=common.APIError} "Insufficient privileges"
-// @Failure 404 {object} common.APIResponse{error=common.APIError} "Listing not found"
-// @Failure 500 {object} common.APIResponse{error=common.APIError} "Internal server error"
+// @Success 200 {object} common.Response{data=ListingResponse} "Listing force closed successfully"
+// @Failure 400 {object} common.Response{error=common.ResponseError} "Invalid request data"
+// @Failure 401 {object} common.Response{error=common.ResponseError} "Unauthorized"
+// @Failure 403 {object} common.Response{error=common.ResponseError} "Insufficient privileges"
+// @Failure 404 {object} common.Response{error=common.ResponseError} "Listing not found"
+// @Failure 500 {object} common.Response{error=common.ResponseError} "Internal server error"
 // @Router /admin/v1/marketplace/listings/{id}/force-close [post]
 // @Security BearerAuth
 func (h *AdminHandler) ForceCloseListing(c *gin.Context) {
@@ -179,12 +179,12 @@ func (h *AdminHandler) ForceCloseListing(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Bid ID"
 // @Param request body RemoveBidRequest true "Remove bid request"
-// @Success 200 {object} common.APIResponse "Bid removed successfully"
-// @Failure 400 {object} common.APIResponse{error=common.APIError} "Invalid request data"
-// @Failure 401 {object} common.APIResponse{error=common.APIError} "Unauthorized"
-// @Failure 403 {object} common.APIResponse{error=common.APIError} "Insufficient privileges"
-// @Failure 404 {object} common.APIResponse{error=common.APIError} "Bid not found"
-// @Failure 500 {object} common.APIResponse{error=common.APIError} "Internal server error"
+// @Success 200 {object} common.Response "Bid removed successfully"
+// @Failure 400 {object} common.Response{error=common.ResponseError} "Invalid request data"
+// @Failure 401 {object} common.Response{error=common.ResponseError} "Unauthorized"
+// @Failure 403 {object} common.Response{error=common.ResponseError} "Insufficient privileges"
+// @Failure 404 {object} common.Response{error=common.ResponseError} "Bid not found"
+// @Failure 500 {object} common.Response{error=common.ResponseError} "Internal server error"
 // @Router /admin/v1/marketplace/bids/{id} [delete]
 // @Security BearerAuth
 func (h *AdminHandler) RemoveBid(c *gin.Context) {
@@ -232,10 +232,10 @@ func (h *AdminHandler) RemoveBid(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param time_range query string false "Time range for statistics" Enums(24h,7d,30d,90d,1y) default(30d)
-// @Success 200 {object} common.APIResponse{data=MarketplaceStatsResponse} "Statistics retrieved successfully"
-// @Failure 401 {object} common.APIResponse{error=common.APIError} "Unauthorized"
-// @Failure 403 {object} common.APIResponse{error=common.APIError} "Insufficient privileges"
-// @Failure 500 {object} common.APIResponse{error=common.APIError} "Internal server error"
+// @Success 200 {object} common.Response{data=MarketplaceStatsResponse} "Statistics retrieved successfully"
+// @Failure 401 {object} common.Response{error=common.ResponseError} "Unauthorized"
+// @Failure 403 {object} common.Response{error=common.ResponseError} "Insufficient privileges"
+// @Failure 500 {object} common.Response{error=common.ResponseError} "Internal server error"
 // @Router /admin/v1/marketplace/stats [get]
 // @Security BearerAuth
 func (h *AdminHandler) GetMarketplaceStats(c *gin.Context) {
@@ -285,11 +285,11 @@ func (h *AdminHandler) GetMarketplaceStats(c *gin.Context) {
 // @Param time_to query string false "Filter events to this time (RFC3339 format)"
 // @Param page query int false "Page number" default(1)
 // @Param limit query int false "Items per page" default(50)
-// @Success 200 {object} common.APIResponse{data=AuditLogResponse} "Audit log retrieved successfully"
-// @Failure 400 {object} common.APIResponse{error=common.APIError} "Invalid request parameters"
-// @Failure 401 {object} common.APIResponse{error=common.APIError} "Unauthorized"
-// @Failure 403 {object} common.APIResponse{error=common.APIError} "Insufficient privileges"
-// @Failure 500 {object} common.APIResponse{error=common.APIError} "Internal server error"
+// @Success 200 {object} common.Response{data=AuditLogResponse} "Audit log retrieved successfully"
+// @Failure 400 {object} common.Response{error=common.ResponseError} "Invalid request parameters"
+// @Failure 401 {object} common.Response{error=common.ResponseError} "Unauthorized"
+// @Failure 403 {object} common.Response{error=common.ResponseError} "Insufficient privileges"
+// @Failure 500 {object} common.Response{error=common.ResponseError} "Internal server error"
 // @Router /admin/v1/marketplace/audit-log [get]
 // @Security BearerAuth
 func (h *AdminHandler) GetAuditLog(c *gin.Context) {

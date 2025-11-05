@@ -142,13 +142,13 @@ type FilteredBidStatistics struct {
 // @Param X-Organization-ID header string true "Organization ID"
 // @Param id path string true "Listing ID"
 // @Param bid body PlaceBidRequest true "Bid placement request"
-// @Success 201 {object} common.APIResponse{data=BidResponse} "Bid placed successfully"
-// @Failure 400 {object} common.APIResponse{error=common.APIError} "Invalid request data"
-// @Failure 401 {object} common.APIResponse{error=common.APIError} "Unauthorized"
-// @Failure 403 {object} common.APIResponse{error=common.APIError} "Access denied"
-// @Failure 404 {object} common.APIResponse{error=common.APIError} "Listing not found"
-// @Failure 409 {object} common.APIResponse{error=common.APIError} "Bid conflict (too low, auction ended, etc.)"
-// @Failure 500 {object} common.APIResponse{error=common.APIError} "Internal server error"
+// @Success 201 {object} common.Response{data=BidResponse} "Bid placed successfully"
+// @Failure 400 {object} common.Response{error=common.ResponseError} "Invalid request data"
+// @Failure 401 {object} common.Response{error=common.ResponseError} "Unauthorized"
+// @Failure 403 {object} common.Response{error=common.ResponseError} "Access denied"
+// @Failure 404 {object} common.Response{error=common.ResponseError} "Listing not found"
+// @Failure 409 {object} common.Response{error=common.ResponseError} "Bid conflict (too low, auction ended, etc.)"
+// @Failure 500 {object} common.Response{error=common.ResponseError} "Internal server error"
 // @Router /api/v1/marketplace/listings/{id}/bids [post]
 // @Security BearerAuth
 func (h *BiddingHandler) PlaceBid(c *gin.Context) {
@@ -240,12 +240,12 @@ func (h *BiddingHandler) PlaceBid(c *gin.Context) {
 // @Param id path string true "Listing ID"
 // @Param page query int false "Page number" default(1)
 // @Param limit query int false "Items per page" default(20)
-// @Success 200 {object} common.APIResponse{data=BidHistoryResponse} "Bids retrieved successfully"
-// @Failure 400 {object} common.APIResponse{error=common.APIError} "Invalid request parameters"
-// @Failure 401 {object} common.APIResponse{error=common.APIError} "Unauthorized"
-// @Failure 403 {object} common.APIResponse{error=common.APIError} "Access denied"
-// @Failure 404 {object} common.APIResponse{error=common.APIError} "Listing not found"
-// @Failure 500 {object} common.APIResponse{error=common.APIError} "Internal server error"
+// @Success 200 {object} common.Response{data=BidHistoryResponse} "Bids retrieved successfully"
+// @Failure 400 {object} common.Response{error=common.ResponseError} "Invalid request parameters"
+// @Failure 401 {object} common.Response{error=common.ResponseError} "Unauthorized"
+// @Failure 403 {object} common.Response{error=common.ResponseError} "Access denied"
+// @Failure 404 {object} common.Response{error=common.ResponseError} "Listing not found"
+// @Failure 500 {object} common.Response{error=common.ResponseError} "Internal server error"
 // @Router /api/v1/marketplace/listings/{id}/bids [get]
 // @Security BearerAuth
 func (h *BiddingHandler) GetListingBids(c *gin.Context) {
@@ -300,12 +300,12 @@ func (h *BiddingHandler) GetListingBids(c *gin.Context) {
 // @Produce json
 // @Param X-Organization-ID header string true "Organization ID"
 // @Param id path string true "Bid ID"
-// @Success 200 {object} common.APIResponse{data=BidResponse} "Bid retrieved successfully"
-// @Failure 400 {object} common.APIResponse{error=common.APIError} "Invalid request"
-// @Failure 401 {object} common.APIResponse{error=common.APIError} "Unauthorized"
-// @Failure 403 {object} common.APIResponse{error=common.APIError} "Access denied"
-// @Failure 404 {object} common.APIResponse{error=common.APIError} "Bid not found"
-// @Failure 500 {object} common.APIResponse{error=common.APIError} "Internal server error"
+// @Success 200 {object} common.Response{data=BidResponse} "Bid retrieved successfully"
+// @Failure 400 {object} common.Response{error=common.ResponseError} "Invalid request"
+// @Failure 401 {object} common.Response{error=common.ResponseError} "Unauthorized"
+// @Failure 403 {object} common.Response{error=common.ResponseError} "Access denied"
+// @Failure 404 {object} common.Response{error=common.ResponseError} "Bid not found"
+// @Failure 500 {object} common.Response{error=common.ResponseError} "Internal server error"
 // @Router /api/v1/marketplace/bids/{id} [get]
 // @Security BearerAuth
 func (h *BiddingHandler) GetBid(c *gin.Context) {
@@ -351,10 +351,10 @@ func (h *BiddingHandler) GetBid(c *gin.Context) {
 // @Param is_highest_bid query bool false "Filter by highest bid status"
 // @Param page query int false "Page number" default(1)
 // @Param limit query int false "Items per page" default(20)
-// @Success 200 {object} common.APIResponse{data=BidListResponse} "Bids retrieved successfully"
-// @Failure 400 {object} common.APIResponse{error=common.APIError} "Invalid request parameters"
-// @Failure 401 {object} common.APIResponse{error=common.APIError} "Unauthorized"
-// @Failure 500 {object} common.APIResponse{error=common.APIError} "Internal server error"
+// @Success 200 {object} common.Response{data=BidListResponse} "Bids retrieved successfully"
+// @Failure 400 {object} common.Response{error=common.ResponseError} "Invalid request parameters"
+// @Failure 401 {object} common.Response{error=common.ResponseError} "Unauthorized"
+// @Failure 500 {object} common.Response{error=common.ResponseError} "Internal server error"
 // @Router /api/v1/marketplace/bids/my-bids [get]
 // @Security BearerAuth
 func (h *BiddingHandler) GetMyBids(c *gin.Context) {
@@ -613,12 +613,12 @@ func (h *BiddingHandler) convertFilteredBidToResponse(filteredBid *marketplaceSe
 // @Produce json
 // @Param X-Organization-ID header string true "Organization ID"
 // @Param id path string true "Listing ID"
-// @Success 200 {object} common.APIResponse{data=RevealedAuctionResults} "Auction results retrieved successfully"
-// @Failure 400 {object} common.APIResponse{error=common.APIError} "Invalid request"
-// @Failure 401 {object} common.APIResponse{error=common.APIError} "Unauthorized"
-// @Failure 403 {object} common.APIResponse{error=common.APIError} "Access denied"
-// @Failure 404 {object} common.APIResponse{error=common.APIError} "Listing not found"
-// @Failure 500 {object} common.APIResponse{error=common.APIError} "Internal server error"
+// @Success 200 {object} common.Response{data=RevealedAuctionResults} "Auction results retrieved successfully"
+// @Failure 400 {object} common.Response{error=common.ResponseError} "Invalid request"
+// @Failure 401 {object} common.Response{error=common.ResponseError} "Unauthorized"
+// @Failure 403 {object} common.Response{error=common.ResponseError} "Access denied"
+// @Failure 404 {object} common.Response{error=common.ResponseError} "Listing not found"
+// @Failure 500 {object} common.Response{error=common.ResponseError} "Internal server error"
 // @Router /api/v1/marketplace/listings/{id}/results [get]
 // @Security BearerAuth
 func (h *BiddingHandler) GetAuctionResults(c *gin.Context) {
@@ -659,12 +659,12 @@ func (h *BiddingHandler) GetAuctionResults(c *gin.Context) {
 // @Produce json
 // @Param X-Organization-ID header string true "Organization ID"
 // @Param id path string true "Listing ID"
-// @Success 200 {object} common.APIResponse{data=AuctionSummary} "Auction summary retrieved successfully"
-// @Failure 400 {object} common.APIResponse{error=common.APIError} "Invalid request"
-// @Failure 401 {object} common.APIResponse{error=common.APIError} "Unauthorized"
-// @Failure 403 {object} common.APIResponse{error=common.APIError} "Access denied"
-// @Failure 404 {object} common.APIResponse{error=common.APIError} "Listing not found"
-// @Failure 500 {object} common.APIResponse{error=common.APIError} "Internal server error"
+// @Success 200 {object} common.Response{data=AuctionSummary} "Auction summary retrieved successfully"
+// @Failure 400 {object} common.Response{error=common.ResponseError} "Invalid request"
+// @Failure 401 {object} common.Response{error=common.ResponseError} "Unauthorized"
+// @Failure 403 {object} common.Response{error=common.ResponseError} "Access denied"
+// @Failure 404 {object} common.Response{error=common.ResponseError} "Listing not found"
+// @Failure 500 {object} common.Response{error=common.ResponseError} "Internal server error"
 // @Router /api/v1/marketplace/listings/{id}/summary [get]
 // @Security BearerAuth
 func (h *BiddingHandler) GetAuctionSummary(c *gin.Context) {
@@ -710,12 +710,12 @@ func (h *BiddingHandler) GetAuctionSummary(c *gin.Context) {
 // @Param bidder_id query string false "Filter by specific bidder ID"
 // @Param include_auto_bids query bool false "Include auto bids" default(true)
 // @Param sort_order query string false "Sort order (asc/desc)" default(desc)
-// @Success 200 {object} common.APIResponse{data=HistoricalBidData} "Historical bid data retrieved successfully"
-// @Failure 400 {object} common.APIResponse{error=common.APIError} "Invalid request"
-// @Failure 401 {object} common.APIResponse{error=common.APIError} "Unauthorized"
-// @Failure 403 {object} common.APIResponse{error=common.APIError} "Access denied"
-// @Failure 404 {object} common.APIResponse{error=common.APIError} "Listing not found"
-// @Failure 500 {object} common.APIResponse{error=common.APIError} "Internal server error"
+// @Success 200 {object} common.Response{data=HistoricalBidData} "Historical bid data retrieved successfully"
+// @Failure 400 {object} common.Response{error=common.ResponseError} "Invalid request"
+// @Failure 401 {object} common.Response{error=common.ResponseError} "Unauthorized"
+// @Failure 403 {object} common.Response{error=common.ResponseError} "Access denied"
+// @Failure 404 {object} common.Response{error=common.ResponseError} "Listing not found"
+// @Failure 500 {object} common.Response{error=common.ResponseError} "Internal server error"
 // @Router /api/v1/marketplace/listings/{id}/historical-bids [get]
 // @Security BearerAuth
 func (h *BiddingHandler) GetHistoricalBidData(c *gin.Context) {
@@ -765,12 +765,12 @@ func (h *BiddingHandler) GetHistoricalBidData(c *gin.Context) {
 // @Produce json
 // @Param X-Organization-ID header string true "Organization ID"
 // @Param id path string true "Listing ID"
-// @Success 200 {object} common.APIResponse{data=FilteredBidStatistics} "Bid statistics retrieved successfully"
-// @Failure 400 {object} common.APIResponse{error=common.APIError} "Invalid request"
-// @Failure 401 {object} common.APIResponse{error=common.APIError} "Unauthorized"
-// @Failure 403 {object} common.APIResponse{error=common.APIError} "Access denied"
-// @Failure 404 {object} common.APIResponse{error=common.APIError} "Listing not found"
-// @Failure 500 {object} common.APIResponse{error=common.APIError} "Internal server error"
+// @Success 200 {object} common.Response{data=FilteredBidStatistics} "Bid statistics retrieved successfully"
+// @Failure 400 {object} common.Response{error=common.ResponseError} "Invalid request"
+// @Failure 401 {object} common.Response{error=common.ResponseError} "Unauthorized"
+// @Failure 403 {object} common.Response{error=common.ResponseError} "Access denied"
+// @Failure 404 {object} common.Response{error=common.ResponseError} "Listing not found"
+// @Failure 500 {object} common.Response{error=common.ResponseError} "Internal server error"
 // @Router /api/v1/marketplace/listings/{id}/statistics [get]
 // @Security BearerAuth
 func (h *BiddingHandler) GetBidStatistics(c *gin.Context) {
