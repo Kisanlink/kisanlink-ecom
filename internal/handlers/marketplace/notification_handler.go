@@ -1,10 +1,8 @@
 package marketplace
 
 import (
-	"net/http"
-
+	"kisanlink-ecom/internal/common"
 	"kisanlink-ecom/internal/services/marketplace"
-	"kisanlink-ecom/internal/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,18 +29,20 @@ func (h *NotificationHandler) GetNotificationPreferences(c *gin.Context) {
 	// Extract user ID from context
 	userID, exists := c.Get("user_id")
 	if !exists {
-		utils.ErrorResponse(c, http.StatusUnauthorized, "UNAUTHORIZED", "User not authenticated", "")
+		common.Unauthorized(c, "UNAUTHORIZED", "User not authenticated", nil)
 		return
 	}
 
 	// Get notification preferences
 	preferences, err := h.notificationService.GetUserNotificationPreferences(c.Request.Context(), userID.(string))
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusInternalServerError, "PREFERENCES_RETRIEVAL_FAILED", "Failed to get notification preferences", err.Error())
+		common.InternalServerError(c, "PREFERENCES_RETRIEVAL_FAILED", "Failed to get notification preferences", map[string]interface{}{
+			"error": err.Error(),
+		})
 		return
 	}
 
-	utils.SuccessResponse(c, http.StatusOK, "Notification preferences retrieved successfully", preferences)
+	common.Success(c, preferences, nil)
 }
 
 // UpdateNotificationPreferences updates user notification preferences
@@ -50,14 +50,16 @@ func (h *NotificationHandler) UpdateNotificationPreferences(c *gin.Context) {
 	// Extract user ID from context
 	userID, exists := c.Get("user_id")
 	if !exists {
-		utils.ErrorResponse(c, http.StatusUnauthorized, "UNAUTHORIZED", "User not authenticated", "")
+		common.Unauthorized(c, "UNAUTHORIZED", "User not authenticated", nil)
 		return
 	}
 
 	// Parse request body
 	var preferences marketplace.NotificationPreferences
 	if err := c.ShouldBindJSON(&preferences); err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_REQUEST", "Invalid request body", err.Error())
+		common.BadRequest(c, "INVALID_REQUEST", "Invalid request body", map[string]interface{}{
+			"error": err.Error(),
+		})
 		return
 	}
 
@@ -66,11 +68,13 @@ func (h *NotificationHandler) UpdateNotificationPreferences(c *gin.Context) {
 
 	// Update notification preferences
 	if err := h.notificationService.UpdateUserNotificationPreferences(c.Request.Context(), userID.(string), &preferences); err != nil {
-		utils.ErrorResponse(c, http.StatusInternalServerError, "PREFERENCES_UPDATE_FAILED", "Failed to update notification preferences", err.Error())
+		common.InternalServerError(c, "PREFERENCES_UPDATE_FAILED", "Failed to update notification preferences", map[string]interface{}{
+			"error": err.Error(),
+		})
 		return
 	}
 
-	utils.SuccessResponse(c, http.StatusOK, "Notification preferences updated successfully", preferences)
+	common.Success(c, preferences, nil)
 }
 
 // TestNotification sends a test notification to the user (for testing purposes)
@@ -78,7 +82,7 @@ func (h *NotificationHandler) TestNotification(c *gin.Context) {
 	// Extract user ID from context
 	userID, exists := c.Get("user_id")
 	if !exists {
-		utils.ErrorResponse(c, http.StatusUnauthorized, "UNAUTHORIZED", "User not authenticated", "")
+		common.Unauthorized(c, "UNAUTHORIZED", "User not authenticated", nil)
 		return
 	}
 
@@ -93,9 +97,11 @@ func (h *NotificationHandler) TestNotification(c *gin.Context) {
 
 	// Send test notification
 	if err := h.notificationService.BroadcastToUser(userID.(string), testNotification); err != nil {
-		utils.ErrorResponse(c, http.StatusInternalServerError, "NOTIFICATION_SEND_FAILED", "Failed to send test notification", err.Error())
+		common.InternalServerError(c, "NOTIFICATION_SEND_FAILED", "Failed to send test notification", map[string]interface{}{
+			"error": err.Error(),
+		})
 		return
 	}
 
-	utils.SuccessResponse(c, http.StatusOK, "Test notification sent successfully", nil)
+	common.Success(c, nil, nil)
 }
