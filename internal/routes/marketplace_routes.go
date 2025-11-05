@@ -27,6 +27,13 @@ func SetupMarketplaceRoutes(
 	authMiddleware := middleware.NewEnhancedAuthMiddleware(aaaClient, nil)
 	rbacMiddleware := middleware.NewRBACMiddleware(aaaClient, nil)
 
+	// Initialize marketplace-specific authorization middleware
+	marketplaceAuthMiddleware := middleware.NewMarketplaceAuthMiddleware(
+		aaaClient,
+		marketplaceSvc.Repositories.Listing,
+		marketplaceSvc.Repositories.Bid,
+	)
+
 	// Marketplace routes group
 	marketplaceGroup := router.Group("/marketplace")
 	marketplaceGroup.Use(authMiddleware.Middleware()) // Require authentication for all marketplace operations
@@ -49,18 +56,21 @@ func SetupMarketplaceRoutes(
 			// Get specific listing
 			listingGroup.GET("/:id",
 				rbacMiddleware.RequirePermission("marketplace.listing", "read"),
+				marketplaceAuthMiddleware.ValidateListingVisibility(), // Check visibility access
 				marketplaceHandler.GetListingHandler().GetListing,
 			)
 
 			// Update listing (seller only)
 			listingGroup.PUT("/:id",
 				rbacMiddleware.RequirePermission("marketplace.listing", "update"),
+				marketplaceAuthMiddleware.RequireListingOwnership(), // Verify ownership
 				marketplaceHandler.GetListingHandler().UpdateListing,
 			)
 
 			// Close listing (seller only)
 			listingGroup.POST("/:id/close",
 				rbacMiddleware.RequirePermission("marketplace.listing", "close"),
+				marketplaceAuthMiddleware.RequireListingOwnership(), // Verify ownership
 				marketplaceHandler.GetListingHandler().CloseListing,
 			)
 
@@ -76,6 +86,7 @@ func SetupMarketplaceRoutes(
 				// Place bid on listing
 				biddingGroup.POST("",
 					rbacMiddleware.RequirePermission("marketplace.bid", "create"),
+					marketplaceAuthMiddleware.PreventSelfBidding(), // Prevent users from bidding on own listings
 					marketplaceHandler.GetBiddingHandler().PlaceBid,
 				)
 
@@ -189,6 +200,13 @@ func SetupMarketplaceRoutesConditional(
 	// Initialize marketplace handler
 	marketplaceHandler := marketplace.NewMarketplaceHandler(marketplaceSvc)
 
+	// Initialize marketplace-specific authorization middleware
+	marketplaceAuthMiddleware := middleware.NewMarketplaceAuthMiddleware(
+		aaaClient,
+		marketplaceSvc.Repositories.Listing,
+		marketplaceSvc.Repositories.Bid,
+	)
+
 	// Marketplace routes group
 	marketplaceGroup := router.Group("/marketplace")
 	{
@@ -210,18 +228,21 @@ func SetupMarketplaceRoutesConditional(
 			// Get specific listing
 			listingGroup.GET("/:id",
 				conditionalAuthMiddleware(aaaClient),
+				marketplaceAuthMiddleware.ValidateListingVisibility(), // Check visibility access
 				marketplaceHandler.GetListingHandler().GetListing,
 			)
 
 			// Update listing (seller only)
 			listingGroup.PUT("/:id",
 				conditionalAuthMiddleware(aaaClient),
+				marketplaceAuthMiddleware.RequireListingOwnership(), // Verify ownership
 				marketplaceHandler.GetListingHandler().UpdateListing,
 			)
 
 			// Close listing (seller only)
 			listingGroup.POST("/:id/close",
 				conditionalAuthMiddleware(aaaClient),
+				marketplaceAuthMiddleware.RequireListingOwnership(), // Verify ownership
 				marketplaceHandler.GetListingHandler().CloseListing,
 			)
 
@@ -237,6 +258,7 @@ func SetupMarketplaceRoutesConditional(
 				// Place bid on listing
 				biddingGroup.POST("",
 					conditionalAuthMiddleware(aaaClient),
+					marketplaceAuthMiddleware.PreventSelfBidding(), // Prevent users from bidding on own listings
 					marketplaceHandler.GetBiddingHandler().PlaceBid,
 				)
 

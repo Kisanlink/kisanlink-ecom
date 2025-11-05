@@ -20,6 +20,9 @@ type MarketplaceServices struct {
 	RealTimeNotification RealTimeNotificationService
 	BidVisibility        BidVisibilityServiceInterface
 	AuctionResults       AuctionResultsServiceInterface
+
+	// Repositories (exposed for middleware)
+	Repositories *marketplace.MarketplaceRepositories
 }
 
 // MarketplaceServiceConfig holds configuration for marketplace services
@@ -137,6 +140,7 @@ func NewMarketplaceServices(config *MarketplaceServiceConfig) *MarketplaceServic
 		RealTimeNotification: realTimeNotificationService,
 		BidVisibility:        bidVisibilityService,
 		AuctionResults:       auctionResultsService,
+		Repositories:         repos,
 	}
 }
 
