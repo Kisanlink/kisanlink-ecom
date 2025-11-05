@@ -1,9 +1,8 @@
 package handlers
 
 import (
-	"net/http"
-
 	catalogRequests "kisanlink-ecom/entities/requests/catalog"
+	"kisanlink-ecom/internal/common"
 	"kisanlink-ecom/internal/utils"
 
 	"github.com/gin-gonic/gin"
@@ -23,9 +22,9 @@ import (
 // @Router       /api/v1/products [get]
 func GetProducts(c *gin.Context) {
 	// TODO: Implement actual product retrieval logic
-	utils.SuccessResponse(c, http.StatusOK, "Get products endpoint - implementation needed", gin.H{
+	common.Success(c, gin.H{
 		"products": []gin.H{},
-	})
+	}, nil)
 }
 
 // CreateProduct handles product creation.
@@ -45,21 +44,21 @@ func GetProducts(c *gin.Context) {
 func CreateProduct(c *gin.Context) {
 	var req catalogRequests.CreateCatalogItemRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ValidationErrorResponse(c, err.Error())
+		common.BadRequest(c, "VALIDATION_ERROR", err.Error(), nil)
 		return
 	}
 
 	if err := utils.ValidateStruct(&req); err != nil {
-		utils.ValidationErrorResponse(c, err.Error())
+		common.BadRequest(c, "VALIDATION_ERROR", err.Error(), nil)
 		return
 	}
 
 	// TODO: Implement actual product creation logic
-	utils.SuccessResponse(c, http.StatusCreated, "Create product endpoint - implementation needed", gin.H{
+	common.Created(c, gin.H{
 		"name":       req.Name,
 		"base_price": req.BasePrice,
 		"category":   req.Category,
-	})
+	}, nil)
 }
 
 // GetProduct handles getting a specific product by ID.
@@ -77,14 +76,14 @@ func CreateProduct(c *gin.Context) {
 func GetProduct(c *gin.Context) {
 	productID := c.Param("id")
 	if productID == "" {
-		utils.ValidationErrorResponse(c, "Product ID is required")
+		common.BadRequest(c, "VALIDATION_ERROR", "Product ID is required", nil)
 		return
 	}
 
 	// TODO: Implement actual product retrieval logic
-	utils.SuccessResponse(c, http.StatusOK, "Get product endpoint - implementation needed", gin.H{
+	common.Success(c, gin.H{
 		"id": productID,
-	})
+	}, nil)
 }
 
 // UpdateProduct handles product updates.
@@ -105,25 +104,25 @@ func GetProduct(c *gin.Context) {
 func UpdateProduct(c *gin.Context) {
 	productID := c.Param("id")
 	if productID == "" {
-		utils.ValidationErrorResponse(c, "Product ID is required")
+		common.BadRequest(c, "VALIDATION_ERROR", "Product ID is required", nil)
 		return
 	}
 
 	var req catalogRequests.UpdateCatalogItemRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ValidationErrorResponse(c, err.Error())
+		common.BadRequest(c, "VALIDATION_ERROR", err.Error(), nil)
 		return
 	}
 
 	if err := utils.ValidateStruct(&req); err != nil {
-		utils.ValidationErrorResponse(c, err.Error())
+		common.BadRequest(c, "VALIDATION_ERROR", err.Error(), nil)
 		return
 	}
 
 	// TODO: Implement actual product update logic
-	utils.SuccessResponse(c, http.StatusOK, "Update product endpoint - implementation needed", gin.H{
+	common.Success(c, gin.H{
 		"id": productID,
-	})
+	}, nil)
 }
 
 // DeleteProduct handles product deletion.
@@ -143,12 +142,12 @@ func UpdateProduct(c *gin.Context) {
 func DeleteProduct(c *gin.Context) {
 	productID := c.Param("id")
 	if productID == "" {
-		utils.ValidationErrorResponse(c, "Product ID is required")
+		common.BadRequest(c, "VALIDATION_ERROR", "Product ID is required", nil)
 		return
 	}
 
 	// TODO: Implement actual product deletion logic
-	utils.SuccessResponse(c, http.StatusOK, "Delete product endpoint - implementation needed", gin.H{
+	common.Success(c, gin.H{
 		"id": productID,
-	})
+	}, nil)
 }
