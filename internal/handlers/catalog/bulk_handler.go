@@ -68,7 +68,7 @@ type BulkPriceUpdateRequest struct {
 // @Param Authorization header string true "Bearer token"
 // @Param Idempotency-Key header string false "Idempotency key for safe retries"
 // @Param request body BulkUpdateRequest true "Bulk update data"
-// @Success 200 {object} common.Response{data=catalogResponses.BulkOperationResponse}
+// @Success 200 {object} common.Response{data=catalog.BulkOperationResponse}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -176,7 +176,7 @@ func (h *CatalogHandler) BulkUpdateCatalogItems(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param request body BulkPublishRequest true "Bulk publish data"
-// @Success 200 {object} common.Response{data=catalogResponses.BulkOperationResponse}
+// @Success 200 {object} common.Response{data=catalog.BulkOperationResponse}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -262,7 +262,7 @@ func (h *CatalogHandler) BulkPublishCatalogItems(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param request body BulkPriceUpdateRequest true "Bulk price update data"
-// @Success 200 {object} common.Response{data=catalogResponses.BulkOperationResponse}
+// @Success 200 {object} common.Response{data=catalog.BulkOperationResponse}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}

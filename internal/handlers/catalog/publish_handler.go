@@ -46,7 +46,7 @@ type PriceUpdateRequest struct {
 // @Param type path string true "Item type (products, services, labour, contracts)"
 // @Param id path string true "Item ID"
 // @Param request body PublishRequest false "Publish options"
-// @Success 200 {object} common.Response{data=catalogResponses.CatalogItemResponse}
+// @Success 200 {object} common.Response{data=catalog.CatalogItemResponse}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -141,7 +141,7 @@ func (h *CatalogHandler) PublishCatalogItem(c *gin.Context) {
 // @Param type path string true "Item type (products, services, labour, contracts)"
 // @Param id path string true "Item ID"
 // @Param request body UnpublishRequest false "Unpublish options"
-// @Success 200 {object} common.Response{data=catalogResponses.CatalogItemResponse}
+// @Success 200 {object} common.Response{data=catalog.CatalogItemResponse}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -221,7 +221,7 @@ func (h *CatalogHandler) UnpublishCatalogItem(c *gin.Context) {
 // @Param type path string true "Item type (products, services, labour, contracts)"
 // @Param id path string true "Item ID"
 // @Param request body PriceUpdateRequest true "Price update data"
-// @Success 200 {object} common.Response{data=catalogResponses.CatalogItemResponse}
+// @Success 200 {object} common.Response{data=catalog.CatalogItemResponse}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -454,7 +454,7 @@ func (h *FPOPublishHandler) PublishProductToFPOs(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Bearer token" example("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
 // @Param id path string true "Product ID" example("PROD00000001")
-// @Success 200 {object} common.Response{data=catalogModels.PublishState} "Publishing status retrieved successfully"
+// @Success 200 {object} common.Response "Publishing status retrieved successfully"
 // @Failure 401 {object} common.Response{error=common.ResponseError} "Unauthorized - missing or invalid token"
 // @Failure 404 {object} common.Response{error=common.ResponseError} "Product not found or not published"
 // @Failure 500 {object} common.Response{error=common.ResponseError} "Internal server error"

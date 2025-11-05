@@ -38,24 +38,25 @@ import (
 
 // Services container for all application services
 type Services struct {
-	CatalogSvc         catalogService.CatalogServiceInterface
-	PublishSvc         catalogService.PublishService
-	InventorySvc       inventoryService.InventoryService
-	AlertSvc           inventoryService.AlertService
-	OrderSvc           orderService.OrderServiceInterface
-	InvoiceSvc         orderService.InvoiceServiceInterface
-	PurchaseOrderSvc   orderService.PurchaseOrderServiceInterface
-	UserSvc            *userService.UserService
-	IntegrationSvc     integrationService.IntegrationServiceInterface
-	MarketplaceSvc     *marketplaceService.MarketplaceServices
-	CollaboratorSvc    collaboratorService.CollaboratorServiceInterface
-	UserRoleSvc        rolesService.UserRoleServiceInterface
-	OrgRoleSvc         rolesService.OrganizationRoleServiceInterface
-	EcomRoleSvc        rolesService.EcommerceRoleServiceInterface
-	TaxExemptionSvc    taxationService.TaxExemptionServiceInterface
-	ServiceSLASvc      slaService.ServiceSLAServiceInterface
-	DiscountRuleSvc    discountsService.DiscountRuleServiceInterface
-	OrgCollaboratorSvc actorsService.OrganizationCollaboratorServiceInterface
+	CatalogSvc           catalogService.CatalogServiceInterface
+	PublishSvc           catalogService.PublishService
+	InventorySvc         inventoryService.InventoryService
+	AlertSvc             inventoryService.AlertService
+	OrderSvc             orderService.OrderServiceInterface
+	PaymentScreenshotSvc orderService.PaymentScreenshotServiceInterface
+	InvoiceSvc           orderService.InvoiceServiceInterface
+	PurchaseOrderSvc     orderService.PurchaseOrderServiceInterface
+	UserSvc              *userService.UserService
+	IntegrationSvc       integrationService.IntegrationServiceInterface
+	MarketplaceSvc       *marketplaceService.MarketplaceServices
+	CollaboratorSvc      collaboratorService.CollaboratorServiceInterface
+	UserRoleSvc          rolesService.UserRoleServiceInterface
+	OrgRoleSvc           rolesService.OrganizationRoleServiceInterface
+	EcomRoleSvc          rolesService.EcommerceRoleServiceInterface
+	TaxExemptionSvc      taxationService.TaxExemptionServiceInterface
+	ServiceSLASvc        slaService.ServiceSLAServiceInterface
+	DiscountRuleSvc      discountsService.DiscountRuleServiceInterface
+	OrgCollaboratorSvc   actorsService.OrganizationCollaboratorServiceInterface
 }
 
 // SetupRouter configures all routes and middleware
@@ -707,6 +708,19 @@ func SetupRouter(aaaClient auth.Client, services *Services) *gin.Engine {
 					// TODO: Add proper authorization middleware
 					orderHandler.GetPaymentStatus,
 				)
+
+				// Payment screenshot routes (buyer upload and view)
+				if services.PaymentScreenshotSvc != nil {
+					paymentScreenshotHandler := orders.NewPaymentScreenshotHandler(services.PaymentScreenshotSvc, services.OrderSvc)
+					ordersGroup.POST("/:order_id/payment-screenshots",
+						conditionalAuthMiddleware(aaaClient),
+						paymentScreenshotHandler.UploadPaymentScreenshot,
+					)
+					ordersGroup.GET("/:order_id/payment-screenshots",
+						conditionalAuthMiddleware(aaaClient),
+						paymentScreenshotHandler.ListPaymentScreenshotsByOrder,
+					)
+				}
 
 				// Invoice routes for orders
 				if services.InvoiceSvc != nil {

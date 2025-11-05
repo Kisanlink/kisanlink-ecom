@@ -44,7 +44,7 @@ type InventoryService interface {
 // CreateInventoryLotRequest represents a request to create an inventory lot
 type CreateInventoryLotRequest struct {
 	CatalogItemID     string           `json:"catalog_item_id" validate:"required"`
-	LotNumber         string           `json:"lot_number"` // Optional - auto-generated if not provided
+	LotNumber         string           `json:"lot_number"`   // Optional - auto-generated if not provided
 	BatchNumber       string           `json:"batch_number"` // Optional - auto-generated if not provided
 	InitialQuantity   decimal.Decimal  `json:"initial_quantity" validate:"required,gt=0"`
 	QualityGrade      string           `json:"quality_grade"`

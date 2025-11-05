@@ -3,7 +3,7 @@ module kisanlink-ecom
 go 1.24
 
 require (
-	github.com/Kisanlink/aaa-service/v2 v2.0.5
+	github.com/Kisanlink/aaa-service/v2 v2.1.4
 	github.com/Kisanlink/kisanlink-db v0.3.0
 	github.com/MarceloPetrucio/go-scalar-api-reference v0.0.0-20240521013641-ce5d2efe0e06
 	github.com/aws/aws-sdk-go-v2 v1.39.0
@@ -32,6 +32,7 @@ require (
 	go.opentelemetry.io/otel/metric v1.38.0
 	go.opentelemetry.io/otel/sdk v1.38.0
 	go.opentelemetry.io/otel/trace v1.38.0
+	go.uber.org/zap v1.27.0
 	golang.org/x/time v0.12.0
 	google.golang.org/grpc v1.75.0
 	gorm.io/datatypes v1.2.7
@@ -113,7 +114,6 @@ require (
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.7.1 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
-	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/arch v0.20.0 // indirect
 	golang.org/x/crypto v0.41.0 // indirect
 	golang.org/x/mod v0.26.0 // indirect

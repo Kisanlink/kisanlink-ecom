@@ -67,6 +67,7 @@ func AllModels() []interface{} {
 		&orders.POItem{},
 		&orders.GRN{},
 		&orders.GRNItem{},
+		&orders.PaymentScreenshot{},
 
 		// Taxation models
 		&taxation.TaxRate{},
@@ -149,6 +150,7 @@ func OrderModels() []interface{} {
 		&orders.POItem{},
 		&orders.GRN{},
 		&orders.GRNItem{},
+		&orders.PaymentScreenshot{},
 	}
 }
 
@@ -274,6 +276,7 @@ func ModelsByPriority() []interface{} {
 		&orders.POItem{},
 		&orders.GRN{},
 		&orders.GRNItem{},
+		&orders.PaymentScreenshot{},
 
 		// Marketplace models (depend on products)
 		&marketplace.Listing{},

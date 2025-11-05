@@ -179,6 +179,13 @@ func CreateIndexes(dbManager *DatabaseManager) error {
 		"CREATE INDEX IF NOT EXISTS idx_outbox_events_status_created ON outbox_events(status, created_at)",
 		"CREATE INDEX IF NOT EXISTS idx_outbox_events_event_type ON outbox_events(event_type)",
 		"CREATE INDEX IF NOT EXISTS idx_outbox_events_retry_count ON outbox_events(retry_count)",
+
+		// Payment Screenshots - Order and verification status queries
+		"CREATE INDEX IF NOT EXISTS idx_payment_screenshots_order_id ON payment_screenshots(order_id) WHERE deleted_at IS NULL",
+		"CREATE INDEX IF NOT EXISTS idx_payment_screenshots_verification_status ON payment_screenshots(verification_status) WHERE deleted_at IS NULL",
+		"CREATE INDEX IF NOT EXISTS idx_payment_screenshots_buyer_org_created ON payment_screenshots(buyer_organization_id, created_at DESC) WHERE deleted_at IS NULL",
+		"CREATE INDEX IF NOT EXISTS idx_payment_screenshots_seller_org_status ON payment_screenshots(seller_organization_id, verification_status) WHERE deleted_at IS NULL",
+		"CREATE INDEX IF NOT EXISTS idx_payment_screenshots_uploaded_by ON payment_screenshots(uploaded_by) WHERE deleted_at IS NULL",
 	}
 
 	// Execute each index creation statement

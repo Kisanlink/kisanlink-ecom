@@ -29,7 +29,7 @@ func NewAuthHandler(userService *user.UserService) *AuthHandler {
 // @Tags         Authentication
 // @Accept       json
 // @Produce      json
-// @Param        request  body      authRequests.LoginRequest  true  "Login credentials"
+// @Param        request  body      auth.LoginRequest  true  "Login credentials"
 // @Success      200      {object}  common.Response{data=map[string]interface{}}  "Login successful"
 // @Failure      400      {object}  common.Response{error=common.ResponseError}  "Invalid request"
 // @Failure      401      {object}  common.Response{error=common.ResponseError}  "Invalid credentials"
@@ -65,7 +65,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 // @Tags         Authentication
 // @Accept       json
 // @Produce      json
-// @Param        request  body      authRequests.RegisterRequest  true  "User registration data"
+// @Param        request  body      auth.RegisterRequest  true  "User registration data"
 // @Success      201      {object}  common.Response{data=map[string]interface{}}  "Registration successful"
 // @Failure      400      {object}  common.Response{error=common.ResponseError}  "Invalid request"
 // @Failure      409      {object}  common.Response{error=common.ResponseError}  "User already exists"

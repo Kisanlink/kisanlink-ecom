@@ -32,7 +32,7 @@ func NewInvoiceHandler(invoiceService orderService.InvoiceServiceInterface) *Inv
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param id path string true "Order ID"
-// @Success 201 {object} common.Response{data=orders.Invoice}
+// @Success 201 {object} common.Response{data=object}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -81,7 +81,7 @@ func (h *InvoiceHandler) GenerateInvoice(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param id path string true "Invoice ID"
-// @Success 200 {object} common.Response{data=orders.Invoice}
+// @Success 200 {object} common.Response{data=object}
 // @Failure 404 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/invoices/{id} [get]
 func (h *InvoiceHandler) GetInvoiceByID(c *gin.Context) {
@@ -127,7 +127,7 @@ func (h *InvoiceHandler) GetInvoiceByID(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param id path string true "Order ID"
-// @Success 200 {object} common.Response{data=orders.Invoice}
+// @Success 200 {object} common.Response{data=object}
 // @Failure 404 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/orders/{id}/invoice [get]
 func (h *InvoiceHandler) GetInvoiceByOrderID(c *gin.Context) {
@@ -239,7 +239,7 @@ func (h *InvoiceHandler) DownloadInvoicePDF(c *gin.Context) {
 // @Param order_id query string false "Filter by order ID"
 // @Param status query string false "Filter by status"
 // @Param include_deleted query bool false "Include soft-deleted items (admin only)" default(false)
-// @Success 200 {object} common.Response{data=[]orders.Invoice,meta=common.ResponseMeta{pagination=common.PaginationMeta}}
+// @Success 200 {object} common.Response{data=[]object,meta=common.ResponseMeta{pagination=common.PaginationMeta}}
 // @Router /api/v1/invoices [get]
 func (h *InvoiceHandler) ListInvoices(c *gin.Context) {
 	// Extract query options (includes deleted items if user is admin and include_deleted=true)
@@ -316,7 +316,7 @@ func (h *InvoiceHandler) ListInvoices(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param id path string true "Invoice ID"
-// @Success 200 {object} common.Response{data=orders.Invoice}
+// @Success 200 {object} common.Response{data=object}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -366,7 +366,7 @@ func (h *InvoiceHandler) FinalizeInvoice(c *gin.Context) {
 // @Param Authorization header string true "Bearer token"
 // @Param id path string true "Invoice ID"
 // @Param payment body object{paid_amount=decimal.Decimal,payment_method=string} true "Payment information"
-// @Success 200 {object} common.Response{data=orders.Invoice}
+// @Success 200 {object} common.Response{data=object}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -428,7 +428,7 @@ func (h *InvoiceHandler) MarkInvoiceAsPaid(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param id path string true "Invoice ID"
-// @Success 200 {object} common.Response{data=orders.Invoice}
+// @Success 200 {object} common.Response{data=object}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}

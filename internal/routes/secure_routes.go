@@ -30,6 +30,7 @@ func SetupSecureRouter(
 	inventorySvc inventoryService.InventoryService,
 	alertSvc inventoryService.AlertService,
 	orderSvc orderService.OrderServiceInterface,
+	paymentScreenshotSvc orderService.PaymentScreenshotServiceInterface,
 	userSvc *userService.UserService,
 	integrationSvc integrationService.IntegrationServiceInterface,
 	marketplaceSvc *marketplaceService.MarketplaceServices,
@@ -246,8 +247,61 @@ func SetupSecureRouter(
 					rbacMiddleware.RequirePermission("order", "cancel"),
 					orderHandler.CancelOrder,
 				)
+
+				// Payment screenshot routes (buyer and admin)
+				if paymentScreenshotSvc != nil {
+					paymentScreenshotHandler := orders.NewPaymentScreenshotHandler(paymentScreenshotSvc, orderSvc)
+
+					// Buyer routes: upload and view payment screenshots for their orders
+					ordersGroup.POST("/:order_id/payment-screenshots",
+						rbacMiddleware.RequirePermission("order", "update"), // Buyers can upload payment proof
+						paymentScreenshotHandler.UploadPaymentScreenshot,
+					)
+					ordersGroup.GET("/:order_id/payment-screenshots",
+						rbacMiddleware.RequirePermission("order", "read"), // Buyers can list their screenshots
+						paymentScreenshotHandler.ListPaymentScreenshotsByOrder,
+					)
+				}
 			} else {
 				setupFallbackHandlers(ordersGroup)
+			}
+		}
+
+		// Payment screenshot routes (general access for buyers and admins)
+		if paymentScreenshotSvc != nil && orderSvc != nil {
+			paymentScreenshotHandler := orders.NewPaymentScreenshotHandler(paymentScreenshotSvc, orderSvc)
+
+			paymentScreenshotsGroup := v1.Group("/payment-screenshots")
+			paymentScreenshotsGroup.Use(authMiddleware.Middleware()) // Require authentication
+			{
+				// Get specific screenshot (buyer for own, admin for all)
+				paymentScreenshotsGroup.GET("/:id",
+					rbacMiddleware.RequirePermission("order", "read"),
+					paymentScreenshotHandler.GetPaymentScreenshot,
+				)
+
+				// Download screenshot (buyer for own, admin for all)
+				paymentScreenshotsGroup.GET("/:id/download",
+					rbacMiddleware.RequirePermission("order", "read"),
+					paymentScreenshotHandler.GetDownloadURL,
+				)
+			}
+
+			// Admin-only routes for payment screenshot management
+			adminPaymentGroup := v1.Group("/admin/payment-screenshots")
+			adminPaymentGroup.Use(authMiddleware.Middleware()) // Require authentication
+			{
+				// List all payment screenshots (admin only)
+				adminPaymentGroup.GET("",
+					rbacMiddleware.RequireRole("ecom_admin", "super_admin"),
+					paymentScreenshotHandler.ListPaymentScreenshots,
+				)
+
+				// Verify payment screenshot (admin only)
+				adminPaymentGroup.POST("/:id/verify",
+					rbacMiddleware.RequireRole("ecom_admin", "super_admin"),
+					paymentScreenshotHandler.VerifyPaymentScreenshot,
+				)
 			}
 		}
 

@@ -21,6 +21,7 @@ type Config struct {
 	Logging  LoggingConfig
 	GRPC     GRPCConfig
 	AAA      AAAConfig
+	S3       S3Config
 }
 
 // ServerConfig holds server configuration.
@@ -109,6 +110,12 @@ type AAAConfig struct {
 	CircuitBreakerEnabled      bool
 	CircuitBreakerMaxFailures  int
 	CircuitBreakerResetTimeout time.Duration
+}
+
+// S3Config holds S3 storage configuration.
+type S3Config struct {
+	Bucket string
+	Region string
 }
 
 // Load loads configuration from environment variables.
@@ -204,6 +211,10 @@ func Load() (*Config, error) {
 			CircuitBreakerEnabled:      getEnvAsBool("AAA_CIRCUIT_BREAKER_ENABLED", true),
 			CircuitBreakerMaxFailures:  getEnvAsInt("AAA_CIRCUIT_BREAKER_MAX_FAILURES", 5),
 			CircuitBreakerResetTimeout: time.Duration(getEnvAsInt("AAA_CIRCUIT_BREAKER_RESET_TIMEOUT_SECONDS", 30)) * time.Second,
+		},
+		S3: S3Config{
+			Bucket: getEnv("S3_BUCKET", "kisanlink-ecom-files"),
+			Region: getEnv("S3_REGION", "us-east-1"),
 		},
 	}, nil
 }
