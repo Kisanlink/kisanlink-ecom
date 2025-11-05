@@ -44,7 +44,7 @@ func NewPaymentScreenshotHandler(
 // @Param transaction_id formData string false "Transaction ID"
 // @Param description formData string false "Payment description"
 // @Param file formData file true "Payment screenshot file (JPEG, PNG, WebP, PDF, max 10MB)"
-// @Success 201 {object} common.Response{data=orders.PaymentScreenshotUploadResponse}
+// @Success 201 {object} common.Response{data=map[string]interface{}}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -164,7 +164,7 @@ func (h *PaymentScreenshotHandler) UploadPaymentScreenshot(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param screenshot_id path string true "Payment Screenshot ID"
-// @Success 200 {object} common.Response{data=orders.PaymentScreenshotResponse}
+// @Success 200 {object} common.Response{data=map[string]interface{}}
 // @Failure 404 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/payment-screenshots/{screenshot_id} [get]
 func (h *PaymentScreenshotHandler) GetPaymentScreenshot(c *gin.Context) {
@@ -218,7 +218,7 @@ func (h *PaymentScreenshotHandler) GetPaymentScreenshot(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param order_id path string true "Order ID"
-// @Success 200 {object} common.Response{data=[]orders.PaymentScreenshotResponse}
+// @Success 200 {object} common.Response{data=[]interface{}}
 // @Failure 404 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/orders/{order_id}/payment-screenshots [get]
 func (h *PaymentScreenshotHandler) ListPaymentScreenshotsByOrder(c *gin.Context) {
@@ -280,7 +280,7 @@ func (h *PaymentScreenshotHandler) ListPaymentScreenshotsByOrder(c *gin.Context)
 // @Param payment_method query string false "Filter by payment method"
 // @Param sort_by query string false "Sort by field (created_at, updated_at, amount_paid, payment_date)" default("created_at")
 // @Param sort_order query string false "Sort order (asc, desc)" default("desc")
-// @Success 200 {object} common.Response{data=orders.PaymentScreenshotListResponse}
+// @Success 200 {object} common.Response{data=map[string]interface{}}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/admin/payment-screenshots [get]
 func (h *PaymentScreenshotHandler) ListPaymentScreenshots(c *gin.Context) {
@@ -361,8 +361,8 @@ func (h *PaymentScreenshotHandler) ListPaymentScreenshots(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param screenshot_id path string true "Payment Screenshot ID"
-// @Param request body orders.VerifyPaymentScreenshotRequest true "Verification details"
-// @Success 200 {object} common.Response{data=orders.PaymentScreenshotResponse}
+// @Param request body object true "Verification details"
+// @Success 200 {object} common.Response{data=map[string]interface{}}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/admin/payment-screenshots/{screenshot_id}/verify [post]
@@ -447,7 +447,7 @@ func (h *PaymentScreenshotHandler) VerifyPaymentScreenshot(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param screenshot_id path string true "Payment Screenshot ID"
-// @Success 200 {object} common.Response{data=orders.PaymentScreenshotDownloadURLResponse}
+// @Success 200 {object} common.Response{data=map[string]interface{}}
 // @Failure 404 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/payment-screenshots/{screenshot_id}/download [get]
 func (h *PaymentScreenshotHandler) GetDownloadURL(c *gin.Context) {

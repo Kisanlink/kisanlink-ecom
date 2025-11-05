@@ -34,8 +34,8 @@ func NewOrderHandler(orderService orderService.OrderServiceInterface) *OrderHand
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer token"
-// @Param order body orders.CreateOrderRequest true "Order information"
-// @Success 201 {object} common.Response{data=orders.OrderResponse}
+// @Param order body object true "Order information"
+// @Success 201 {object} common.Response{data=map[string]interface{}}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -103,7 +103,7 @@ func normalizeCatalogItemType(itemType string) string {
 // @Accept json
 // @Produce json
 // @Param id path string true "Order ID"
-// @Success 200 {object} common.Response{data=orders.OrderResponse}
+// @Success 200 {object} common.Response{data=map[string]interface{}}
 // @Failure 404 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/orders/{id} [get]
 func (h *OrderHandler) GetOrderByID(c *gin.Context) {
@@ -149,7 +149,7 @@ func (h *OrderHandler) GetOrderByID(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param id path string true "Order ID"
-// @Param status body orders.UpdateOrderStatusRequest true "Status update"
+// @Param status body object true "Status update"
 // @Success 200 {object} common.Response{data=string}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
@@ -207,8 +207,8 @@ func (h *OrderHandler) UpdateOrderStatus(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param id path string true "Order ID"
-// @Param order body orders.UpdateOrderRequest true "Order update data"
-// @Success 200 {object} common.Response{data=orders.OrderResponse}
+// @Param order body object true "Order update data"
+// @Success 200 {object} common.Response{data=map[string]interface{}}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -269,7 +269,7 @@ func (h *OrderHandler) UpdateOrder(c *gin.Context) {
 // @Param seller_id query string false "Filter by seller ID"
 // @Param status query string false "Filter by status"
 // @Param include_deleted query bool false "Include soft-deleted items (admin only)" default(false)
-// @Success 200 {object} common.Response{data=[]orders.OrderResponse,meta=common.ResponseMeta{pagination=common.PaginationMeta}}
+// @Success 200 {object} common.Response{data=[]interface{},meta=common.ResponseMeta{pagination=common.PaginationMeta}}
 // @Router /api/v1/orders [get]
 func (h *OrderHandler) ListOrders(c *gin.Context) {
 	// Extract query options (includes deleted items if user is admin and include_deleted=true)
@@ -400,8 +400,8 @@ func (h *OrderHandler) CancelOrder(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer token"
-// @Param order body orders.CreateOrderFromBidRequest true "Order from bid information"
-// @Success 201 {object} common.Response{data=orders.OrderFromBidResponse}
+// @Param order body object true "Order from bid information"
+// @Success 201 {object} common.Response{data=map[string]interface{}}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -470,8 +470,8 @@ func (h *OrderHandler) CreateOrderFromBid(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer token"
-// @Param validation body orders.BidOrderValidationRequest true "Bid validation request"
-// @Success 200 {object} common.Response{data=orders.BidOrderValidationResponse}
+// @Param validation body object true "Bid validation request"
+// @Success 200 {object} common.Response{data=map[string]interface{}}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -549,8 +549,8 @@ func (h *OrderHandler) ValidateBidForOrder(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param id path string true "Order ID"
-// @Param payment body orders.ProcessPaymentRequest true "Payment processing request"
-// @Success 200 {object} common.Response{data=orders.PaymentResponse}
+// @Param payment body object true "Payment processing request"
+// @Success 200 {object} common.Response{data=map[string]interface{}}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -618,7 +618,7 @@ func (h *OrderHandler) ProcessPaymentForOrder(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param id path string true "Order ID"
-// @Success 200 {object} common.Response{data=orders.PaymentResponse}
+// @Success 200 {object} common.Response{data=map[string]interface{}}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}

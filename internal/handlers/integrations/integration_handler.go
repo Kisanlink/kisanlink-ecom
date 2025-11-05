@@ -32,8 +32,8 @@ func NewIntegrationHandler(integrationService integrationService.IntegrationServ
 // @Param Authorization header string true "Bearer token"
 // @Param X-Webhook-Signature header string false "Webhook signature for validation"
 // @Param X-Webhook-Timestamp header string false "Webhook timestamp"
-// @Param proposal body integrations.CatalogProposalRequest true "Catalog proposal data"
-// @Success 201 {object} common.Response{data=integrations.CatalogProposalResponse}
+// @Param proposal body object true "Catalog proposal data"
+// @Success 201 {object} common.Response{data=map[string]interface{}}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -123,8 +123,8 @@ func (h *IntegrationHandler) SubmitCatalogProposal(c *gin.Context) {
 // @Param Authorization header string true "Bearer token"
 // @Param X-Webhook-Signature header string false "Webhook signature for validation"
 // @Param X-Webhook-Timestamp header string false "Webhook timestamp"
-// @Param acknowledgement body integrations.OrderAcknowledgementRequest true "Order acknowledgement data"
-// @Success 201 {object} common.Response{data=integrations.OrderAcknowledgementResponse}
+// @Param acknowledgement body object true "Order acknowledgement data"
+// @Success 201 {object} common.Response{data=map[string]interface{}}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -223,7 +223,7 @@ func (h *IntegrationHandler) AcknowledgeOrder(c *gin.Context) {
 // @Param page_size query int false "Items per page" default(50)
 // @Param format query string false "Output format" Enums(JSON, CSV, XML) default(JSON)
 // @Param include_metadata query bool false "Include metadata in response" default(true)
-// @Success 200 {object} common.Response{data=integrations.CatalogExportResponse}
+// @Success 200 {object} common.Response{data=map[string]interface{}}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -308,7 +308,7 @@ func (h *IntegrationHandler) ExportCatalog(c *gin.Context) {
 // @Param X-Webhook-Signature header string true "Webhook signature"
 // @Param X-Webhook-Timestamp header string true "Webhook timestamp"
 // @Param partner_id query string true "Partner ID"
-// @Success 200 {object} common.Response{data=integrations.WebhookValidationResponse}
+// @Success 200 {object} common.Response{data=map[string]interface{}}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/integrations/webhooks/validate [post]
@@ -375,7 +375,7 @@ func (h *IntegrationHandler) ValidateWebhookSignature(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param proposal_id path string true "Proposal ID"
-// @Success 200 {object} common.Response{data=integrations.ProposalStatusResponse}
+// @Success 200 {object} common.Response{data=map[string]interface{}}
 // @Failure 404 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/integrations/proposals/{proposal_id}/status [get]
 func (h *IntegrationHandler) GetProposalStatus(c *gin.Context) {

@@ -33,7 +33,7 @@ func GetProducts(c *gin.Context) {
 // @Tags         Products
 // @Accept       json
 // @Produce      json
-// @Param        request  body      catalog.CreateCatalogItemRequest  true  "Product data"
+// @Param        request  body      object  true  "Product data"
 // @Success      201      {object}  object  "Product created successfully"
 // @Failure      400      {object}  object  "Invalid request"
 // @Failure      401      {object}  object  "Unauthorized"
@@ -93,7 +93,7 @@ func GetProduct(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        id      path      string                   true   "Product ID"
-// @Param        request body      internal_handlers_catalog.UpdateCatalogItemRequest  true  "Product update data"
+// @Param        request body      object  true  "Product update data"
 // @Success      200      {object}  object  "Product updated successfully"
 // @Failure      400      {object}  object  "Invalid request"
 // @Failure      401      {object}  object  "Unauthorized"

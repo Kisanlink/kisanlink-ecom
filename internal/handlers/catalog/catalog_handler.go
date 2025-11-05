@@ -47,7 +47,7 @@ func NewCatalogHandler(catalogService catalogService.CatalogServiceInterface, et
 // @Param tags query []string false "Filter by tags"
 // @Param organization_id query string false "Filter by organization ID"
 // @Param include_deleted query bool false "Include soft-deleted items (admin only)" default(false)
-// @Success 200 {object} common.Response{data=[]catalog.CatalogItemResponse,meta=common.ResponseMeta{pagination=common.PaginationMeta}}
+// @Success 200 {object} common.Response{data=[]interface{},meta=common.ResponseMeta{pagination=common.PaginationMeta}}
 // @Router /api/v1/catalog [get]
 func (h *CatalogHandler) ListCatalogItems(c *gin.Context) {
 	// Extract query options (includes deleted items if user is admin and include_deleted=true)
@@ -166,7 +166,7 @@ func (h *CatalogHandler) ListCatalogItems(c *gin.Context) {
 // @Param search query string false "Search term"
 // @Param tags query []string false "Filter by tags"
 // @Param organization_id query string false "Filter by organization ID"
-// @Success 200 {object} common.Response{data=[]catalog.CatalogItemResponse,meta=common.ResponseMeta{pagination=common.PaginationMeta}}
+// @Success 200 {object} common.Response{data=[]interface{},meta=common.ResponseMeta{pagination=common.PaginationMeta}}
 // @Router /api/v1/catalog/{type} [get]
 func (h *CatalogHandler) ListCatalogItemsByType(c *gin.Context) {
 	// Get type from path parameter
@@ -290,8 +290,8 @@ func (h *CatalogHandler) ListCatalogItemsByType(c *gin.Context) {
 // @Param Authorization header string true "Bearer token"
 // @Param type path string true "Item type (products, services, labour)"
 // @Param id path string true "Item ID"
-// @Param item body catalog.UpdateCatalogItemRequest true "Item updates"
-// @Success 200 {object} common.Response{data=catalog.CatalogItemResponse}
+// @Param item body object true "Item updates"
+// @Success 200 {object} common.Response{data=map[string]interface{}}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -358,7 +358,7 @@ func (h *CatalogHandler) UpdateCatalogItemByTypeAndID(c *gin.Context) {
 // @Param max_price query number false "Maximum price filter"
 // @Param tags query []string false "Filter by tags"
 // @Param organization_id query string false "Filter by organization ID"
-// @Success 200 {object} common.Response{data=[]catalog.CatalogItemResponse,meta=common.ResponseMeta{pagination=common.PaginationMeta}}
+// @Success 200 {object} common.Response{data=[]interface{},meta=common.ResponseMeta{pagination=common.PaginationMeta}}
 // @Router /api/v1/catalog/search [get]
 func (h *CatalogHandler) SearchCatalog(c *gin.Context) {
 	// Get search query
@@ -553,7 +553,7 @@ func (h *CatalogHandler) updateLabour(c *gin.Context, id string, req *catalogReq
 // @Param type path string true "Item type (products, services, labour, contracts)"
 // @Param id path string true "Item ID"
 // @Param If-None-Match header string false "ETag for conditional requests"
-// @Success 200 {object} common.Response{data=catalog.CatalogItemResponse}
+// @Success 200 {object} common.Response{data=map[string]interface{}}
 // @Success 304 "Not modified"
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 404 {object} common.Response{error=common.ResponseError}

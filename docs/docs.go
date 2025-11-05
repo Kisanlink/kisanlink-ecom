@@ -92,13 +92,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/marketplace.AuditLogResponse"
+                                            "$ref": "#/definitions/internal_handlers_marketplace.AuditLogResponse"
                                         }
                                     }
                                 }
@@ -110,13 +110,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -128,13 +128,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -146,13 +146,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -164,13 +164,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -212,7 +212,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/marketplace.RemoveBidRequest"
+                            "$ref": "#/definitions/internal_handlers_marketplace.RemoveBidRequest"
                         }
                     }
                 ],
@@ -220,7 +220,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Bid removed successfully",
                         "schema": {
-                            "$ref": "#/definitions/common.APIResponse"
+                            "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                         }
                     },
                     "400": {
@@ -228,13 +228,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -246,13 +246,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -264,13 +264,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -282,13 +282,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -300,13 +300,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -420,13 +420,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/marketplace.ListingListResponse"
+                                            "$ref": "#/definitions/internal_handlers_marketplace.ListingListResponse"
                                         }
                                     }
                                 }
@@ -438,13 +438,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -456,13 +456,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -474,13 +474,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -492,13 +492,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -540,7 +540,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/marketplace.ForceCloseListingRequest"
+                            "$ref": "#/definitions/internal_handlers_marketplace.ForceCloseListingRequest"
                         }
                     }
                 ],
@@ -550,13 +550,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/marketplace.ListingResponse"
+                                            "$ref": "#/definitions/internal_handlers_marketplace.ListingResponse"
                                         }
                                     }
                                 }
@@ -568,13 +568,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -586,13 +586,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -604,13 +604,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -622,13 +622,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -640,13 +640,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -696,13 +696,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/marketplace.MarketplaceStatsResponse"
+                                            "$ref": "#/definitions/internal_handlers_marketplace.MarketplaceStatsResponse"
                                         }
                                     }
                                 }
@@ -714,13 +714,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -732,13 +732,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -750,13 +750,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -805,7 +805,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/common.Response"
+                            "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                         }
                     },
                     "400": {
@@ -813,13 +813,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -831,13 +831,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -849,13 +849,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -867,13 +867,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -929,7 +929,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/common.Response"
+                            "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                         }
                     },
                     "400": {
@@ -937,13 +937,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -1040,13 +1040,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/orders.PaymentScreenshotListResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -1058,13 +1059,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -1109,7 +1110,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/orders.VerifyPaymentScreenshotRequest"
+                            "type": "object"
                         }
                     }
                 ],
@@ -1119,13 +1120,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/orders.PaymentScreenshotResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -1137,13 +1139,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -1155,13 +1157,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -1191,7 +1193,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auth.LoginRequest"
+                            "$ref": "#/definitions/kisanlink-ecom_entities_requests_auth.LoginRequest"
                         }
                     }
                 ],
@@ -1201,7 +1203,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -1220,13 +1222,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -1238,13 +1240,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -1278,7 +1280,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -1296,13 +1298,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -1332,7 +1334,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auth.RegisterRequest"
+                            "$ref": "#/definitions/kisanlink-ecom_entities_requests_auth.RegisterRequest"
                         }
                     }
                 ],
@@ -1342,7 +1344,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -1361,13 +1363,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -1379,13 +1381,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -1397,13 +1399,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -1519,27 +1521,25 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
                                             "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/catalog.CatalogItemResponse"
-                                            }
+                                            "items": {}
                                         },
                                         "meta": {
                                             "allOf": [
                                                 {
-                                                    "$ref": "#/definitions/common.ResponseMeta"
+                                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseMeta"
                                                 },
                                                 {
                                                     "type": "object",
                                                     "properties": {
                                                         "pagination": {
-                                                            "$ref": "#/definitions/common.PaginationMeta"
+                                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.PaginationMeta"
                                                         }
                                                     }
                                                 }
@@ -1580,7 +1580,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/catalog.BulkPriceUpdateRequest"
+                            "$ref": "#/definitions/internal_handlers_catalog.BulkPriceUpdateRequest"
                         }
                     }
                 ],
@@ -1590,13 +1590,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/catalog.BulkOperationResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -1608,13 +1609,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -1626,13 +1627,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -1644,13 +1645,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -1662,13 +1663,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -1705,7 +1706,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/catalog.BulkPublishRequest"
+                            "$ref": "#/definitions/internal_handlers_catalog.BulkPublishRequest"
                         }
                     }
                 ],
@@ -1715,13 +1716,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/catalog.BulkOperationResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -1733,13 +1735,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -1751,13 +1753,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -1769,13 +1771,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -1787,13 +1789,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -1836,7 +1838,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/catalog.BulkUpdateRequest"
+                            "$ref": "#/definitions/internal_handlers_catalog.BulkUpdateRequest"
                         }
                     }
                 ],
@@ -1846,13 +1848,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/catalog.BulkOperationResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -1864,13 +1867,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -1882,13 +1885,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -1900,13 +1903,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -1918,13 +1921,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -2000,27 +2003,25 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
                                             "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/catalog.LabourResponse"
-                                            }
+                                            "items": {}
                                         },
                                         "meta": {
                                             "allOf": [
                                                 {
-                                                    "$ref": "#/definitions/common.ResponseMeta"
+                                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseMeta"
                                                 },
                                                 {
                                                     "type": "object",
                                                     "properties": {
                                                         "pagination": {
-                                                            "$ref": "#/definitions/common.PaginationMeta"
+                                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.PaginationMeta"
                                                         }
                                                     }
                                                 }
@@ -2059,7 +2060,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/catalog.CreateLabourRequest"
+                            "type": "object"
                         }
                     }
                 ],
@@ -2069,13 +2070,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/catalog.LabourResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -2087,13 +2089,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -2105,13 +2107,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -2123,13 +2125,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -2173,13 +2175,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/catalog.LabourResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -2194,13 +2197,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -2242,7 +2245,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handlers_catalog.UpdateCatalogItemRequest"
+                            "type": "object"
                         }
                     }
                 ],
@@ -2252,13 +2255,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/catalog.LabourResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -2270,13 +2274,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -2288,13 +2292,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -2306,13 +2310,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -2324,13 +2328,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -2373,7 +2377,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -2391,13 +2395,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -2409,13 +2413,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -2427,13 +2431,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -2445,13 +2449,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -2503,7 +2507,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -2521,13 +2525,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -2539,13 +2543,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -2557,13 +2561,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -2575,13 +2579,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -2593,13 +2597,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -2651,7 +2655,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -2669,13 +2673,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -2687,13 +2691,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -2705,13 +2709,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -2723,13 +2727,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -2741,13 +2745,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -2843,27 +2847,25 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
                                             "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/catalog.ProductResponse"
-                                            }
+                                            "items": {}
                                         },
                                         "meta": {
                                             "allOf": [
                                                 {
-                                                    "$ref": "#/definitions/common.ResponseMeta"
+                                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseMeta"
                                                 },
                                                 {
                                                     "type": "object",
                                                     "properties": {
                                                         "pagination": {
-                                                            "$ref": "#/definitions/common.PaginationMeta"
+                                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.PaginationMeta"
                                                         }
                                                     }
                                                 }
@@ -2879,13 +2881,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -2897,13 +2899,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -2938,7 +2940,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/catalog.CreateCatalogItemRequest"
+                            "type": "object"
                         }
                     }
                 ],
@@ -2948,13 +2950,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/catalog.ProductResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -2966,13 +2969,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -2984,13 +2987,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -3002,13 +3005,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -3052,13 +3055,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/catalog.ProductResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -3073,13 +3077,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -3121,7 +3125,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handlers_catalog.UpdateCatalogItemRequest"
+                            "type": "object"
                         }
                     }
                 ],
@@ -3131,13 +3135,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/catalog.ProductResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -3149,13 +3154,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -3167,13 +3172,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -3185,13 +3190,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -3203,13 +3208,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -3252,7 +3257,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -3270,13 +3275,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -3288,13 +3293,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -3306,13 +3311,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -3324,13 +3329,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -3382,7 +3387,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -3400,13 +3405,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -3418,13 +3423,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -3436,13 +3441,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -3454,13 +3459,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -3472,13 +3477,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -3530,7 +3535,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -3548,13 +3553,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -3566,13 +3571,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -3584,13 +3589,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -3602,13 +3607,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -3620,13 +3625,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -3677,7 +3682,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/catalog.UpdateDeliveryCostsRequest"
+                            "$ref": "#/definitions/internal_handlers_catalog.UpdateDeliveryCostsRequest"
                         }
                     }
                 ],
@@ -3687,7 +3692,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -3708,13 +3713,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -3726,13 +3731,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -3744,13 +3749,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -3762,13 +3767,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -3780,13 +3785,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -3846,7 +3851,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -3867,13 +3872,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -3885,13 +3890,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -3903,13 +3908,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -3921,13 +3926,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -3978,7 +3983,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/catalog.PublishProductToFPOsRequest"
+                            "$ref": "#/definitions/internal_handlers_catalog.PublishProductToFPOsRequest"
                         }
                     }
                 ],
@@ -3988,13 +3993,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/catalog.PublishProductToFPOsResponse"
+                                            "$ref": "#/definitions/internal_handlers_catalog.PublishProductToFPOsResponse"
                                         }
                                     }
                                 }
@@ -4006,13 +4011,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -4024,13 +4029,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -4042,13 +4047,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -4060,13 +4065,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -4078,13 +4083,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -4134,7 +4139,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Publishing status retrieved successfully",
                         "schema": {
-                            "$ref": "#/definitions/common.Response"
+                            "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                         }
                     },
                     "401": {
@@ -4142,13 +4147,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -4160,13 +4165,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -4178,13 +4183,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -4294,27 +4299,25 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
                                             "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/catalog.CatalogItemResponse"
-                                            }
+                                            "items": {}
                                         },
                                         "meta": {
                                             "allOf": [
                                                 {
-                                                    "$ref": "#/definitions/common.ResponseMeta"
+                                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseMeta"
                                                 },
                                                 {
                                                     "type": "object",
                                                     "properties": {
                                                         "pagination": {
-                                                            "$ref": "#/definitions/common.PaginationMeta"
+                                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.PaginationMeta"
                                                         }
                                                     }
                                                 }
@@ -4394,27 +4397,25 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
                                             "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/catalog.ServiceResponse"
-                                            }
+                                            "items": {}
                                         },
                                         "meta": {
                                             "allOf": [
                                                 {
-                                                    "$ref": "#/definitions/common.ResponseMeta"
+                                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseMeta"
                                                 },
                                                 {
                                                     "type": "object",
                                                     "properties": {
                                                         "pagination": {
-                                                            "$ref": "#/definitions/common.PaginationMeta"
+                                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.PaginationMeta"
                                                         }
                                                     }
                                                 }
@@ -4453,7 +4454,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/catalog.CreateServiceRequest"
+                            "type": "object"
                         }
                     }
                 ],
@@ -4463,13 +4464,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/catalog.ServiceResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -4481,13 +4483,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -4499,13 +4501,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -4517,13 +4519,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -4567,13 +4569,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/catalog.ServiceResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -4588,13 +4591,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -4636,7 +4639,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handlers_catalog.UpdateCatalogItemRequest"
+                            "type": "object"
                         }
                     }
                 ],
@@ -4646,13 +4649,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/catalog.ServiceResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -4664,13 +4668,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -4682,13 +4686,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -4700,13 +4704,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -4718,13 +4722,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -4767,7 +4771,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -4785,13 +4789,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -4803,13 +4807,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -4821,13 +4825,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -4839,13 +4843,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -4897,7 +4901,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -4915,13 +4919,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -4933,13 +4937,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -4951,13 +4955,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -4969,13 +4973,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -4987,13 +4991,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -5045,7 +5049,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -5063,13 +5067,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -5081,13 +5085,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -5099,13 +5103,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -5117,13 +5121,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -5135,13 +5139,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -5251,27 +5255,25 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
                                             "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/catalog.CatalogItemResponse"
-                                            }
+                                            "items": {}
                                         },
                                         "meta": {
                                             "allOf": [
                                                 {
-                                                    "$ref": "#/definitions/common.ResponseMeta"
+                                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseMeta"
                                                 },
                                                 {
                                                     "type": "object",
                                                     "properties": {
                                                         "pagination": {
-                                                            "$ref": "#/definitions/common.PaginationMeta"
+                                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.PaginationMeta"
                                                         }
                                                     }
                                                 }
@@ -5326,13 +5328,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/catalog.CatalogItemResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -5347,13 +5350,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -5365,13 +5368,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -5420,7 +5423,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handlers_catalog.UpdateCatalogItemRequest"
+                            "type": "object"
                         }
                     }
                 ],
@@ -5430,13 +5433,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/catalog.CatalogItemResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -5448,13 +5452,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -5466,13 +5470,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -5484,13 +5488,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -5502,13 +5506,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -5567,13 +5571,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -5585,13 +5589,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -5603,13 +5607,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -5621,13 +5625,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -5639,13 +5643,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -5696,7 +5700,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/catalog.PriceUpdateRequest"
+                            "$ref": "#/definitions/internal_handlers_catalog.PriceUpdateRequest"
                         }
                     }
                 ],
@@ -5706,13 +5710,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/catalog.CatalogItemResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -5724,13 +5729,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -5742,13 +5747,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -5760,13 +5765,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -5778,13 +5783,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -5796,13 +5801,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -5852,7 +5857,7 @@ const docTemplate = `{
                         "name": "request",
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/catalog.PublishRequest"
+                            "$ref": "#/definitions/internal_handlers_catalog.PublishRequest"
                         }
                     }
                 ],
@@ -5862,13 +5867,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/catalog.CatalogItemResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -5880,13 +5886,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -5898,13 +5904,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -5916,13 +5922,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -5934,13 +5940,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -5952,13 +5958,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -5970,13 +5976,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -6026,7 +6032,7 @@ const docTemplate = `{
                         "name": "request",
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/catalog.UnpublishRequest"
+                            "$ref": "#/definitions/internal_handlers_catalog.UnpublishRequest"
                         }
                     }
                 ],
@@ -6036,13 +6042,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/catalog.CatalogItemResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -6054,13 +6061,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -6072,13 +6079,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -6090,13 +6097,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -6108,13 +6115,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -6126,13 +6133,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -6311,13 +6318,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -6329,13 +6336,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -6347,13 +6354,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -6390,7 +6397,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/collaborator.BulkUpdateCollaboratorsRequest"
+                            "type": "object"
                         }
                     }
                 ],
@@ -6400,13 +6407,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/collaborator.BulkOperationResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -6418,13 +6426,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -6436,13 +6444,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -6501,27 +6509,25 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
                                             "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/collaborator.CollaboratorSummaryResponse"
-                                            }
+                                            "items": {}
                                         },
                                         "meta": {
                                             "allOf": [
                                                 {
-                                                    "$ref": "#/definitions/common.ResponseMeta"
+                                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseMeta"
                                                 },
                                                 {
                                                     "type": "object",
                                                     "properties": {
                                                         "pagination": {
-                                                            "$ref": "#/definitions/common.PaginationMeta"
+                                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.PaginationMeta"
                                                         }
                                                     }
                                                 }
@@ -6569,13 +6575,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/collaborator.CollaboratorStatsResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -6587,13 +6594,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -6631,13 +6638,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/collaborator.CollaboratorResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -6649,13 +6657,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -6699,13 +6707,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -6747,7 +6755,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/collaborator.UpdateCollaboratorRequest"
+                            "type": "object"
                         }
                     }
                 ],
@@ -6757,13 +6765,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/collaborator.CollaboratorResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -6775,13 +6784,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -6793,13 +6802,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -6811,13 +6820,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -6863,13 +6872,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -6881,13 +6890,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -6931,7 +6940,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/collaborator.UpdateOnboardingStepRequest"
+                            "type": "object"
                         }
                     }
                 ],
@@ -6941,13 +6950,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/collaborator.OnboardingStepResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -6959,13 +6969,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -6977,13 +6987,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -6995,13 +7005,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -7046,13 +7056,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/collaborator.OnboardingStepResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -7064,13 +7075,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -7082,13 +7093,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -7133,13 +7144,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/collaborator.CollaboratorProfileResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -7151,13 +7163,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -7169,13 +7181,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -7229,13 +7241,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/collaborator.CollaboratorResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -7247,13 +7260,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -7265,13 +7278,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -7283,13 +7296,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -7343,13 +7356,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/collaborator.CollaboratorVerificationResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -7361,13 +7375,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -7379,13 +7393,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -7397,13 +7411,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -7430,7 +7444,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/common.Response"
+                            "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                         }
                     },
                     "400": {
@@ -7438,13 +7452,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -7456,13 +7470,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -7474,13 +7488,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -7492,13 +7506,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -7534,7 +7548,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/common.Response"
+                            "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                         }
                     },
                     "400": {
@@ -7542,13 +7556,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -7560,13 +7574,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -7578,13 +7592,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -7596,13 +7610,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -7645,7 +7659,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/common.Response"
+                            "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                         }
                     },
                     "400": {
@@ -7653,13 +7667,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -7671,13 +7685,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -7689,13 +7703,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -7707,13 +7721,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -7756,7 +7770,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/common.Response"
+                            "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                         }
                     },
                     "400": {
@@ -7764,13 +7778,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -7782,13 +7796,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -7800,13 +7814,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -7818,13 +7832,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -7860,7 +7874,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/common.Response"
+                            "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                         }
                     },
                     "400": {
@@ -7868,13 +7882,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -7886,13 +7900,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -7904,13 +7918,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -7922,13 +7936,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -7940,13 +7954,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -8008,7 +8022,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/common.Response"
+                            "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                         }
                     },
                     "400": {
@@ -8016,13 +8030,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -8057,7 +8071,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/orders.CreatePurchaseOrderRequest"
+                            "type": "object"
                         }
                     }
                 ],
@@ -8065,7 +8079,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/common.Response"
+                            "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                         }
                     },
                     "400": {
@@ -8073,13 +8087,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -8091,13 +8105,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -8140,7 +8154,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/common.Response"
+                            "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                         }
                     },
                     "404": {
@@ -8148,13 +8162,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -8197,7 +8211,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/common.Response"
+                            "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                         }
                     },
                     "404": {
@@ -8205,13 +8219,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -8253,7 +8267,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/orders.CreateGRNRequest"
+                            "type": "object"
                         }
                     }
                 ],
@@ -8261,7 +8275,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/common.Response"
+                            "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                         }
                     },
                     "400": {
@@ -8269,13 +8283,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -8326,13 +8340,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -8376,7 +8390,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/orders.UpdatePurchaseOrderStatusRequest"
+                            "type": "object"
                         }
                     }
                 ],
@@ -8384,7 +8398,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/common.Response"
+                            "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                         }
                     },
                     "400": {
@@ -8392,13 +8406,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -8523,13 +8537,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/integrations.CatalogExportResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -8541,13 +8556,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -8559,13 +8574,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -8577,13 +8592,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -8632,7 +8647,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/integrations.CatalogProposalRequest"
+                            "type": "object"
                         }
                     }
                 ],
@@ -8642,13 +8657,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/integrations.CatalogProposalResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -8660,13 +8676,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -8678,13 +8694,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -8696,13 +8712,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -8751,7 +8767,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/integrations.OrderAcknowledgementRequest"
+                            "type": "object"
                         }
                     }
                 ],
@@ -8761,13 +8777,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/integrations.OrderAcknowledgementResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -8779,13 +8796,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -8797,13 +8814,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -8815,13 +8832,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -8873,7 +8890,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -8928,13 +8945,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/integrations.ProposalStatusResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -8946,13 +8964,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9004,13 +9022,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/integrations.WebhookValidationResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -9022,13 +9041,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9040,13 +9059,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9089,7 +9108,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/common.Response"
+                            "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                         }
                     },
                     "400": {
@@ -9097,13 +9116,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9115,13 +9134,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9133,13 +9152,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9151,13 +9170,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9169,13 +9188,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9249,7 +9268,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/common.Response"
+                            "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                         }
                     },
                     "400": {
@@ -9257,13 +9276,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9275,13 +9294,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9293,13 +9312,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9311,13 +9330,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9353,7 +9372,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/common.Response"
+                            "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                         }
                     },
                     "400": {
@@ -9361,13 +9380,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9379,13 +9398,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9397,13 +9416,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9415,13 +9434,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9457,7 +9476,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/common.Response"
+                            "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                         }
                     },
                     "400": {
@@ -9465,13 +9484,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9483,13 +9502,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9501,13 +9520,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9519,13 +9538,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9537,13 +9556,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9586,7 +9605,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/common.Response"
+                            "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                         }
                     },
                     "400": {
@@ -9594,13 +9613,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9612,13 +9631,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9630,13 +9649,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9648,13 +9667,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9666,13 +9685,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9709,7 +9728,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/inventory.AdjustInventoryRequest"
+                            "$ref": "#/definitions/internal_handlers_inventory.AdjustInventoryRequest"
                         }
                     }
                 ],
@@ -9717,7 +9736,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/common.Response"
+                            "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                         }
                     },
                     "400": {
@@ -9725,13 +9744,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9743,13 +9762,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9761,13 +9780,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9779,13 +9798,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9797,13 +9816,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9853,7 +9872,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/common.Response"
+                            "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                         }
                     },
                     "400": {
@@ -9861,13 +9880,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9879,13 +9898,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9897,13 +9916,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9915,13 +9934,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -9933,13 +9952,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -10022,7 +10041,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -10036,13 +10055,13 @@ const docTemplate = `{
                                         "meta": {
                                             "allOf": [
                                                 {
-                                                    "$ref": "#/definitions/common.ResponseMeta"
+                                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseMeta"
                                                 },
                                                 {
                                                     "type": "object",
                                                     "properties": {
                                                         "pagination": {
-                                                            "$ref": "#/definitions/common.PaginationMeta"
+                                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.PaginationMeta"
                                                         }
                                                     }
                                                 }
@@ -10091,7 +10110,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -10109,13 +10128,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -10160,7 +10179,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -10178,13 +10197,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -10196,13 +10215,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -10214,13 +10233,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -10232,13 +10251,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -10300,7 +10319,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -10318,13 +10337,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -10336,13 +10355,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -10354,13 +10373,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -10372,13 +10391,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -10423,7 +10442,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -10441,13 +10460,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -10459,13 +10478,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -10477,13 +10496,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -10495,13 +10514,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -10576,13 +10595,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/marketplace.BidListResponse"
+                                            "$ref": "#/definitions/internal_handlers_marketplace.BidListResponse"
                                         }
                                     }
                                 }
@@ -10594,13 +10613,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -10612,13 +10631,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -10630,13 +10649,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -10686,13 +10705,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/marketplace.BidResponse"
+                                            "$ref": "#/definitions/internal_handlers_marketplace.BidResponse"
                                         }
                                     }
                                 }
@@ -10704,13 +10723,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -10722,13 +10741,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -10740,13 +10759,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -10758,13 +10777,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -10776,13 +10795,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -10846,13 +10865,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/marketplace.BidHistoryResponse"
+                                            "$ref": "#/definitions/internal_handlers_marketplace.BidHistoryResponse"
                                         }
                                     }
                                 }
@@ -10864,13 +10883,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -10882,13 +10901,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -10900,13 +10919,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -10918,13 +10937,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -10936,13 +10955,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -10999,13 +11018,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/marketplace.BidResponse"
+                                            "$ref": "#/definitions/internal_handlers_marketplace.BidResponse"
                                         }
                                     }
                                 }
@@ -11017,13 +11036,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -11035,13 +11054,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -11053,13 +11072,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -11071,13 +11090,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -11089,13 +11108,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -11107,13 +11126,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -11195,7 +11214,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -11213,13 +11232,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -11231,13 +11250,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -11249,13 +11268,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -11267,13 +11286,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -11285,13 +11304,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -11341,7 +11360,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -11359,13 +11378,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -11377,13 +11396,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -11395,13 +11414,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -11413,13 +11432,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -11431,13 +11450,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -11487,7 +11506,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -11505,13 +11524,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -11523,13 +11542,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -11541,13 +11560,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -11559,13 +11578,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -11577,13 +11596,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -11633,7 +11652,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -11651,13 +11670,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -11669,13 +11688,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -11687,13 +11706,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -11705,13 +11724,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -11723,13 +11742,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.APIResponse"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.APIError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -11799,27 +11818,25 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
                                             "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/orders.OrderResponse"
-                                            }
+                                            "items": {}
                                         },
                                         "meta": {
                                             "allOf": [
                                                 {
-                                                    "$ref": "#/definitions/common.ResponseMeta"
+                                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseMeta"
                                                 },
                                                 {
                                                     "type": "object",
                                                     "properties": {
                                                         "pagination": {
-                                                            "$ref": "#/definitions/common.PaginationMeta"
+                                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.PaginationMeta"
                                                         }
                                                     }
                                                 }
@@ -11858,7 +11875,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/orders.CreateOrderRequest"
+                            "type": "object"
                         }
                     }
                 ],
@@ -11868,13 +11885,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/orders.OrderResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -11886,13 +11904,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -11904,13 +11922,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -11922,13 +11940,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -11965,7 +11983,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/orders.CreateOrderFromBidRequest"
+                            "type": "object"
                         }
                     }
                 ],
@@ -11975,13 +11993,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/orders.OrderFromBidResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -11993,13 +12012,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -12011,13 +12030,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -12029,13 +12048,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -12072,7 +12091,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/orders.BidOrderValidationRequest"
+                            "type": "object"
                         }
                     }
                 ],
@@ -12082,13 +12101,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/orders.BidOrderValidationResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -12100,13 +12120,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -12118,13 +12138,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -12136,13 +12156,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -12180,13 +12200,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/orders.OrderResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -12198,13 +12219,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -12246,7 +12267,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/orders.UpdateOrderRequest"
+                            "type": "object"
                         }
                     }
                 ],
@@ -12256,13 +12277,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/orders.OrderResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -12274,13 +12296,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -12292,13 +12314,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -12310,13 +12332,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -12328,13 +12350,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -12379,7 +12401,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -12397,13 +12419,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -12415,13 +12437,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -12433,13 +12455,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -12451,13 +12473,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -12502,7 +12524,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -12520,13 +12542,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -12569,7 +12591,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -12587,13 +12609,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -12605,13 +12627,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -12623,13 +12645,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -12641,13 +12663,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -12698,13 +12720,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -12748,7 +12770,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/orders.ProcessPaymentRequest"
+                            "type": "object"
                         }
                     }
                 ],
@@ -12758,13 +12780,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/orders.PaymentResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -12776,13 +12799,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -12794,13 +12817,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -12812,13 +12835,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -12863,13 +12886,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/orders.PaymentResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -12881,13 +12905,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -12899,13 +12923,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -12917,13 +12941,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -12967,7 +12991,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/orders.UpdateOrderStatusRequest"
+                            "type": "object"
                         }
                     }
                 ],
@@ -12977,7 +13001,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -12995,13 +13019,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -13013,13 +13037,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -13031,13 +13055,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -13049,13 +13073,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -13100,16 +13124,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
                                             "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/orders.PaymentScreenshotResponse"
-                                            }
+                                            "items": {}
                                         }
                                     }
                                 }
@@ -13121,13 +13143,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -13210,13 +13232,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/orders.PaymentScreenshotUploadResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -13228,13 +13251,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -13246,13 +13269,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -13264,13 +13287,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -13315,13 +13338,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/orders.PaymentScreenshotResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -13333,13 +13357,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -13384,13 +13408,14 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/orders.PaymentScreenshotDownloadURLResponse"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -13402,13 +13427,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/common.Response"
+                                    "$ref": "#/definitions/kisanlink-ecom_internal_common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "$ref": "#/definitions/common.ResponseError"
+                                            "$ref": "#/definitions/kisanlink-ecom_internal_common.ResponseError"
                                         }
                                     }
                                 }
@@ -13488,7 +13513,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/catalog.CreateCatalogItemRequest"
+                            "type": "object"
                         }
                     }
                 ],
@@ -13607,7 +13632,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handlers_catalog.UpdateCatalogItemRequest"
+                            "type": "object"
                         }
                     }
                 ],
@@ -13725,7 +13750,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/common.HealthResponse"
+                            "$ref": "#/definitions/kisanlink-ecom_entities_models_common.HealthResponse"
                         }
                     }
                 }
@@ -13747,7 +13772,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
-                                "$ref": "#/definitions/health.ComponentHealth"
+                                "$ref": "#/definitions/kisanlink-ecom_internal_health.ComponentHealth"
                             }
                         }
                     }
@@ -13777,7 +13802,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Component health status",
                         "schema": {
-                            "$ref": "#/definitions/health.ComponentHealth"
+                            "$ref": "#/definitions/kisanlink-ecom_internal_health.ComponentHealth"
                         }
                     },
                     "404": {
@@ -13806,13 +13831,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/health.DetailedHealthResponse"
+                            "$ref": "#/definitions/internal_handlers_health.DetailedHealthResponse"
                         }
                     },
                     "503": {
                         "description": "Service Unavailable",
                         "schema": {
-                            "$ref": "#/definitions/health.DetailedHealthResponse"
+                            "$ref": "#/definitions/internal_handlers_health.DetailedHealthResponse"
                         }
                     }
                 }
@@ -13888,13 +13913,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/health.MetricsResponse"
+                            "$ref": "#/definitions/internal_handlers_health.MetricsResponse"
                         }
                     },
                     "503": {
                         "description": "Service Unavailable",
                         "schema": {
-                            "$ref": "#/definitions/health.MetricsResponse"
+                            "$ref": "#/definitions/internal_handlers_health.MetricsResponse"
                         }
                     }
                 }
@@ -13934,13 +13959,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/common.HealthResponse"
+                            "$ref": "#/definitions/kisanlink-ecom_entities_models_common.HealthResponse"
                         }
                     },
                     "503": {
                         "description": "Service Unavailable",
                         "schema": {
-                            "$ref": "#/definitions/common.HealthResponse"
+                            "$ref": "#/definitions/kisanlink-ecom_entities_models_common.HealthResponse"
                         }
                     }
                 }
@@ -13960,13 +13985,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/health.StatusDashboard"
+                            "$ref": "#/definitions/internal_handlers_health.StatusDashboard"
                         }
                     },
                     "503": {
                         "description": "Service Unavailable",
                         "schema": {
-                            "$ref": "#/definitions/health.StatusDashboard"
+                            "$ref": "#/definitions/internal_handlers_health.StatusDashboard"
                         }
                     }
                 }
@@ -13974,109 +13999,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "auth.LoginRequest": {
-            "type": "object",
-            "required": [
-                "password",
-                "username"
-            ],
-            "properties": {
-                "password": {
-                    "type": "string",
-                    "maxLength": 255,
-                    "minLength": 6
-                },
-                "username": {
-                    "type": "string",
-                    "maxLength": 255
-                }
-            }
-        },
-        "auth.RegisterRequest": {
-            "type": "object",
-            "required": [
-                "email",
-                "first_name",
-                "last_name",
-                "password",
-                "username"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "first_name": {
-                    "type": "string",
-                    "maxLength": 100
-                },
-                "last_name": {
-                    "type": "string",
-                    "maxLength": 100
-                },
-                "password": {
-                    "type": "string",
-                    "maxLength": 255,
-                    "minLength": 6
-                },
-                "phone": {
-                    "type": "string",
-                    "maxLength": 20
-                },
-                "username": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 3
-                }
-            }
-        },
-        "catalog.BulkOperationResponse": {
-            "type": "object",
-            "properties": {
-                "error_messages": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "example": [
-                        "Item not found",
-                        "Permission denied"
-                    ]
-                },
-                "failure_count": {
-                    "type": "integer",
-                    "example": 2
-                },
-                "failure_items": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "example": [
-                        "123e4567-e89b-12d3-a456-426614174002",
-                        "123e4567-e89b-12d3-a456-426614174003"
-                    ]
-                },
-                "success_count": {
-                    "type": "integer",
-                    "example": 8
-                },
-                "success_items": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "example": [
-                        "123e4567-e89b-12d3-a456-426614174000",
-                        "123e4567-e89b-12d3-a456-426614174001"
-                    ]
-                },
-                "total_items": {
-                    "type": "integer",
-                    "example": 10
-                }
-            }
-        },
-        "catalog.BulkPriceUpdateItem": {
+        "internal_handlers_catalog.BulkPriceUpdateItem": {
             "type": "object",
             "required": [
                 "base_price",
@@ -14095,7 +14018,7 @@ const docTemplate = `{
                 }
             }
         },
-        "catalog.BulkPriceUpdateRequest": {
+        "internal_handlers_catalog.BulkPriceUpdateRequest": {
             "type": "object",
             "required": [
                 "updates"
@@ -14113,12 +14036,12 @@ const docTemplate = `{
                     "maxItems": 100,
                     "minItems": 1,
                     "items": {
-                        "$ref": "#/definitions/catalog.BulkPriceUpdateItem"
+                        "$ref": "#/definitions/internal_handlers_catalog.BulkPriceUpdateItem"
                     }
                 }
             }
         },
-        "catalog.BulkPublishRequest": {
+        "internal_handlers_catalog.BulkPublishRequest": {
             "type": "object",
             "required": [
                 "item_ids"
@@ -14146,7 +14069,7 @@ const docTemplate = `{
                 }
             }
         },
-        "catalog.BulkUpdateItem": {
+        "internal_handlers_catalog.BulkUpdateItem": {
             "type": "object",
             "required": [
                 "id",
@@ -14161,7 +14084,7 @@ const docTemplate = `{
                 }
             }
         },
-        "catalog.BulkUpdateRequest": {
+        "internal_handlers_catalog.BulkUpdateRequest": {
             "type": "object",
             "required": [
                 "items"
@@ -14175,540 +14098,12 @@ const docTemplate = `{
                     "maxItems": 100,
                     "minItems": 1,
                     "items": {
-                        "$ref": "#/definitions/catalog.BulkUpdateItem"
+                        "$ref": "#/definitions/internal_handlers_catalog.BulkUpdateItem"
                     }
                 }
             }
         },
-        "catalog.CatalogItemResponse": {
-            "type": "object",
-            "properties": {
-                "attributes": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "base_price": {
-                    "type": "number",
-                    "example": 25.5
-                },
-                "category": {
-                    "type": "string",
-                    "example": "vegetables"
-                },
-                "created_at": {
-                    "type": "string",
-                    "example": "2024-01-15T10:30:00Z"
-                },
-                "currency": {
-                    "type": "string",
-                    "example": "INR"
-                },
-                "description": {
-                    "type": "string",
-                    "example": "Fresh organic tomatoes grown without pesticides"
-                },
-                "id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174000"
-                },
-                "images": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "example": [
-                        "https://example.com/tomato1.jpg",
-                        "https://example.com/tomato2.jpg"
-                    ]
-                },
-                "is_active": {
-                    "type": "boolean",
-                    "example": true
-                },
-                "item_type": {
-                    "type": "string",
-                    "example": "PRODUCT"
-                },
-                "name": {
-                    "type": "string",
-                    "example": "Organic Tomatoes"
-                },
-                "organization_id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174001"
-                },
-                "sku": {
-                    "type": "string",
-                    "example": "TOM-ORG-001"
-                },
-                "subcategory": {
-                    "type": "string",
-                    "example": "tomatoes"
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "example": [
-                        "organic",
-                        "fresh",
-                        "local"
-                    ]
-                },
-                "unit_of_measure": {
-                    "type": "string",
-                    "example": "kg"
-                },
-                "updated_at": {
-                    "type": "string",
-                    "example": "2024-01-15T10:30:00Z"
-                },
-                "visibility": {
-                    "type": "string",
-                    "example": "ORG"
-                }
-            }
-        },
-        "catalog.CatalogItemType": {
-            "type": "string",
-            "enum": [
-                "PRODUCT",
-                "SERVICE",
-                "LABOUR",
-                "CONTRACT"
-            ],
-            "x-enum-varnames": [
-                "CatalogItemTypeProduct",
-                "CatalogItemTypeService",
-                "CatalogItemTypeLabour",
-                "CatalogItemTypeContract"
-            ]
-        },
-        "catalog.CreateCatalogItemRequest": {
-            "type": "object",
-            "required": [
-                "base_price",
-                "item_type",
-                "name"
-            ],
-            "properties": {
-                "attributes": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "base_price": {
-                    "type": "number",
-                    "example": 25.5
-                },
-                "category": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "example": "vegetables"
-                },
-                "currency": {
-                    "type": "string",
-                    "example": "INR"
-                },
-                "description": {
-                    "type": "string",
-                    "maxLength": 2000,
-                    "example": "Fresh organic tomatoes grown without pesticides"
-                },
-                "images": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "example": [
-                        "https://example.com/tomato1.jpg",
-                        "https://example.com/tomato2.jpg"
-                    ]
-                },
-                "item_type": {
-                    "enum": [
-                        "PRODUCT",
-                        "SERVICE",
-                        "LABOUR",
-                        "CONTRACT"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/catalog.CatalogItemType"
-                        }
-                    ],
-                    "example": "PRODUCT"
-                },
-                "name": {
-                    "type": "string",
-                    "maxLength": 255,
-                    "minLength": 1,
-                    "example": "Organic Tomatoes"
-                },
-                "sku": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "example": "TOM-ORG-001"
-                },
-                "subcategory": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "example": "tomatoes"
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "example": [
-                        "organic",
-                        "fresh",
-                        "local"
-                    ]
-                },
-                "unit_of_measure": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "example": "kg"
-                },
-                "visibility": {
-                    "enum": [
-                        "PRIVATE",
-                        "ORG",
-                        "NETWORK",
-                        "PUBLIC"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/catalog.VisibilityType"
-                        }
-                    ],
-                    "example": "ORG"
-                }
-            }
-        },
-        "catalog.CreateLabourRequest": {
-            "type": "object",
-            "required": [
-                "base_price",
-                "item_type",
-                "name"
-            ],
-            "properties": {
-                "attributes": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "base_price": {
-                    "type": "number",
-                    "example": 25.5
-                },
-                "category": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "example": "vegetables"
-                },
-                "currency": {
-                    "type": "string",
-                    "example": "INR"
-                },
-                "description": {
-                    "type": "string",
-                    "maxLength": 2000,
-                    "example": "Fresh organic tomatoes grown without pesticides"
-                },
-                "hourly_rate": {
-                    "type": "number",
-                    "minimum": 0,
-                    "example": 75
-                },
-                "images": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "example": [
-                        "https://example.com/tomato1.jpg",
-                        "https://example.com/tomato2.jpg"
-                    ]
-                },
-                "item_type": {
-                    "enum": [
-                        "PRODUCT",
-                        "SERVICE",
-                        "LABOUR",
-                        "CONTRACT"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/catalog.CatalogItemType"
-                        }
-                    ],
-                    "example": "PRODUCT"
-                },
-                "name": {
-                    "type": "string",
-                    "maxLength": 255,
-                    "minLength": 1,
-                    "example": "Organic Tomatoes"
-                },
-                "skill_level": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "example": "experienced"
-                },
-                "sku": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "example": "TOM-ORG-001"
-                },
-                "subcategory": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "example": "tomatoes"
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "example": [
-                        "organic",
-                        "fresh",
-                        "local"
-                    ]
-                },
-                "unit_of_measure": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "example": "kg"
-                },
-                "visibility": {
-                    "enum": [
-                        "PRIVATE",
-                        "ORG",
-                        "NETWORK",
-                        "PUBLIC"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/catalog.VisibilityType"
-                        }
-                    ],
-                    "example": "ORG"
-                }
-            }
-        },
-        "catalog.CreateServiceRequest": {
-            "type": "object",
-            "required": [
-                "base_price",
-                "item_type",
-                "name"
-            ],
-            "properties": {
-                "attributes": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "base_price": {
-                    "type": "number",
-                    "example": 25.5
-                },
-                "category": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "example": "vegetables"
-                },
-                "currency": {
-                    "type": "string",
-                    "example": "INR"
-                },
-                "description": {
-                    "type": "string",
-                    "maxLength": 2000,
-                    "example": "Fresh organic tomatoes grown without pesticides"
-                },
-                "duration_minutes": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "example": 120
-                },
-                "images": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "example": [
-                        "https://example.com/tomato1.jpg",
-                        "https://example.com/tomato2.jpg"
-                    ]
-                },
-                "item_type": {
-                    "enum": [
-                        "PRODUCT",
-                        "SERVICE",
-                        "LABOUR",
-                        "CONTRACT"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/catalog.CatalogItemType"
-                        }
-                    ],
-                    "example": "PRODUCT"
-                },
-                "name": {
-                    "type": "string",
-                    "maxLength": 255,
-                    "minLength": 1,
-                    "example": "Organic Tomatoes"
-                },
-                "service_area": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "sku": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "example": "TOM-ORG-001"
-                },
-                "subcategory": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "example": "tomatoes"
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "example": [
-                        "organic",
-                        "fresh",
-                        "local"
-                    ]
-                },
-                "unit_of_measure": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "example": "kg"
-                },
-                "visibility": {
-                    "enum": [
-                        "PRIVATE",
-                        "ORG",
-                        "NETWORK",
-                        "PUBLIC"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/catalog.VisibilityType"
-                        }
-                    ],
-                    "example": "ORG"
-                }
-            }
-        },
-        "catalog.LabourResponse": {
-            "type": "object",
-            "properties": {
-                "attributes": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "base_price": {
-                    "type": "number",
-                    "example": 25.5
-                },
-                "category": {
-                    "type": "string",
-                    "example": "vegetables"
-                },
-                "created_at": {
-                    "type": "string",
-                    "example": "2024-01-15T10:30:00Z"
-                },
-                "currency": {
-                    "type": "string",
-                    "example": "INR"
-                },
-                "description": {
-                    "type": "string",
-                    "example": "Fresh organic tomatoes grown without pesticides"
-                },
-                "hourly_rate": {
-                    "type": "number",
-                    "example": 75
-                },
-                "id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174000"
-                },
-                "images": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "example": [
-                        "https://example.com/tomato1.jpg",
-                        "https://example.com/tomato2.jpg"
-                    ]
-                },
-                "is_active": {
-                    "type": "boolean",
-                    "example": true
-                },
-                "item_type": {
-                    "type": "string",
-                    "example": "PRODUCT"
-                },
-                "name": {
-                    "type": "string",
-                    "example": "Organic Tomatoes"
-                },
-                "organization_id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174001"
-                },
-                "skill_level": {
-                    "type": "string",
-                    "example": "experienced"
-                },
-                "sku": {
-                    "type": "string",
-                    "example": "TOM-ORG-001"
-                },
-                "subcategory": {
-                    "type": "string",
-                    "example": "tomatoes"
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "example": [
-                        "organic",
-                        "fresh",
-                        "local"
-                    ]
-                },
-                "unit_of_measure": {
-                    "type": "string",
-                    "example": "kg"
-                },
-                "updated_at": {
-                    "type": "string",
-                    "example": "2024-01-15T10:30:00Z"
-                },
-                "visibility": {
-                    "type": "string",
-                    "example": "ORG"
-                }
-            }
-        },
-        "catalog.PriceUpdateRequest": {
+        "internal_handlers_catalog.PriceUpdateRequest": {
             "type": "object",
             "required": [
                 "base_price"
@@ -14736,113 +14131,7 @@ const docTemplate = `{
                 }
             }
         },
-        "catalog.ProductResponse": {
-            "type": "object",
-            "properties": {
-                "attributes": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "base_price": {
-                    "type": "number",
-                    "example": 25.5
-                },
-                "category": {
-                    "type": "string",
-                    "example": "vegetables"
-                },
-                "created_at": {
-                    "type": "string",
-                    "example": "2024-01-15T10:30:00Z"
-                },
-                "currency": {
-                    "type": "string",
-                    "example": "INR"
-                },
-                "description": {
-                    "type": "string",
-                    "example": "Fresh organic tomatoes grown without pesticides"
-                },
-                "dimensions": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174000"
-                },
-                "images": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "example": [
-                        "https://example.com/tomato1.jpg",
-                        "https://example.com/tomato2.jpg"
-                    ]
-                },
-                "is_active": {
-                    "type": "boolean",
-                    "example": true
-                },
-                "item_type": {
-                    "type": "string",
-                    "example": "PRODUCT"
-                },
-                "name": {
-                    "type": "string",
-                    "example": "Organic Tomatoes"
-                },
-                "organization_id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174001"
-                },
-                "perishable": {
-                    "type": "boolean",
-                    "example": true
-                },
-                "shelf_life_days": {
-                    "type": "integer",
-                    "example": 7
-                },
-                "sku": {
-                    "type": "string",
-                    "example": "TOM-ORG-001"
-                },
-                "subcategory": {
-                    "type": "string",
-                    "example": "tomatoes"
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "example": [
-                        "organic",
-                        "fresh",
-                        "local"
-                    ]
-                },
-                "unit_of_measure": {
-                    "type": "string",
-                    "example": "kg"
-                },
-                "updated_at": {
-                    "type": "string",
-                    "example": "2024-01-15T10:30:00Z"
-                },
-                "visibility": {
-                    "type": "string",
-                    "example": "ORG"
-                },
-                "weight": {
-                    "type": "number",
-                    "example": 2.5
-                }
-            }
-        },
-        "catalog.PublishProductToFPOsRequest": {
+        "internal_handlers_catalog.PublishProductToFPOsRequest": {
             "description": "Request body for publishing a product to specific FPOs with pricing configuration",
             "type": "object",
             "required": [
@@ -14876,7 +14165,7 @@ const docTemplate = `{
                 }
             }
         },
-        "catalog.PublishProductToFPOsResponse": {
+        "internal_handlers_catalog.PublishProductToFPOsResponse": {
             "description": "Response after successfully publishing a product to FPOs",
             "type": "object",
             "properties": {
@@ -14912,7 +14201,7 @@ const docTemplate = `{
                 }
             }
         },
-        "catalog.PublishRequest": {
+        "internal_handlers_catalog.PublishRequest": {
             "type": "object",
             "properties": {
                 "effective_date": {
@@ -14933,105 +14222,7 @@ const docTemplate = `{
                 }
             }
         },
-        "catalog.ServiceResponse": {
-            "type": "object",
-            "properties": {
-                "attributes": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "base_price": {
-                    "type": "number",
-                    "example": 25.5
-                },
-                "category": {
-                    "type": "string",
-                    "example": "vegetables"
-                },
-                "created_at": {
-                    "type": "string",
-                    "example": "2024-01-15T10:30:00Z"
-                },
-                "currency": {
-                    "type": "string",
-                    "example": "INR"
-                },
-                "description": {
-                    "type": "string",
-                    "example": "Fresh organic tomatoes grown without pesticides"
-                },
-                "duration_minutes": {
-                    "type": "integer",
-                    "example": 120
-                },
-                "id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174000"
-                },
-                "images": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "example": [
-                        "https://example.com/tomato1.jpg",
-                        "https://example.com/tomato2.jpg"
-                    ]
-                },
-                "is_active": {
-                    "type": "boolean",
-                    "example": true
-                },
-                "item_type": {
-                    "type": "string",
-                    "example": "PRODUCT"
-                },
-                "name": {
-                    "type": "string",
-                    "example": "Organic Tomatoes"
-                },
-                "organization_id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174001"
-                },
-                "service_area": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "sku": {
-                    "type": "string",
-                    "example": "TOM-ORG-001"
-                },
-                "subcategory": {
-                    "type": "string",
-                    "example": "tomatoes"
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "example": [
-                        "organic",
-                        "fresh",
-                        "local"
-                    ]
-                },
-                "unit_of_measure": {
-                    "type": "string",
-                    "example": "kg"
-                },
-                "updated_at": {
-                    "type": "string",
-                    "example": "2024-01-15T10:30:00Z"
-                },
-                "visibility": {
-                    "type": "string",
-                    "example": "ORG"
-                }
-            }
-        },
-        "catalog.UnpublishRequest": {
+        "internal_handlers_catalog.UnpublishRequest": {
             "type": "object",
             "properties": {
                 "effective_date": {
@@ -15048,1928 +14239,6 @@ const docTemplate = `{
                 "reason": {
                     "type": "string",
                     "maxLength": 500
-                }
-            }
-        },
-        "catalog.UpdateDeliveryCostsRequest": {
-            "description": "Request body for updating delivery costs for specific FPOs",
-            "type": "object",
-            "required": [
-                "delivery_costs"
-            ],
-            "properties": {
-                "delivery_costs": {
-                    "description": "Updated delivery costs per FPO (map of FPO ID to cost in INR)",
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "number",
-                        "format": "float64"
-                    }
-                }
-            }
-        },
-        "catalog.VisibilityType": {
-            "type": "string",
-            "enum": [
-                "PRIVATE",
-                "ORG",
-                "NETWORK",
-                "PUBLIC"
-            ],
-            "x-enum-varnames": [
-                "VisibilityPrivate",
-                "VisibilityOrg",
-                "VisibilityNetwork",
-                "VisibilityPublic"
-            ]
-        },
-        "collaborator.BulkOperationResponse": {
-            "type": "object",
-            "properties": {
-                "errors": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "failed": {
-                    "type": "integer"
-                },
-                "failed_ids": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "message": {
-                    "type": "string"
-                },
-                "successful": {
-                    "type": "integer"
-                },
-                "total_requested": {
-                    "type": "integer"
-                }
-            }
-        },
-        "collaborator.BulkUpdateCollaboratorsRequest": {
-            "type": "object",
-            "required": [
-                "collaborator_ids"
-            ],
-            "properties": {
-                "collaborator_ids": {
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "organization_id": {
-                    "type": "string"
-                },
-                "reason": {
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "status": {
-                    "$ref": "#/definitions/collaborator.CollaboratorStatus"
-                },
-                "tags": {
-                    "type": "string"
-                }
-            }
-        },
-        "collaborator.CollaboratorProfileResponse": {
-            "type": "object",
-            "properties": {
-                "avatar": {
-                    "type": "string"
-                },
-                "average_rating": {
-                    "type": "number"
-                },
-                "bank_account_number": {
-                    "description": "Financial information (only for the collaborator themselves or admins)",
-                    "type": "string"
-                },
-                "bank_branch": {
-                    "type": "string"
-                },
-                "bank_name": {
-                    "type": "string"
-                },
-                "bio": {
-                    "type": "string"
-                },
-                "business_address": {
-                    "type": "string"
-                },
-                "business_description": {
-                    "type": "string"
-                },
-                "business_email": {
-                    "type": "string"
-                },
-                "business_license": {
-                    "type": "string"
-                },
-                "business_name": {
-                    "description": "Business Information",
-                    "type": "string"
-                },
-                "business_phone": {
-                    "type": "string"
-                },
-                "business_type": {
-                    "type": "string"
-                },
-                "business_website": {
-                    "type": "string"
-                },
-                "cancelled_orders": {
-                    "type": "integer"
-                },
-                "collaborator_type": {
-                    "$ref": "#/definitions/collaborator.CollaboratorType"
-                },
-                "completed_orders": {
-                    "type": "integer"
-                },
-                "coordinates": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "description": "Timestamps",
-                    "type": "string"
-                },
-                "deleted_at": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "first_name": {
-                    "type": "string"
-                },
-                "full_name": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "ifsc_code": {
-                    "type": "string"
-                },
-                "invited_at": {
-                    "type": "string"
-                },
-                "invited_by": {
-                    "type": "string"
-                },
-                "is_verified": {
-                    "description": "Verification \u0026 Trust",
-                    "type": "boolean"
-                },
-                "language_preference": {
-                    "description": "Preferences \u0026 Settings",
-                    "type": "string"
-                },
-                "last_activity_at": {
-                    "type": "string"
-                },
-                "last_login_at": {
-                    "description": "Platform Activity",
-                    "type": "string"
-                },
-                "last_name": {
-                    "type": "string"
-                },
-                "location": {
-                    "type": "string"
-                },
-                "login_count": {
-                    "type": "integer"
-                },
-                "notes": {
-                    "description": "Admin notes (only for admins)",
-                    "type": "string"
-                },
-                "notification_settings": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "onboarding_completed": {
-                    "description": "Metadata",
-                    "type": "boolean"
-                },
-                "onboarding_step": {
-                    "type": "integer"
-                },
-                "organization_id": {
-                    "type": "string"
-                },
-                "phone": {
-                    "type": "string"
-                },
-                "preferences": {
-                    "description": "Additional profile information",
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "status": {
-                    "$ref": "#/definitions/collaborator.CollaboratorStatus"
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "tax_id": {
-                    "type": "string"
-                },
-                "timezone_preference": {
-                    "type": "string"
-                },
-                "total_reviews": {
-                    "type": "integer"
-                },
-                "trust_score": {
-                    "type": "number"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "upi_id": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                },
-                "verified_at": {
-                    "type": "string"
-                },
-                "verified_by": {
-                    "type": "string"
-                }
-            }
-        },
-        "collaborator.CollaboratorResponse": {
-            "type": "object",
-            "properties": {
-                "avatar": {
-                    "type": "string"
-                },
-                "average_rating": {
-                    "type": "number"
-                },
-                "bio": {
-                    "type": "string"
-                },
-                "business_address": {
-                    "type": "string"
-                },
-                "business_description": {
-                    "type": "string"
-                },
-                "business_email": {
-                    "type": "string"
-                },
-                "business_license": {
-                    "type": "string"
-                },
-                "business_name": {
-                    "description": "Business Information",
-                    "type": "string"
-                },
-                "business_phone": {
-                    "type": "string"
-                },
-                "business_type": {
-                    "type": "string"
-                },
-                "business_website": {
-                    "type": "string"
-                },
-                "cancelled_orders": {
-                    "type": "integer"
-                },
-                "collaborator_type": {
-                    "$ref": "#/definitions/collaborator.CollaboratorType"
-                },
-                "completed_orders": {
-                    "type": "integer"
-                },
-                "coordinates": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "description": "Timestamps",
-                    "type": "string"
-                },
-                "deleted_at": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "first_name": {
-                    "type": "string"
-                },
-                "full_name": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "invited_at": {
-                    "type": "string"
-                },
-                "invited_by": {
-                    "type": "string"
-                },
-                "is_verified": {
-                    "description": "Verification \u0026 Trust",
-                    "type": "boolean"
-                },
-                "language_preference": {
-                    "description": "Preferences \u0026 Settings",
-                    "type": "string"
-                },
-                "last_activity_at": {
-                    "type": "string"
-                },
-                "last_login_at": {
-                    "description": "Platform Activity",
-                    "type": "string"
-                },
-                "last_name": {
-                    "type": "string"
-                },
-                "location": {
-                    "type": "string"
-                },
-                "login_count": {
-                    "type": "integer"
-                },
-                "onboarding_completed": {
-                    "description": "Metadata",
-                    "type": "boolean"
-                },
-                "onboarding_step": {
-                    "type": "integer"
-                },
-                "organization_id": {
-                    "type": "string"
-                },
-                "phone": {
-                    "type": "string"
-                },
-                "status": {
-                    "$ref": "#/definitions/collaborator.CollaboratorStatus"
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "tax_id": {
-                    "type": "string"
-                },
-                "timezone_preference": {
-                    "type": "string"
-                },
-                "total_reviews": {
-                    "type": "integer"
-                },
-                "trust_score": {
-                    "type": "number"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                },
-                "verified_at": {
-                    "type": "string"
-                },
-                "verified_by": {
-                    "type": "string"
-                }
-            }
-        },
-        "collaborator.CollaboratorStatsResponse": {
-            "type": "object",
-            "properties": {
-                "active_collaborators": {
-                    "type": "integer"
-                },
-                "active_in_last_30_days": {
-                    "type": "integer"
-                },
-                "average_trust_score": {
-                    "type": "number"
-                },
-                "collaborators_by_status": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "integer"
-                    }
-                },
-                "collaborators_by_type": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "integer"
-                    }
-                },
-                "onboarding_completion_rate": {
-                    "type": "number"
-                },
-                "pending_collaborators": {
-                    "type": "integer"
-                },
-                "recent_registrations_7_days": {
-                    "type": "integer"
-                },
-                "total_collaborators": {
-                    "type": "integer"
-                },
-                "verified_collaborators": {
-                    "type": "integer"
-                }
-            }
-        },
-        "collaborator.CollaboratorStatus": {
-            "type": "string",
-            "enum": [
-                "ACTIVE",
-                "INACTIVE",
-                "SUSPENDED",
-                "PENDING"
-            ],
-            "x-enum-varnames": [
-                "CollaboratorStatusActive",
-                "CollaboratorStatusInactive",
-                "CollaboratorStatusSuspended",
-                "CollaboratorStatusPending"
-            ]
-        },
-        "collaborator.CollaboratorSummaryResponse": {
-            "type": "object",
-            "properties": {
-                "avatar": {
-                    "type": "string"
-                },
-                "business_name": {
-                    "type": "string"
-                },
-                "collaborator_type": {
-                    "$ref": "#/definitions/collaborator.CollaboratorType"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "full_name": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "is_verified": {
-                    "type": "boolean"
-                },
-                "last_activity_at": {
-                    "type": "string"
-                },
-                "location": {
-                    "type": "string"
-                },
-                "organization_id": {
-                    "type": "string"
-                },
-                "status": {
-                    "$ref": "#/definitions/collaborator.CollaboratorStatus"
-                },
-                "trust_score": {
-                    "type": "number"
-                },
-                "user_id": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "collaborator.CollaboratorType": {
-            "type": "string",
-            "enum": [
-                "FARMER",
-                "SUPPLIER",
-                "BUYER",
-                "AGENT",
-                "ADMIN"
-            ],
-            "x-enum-varnames": [
-                "CollaboratorTypeFarmer",
-                "CollaboratorTypeSupplier",
-                "CollaboratorTypeBuyer",
-                "CollaboratorTypeAgent",
-                "CollaboratorTypeAdmin"
-            ]
-        },
-        "collaborator.CollaboratorVerificationResponse": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "is_verified": {
-                    "type": "boolean"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "verified_at": {
-                    "type": "string"
-                },
-                "verified_by": {
-                    "type": "string"
-                }
-            }
-        },
-        "collaborator.OnboardingStepResponse": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "next_step": {
-                    "type": "string"
-                },
-                "onboarding_completed": {
-                    "type": "boolean"
-                },
-                "onboarding_step": {
-                    "type": "integer"
-                }
-            }
-        },
-        "collaborator.UpdateCollaboratorRequest": {
-            "type": "object",
-            "properties": {
-                "avatar": {
-                    "type": "string"
-                },
-                "bank_account_number": {
-                    "description": "Financial information updates",
-                    "type": "string",
-                    "maxLength": 100
-                },
-                "bank_branch": {
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "bank_name": {
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "bio": {
-                    "type": "string",
-                    "maxLength": 1000
-                },
-                "business_address": {
-                    "type": "string",
-                    "maxLength": 1000
-                },
-                "business_description": {
-                    "type": "string",
-                    "maxLength": 1000
-                },
-                "business_email": {
-                    "type": "string"
-                },
-                "business_license": {
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "business_name": {
-                    "description": "Business information updates",
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "business_phone": {
-                    "type": "string",
-                    "maxLength": 20,
-                    "minLength": 10
-                },
-                "business_type": {
-                    "type": "string",
-                    "maxLength": 100
-                },
-                "business_website": {
-                    "type": "string"
-                },
-                "coordinates": {
-                    "type": "string",
-                    "maxLength": 100
-                },
-                "first_name": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "minLength": 1
-                },
-                "ifsc_code": {
-                    "type": "string",
-                    "maxLength": 20
-                },
-                "language_preference": {
-                    "description": "Preferences updates",
-                    "type": "string"
-                },
-                "last_name": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "minLength": 1
-                },
-                "location": {
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "notes": {
-                    "type": "string",
-                    "maxLength": 2000
-                },
-                "phone": {
-                    "type": "string",
-                    "maxLength": 20,
-                    "minLength": 10
-                },
-                "tags": {
-                    "description": "Metadata updates",
-                    "type": "string"
-                },
-                "tax_id": {
-                    "type": "string",
-                    "maxLength": 100
-                },
-                "timezone_preference": {
-                    "type": "string",
-                    "maxLength": 50
-                },
-                "upi_id": {
-                    "type": "string",
-                    "maxLength": 100
-                }
-            }
-        },
-        "collaborator.UpdateOnboardingStepRequest": {
-            "type": "object",
-            "required": [
-                "step"
-            ],
-            "properties": {
-                "step": {
-                    "type": "integer",
-                    "maximum": 10,
-                    "minimum": 0
-                }
-            }
-        },
-        "common.APIError": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "context": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "details": {
-                    "type": "string"
-                },
-                "fields": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "common.APIResponse": {
-            "type": "object",
-            "properties": {
-                "data": {},
-                "error": {
-                    "$ref": "#/definitions/common.APIError"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "success": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "common.HealthResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "version": {
-                    "type": "string"
-                }
-            }
-        },
-        "common.PaginationMeta": {
-            "type": "object",
-            "properties": {
-                "has_next": {
-                    "type": "boolean"
-                },
-                "has_prev": {
-                    "type": "boolean"
-                },
-                "limit": {
-                    "type": "integer"
-                },
-                "page": {
-                    "type": "integer"
-                },
-                "total": {
-                    "type": "integer"
-                },
-                "total_pages": {
-                    "type": "integer"
-                }
-            }
-        },
-        "common.Response": {
-            "type": "object",
-            "properties": {
-                "data": {},
-                "error": {
-                    "$ref": "#/definitions/common.ResponseError"
-                },
-                "meta": {
-                    "$ref": "#/definitions/common.ResponseMeta"
-                }
-            }
-        },
-        "common.ResponseError": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "details": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "common.ResponseMeta": {
-            "type": "object",
-            "properties": {
-                "extra": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "pagination": {
-                    "$ref": "#/definitions/common.PaginationMeta"
-                },
-                "timestamp": {
-                    "type": "string"
-                },
-                "trace_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "entities_requests_orders.Address": {
-            "type": "object",
-            "required": [
-                "city",
-                "country",
-                "postal_code",
-                "state",
-                "street"
-            ],
-            "properties": {
-                "city": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "minLength": 1,
-                    "example": "Rural City"
-                },
-                "country": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "minLength": 1,
-                    "example": "India"
-                },
-                "postal_code": {
-                    "type": "string",
-                    "maxLength": 20,
-                    "minLength": 1,
-                    "example": "411001"
-                },
-                "state": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "minLength": 1,
-                    "example": "Maharashtra"
-                },
-                "street": {
-                    "type": "string",
-                    "maxLength": 255,
-                    "minLength": 1,
-                    "example": "123 Farm Road"
-                }
-            }
-        },
-        "health.Alert": {
-            "type": "object",
-            "properties": {
-                "component": {
-                    "type": "string"
-                },
-                "level": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "resolved": {
-                    "type": "boolean"
-                },
-                "timestamp": {
-                    "type": "string"
-                }
-            }
-        },
-        "health.ComponentHealth": {
-            "type": "object",
-            "properties": {
-                "details": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "duration": {
-                    "description": "Duration in milliseconds",
-                    "type": "integer"
-                },
-                "last_checked": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "status": {
-                    "$ref": "#/definitions/health.HealthStatus"
-                }
-            }
-        },
-        "health.DashboardMetrics": {
-            "type": "object",
-            "properties": {
-                "active_connections": {
-                    "type": "integer"
-                },
-                "avg_response_time_ms": {
-                    "type": "number"
-                },
-                "cpu_usage_percent": {
-                    "type": "number"
-                },
-                "error_rate": {
-                    "type": "number"
-                },
-                "memory_usage_percent": {
-                    "type": "number"
-                },
-                "requests_per_minute": {
-                    "type": "number"
-                }
-            }
-        },
-        "health.DatabaseMetrics": {
-            "type": "object",
-            "properties": {
-                "connections": {
-                    "type": "integer"
-                },
-                "errors": {
-                    "type": "integer"
-                },
-                "latency_ms": {
-                    "type": "integer"
-                },
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "health.DependencyStatus": {
-            "type": "object",
-            "properties": {
-                "last_checked": {
-                    "type": "string"
-                },
-                "latency_ms": {
-                    "type": "integer"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "health.DetailedHealthResponse": {
-            "type": "object",
-            "properties": {
-                "dependencies": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "$ref": "#/definitions/health.HealthCheck"
-                    }
-                },
-                "message": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "timestamp": {
-                    "type": "string"
-                },
-                "version": {
-                    "type": "string"
-                }
-            }
-        },
-        "health.GC": {
-            "type": "object",
-            "properties": {
-                "last_gc": {
-                    "type": "string"
-                },
-                "next_gc_bytes": {
-                    "type": "integer"
-                },
-                "num_gc": {
-                    "type": "integer"
-                },
-                "pause_total_ns": {
-                    "type": "integer"
-                }
-            }
-        },
-        "health.HTTPMetrics": {
-            "type": "object",
-            "properties": {
-                "avg_response_time_ms": {
-                    "type": "number"
-                },
-                "error_rate": {
-                    "type": "number"
-                },
-                "requests_per_sec": {
-                    "type": "number"
-                },
-                "requests_total": {
-                    "type": "integer"
-                }
-            }
-        },
-        "health.HealthCheck": {
-            "type": "object",
-            "properties": {
-                "latency": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "health.HealthResult": {
-            "type": "object",
-            "properties": {
-                "healthy": {
-                    "type": "boolean"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "health.HealthStatus": {
-            "type": "string",
-            "enum": [
-                "healthy",
-                "unhealthy",
-                "degraded",
-                "unknown"
-            ],
-            "x-enum-varnames": [
-                "StatusHealthy",
-                "StatusUnhealthy",
-                "StatusDegraded",
-                "StatusUnknown"
-            ]
-        },
-        "health.Memory": {
-            "type": "object",
-            "properties": {
-                "alloc_bytes": {
-                    "type": "integer"
-                },
-                "heap_alloc_bytes": {
-                    "type": "integer"
-                },
-                "heap_inuse_bytes": {
-                    "type": "integer"
-                },
-                "heap_released_bytes": {
-                    "type": "integer"
-                },
-                "heap_sys_bytes": {
-                    "type": "integer"
-                },
-                "num_gc": {
-                    "type": "integer"
-                },
-                "sys_bytes": {
-                    "type": "integer"
-                },
-                "total_alloc_bytes": {
-                    "type": "integer"
-                }
-            }
-        },
-        "health.MetricsResponse": {
-            "type": "object",
-            "properties": {
-                "database": {
-                    "$ref": "#/definitions/health.DatabaseMetrics"
-                },
-                "http": {
-                    "$ref": "#/definitions/health.HTTPMetrics"
-                },
-                "system": {
-                    "$ref": "#/definitions/health.SystemMetrics"
-                }
-            }
-        },
-        "health.ServiceStatus": {
-            "type": "object",
-            "properties": {
-                "environment": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "uptime": {
-                    "type": "string"
-                },
-                "version": {
-                    "type": "string"
-                }
-            }
-        },
-        "health.StatusDashboard": {
-            "type": "object",
-            "properties": {
-                "alerts": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/health.Alert"
-                    }
-                },
-                "dependencies": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/health.DependencyStatus"
-                    }
-                },
-                "last_updated": {
-                    "type": "string"
-                },
-                "metrics": {
-                    "$ref": "#/definitions/health.DashboardMetrics"
-                },
-                "service": {
-                    "$ref": "#/definitions/health.ServiceStatus"
-                }
-            }
-        },
-        "health.SystemHealth": {
-            "type": "object",
-            "properties": {
-                "components": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "$ref": "#/definitions/health.ComponentHealth"
-                    }
-                },
-                "duration": {
-                    "description": "Duration in milliseconds",
-                    "type": "integer"
-                },
-                "status": {
-                    "$ref": "#/definitions/health.HealthStatus"
-                },
-                "timestamp": {
-                    "type": "string"
-                },
-                "version": {
-                    "type": "string"
-                }
-            }
-        },
-        "health.SystemMetrics": {
-            "type": "object",
-            "properties": {
-                "gc_stats": {
-                    "$ref": "#/definitions/health.GC"
-                },
-                "go_version": {
-                    "type": "string"
-                },
-                "memory_usage": {
-                    "$ref": "#/definitions/health.Memory"
-                },
-                "num_cpu": {
-                    "type": "integer"
-                },
-                "num_goroutines": {
-                    "type": "integer"
-                },
-                "uptime": {
-                    "type": "string"
-                }
-            }
-        },
-        "integrations.ApprovalStep": {
-            "type": "object",
-            "properties": {
-                "assigned_to": {
-                    "type": "string",
-                    "example": "tech_reviewer_1"
-                },
-                "completed_at": {
-                    "type": "string"
-                },
-                "notes": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string",
-                    "example": "PENDING"
-                },
-                "step_id": {
-                    "type": "string",
-                    "example": "step_1"
-                },
-                "step_name": {
-                    "type": "string",
-                    "example": "Technical Review"
-                }
-            }
-        },
-        "integrations.CatalogExportItem": {
-            "type": "object",
-            "properties": {
-                "attributes": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "base_price": {
-                    "description": "Pricing",
-                    "type": "number",
-                    "example": 25.5
-                },
-                "category": {
-                    "type": "string",
-                    "example": "Seeds"
-                },
-                "change_type": {
-                    "description": "Delta sync metadata",
-                    "type": "string",
-                    "example": "UPDATED"
-                },
-                "created_at": {
-                    "description": "Change tracking",
-                    "type": "string",
-                    "example": "2024-01-15T09:00:00Z"
-                },
-                "currency": {
-                    "type": "string",
-                    "example": "INR"
-                },
-                "description": {
-                    "type": "string",
-                    "example": "Premium organic tomato seeds"
-                },
-                "duration_minutes": {
-                    "description": "Service-specific fields",
-                    "type": "integer",
-                    "example": 120
-                },
-                "external_id": {
-                    "type": "string",
-                    "example": "ext_789"
-                },
-                "global_id": {
-                    "type": "string",
-                    "example": "global_456"
-                },
-                "hourly_rate": {
-                    "type": "number",
-                    "example": 75
-                },
-                "id": {
-                    "description": "Item identification",
-                    "type": "string",
-                    "example": "item_123"
-                },
-                "images": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "is_active": {
-                    "description": "Availability \u0026 Visibility",
-                    "type": "boolean",
-                    "example": true
-                },
-                "item_type": {
-                    "description": "Item classification",
-                    "type": "string",
-                    "example": "PRODUCT"
-                },
-                "name": {
-                    "description": "Basic information",
-                    "type": "string",
-                    "example": "Organic Tomato Seeds"
-                },
-                "organization_id": {
-                    "description": "Organization scoping",
-                    "type": "string",
-                    "example": "org_123"
-                },
-                "perishable": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "service_area": {
-                    "type": "string",
-                    "example": "Maharashtra"
-                },
-                "shelf_life_days": {
-                    "type": "integer",
-                    "example": 730
-                },
-                "skill_level": {
-                    "description": "Labour-specific fields",
-                    "type": "string",
-                    "example": "Expert"
-                },
-                "sku": {
-                    "type": "string",
-                    "example": "OTS-001"
-                },
-                "subcategory": {
-                    "type": "string",
-                    "example": "Vegetable Seeds"
-                },
-                "tags": {
-                    "description": "Metadata",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "example": [
-                        "organic",
-                        "certified"
-                    ]
-                },
-                "unit_of_measure": {
-                    "type": "string",
-                    "example": "packet"
-                },
-                "updated_at": {
-                    "type": "string",
-                    "example": "2024-01-15T10:00:00Z"
-                },
-                "version": {
-                    "type": "integer",
-                    "example": 2
-                },
-                "visibility": {
-                    "type": "string",
-                    "example": "NETWORK"
-                },
-                "weight": {
-                    "description": "Product-specific fields",
-                    "type": "number",
-                    "example": 0.1
-                }
-            }
-        },
-        "integrations.CatalogExportResponse": {
-            "type": "object",
-            "properties": {
-                "changed_since": {
-                    "description": "Delta sync information",
-                    "type": "string",
-                    "example": "2024-01-15T10:00:00Z"
-                },
-                "export_id": {
-                    "description": "Export metadata",
-                    "type": "string",
-                    "example": "export_123"
-                },
-                "filters": {
-                    "description": "Filtering applied",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/integrations.ExportFilters"
-                        }
-                    ]
-                },
-                "generated_at": {
-                    "type": "string",
-                    "example": "2024-01-15T10:30:00Z"
-                },
-                "has_next_page": {
-                    "type": "boolean",
-                    "example": true
-                },
-                "items": {
-                    "description": "Catalog items",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/integrations.CatalogExportItem"
-                    }
-                },
-                "items_in_page": {
-                    "type": "integer",
-                    "example": 50
-                },
-                "next_watermark": {
-                    "type": "string",
-                    "example": "2024-01-15T10:30:00Z"
-                },
-                "page": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "page_size": {
-                    "type": "integer",
-                    "example": 50
-                },
-                "total_items": {
-                    "description": "Data summary",
-                    "type": "integer",
-                    "example": 150
-                },
-                "watermark": {
-                    "type": "string",
-                    "example": "2024-01-15T10:30:00Z"
-                }
-            }
-        },
-        "integrations.CatalogItemProposal": {
-            "type": "object",
-            "required": [
-                "base_price",
-                "external_id",
-                "item_type",
-                "name"
-            ],
-            "properties": {
-                "attributes": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "base_price": {
-                    "description": "Pricing",
-                    "type": "number",
-                    "example": 25.5
-                },
-                "category": {
-                    "type": "string",
-                    "example": "Seeds"
-                },
-                "currency": {
-                    "type": "string",
-                    "example": "INR"
-                },
-                "description": {
-                    "type": "string",
-                    "example": "Premium organic tomato seeds, certified by NPOP"
-                },
-                "duration_minutes": {
-                    "description": "Service-specific fields",
-                    "type": "integer",
-                    "example": 120
-                },
-                "external_id": {
-                    "description": "Item identification",
-                    "type": "string",
-                    "example": "ext_789"
-                },
-                "hourly_rate": {
-                    "type": "number",
-                    "example": 75
-                },
-                "images": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "is_active": {
-                    "description": "Availability",
-                    "type": "boolean",
-                    "example": true
-                },
-                "item_type": {
-                    "type": "string",
-                    "enum": [
-                        "PRODUCT",
-                        "SERVICE",
-                        "LABOUR"
-                    ],
-                    "example": "PRODUCT"
-                },
-                "name": {
-                    "description": "Basic information",
-                    "type": "string",
-                    "example": "Organic Tomato Seeds"
-                },
-                "perishable": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "service_area": {
-                    "type": "string",
-                    "example": "Maharashtra"
-                },
-                "shelf_life_days": {
-                    "type": "integer",
-                    "example": 730
-                },
-                "skill_level": {
-                    "description": "Labour-specific fields",
-                    "type": "string",
-                    "example": "Expert"
-                },
-                "sku": {
-                    "type": "string",
-                    "example": "OTS-001"
-                },
-                "subcategory": {
-                    "type": "string",
-                    "example": "Vegetable Seeds"
-                },
-                "tags": {
-                    "description": "Metadata",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "example": [
-                        "organic",
-                        "certified",
-                        "premium"
-                    ]
-                },
-                "unit_of_measure": {
-                    "type": "string",
-                    "example": "packet"
-                },
-                "visibility": {
-                    "type": "string",
-                    "enum": [
-                        "PRIVATE",
-                        "ORG",
-                        "NETWORK",
-                        "PUBLIC"
-                    ],
-                    "example": "NETWORK"
-                },
-                "weight": {
-                    "description": "Product-specific fields",
-                    "type": "number",
-                    "example": 0.1
-                }
-            }
-        },
-        "integrations.CatalogProposalRequest": {
-            "type": "object",
-            "required": [
-                "catalog_item",
-                "partner_id",
-                "partner_name",
-                "proposal_id",
-                "proposal_type"
-            ],
-            "properties": {
-                "catalog_item": {
-                    "description": "Catalog item data",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/integrations.CatalogItemProposal"
-                        }
-                    ]
-                },
-                "notes": {
-                    "type": "string",
-                    "example": "New organic product line from certified supplier"
-                },
-                "partner_id": {
-                    "description": "Partner identification",
-                    "type": "string",
-                    "example": "partner_123"
-                },
-                "partner_name": {
-                    "type": "string",
-                    "example": "FarmTech Solutions"
-                },
-                "priority": {
-                    "type": "string",
-                    "enum": [
-                        "LOW",
-                        "MEDIUM",
-                        "HIGH",
-                        "URGENT"
-                    ],
-                    "example": "MEDIUM"
-                },
-                "proposal_id": {
-                    "description": "Proposal metadata",
-                    "type": "string",
-                    "example": "prop_456"
-                },
-                "proposal_type": {
-                    "type": "string",
-                    "enum": [
-                        "CREATE",
-                        "UPDATE",
-                        "DELETE"
-                    ],
-                    "example": "CREATE"
-                },
-                "requires_approval": {
-                    "description": "Validation and approval",
-                    "type": "boolean",
-                    "example": true
-                },
-                "webhook_url": {
-                    "description": "Webhook for status updates",
-                    "type": "string",
-                    "example": "https://partner.example.com/webhooks/catalog"
-                }
-            }
-        },
-        "integrations.CatalogProposalResponse": {
-            "type": "object",
-            "properties": {
-                "approval_steps": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/integrations.ApprovalStep"
-                    }
-                },
-                "estimated_review_time": {
-                    "description": "Processing details",
-                    "type": "integer",
-                    "example": 24
-                },
-                "priority": {
-                    "type": "string",
-                    "example": "MEDIUM"
-                },
-                "proposal_id": {
-                    "description": "Proposal tracking",
-                    "type": "string",
-                    "example": "prop_456"
-                },
-                "requires_approval": {
-                    "description": "Approval workflow",
-                    "type": "boolean",
-                    "example": true
-                },
-                "review_notes": {
-                    "description": "Feedback",
-                    "type": "string",
-                    "example": "Proposal looks good, pending final approval"
-                },
-                "reviewed_at": {
-                    "type": "string",
-                    "example": "2024-01-15T11:00:00Z"
-                },
-                "reviewer_id": {
-                    "description": "Review information",
-                    "type": "string",
-                    "example": "reviewer_123"
-                },
-                "status": {
-                    "type": "string",
-                    "example": "PENDING_REVIEW"
-                },
-                "submitted_at": {
-                    "type": "string",
-                    "example": "2024-01-15T10:30:00Z"
-                },
-                "tracking_url": {
-                    "description": "Tracking",
-                    "type": "string",
-                    "example": "https://api.kisanlink.com/api/v1/integrations/proposals/prop_456/status"
-                },
-                "webhook_url": {
-                    "type": "string",
-                    "example": "https://partner.example.com/webhooks/catalog"
-                }
-            }
-        },
-        "integrations.ExportFilters": {
-            "type": "object",
-            "properties": {
-                "category": {
-                    "type": "string",
-                    "example": "Seeds"
-                },
-                "is_active": {
-                    "type": "boolean",
-                    "example": true
-                },
-                "item_type": {
-                    "type": "string",
-                    "example": "PRODUCT"
-                },
-                "organization_id": {
-                    "type": "string",
-                    "example": "org_123"
-                },
-                "visibility": {
-                    "type": "string",
-                    "example": "NETWORK"
-                }
-            }
-        },
-        "integrations.OrderAcknowledgementRequest": {
-            "type": "object",
-            "required": [
-                "acknowledged_at",
-                "external_order_id",
-                "order_id",
-                "partner_id",
-                "partner_name",
-                "status"
-            ],
-            "properties": {
-                "acknowledged_at": {
-                    "type": "string",
-                    "example": "2024-01-15T10:30:00Z"
-                },
-                "assigned_to": {
-                    "type": "string",
-                    "example": "warehouse_team_1"
-                },
-                "estimated_processing_time": {
-                    "description": "Processing information",
-                    "type": "integer",
-                    "example": 24
-                },
-                "external_order_id": {
-                    "type": "string",
-                    "example": "ext_order_456"
-                },
-                "metadata": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "notes": {
-                    "description": "Additional metadata",
-                    "type": "string",
-                    "example": "Order received and queued for processing"
-                },
-                "order_id": {
-                    "description": "Order identification",
-                    "type": "string",
-                    "example": "order_123"
-                },
-                "partner_id": {
-                    "description": "Partner identification",
-                    "type": "string",
-                    "example": "partner_123"
-                },
-                "partner_name": {
-                    "type": "string",
-                    "example": "Logistics Partner"
-                },
-                "rejection_code": {
-                    "type": "string",
-                    "example": "INV_001"
-                },
-                "rejection_reason": {
-                    "description": "Rejection details (if status is REJECTED)",
-                    "type": "string",
-                    "example": "Insufficient inventory"
-                },
-                "status": {
-                    "description": "Acknowledgement details",
-                    "type": "string",
-                    "enum": [
-                        "RECEIVED",
-                        "ACCEPTED",
-                        "REJECTED"
-                    ],
-                    "example": "ACCEPTED"
-                },
-                "webhook_url": {
-                    "description": "Webhook for status updates",
-                    "type": "string",
-                    "example": "https://partner.example.com/webhooks/orders"
-                }
-            }
-        },
-        "integrations.OrderAcknowledgementResponse": {
-            "type": "object",
-            "properties": {
-                "acknowledgement_id": {
-                    "description": "Acknowledgement tracking",
-                    "type": "string",
-                    "example": "ack_789"
-                },
-                "assigned_to": {
-                    "type": "string",
-                    "example": "warehouse_team_1"
-                },
-                "estimated_processing_time": {
-                    "description": "Processing information",
-                    "type": "integer",
-                    "example": 24
-                },
-                "next_steps": {
-                    "description": "Next steps",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "example": [
-                        "Order will be processed within 24 hours"
-                    ]
-                },
-                "order_id": {
-                    "type": "string",
-                    "example": "order_123"
-                },
-                "partner_id": {
-                    "description": "Partner information",
-                    "type": "string",
-                    "example": "partner_123"
-                },
-                "partner_name": {
-                    "type": "string",
-                    "example": "Logistics Partner"
-                },
-                "processed_at": {
-                    "type": "string",
-                    "example": "2024-01-15T10:30:00Z"
-                },
-                "status": {
-                    "type": "string",
-                    "example": "ACKNOWLEDGED"
-                },
-                "tracking_url": {
-                    "description": "Tracking",
-                    "type": "string",
-                    "example": "https://api.kisanlink.com/api/v1/orders/order_123/status"
-                },
-                "webhook_url": {
-                    "type": "string",
-                    "example": "https://partner.example.com/webhooks/orders"
-                }
-            }
-        },
-        "integrations.ProposalStatusResponse": {
-            "type": "object",
-            "properties": {
-                "approval_steps": {
-                    "description": "Approval workflow",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/integrations.ApprovalStep"
-                    }
-                },
-                "approved_at": {
-                    "type": "string",
-                    "example": "2024-01-15T11:30:00Z"
-                },
-                "catalog_item_id": {
-                    "description": "Result",
-                    "type": "string",
-                    "example": "item_123"
-                },
-                "proposal_id": {
-                    "type": "string",
-                    "example": "prop_456"
-                },
-                "rejection_reason": {
-                    "type": "string",
-                    "example": "Duplicate item"
-                },
-                "review_notes": {
-                    "type": "string",
-                    "example": "Approved with minor modifications"
-                },
-                "reviewed_at": {
-                    "type": "string",
-                    "example": "2024-01-15T11:00:00Z"
-                },
-                "reviewer_id": {
-                    "description": "Review details",
-                    "type": "string",
-                    "example": "reviewer_123"
-                },
-                "status": {
-                    "type": "string",
-                    "example": "APPROVED"
-                },
-                "submitted_at": {
-                    "type": "string",
-                    "example": "2024-01-15T10:30:00Z"
-                }
-            }
-        },
-        "integrations.WebhookValidationResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string",
-                    "example": "Signature validated successfully"
-                },
-                "partner_id": {
-                    "type": "string",
-                    "example": "partner_123"
-                },
-                "timestamp": {
-                    "type": "string",
-                    "example": "2024-01-15T10:30:00Z"
-                },
-                "valid": {
-                    "type": "boolean",
-                    "example": true
                 }
             }
         },
@@ -17032,6 +14301,306 @@ const docTemplate = `{
                         "NETWORK",
                         "PUBLIC"
                     ]
+                }
+            }
+        },
+        "internal_handlers_catalog.UpdateDeliveryCostsRequest": {
+            "description": "Request body for updating delivery costs for specific FPOs",
+            "type": "object",
+            "required": [
+                "delivery_costs"
+            ],
+            "properties": {
+                "delivery_costs": {
+                    "description": "Updated delivery costs per FPO (map of FPO ID to cost in INR)",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "number",
+                        "format": "float64"
+                    }
+                }
+            }
+        },
+        "internal_handlers_health.Alert": {
+            "type": "object",
+            "properties": {
+                "component": {
+                    "type": "string"
+                },
+                "level": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "resolved": {
+                    "type": "boolean"
+                },
+                "timestamp": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handlers_health.DashboardMetrics": {
+            "type": "object",
+            "properties": {
+                "active_connections": {
+                    "type": "integer"
+                },
+                "avg_response_time_ms": {
+                    "type": "number"
+                },
+                "cpu_usage_percent": {
+                    "type": "number"
+                },
+                "error_rate": {
+                    "type": "number"
+                },
+                "memory_usage_percent": {
+                    "type": "number"
+                },
+                "requests_per_minute": {
+                    "type": "number"
+                }
+            }
+        },
+        "internal_handlers_health.DatabaseMetrics": {
+            "type": "object",
+            "properties": {
+                "connections": {
+                    "type": "integer"
+                },
+                "errors": {
+                    "type": "integer"
+                },
+                "latency_ms": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handlers_health.DependencyStatus": {
+            "type": "object",
+            "properties": {
+                "last_checked": {
+                    "type": "string"
+                },
+                "latency_ms": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handlers_health.DetailedHealthResponse": {
+            "type": "object",
+            "properties": {
+                "dependencies": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/internal_handlers_health.HealthCheck"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handlers_health.GC": {
+            "type": "object",
+            "properties": {
+                "last_gc": {
+                    "type": "string"
+                },
+                "next_gc_bytes": {
+                    "type": "integer"
+                },
+                "num_gc": {
+                    "type": "integer"
+                },
+                "pause_total_ns": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_handlers_health.HTTPMetrics": {
+            "type": "object",
+            "properties": {
+                "avg_response_time_ms": {
+                    "type": "number"
+                },
+                "error_rate": {
+                    "type": "number"
+                },
+                "requests_per_sec": {
+                    "type": "number"
+                },
+                "requests_total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_handlers_health.HealthCheck": {
+            "type": "object",
+            "properties": {
+                "latency": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handlers_health.Memory": {
+            "type": "object",
+            "properties": {
+                "alloc_bytes": {
+                    "type": "integer"
+                },
+                "heap_alloc_bytes": {
+                    "type": "integer"
+                },
+                "heap_inuse_bytes": {
+                    "type": "integer"
+                },
+                "heap_released_bytes": {
+                    "type": "integer"
+                },
+                "heap_sys_bytes": {
+                    "type": "integer"
+                },
+                "num_gc": {
+                    "type": "integer"
+                },
+                "sys_bytes": {
+                    "type": "integer"
+                },
+                "total_alloc_bytes": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_handlers_health.MetricsResponse": {
+            "type": "object",
+            "properties": {
+                "database": {
+                    "$ref": "#/definitions/internal_handlers_health.DatabaseMetrics"
+                },
+                "http": {
+                    "$ref": "#/definitions/internal_handlers_health.HTTPMetrics"
+                },
+                "system": {
+                    "$ref": "#/definitions/internal_handlers_health.SystemMetrics"
+                }
+            }
+        },
+        "internal_handlers_health.ServiceStatus": {
+            "type": "object",
+            "properties": {
+                "environment": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "uptime": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handlers_health.StatusDashboard": {
+            "type": "object",
+            "properties": {
+                "alerts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_handlers_health.Alert"
+                    }
+                },
+                "dependencies": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_handlers_health.DependencyStatus"
+                    }
+                },
+                "last_updated": {
+                    "type": "string"
+                },
+                "metrics": {
+                    "$ref": "#/definitions/internal_handlers_health.DashboardMetrics"
+                },
+                "service": {
+                    "$ref": "#/definitions/internal_handlers_health.ServiceStatus"
+                }
+            }
+        },
+        "internal_handlers_health.SystemMetrics": {
+            "type": "object",
+            "properties": {
+                "gc_stats": {
+                    "$ref": "#/definitions/internal_handlers_health.GC"
+                },
+                "go_version": {
+                    "type": "string"
+                },
+                "memory_usage": {
+                    "$ref": "#/definitions/internal_handlers_health.Memory"
+                },
+                "num_cpu": {
+                    "type": "integer"
+                },
+                "num_goroutines": {
+                    "type": "integer"
+                },
+                "uptime": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handlers_inventory.AdjustInventoryRequest": {
+            "type": "object",
+            "required": [
+                "adjustment",
+                "reason"
+            ],
+            "properties": {
+                "adjustment": {
+                    "type": "number",
+                    "example": 10.5
+                },
+                "reason": {
+                    "type": "string",
+                    "example": "Stock correction after physical count"
                 }
             }
         },
@@ -17173,7 +14742,7 @@ const docTemplate = `{
                 "status": {
                     "allOf": [
                         {
-                            "$ref": "#/definitions/marketplace.ListingStatus"
+                            "$ref": "#/definitions/kisanlink-ecom_entities_models_marketplace.ListingStatus"
                         }
                     ],
                     "example": "CLOSED"
@@ -17196,211 +14765,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handlers_marketplace.FilteredBidStatistics": {
-            "type": "object",
-            "properties": {
-                "average_bid": {
-                    "type": "string",
-                    "example": "1200.00"
-                },
-                "bid_range": {
-                    "type": "string",
-                    "example": "800.00 - 1500.00"
-                },
-                "highest_bid": {
-                    "type": "string",
-                    "example": "1500.00"
-                },
-                "listing_id": {
-                    "type": "string",
-                    "example": "LST_1234567890"
-                },
-                "participant_info": {
-                    "type": "string",
-                    "example": "8 unique bidders"
-                },
-                "total_bids": {
-                    "type": "integer",
-                    "example": 12
-                },
-                "visible_bids": {
-                    "type": "integer",
-                    "example": 8
-                }
-            }
-        },
-        "internal_handlers_marketplace.HistoricalBidData": {
-            "type": "object",
-            "properties": {
-                "access_level": {
-                    "type": "string",
-                    "example": "FULL"
-                },
-                "bids": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/marketplace.BidResponse"
-                    }
-                },
-                "data_available": {
-                    "type": "boolean",
-                    "example": true
-                },
-                "listing_id": {
-                    "type": "string",
-                    "example": "LST_1234567890"
-                },
-                "requested_by": {
-                    "type": "string",
-                    "example": "USER_123"
-                },
-                "time_range": {
-                    "type": "string",
-                    "example": "2024-01-14T10:00:00Z to 2024-01-14T15:00:00Z"
-                },
-                "total_bids": {
-                    "type": "integer",
-                    "example": 12
-                }
-            }
-        },
-        "internal_handlers_marketplace.PlaceBidRequest": {
-            "type": "object",
-            "required": [
-                "bid_amount",
-                "quantity"
-            ],
-            "properties": {
-                "auto_bid_limit": {
-                    "type": "string",
-                    "example": "1500.00"
-                },
-                "bid_amount": {
-                    "type": "string",
-                    "example": "1200.00"
-                },
-                "message": {
-                    "type": "string",
-                    "example": "Interested in bulk purchase"
-                },
-                "quantity": {
-                    "type": "string",
-                    "example": "100.5"
-                }
-            }
-        },
-        "internal_handlers_marketplace.RevealedAuctionResults": {
-            "type": "object",
-            "properties": {
-                "auction_end_time": {
-                    "type": "string",
-                    "example": "2024-01-14T15:00:00Z"
-                },
-                "listing_id": {
-                    "type": "string",
-                    "example": "LST_1234567890"
-                },
-                "results_available": {
-                    "type": "boolean",
-                    "example": true
-                },
-                "status": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/marketplace.ListingStatus"
-                        }
-                    ],
-                    "example": "CLOSED"
-                },
-                "total_bids": {
-                    "type": "integer",
-                    "example": 12
-                },
-                "winner_id": {
-                    "type": "string",
-                    "example": "USER_456"
-                },
-                "winning_bid": {
-                    "type": "string",
-                    "example": "1500.00"
-                }
-            }
-        },
-        "inventory.AdjustInventoryRequest": {
-            "type": "object",
-            "required": [
-                "adjustment",
-                "reason"
-            ],
-            "properties": {
-                "adjustment": {
-                    "type": "number",
-                    "example": 10.5
-                },
-                "reason": {
-                    "type": "string",
-                    "example": "Stock correction after physical count"
-                }
-            }
-        },
-        "marketplace.ActorType": {
-            "type": "string",
-            "enum": [
-                "USER",
-                "SYSTEM",
-                "ADMIN"
-            ],
-            "x-enum-varnames": [
-                "ActorTypeUser",
-                "ActorTypeSystem",
-                "ActorTypeAdmin"
-            ]
-        },
-        "marketplace.AuctionEventType": {
-            "type": "string",
-            "enum": [
-                "LISTING_CREATED",
-                "BID_PLACED",
-                "BID_OUTBID",
-                "AUTO_BID_TRIGGERED",
-                "LISTING_CLOSED",
-                "LISTING_EXPIRED",
-                "LISTING_CANCELLED",
-                "BID_REMOVED",
-                "LISTING_UPDATED"
-            ],
-            "x-enum-varnames": [
-                "EventListingCreated",
-                "EventBidPlaced",
-                "EventBidOutbid",
-                "EventAutoBidTriggered",
-                "EventListingClosed",
-                "EventListingExpired",
-                "EventListingCancelled",
-                "EventBidRemoved",
-                "EventListingUpdated"
-            ]
-        },
-        "marketplace.AuctionType": {
-            "type": "string",
-            "enum": [
-                "OPEN",
-                "CLOSED"
-            ],
-            "x-enum-comments": {
-                "AuctionTypeClosed": "Bid prices hidden until auction ends",
-                "AuctionTypeOpen": "All bid prices visible during auction"
-            },
-            "x-enum-descriptions": [
-                "All bid prices visible during auction",
-                "Bid prices hidden until auction ends"
-            ],
-            "x-enum-varnames": [
-                "AuctionTypeOpen",
-                "AuctionTypeClosed"
-            ]
-        },
-        "marketplace.AuditEventResponse": {
+        "internal_handlers_marketplace.AuditEventResponse": {
             "type": "object",
             "properties": {
                 "actor_id": {
@@ -17410,7 +14775,7 @@ const docTemplate = `{
                 "actor_type": {
                     "allOf": [
                         {
-                            "$ref": "#/definitions/marketplace.ActorType"
+                            "$ref": "#/definitions/kisanlink-ecom_entities_models_marketplace.ActorType"
                         }
                     ],
                     "example": "USER"
@@ -17422,7 +14787,7 @@ const docTemplate = `{
                 "event_type": {
                     "allOf": [
                         {
-                            "$ref": "#/definitions/marketplace.AuctionEventType"
+                            "$ref": "#/definitions/kisanlink-ecom_entities_models_marketplace.AuctionEventType"
                         }
                     ],
                     "example": "BID_PLACED"
@@ -17445,21 +14810,21 @@ const docTemplate = `{
                 }
             }
         },
-        "marketplace.AuditLogResponse": {
+        "internal_handlers_marketplace.AuditLogResponse": {
             "type": "object",
             "properties": {
                 "events": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/marketplace.AuditEventResponse"
+                        "$ref": "#/definitions/internal_handlers_marketplace.AuditEventResponse"
                     }
                 },
                 "pagination": {
-                    "$ref": "#/definitions/common.PaginationMeta"
+                    "$ref": "#/definitions/kisanlink-ecom_internal_common.PaginationMeta"
                 }
             }
         },
-        "marketplace.BidHistoryResponse": {
+        "internal_handlers_marketplace.BidHistoryResponse": {
             "type": "object",
             "properties": {
                 "bid_visibility": {
@@ -17469,7 +14834,7 @@ const docTemplate = `{
                 "bids": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/marketplace.BidResponse"
+                        "$ref": "#/definitions/internal_handlers_marketplace.BidResponse"
                     }
                 },
                 "can_view_bids": {
@@ -17477,7 +14842,7 @@ const docTemplate = `{
                     "example": true
                 },
                 "highest_bid": {
-                    "$ref": "#/definitions/marketplace.BidResponse"
+                    "$ref": "#/definitions/internal_handlers_marketplace.BidResponse"
                 },
                 "last_updated": {
                     "type": "string",
@@ -17493,21 +14858,21 @@ const docTemplate = `{
                 }
             }
         },
-        "marketplace.BidListResponse": {
+        "internal_handlers_marketplace.BidListResponse": {
             "type": "object",
             "properties": {
                 "bids": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/marketplace.BidResponse"
+                        "$ref": "#/definitions/internal_handlers_marketplace.BidResponse"
                     }
                 },
                 "pagination": {
-                    "$ref": "#/definitions/common.PaginationMeta"
+                    "$ref": "#/definitions/kisanlink-ecom_internal_common.PaginationMeta"
                 }
             }
         },
-        "marketplace.BidResponse": {
+        "internal_handlers_marketplace.BidResponse": {
             "type": "object",
             "properties": {
                 "auto_bid_limit": {
@@ -17569,58 +14934,47 @@ const docTemplate = `{
                 "status": {
                     "allOf": [
                         {
-                            "$ref": "#/definitions/marketplace.BidStatus"
+                            "$ref": "#/definitions/kisanlink-ecom_entities_models_marketplace.BidStatus"
                         }
                     ],
                     "example": "ACTIVE"
                 }
             }
         },
-        "marketplace.BidStatus": {
-            "type": "string",
-            "enum": [
-                "ACTIVE",
-                "OUTBID",
-                "WINNING",
-                "EXPIRED",
-                "REMOVED"
-            ],
-            "x-enum-varnames": [
-                "BidStatusActive",
-                "BidStatusOutbid",
-                "BidStatusWinning",
-                "BidStatusExpired",
-                "BidStatusRemoved"
-            ]
+        "internal_handlers_marketplace.FilteredBidStatistics": {
+            "type": "object",
+            "properties": {
+                "average_bid": {
+                    "type": "string",
+                    "example": "1200.00"
+                },
+                "bid_range": {
+                    "type": "string",
+                    "example": "800.00 - 1500.00"
+                },
+                "highest_bid": {
+                    "type": "string",
+                    "example": "1500.00"
+                },
+                "listing_id": {
+                    "type": "string",
+                    "example": "LST_1234567890"
+                },
+                "participant_info": {
+                    "type": "string",
+                    "example": "8 unique bidders"
+                },
+                "total_bids": {
+                    "type": "integer",
+                    "example": 12
+                },
+                "visible_bids": {
+                    "type": "integer",
+                    "example": 8
+                }
+            }
         },
-        "marketplace.BidVisibility": {
-            "type": "string",
-            "enum": [
-                "FULL",
-                "PARTIAL",
-                "MINIMAL",
-                "HIDDEN"
-            ],
-            "x-enum-comments": {
-                "BidVisibilityFull": "Show all bid details based on auction type",
-                "BidVisibilityHidden": "No bid information visible",
-                "BidVisibilityMinimal": "Show only bid count",
-                "BidVisibilityPartial": "Show bid count and highest amount only"
-            },
-            "x-enum-descriptions": [
-                "Show all bid details based on auction type",
-                "Show bid count and highest amount only",
-                "Show only bid count",
-                "No bid information visible"
-            ],
-            "x-enum-varnames": [
-                "BidVisibilityFull",
-                "BidVisibilityPartial",
-                "BidVisibilityMinimal",
-                "BidVisibilityHidden"
-            ]
-        },
-        "marketplace.ForceCloseListingRequest": {
+        "internal_handlers_marketplace.ForceCloseListingRequest": {
             "type": "object",
             "required": [
                 "reason"
@@ -17632,21 +14986,56 @@ const docTemplate = `{
                 }
             }
         },
-        "marketplace.ListingListResponse": {
+        "internal_handlers_marketplace.HistoricalBidData": {
+            "type": "object",
+            "properties": {
+                "access_level": {
+                    "type": "string",
+                    "example": "FULL"
+                },
+                "bids": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_handlers_marketplace.BidResponse"
+                    }
+                },
+                "data_available": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "listing_id": {
+                    "type": "string",
+                    "example": "LST_1234567890"
+                },
+                "requested_by": {
+                    "type": "string",
+                    "example": "USER_123"
+                },
+                "time_range": {
+                    "type": "string",
+                    "example": "2024-01-14T10:00:00Z to 2024-01-14T15:00:00Z"
+                },
+                "total_bids": {
+                    "type": "integer",
+                    "example": 12
+                }
+            }
+        },
+        "internal_handlers_marketplace.ListingListResponse": {
             "type": "object",
             "properties": {
                 "listings": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/marketplace.ListingResponse"
+                        "$ref": "#/definitions/internal_handlers_marketplace.ListingResponse"
                     }
                 },
                 "pagination": {
-                    "$ref": "#/definitions/common.PaginationMeta"
+                    "$ref": "#/definitions/kisanlink-ecom_internal_common.PaginationMeta"
                 }
             }
         },
-        "marketplace.ListingResponse": {
+        "internal_handlers_marketplace.ListingResponse": {
             "type": "object",
             "properties": {
                 "asking_price": {
@@ -17656,7 +15045,7 @@ const docTemplate = `{
                 "auction_type": {
                     "allOf": [
                         {
-                            "$ref": "#/definitions/marketplace.AuctionType"
+                            "$ref": "#/definitions/kisanlink-ecom_entities_models_marketplace.AuctionType"
                         }
                     ],
                     "example": "OPEN"
@@ -17668,7 +15057,7 @@ const docTemplate = `{
                 "bid_visibility": {
                     "allOf": [
                         {
-                            "$ref": "#/definitions/marketplace.BidVisibility"
+                            "$ref": "#/definitions/kisanlink-ecom_entities_models_marketplace.BidVisibility"
                         }
                     ],
                     "example": "FULL"
@@ -17718,7 +15107,7 @@ const docTemplate = `{
                     "example": "ORG_789"
                 },
                 "pickup_location": {
-                    "$ref": "#/definitions/marketplace.Location"
+                    "$ref": "#/definitions/kisanlink-ecom_entities_models_marketplace.Location"
                 },
                 "product_id": {
                     "type": "string",
@@ -17735,7 +15124,7 @@ const docTemplate = `{
                 "status": {
                     "allOf": [
                         {
-                            "$ref": "#/definitions/marketplace.ListingStatus"
+                            "$ref": "#/definitions/kisanlink-ecom_entities_models_marketplace.ListingStatus"
                         }
                     ],
                     "example": "ACTIVE"
@@ -17755,84 +15144,14 @@ const docTemplate = `{
                 "visibility": {
                     "allOf": [
                         {
-                            "$ref": "#/definitions/marketplace.ListingVisibility"
+                            "$ref": "#/definitions/kisanlink-ecom_entities_models_marketplace.ListingVisibility"
                         }
                     ],
                     "example": "PUBLIC"
                 }
             }
         },
-        "marketplace.ListingStatus": {
-            "type": "string",
-            "enum": [
-                "ACTIVE",
-                "CLOSED",
-                "EXPIRED",
-                "CANCELLED",
-                "EXPIRED_NO_BIDS"
-            ],
-            "x-enum-varnames": [
-                "ListingStatusActive",
-                "ListingStatusClosed",
-                "ListingStatusExpired",
-                "ListingStatusCancelled",
-                "ListingStatusExpiredNoBids"
-            ]
-        },
-        "marketplace.ListingVisibility": {
-            "type": "string",
-            "enum": [
-                "PRIVATE",
-                "PUBLIC",
-                "NETWORK",
-                "ORGANIZATION"
-            ],
-            "x-enum-comments": {
-                "VisibilityNetwork": "Network/partner organizations",
-                "VisibilityOrganization": "Same organization only",
-                "VisibilityPrivate": "Only invited participants",
-                "VisibilityPublic": "Open to all users"
-            },
-            "x-enum-descriptions": [
-                "Only invited participants",
-                "Open to all users",
-                "Network/partner organizations",
-                "Same organization only"
-            ],
-            "x-enum-varnames": [
-                "VisibilityPrivate",
-                "VisibilityPublic",
-                "VisibilityNetwork",
-                "VisibilityOrganization"
-            ]
-        },
-        "marketplace.Location": {
-            "type": "object",
-            "properties": {
-                "address": {
-                    "type": "string"
-                },
-                "city": {
-                    "type": "string"
-                },
-                "country": {
-                    "type": "string"
-                },
-                "latitude": {
-                    "type": "number"
-                },
-                "longitude": {
-                    "type": "number"
-                },
-                "postal_code": {
-                    "type": "string"
-                },
-                "state": {
-                    "type": "string"
-                }
-            }
-        },
-        "marketplace.MarketplaceStatsResponse": {
+        "internal_handlers_marketplace.MarketplaceStatsResponse": {
             "type": "object",
             "properties": {
                 "active_listings": {
@@ -17869,7 +15188,32 @@ const docTemplate = `{
                 }
             }
         },
-        "marketplace.RemoveBidRequest": {
+        "internal_handlers_marketplace.PlaceBidRequest": {
+            "type": "object",
+            "required": [
+                "bid_amount",
+                "quantity"
+            ],
+            "properties": {
+                "auto_bid_limit": {
+                    "type": "string",
+                    "example": "1500.00"
+                },
+                "bid_amount": {
+                    "type": "string",
+                    "example": "1200.00"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Interested in bulk purchase"
+                },
+                "quantity": {
+                    "type": "string",
+                    "example": "100.5"
+                }
+            }
+        },
+        "internal_handlers_marketplace.RemoveBidRequest": {
             "type": "object",
             "required": [
                 "reason"
@@ -17881,1126 +15225,452 @@ const docTemplate = `{
                 }
             }
         },
-        "orders.AddressResponse": {
+        "internal_handlers_marketplace.RevealedAuctionResults": {
             "type": "object",
             "properties": {
-                "city": {
+                "auction_end_time": {
                     "type": "string",
-                    "example": "Rural City"
-                },
-                "country": {
-                    "type": "string",
-                    "example": "India"
-                },
-                "postal_code": {
-                    "type": "string",
-                    "example": "411001"
-                },
-                "state": {
-                    "type": "string",
-                    "example": "Maharashtra"
-                },
-                "street": {
-                    "type": "string",
-                    "example": "123 Farm Road"
-                }
-            }
-        },
-        "orders.BidInfo": {
-            "type": "object",
-            "properties": {
-                "bid_amount": {
-                    "type": "number"
-                },
-                "bid_id": {
-                    "type": "string"
-                },
-                "bidder_id": {
-                    "type": "string"
-                },
-                "currency": {
-                    "type": "string"
-                },
-                "is_winning": {
-                    "type": "boolean"
-                },
-                "placed_at": {
-                    "type": "string"
-                }
-            }
-        },
-        "orders.BidOrderValidationRequest": {
-            "type": "object",
-            "required": [
-                "bid_id"
-            ],
-            "properties": {
-                "bid_id": {
-                    "type": "string",
-                    "example": "BID_1234567890"
-                }
-            }
-        },
-        "orders.BidOrderValidationResponse": {
-            "type": "object",
-            "properties": {
-                "bid_id": {
-                    "type": "string",
-                    "example": "BID_1234567890"
-                },
-                "buyer_id": {
-                    "type": "string",
-                    "example": "USER_0987654321"
-                },
-                "buyer_org_id": {
-                    "type": "string",
-                    "example": "ORG_0987654321"
-                },
-                "can_create_order": {
-                    "type": "boolean"
-                },
-                "currency": {
-                    "type": "string",
-                    "example": "INR"
-                },
-                "expires_at": {
-                    "type": "string",
-                    "example": "2024-12-31T23:59:59Z"
+                    "example": "2024-01-14T15:00:00Z"
                 },
                 "listing_id": {
                     "type": "string",
                     "example": "LST_1234567890"
                 },
-                "product_id": {
-                    "type": "string",
-                    "example": "PROD_1234567890"
+                "results_available": {
+                    "type": "boolean",
+                    "example": true
                 },
-                "product_name": {
-                    "type": "string",
-                    "example": "Organic Tomatoes"
-                },
-                "product_sku": {
-                    "type": "string",
-                    "example": "ORG-TOM-001"
-                },
-                "quantity": {
-                    "type": "number",
-                    "example": 10.5
-                },
-                "seller_id": {
-                    "type": "string",
-                    "example": "USER_1234567890"
-                },
-                "seller_org_id": {
-                    "type": "string",
-                    "example": "ORG_1234567890"
-                },
-                "valid": {
-                    "type": "boolean"
-                },
-                "validation_error": {
-                    "type": "string"
-                },
-                "winning_amount": {
-                    "type": "number",
-                    "example": 150
-                }
-            }
-        },
-        "orders.CreateGRNItemRequest": {
-            "type": "object",
-            "required": [
-                "condition",
-                "po_item_id",
-                "quantity_received"
-            ],
-            "properties": {
-                "condition": {
-                    "enum": [
-                        "GOOD",
-                        "DAMAGED",
-                        "PARTIAL"
-                    ],
+                "status": {
                     "allOf": [
                         {
-                            "$ref": "#/definitions/orders.ItemCondition"
+                            "$ref": "#/definitions/kisanlink-ecom_entities_models_marketplace.ListingStatus"
                         }
                     ],
-                    "example": "GOOD"
+                    "example": "CLOSED"
                 },
-                "notes": {
+                "total_bids": {
+                    "type": "integer",
+                    "example": 12
+                },
+                "winner_id": {
                     "type": "string",
-                    "maxLength": 500,
-                    "example": "No issues noted"
+                    "example": "USER_456"
                 },
-                "po_item_id": {
+                "winning_bid": {
                     "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174000"
-                },
-                "quantity_received": {
-                    "type": "number",
-                    "example": 100
+                    "example": "1500.00"
                 }
             }
         },
-        "orders.CreateGRNRequest": {
+        "kisanlink-ecom_entities_models_common.HealthResponse": {
             "type": "object",
-            "required": [
-                "items"
-            ],
             "properties": {
-                "items": {
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                        "$ref": "#/definitions/orders.CreateGRNItemRequest"
-                    }
+                "message": {
+                    "type": "string"
                 },
-                "notes": {
-                    "type": "string",
-                    "maxLength": 1000,
-                    "example": "All items received in good condition"
+                "status": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
                 }
             }
         },
-        "orders.CreateOrderFromBidRequest": {
-            "type": "object",
-            "required": [
-                "bid_id",
-                "payment_method",
-                "shipping_address"
-            ],
-            "properties": {
-                "bid_id": {
-                    "type": "string",
-                    "example": "BID_1234567890"
-                },
-                "notes": {
-                    "type": "string",
-                    "maxLength": 1000,
-                    "example": "Please deliver during business hours"
-                },
-                "payment_method": {
-                    "type": "string",
-                    "enum": [
-                        "credit_card",
-                        "debit_card",
-                        "bank_transfer",
-                        "upi",
-                        "cash_on_delivery"
-                    ],
-                    "example": "upi"
-                },
-                "shipping_address": {
-                    "$ref": "#/definitions/entities_requests_orders.Address"
-                }
-            }
-        },
-        "orders.CreateOrderItemRequest": {
-            "type": "object",
-            "required": [
-                "catalog_item_id",
-                "catalog_item_type",
-                "quantity",
-                "unit_price"
-            ],
-            "properties": {
-                "catalog_item_id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174002"
-                },
-                "catalog_item_type": {
-                    "type": "string",
-                    "enum": [
-                        "product",
-                        "service",
-                        "labour"
-                    ],
-                    "example": "product"
-                },
-                "notes": {
-                    "type": "string",
-                    "maxLength": 500,
-                    "example": "Organic variety preferred"
-                },
-                "quantity": {
-                    "type": "number",
-                    "example": 10.5
-                },
-                "unit_price": {
-                    "type": "number",
-                    "minimum": 0,
-                    "example": 25.5
-                }
-            }
-        },
-        "orders.CreateOrderRequest": {
-            "type": "object",
-            "required": [
-                "buyer_organization_id",
-                "items",
-                "seller_organization_id"
-            ],
-            "properties": {
-                "buyer_organization_id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174000"
-                },
-                "items": {
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                        "$ref": "#/definitions/orders.CreateOrderItemRequest"
-                    }
-                },
-                "metadata": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "notes": {
-                    "type": "string",
-                    "maxLength": 1000,
-                    "example": "Special delivery instructions"
-                },
-                "seller_organization_id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174001"
-                },
-                "shipping_address": {
-                    "$ref": "#/definitions/entities_requests_orders.Address"
-                }
-            }
-        },
-        "orders.CreatePOItemRequest": {
-            "type": "object",
-            "required": [
-                "product_name",
-                "quantity",
-                "unit_price"
-            ],
-            "properties": {
-                "gst_percent": {
-                    "type": "number",
-                    "maximum": 100,
-                    "minimum": 0,
-                    "example": 18
-                },
-                "hsn_code": {
-                    "type": "string",
-                    "maxLength": 20,
-                    "example": "1001"
-                },
-                "product_name": {
-                    "type": "string",
-                    "maxLength": 255,
-                    "minLength": 1,
-                    "example": "Organic Wheat"
-                },
-                "product_sku": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "example": "SKU-001"
-                },
-                "quantity": {
-                    "type": "number",
-                    "example": 100
-                },
-                "unit_price": {
-                    "type": "number",
-                    "minimum": 0,
-                    "example": 50
-                }
-            }
-        },
-        "orders.CreatePurchaseOrderRequest": {
-            "type": "object",
-            "required": [
-                "items",
-                "vendor_name"
-            ],
-            "properties": {
-                "delivery_address": {
-                    "$ref": "#/definitions/entities_requests_orders.Address"
-                },
-                "items": {
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                        "$ref": "#/definitions/orders.CreatePOItemRequest"
-                    }
-                },
-                "metadata": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "notes": {
-                    "type": "string",
-                    "maxLength": 1000,
-                    "example": "Urgent delivery required"
-                },
-                "vendor_contact": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "example": "+91-9876543210"
-                },
-                "vendor_id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174000"
-                },
-                "vendor_name": {
-                    "type": "string",
-                    "maxLength": 255,
-                    "minLength": 1,
-                    "example": "ABC Suppliers"
-                }
-            }
-        },
-        "orders.ItemCondition": {
+        "kisanlink-ecom_entities_models_marketplace.ActorType": {
             "type": "string",
             "enum": [
-                "GOOD",
-                "DAMAGED",
-                "PARTIAL"
-            ],
-            "x-enum-comments": {
-                "ItemConditionDamaged": "Damaged items",
-                "ItemConditionGood": "Good condition",
-                "ItemConditionPartial": "Partial delivery"
-            },
-            "x-enum-descriptions": [
-                "Good condition",
-                "Damaged items",
-                "Partial delivery"
+                "USER",
+                "SYSTEM",
+                "ADMIN"
             ],
             "x-enum-varnames": [
-                "ItemConditionGood",
-                "ItemConditionDamaged",
-                "ItemConditionPartial"
+                "ActorTypeUser",
+                "ActorTypeSystem",
+                "ActorTypeAdmin"
             ]
         },
-        "orders.ListingInfo": {
+        "kisanlink-ecom_entities_models_marketplace.AuctionEventType": {
+            "type": "string",
+            "enum": [
+                "LISTING_CREATED",
+                "BID_PLACED",
+                "BID_OUTBID",
+                "AUTO_BID_TRIGGERED",
+                "LISTING_CLOSED",
+                "LISTING_EXPIRED",
+                "LISTING_CANCELLED",
+                "BID_REMOVED",
+                "LISTING_UPDATED"
+            ],
+            "x-enum-varnames": [
+                "EventListingCreated",
+                "EventBidPlaced",
+                "EventBidOutbid",
+                "EventAutoBidTriggered",
+                "EventListingClosed",
+                "EventListingExpired",
+                "EventListingCancelled",
+                "EventBidRemoved",
+                "EventListingUpdated"
+            ]
+        },
+        "kisanlink-ecom_entities_models_marketplace.AuctionType": {
+            "type": "string",
+            "enum": [
+                "OPEN",
+                "CLOSED"
+            ],
+            "x-enum-comments": {
+                "AuctionTypeClosed": "Bid prices hidden until auction ends",
+                "AuctionTypeOpen": "All bid prices visible during auction"
+            },
+            "x-enum-descriptions": [
+                "All bid prices visible during auction",
+                "Bid prices hidden until auction ends"
+            ],
+            "x-enum-varnames": [
+                "AuctionTypeOpen",
+                "AuctionTypeClosed"
+            ]
+        },
+        "kisanlink-ecom_entities_models_marketplace.BidStatus": {
+            "type": "string",
+            "enum": [
+                "ACTIVE",
+                "OUTBID",
+                "WINNING",
+                "EXPIRED",
+                "REMOVED"
+            ],
+            "x-enum-varnames": [
+                "BidStatusActive",
+                "BidStatusOutbid",
+                "BidStatusWinning",
+                "BidStatusExpired",
+                "BidStatusRemoved"
+            ]
+        },
+        "kisanlink-ecom_entities_models_marketplace.BidVisibility": {
+            "type": "string",
+            "enum": [
+                "FULL",
+                "PARTIAL",
+                "MINIMAL",
+                "HIDDEN"
+            ],
+            "x-enum-comments": {
+                "BidVisibilityFull": "Show all bid details based on auction type",
+                "BidVisibilityHidden": "No bid information visible",
+                "BidVisibilityMinimal": "Show only bid count",
+                "BidVisibilityPartial": "Show bid count and highest amount only"
+            },
+            "x-enum-descriptions": [
+                "Show all bid details based on auction type",
+                "Show bid count and highest amount only",
+                "Show only bid count",
+                "No bid information visible"
+            ],
+            "x-enum-varnames": [
+                "BidVisibilityFull",
+                "BidVisibilityPartial",
+                "BidVisibilityMinimal",
+                "BidVisibilityHidden"
+            ]
+        },
+        "kisanlink-ecom_entities_models_marketplace.ListingStatus": {
+            "type": "string",
+            "enum": [
+                "ACTIVE",
+                "CLOSED",
+                "EXPIRED",
+                "CANCELLED",
+                "EXPIRED_NO_BIDS"
+            ],
+            "x-enum-varnames": [
+                "ListingStatusActive",
+                "ListingStatusClosed",
+                "ListingStatusExpired",
+                "ListingStatusCancelled",
+                "ListingStatusExpiredNoBids"
+            ]
+        },
+        "kisanlink-ecom_entities_models_marketplace.ListingVisibility": {
+            "type": "string",
+            "enum": [
+                "PRIVATE",
+                "PUBLIC",
+                "NETWORK",
+                "ORGANIZATION"
+            ],
+            "x-enum-comments": {
+                "VisibilityNetwork": "Network/partner organizations",
+                "VisibilityOrganization": "Same organization only",
+                "VisibilityPrivate": "Only invited participants",
+                "VisibilityPublic": "Open to all users"
+            },
+            "x-enum-descriptions": [
+                "Only invited participants",
+                "Open to all users",
+                "Network/partner organizations",
+                "Same organization only"
+            ],
+            "x-enum-varnames": [
+                "VisibilityPrivate",
+                "VisibilityPublic",
+                "VisibilityNetwork",
+                "VisibilityOrganization"
+            ]
+        },
+        "kisanlink-ecom_entities_models_marketplace.Location": {
             "type": "object",
             "properties": {
-                "closed_at": {
+                "address": {
                     "type": "string"
                 },
-                "listing_id": {
+                "city": {
                     "type": "string"
                 },
-                "product_id": {
+                "country": {
                     "type": "string"
                 },
-                "product_name": {
-                    "type": "string"
-                },
-                "product_sku": {
-                    "type": "string"
-                },
-                "quantity": {
+                "latitude": {
                     "type": "number"
                 },
-                "seller_id": {
+                "longitude": {
+                    "type": "number"
+                },
+                "postal_code": {
                     "type": "string"
                 },
-                "seller_org_id": {
+                "state": {
                     "type": "string"
                 }
             }
         },
-        "orders.OrderFromBidResponse": {
+        "kisanlink-ecom_entities_requests_auth.LoginRequest": {
             "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
             "properties": {
-                "bid": {
-                    "$ref": "#/definitions/orders.BidInfo"
+                "password": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 6
                 },
-                "listing": {
-                    "$ref": "#/definitions/orders.ListingInfo"
-                },
-                "message": {
+                "username": {
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        },
+        "kisanlink-ecom_entities_requests_auth.RegisterRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "first_name",
+                "last_name",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "email": {
                     "type": "string"
                 },
-                "order": {
-                    "$ref": "#/definitions/orders.OrderResponse"
+                "first_name": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "last_name": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 6
+                },
+                "phone": {
+                    "type": "string",
+                    "maxLength": 20
+                },
+                "username": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 3
                 }
             }
         },
-        "orders.OrderItemResponse": {
+        "kisanlink-ecom_internal_common.PaginationMeta": {
+            "description": "Pagination metadata for list endpoints",
             "type": "object",
             "properties": {
-                "catalog_item_id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174005"
+                "has_next": {
+                    "description": "Whether there is a next page",
+                    "type": "boolean",
+                    "example": true
                 },
-                "catalog_item_name": {
-                    "type": "string",
-                    "example": "Organic Tomatoes"
+                "has_prev": {
+                    "description": "Whether there is a previous page",
+                    "type": "boolean",
+                    "example": false
                 },
-                "catalog_item_sku": {
-                    "type": "string",
-                    "example": "TOM-ORG-001"
-                },
-                "catalog_item_type": {
-                    "type": "string",
-                    "example": "product"
-                },
-                "created_at": {
-                    "type": "string",
-                    "example": "2024-01-15T10:30:00Z"
-                },
-                "discount_amount": {
-                    "type": "number",
-                    "example": 0
-                },
-                "discount_rate": {
-                    "type": "number",
-                    "example": 0
-                },
-                "id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174004"
-                },
-                "metadata": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "order_id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174000"
-                },
-                "quantity": {
-                    "type": "number",
-                    "example": 10.5
-                },
-                "tax_amount": {
-                    "type": "number",
-                    "example": 26.78
-                },
-                "tax_rate": {
-                    "type": "number",
-                    "example": 0.1
-                },
-                "total_price": {
-                    "type": "number",
-                    "example": 267.75
-                },
-                "unit_price": {
-                    "type": "number",
-                    "example": 25.5
-                },
-                "updated_at": {
-                    "type": "string",
-                    "example": "2024-01-15T10:30:00Z"
-                }
-            }
-        },
-        "orders.OrderResponse": {
-            "type": "object",
-            "properties": {
-                "actual_delivery_date": {
-                    "type": "string",
-                    "example": "2024-01-19T14:15:00Z"
-                },
-                "buyer_organization_id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174001"
-                },
-                "buyer_user_id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174003"
-                },
-                "created_at": {
-                    "type": "string",
-                    "example": "2024-01-15T10:30:00Z"
-                },
-                "discount_amount": {
-                    "type": "number",
-                    "example": 0
-                },
-                "estimated_delivery_date": {
-                    "type": "string",
-                    "example": "2024-01-20T10:30:00Z"
-                },
-                "id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174000"
-                },
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/orders.OrderItemResponse"
-                    }
-                },
-                "metadata": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "notes": {
-                    "type": "string",
-                    "example": "Special delivery instructions"
-                },
-                "order_number": {
-                    "type": "string",
-                    "example": "ORD-2024-001"
-                },
-                "seller_organization_id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174002"
-                },
-                "shipping_address": {
-                    "$ref": "#/definitions/orders.AddressResponse"
-                },
-                "shipping_amount": {
-                    "type": "number",
-                    "example": 50
-                },
-                "status": {
-                    "type": "string",
-                    "example": "pending"
-                },
-                "status_history": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/orders.OrderStatusHistoryResponse"
-                    }
-                },
-                "subtotal_amount": {
-                    "type": "number",
-                    "example": 255
-                },
-                "tax_amount": {
-                    "type": "number",
-                    "example": 25.5
-                },
-                "total_amount": {
-                    "type": "number",
-                    "example": 330.5
-                },
-                "updated_at": {
-                    "type": "string",
-                    "example": "2024-01-15T10:30:00Z"
-                }
-            }
-        },
-        "orders.OrderStatus": {
-            "type": "string",
-            "enum": [
-                "pending",
-                "confirmed",
-                "paid",
-                "shipped",
-                "delivered",
-                "completed",
-                "cancelled",
-                "refunded"
-            ],
-            "x-enum-varnames": [
-                "OrderStatusPending",
-                "OrderStatusConfirmed",
-                "OrderStatusPaid",
-                "OrderStatusShipped",
-                "OrderStatusDelivered",
-                "OrderStatusCompleted",
-                "OrderStatusCancelled",
-                "OrderStatusRefunded"
-            ]
-        },
-        "orders.OrderStatusHistoryResponse": {
-            "type": "object",
-            "properties": {
-                "changed_by_organization_id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174001"
-                },
-                "changed_by_user_id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174003"
-                },
-                "created_at": {
-                    "type": "string",
-                    "example": "2024-01-15T10:35:00Z"
-                },
-                "from_status": {
-                    "type": "string",
-                    "example": "pending"
-                },
-                "id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174006"
-                },
-                "metadata": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "order_id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174000"
-                },
-                "reason": {
-                    "type": "string",
-                    "example": "Payment confirmed by bank"
-                },
-                "to_status": {
-                    "type": "string",
-                    "example": "confirmed"
-                }
-            }
-        },
-        "orders.POStatus": {
-            "type": "string",
-            "enum": [
-                "PLACED",
-                "CONFIRMED",
-                "DELIVERED",
-                "PAID",
-                "CANCELLED"
-            ],
-            "x-enum-comments": {
-                "POStatusCancelled": "PO cancelled",
-                "POStatusConfirmed": "Vendor confirmed",
-                "POStatusDelivered": "Goods received",
-                "POStatusPaid": "Payment completed",
-                "POStatusPlaced": "PO created"
-            },
-            "x-enum-descriptions": [
-                "PO created",
-                "Vendor confirmed",
-                "Goods received",
-                "Payment completed",
-                "PO cancelled"
-            ],
-            "x-enum-varnames": [
-                "POStatusPlaced",
-                "POStatusConfirmed",
-                "POStatusDelivered",
-                "POStatusPaid",
-                "POStatusCancelled"
-            ]
-        },
-        "orders.PaymentResponse": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "type": "number",
-                    "example": 150
-                },
-                "currency": {
-                    "type": "string",
-                    "example": "INR"
-                },
-                "message": {
-                    "type": "string",
-                    "example": "Payment completed successfully"
-                },
-                "order_id": {
-                    "type": "string",
-                    "example": "ORD_1234567890"
-                },
-                "payment_id": {
-                    "type": "string",
-                    "example": "PAY_1234567890"
-                },
-                "payment_method": {
-                    "type": "string",
-                    "example": "upi"
-                },
-                "processed_at": {
-                    "type": "string",
-                    "example": "2024-12-31T23:59:59Z"
-                },
-                "status": {
-                    "type": "string",
-                    "example": "COMPLETED"
-                }
-            }
-        },
-        "orders.PaymentScreenshotDownloadURLResponse": {
-            "type": "object",
-            "properties": {
-                "download_url": {
-                    "type": "string",
-                    "example": "https://s3.amazonaws.com/bucket/path?signature=..."
-                },
-                "expires_at": {
-                    "type": "string",
-                    "example": "2024-01-16T14:30:00Z"
-                },
-                "screenshot_id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174000"
-                }
-            }
-        },
-        "orders.PaymentScreenshotListResponse": {
-            "type": "object",
-            "properties": {
-                "page": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "page_size": {
+                "limit": {
+                    "description": "Items per page",
                     "type": "integer",
                     "example": 20
                 },
-                "screenshots": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/orders.PaymentScreenshotResponse"
-                    }
+                "page": {
+                    "description": "Current page number",
+                    "type": "integer",
+                    "example": 1
                 },
                 "total": {
+                    "description": "Total number of items",
                     "type": "integer",
-                    "example": 25
+                    "example": 100
                 },
                 "total_pages": {
+                    "description": "Total number of pages",
                     "type": "integer",
-                    "example": 2
+                    "example": 5
                 }
             }
         },
-        "orders.PaymentScreenshotResponse": {
+        "kisanlink-ecom_internal_common.Response": {
+            "description": "Standard API response structure used across all endpoints",
             "type": "object",
             "properties": {
-                "amount_paid": {
-                    "type": "number",
-                    "example": 500
+                "data": {
+                    "description": "Response data payload"
                 },
-                "buyer_organization_id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174003"
+                "error": {
+                    "description": "Error details if request failed",
+                    "type": "object"
                 },
-                "created_at": {
-                    "type": "string",
-                    "example": "2024-01-15T14:30:00Z"
-                },
-                "description": {
-                    "type": "string",
-                    "example": "Payment for order ORD-2024-001"
-                },
-                "file_mime_type": {
-                    "type": "string",
-                    "example": "image/jpeg"
-                },
-                "file_name": {
-                    "type": "string",
-                    "example": "payment_receipt.jpg"
-                },
-                "file_size_bytes": {
-                    "type": "integer",
-                    "example": 245760
-                },
-                "id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174000"
-                },
-                "order_id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174001"
-                },
-                "payment_date": {
-                    "type": "string",
-                    "example": "2024-01-15T00:00:00Z"
-                },
-                "payment_method": {
-                    "type": "string",
-                    "example": "bank_transfer"
-                },
-                "seller_organization_id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174004"
-                },
-                "transaction_id": {
-                    "type": "string",
-                    "example": "TXN123456789"
-                },
-                "updated_at": {
-                    "type": "string",
-                    "example": "2024-01-16T10:30:00Z"
-                },
-                "uploaded_by": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174002"
-                },
-                "verification_notes": {
-                    "type": "string",
-                    "example": "Payment verified successfully"
-                },
-                "verification_status": {
-                    "type": "string",
-                    "example": "pending"
-                },
-                "verified_at": {
-                    "type": "string",
-                    "example": "2024-01-16T10:30:00Z"
-                },
-                "verified_by": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174005"
+                "meta": {
+                    "description": "Response metadata including trace ID and pagination",
+                    "type": "object"
                 }
             }
         },
-        "orders.PaymentScreenshotUploadResponse": {
+        "kisanlink-ecom_internal_common.ResponseError": {
+            "description": "Error details when a request fails",
             "type": "object",
             "properties": {
-                "amount_paid": {
-                    "type": "number",
-                    "example": 500
-                },
-                "buyer_organization_id": {
+                "code": {
+                    "description": "Error code for programmatic handling",
                     "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174003"
+                    "example": "INVALID_INPUT"
                 },
-                "created_at": {
-                    "type": "string",
-                    "example": "2024-01-15T14:30:00Z"
-                },
-                "description": {
-                    "type": "string",
-                    "example": "Payment for order ORD-2024-001"
-                },
-                "file_mime_type": {
-                    "type": "string",
-                    "example": "image/jpeg"
-                },
-                "file_name": {
-                    "type": "string",
-                    "example": "payment_receipt.jpg"
-                },
-                "file_size_bytes": {
-                    "type": "integer",
-                    "example": 245760
-                },
-                "id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174000"
+                "details": {
+                    "description": "Additional error details",
+                    "type": "object"
                 },
                 "message": {
+                    "description": "Human-readable error message",
                     "type": "string",
-                    "example": "Payment screenshot uploaded successfully"
-                },
-                "order_id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174001"
-                },
-                "payment_date": {
-                    "type": "string",
-                    "example": "2024-01-15T00:00:00Z"
-                },
-                "payment_method": {
-                    "type": "string",
-                    "example": "bank_transfer"
-                },
-                "seller_organization_id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174004"
-                },
-                "transaction_id": {
-                    "type": "string",
-                    "example": "TXN123456789"
-                },
-                "updated_at": {
-                    "type": "string",
-                    "example": "2024-01-16T10:30:00Z"
-                },
-                "uploaded_by": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174002"
-                },
-                "verification_notes": {
-                    "type": "string",
-                    "example": "Payment verified successfully"
-                },
-                "verification_status": {
-                    "type": "string",
-                    "example": "pending"
-                },
-                "verified_at": {
-                    "type": "string",
-                    "example": "2024-01-16T10:30:00Z"
-                },
-                "verified_by": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174005"
+                    "example": "Invalid input data"
                 }
             }
         },
-        "orders.ProcessPaymentRequest": {
+        "kisanlink-ecom_internal_common.ResponseMeta": {
+            "description": "Metadata included in API responses for tracing and pagination",
             "type": "object",
-            "required": [
-                "payment_method"
-            ],
             "properties": {
-                "payment_method": {
+                "extra": {
+                    "description": "Additional metadata",
+                    "type": "object"
+                },
+                "pagination": {
+                    "description": "Pagination information for list endpoints",
+                    "type": "object"
+                },
+                "timestamp": {
+                    "description": "Response timestamp",
                     "type": "string",
-                    "enum": [
-                        "credit_card",
-                        "debit_card",
-                        "bank_transfer",
-                        "upi",
-                        "cash_on_delivery",
-                        "digital_wallet",
-                        "net_banking"
-                    ],
-                    "example": "upi"
+                    "example": "2025-01-05T10:30:00Z"
+                },
+                "trace_id": {
+                    "description": "Request trace ID for debugging",
+                    "type": "string",
+                    "example": "abc123xyz"
                 }
             }
         },
-        "orders.UpdateOrderRequest": {
+        "kisanlink-ecom_internal_health.ComponentHealth": {
             "type": "object",
             "properties": {
-                "buyer_organization_id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174000"
-                },
-                "items": {
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                        "$ref": "#/definitions/orders.CreateOrderItemRequest"
-                    }
-                },
-                "metadata": {
+                "details": {
                     "type": "object",
                     "additionalProperties": true
                 },
-                "notes": {
-                    "type": "string",
-                    "maxLength": 1000,
-                    "example": "Updated delivery instructions"
+                "duration": {
+                    "description": "Duration in milliseconds",
+                    "type": "integer"
                 },
-                "reason": {
-                    "type": "string",
-                    "maxLength": 500,
-                    "minLength": 1,
-                    "example": "Payment confirmed"
+                "last_checked": {
+                    "type": "string"
                 },
-                "seller_organization_id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174001"
+                "message": {
+                    "type": "string"
                 },
-                "shipping_address": {
-                    "$ref": "#/definitions/entities_requests_orders.Address"
+                "name": {
+                    "type": "string"
                 },
                 "status": {
-                    "enum": [
-                        "pending",
-                        "confirmed",
-                        "paid",
-                        "shipped",
-                        "delivered",
-                        "completed",
-                        "cancelled",
-                        "refunded"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/orders.OrderStatus"
-                        }
-                    ],
-                    "example": "confirmed"
+                    "$ref": "#/definitions/kisanlink-ecom_internal_health.HealthStatus"
                 }
             }
         },
-        "orders.UpdateOrderStatusRequest": {
+        "kisanlink-ecom_internal_health.HealthResult": {
             "type": "object",
-            "required": [
-                "reason",
-                "status"
-            ],
             "properties": {
-                "reason": {
-                    "type": "string",
-                    "maxLength": 500,
-                    "minLength": 1,
-                    "example": "Payment confirmed by bank"
+                "healthy": {
+                    "type": "boolean"
                 },
-                "status": {
-                    "enum": [
-                        "pending",
-                        "confirmed",
-                        "paid",
-                        "shipped",
-                        "delivered",
-                        "completed",
-                        "cancelled",
-                        "refunded"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/orders.OrderStatus"
-                        }
-                    ],
-                    "example": "confirmed"
+                "message": {
+                    "type": "string"
                 }
             }
         },
-        "orders.UpdatePurchaseOrderStatusRequest": {
-            "type": "object",
-            "required": [
-                "status"
-            ],
-            "properties": {
-                "reason": {
-                    "type": "string",
-                    "maxLength": 500,
-                    "example": "Vendor confirmed delivery date"
-                },
-                "status": {
-                    "enum": [
-                        "PLACED",
-                        "CONFIRMED",
-                        "DELIVERED",
-                        "PAID",
-                        "CANCELLED"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/orders.POStatus"
-                        }
-                    ],
-                    "example": "CONFIRMED"
-                }
-            }
-        },
-        "orders.VerificationStatus": {
+        "kisanlink-ecom_internal_health.HealthStatus": {
             "type": "string",
             "enum": [
-                "pending",
-                "approved",
-                "rejected",
-                "disputed"
+                "healthy",
+                "unhealthy",
+                "degraded",
+                "unknown"
             ],
             "x-enum-varnames": [
-                "VerificationStatusPending",
-                "VerificationStatusApproved",
-                "VerificationStatusRejected",
-                "VerificationStatusDisputed"
+                "StatusHealthy",
+                "StatusUnhealthy",
+                "StatusDegraded",
+                "StatusUnknown"
             ]
         },
-        "orders.VerifyPaymentScreenshotRequest": {
+        "kisanlink-ecom_internal_health.SystemHealth": {
             "type": "object",
-            "required": [
-                "notes",
-                "status"
-            ],
             "properties": {
-                "notes": {
-                    "type": "string",
-                    "maxLength": 1000,
-                    "minLength": 1,
-                    "example": "Payment verified successfully"
+                "components": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/kisanlink-ecom_internal_health.ComponentHealth"
+                    }
+                },
+                "duration": {
+                    "description": "Duration in milliseconds",
+                    "type": "integer"
                 },
                 "status": {
-                    "enum": [
-                        "approved",
-                        "rejected",
-                        "disputed"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/orders.VerificationStatus"
-                        }
-                    ],
-                    "example": "approved"
+                    "$ref": "#/definitions/kisanlink-ecom_internal_health.HealthStatus"
+                },
+                "timestamp": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
                 }
             }
         }

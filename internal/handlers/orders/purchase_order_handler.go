@@ -31,7 +31,7 @@ func NewPurchaseOrderHandler(poService orderService.PurchaseOrderServiceInterfac
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer token"
-// @Param purchase_order body orders.CreatePurchaseOrderRequest true "Purchase order information"
+// @Param purchase_order body object true "Purchase order information"
 // @Success 201 {object} common.Response
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
@@ -189,7 +189,7 @@ func (h *PurchaseOrderHandler) GetPurchaseOrderByID(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param id path string true "Purchase Order ID"
-// @Param status body orders.UpdatePurchaseOrderStatusRequest true "Status update"
+// @Param status body object true "Status update"
 // @Success 200 {object} common.Response
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/fpo/purchase-orders/{id}/status [patch]
@@ -284,7 +284,7 @@ func (h *PurchaseOrderHandler) DownloadPurchaseOrderPDF(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param id path string true "Purchase Order ID"
-// @Param grn body orders.CreateGRNRequest true "GRN information"
+// @Param grn body object true "GRN information"
 // @Success 201 {object} common.Response
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/fpo/purchase-orders/{id}/grn [post]

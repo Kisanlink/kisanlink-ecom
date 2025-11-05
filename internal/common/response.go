@@ -7,35 +7,39 @@ import (
 )
 
 // Response represents a standardized API response
+// @Description Standard API response structure used across all endpoints
 type Response struct {
-	Data  interface{}    `json:"data,omitempty"`
-	Meta  *ResponseMeta  `json:"meta,omitempty"`
-	Error *ResponseError `json:"error,omitempty"`
+	Data  interface{}    `json:"data,omitempty"`                       // Response data payload
+	Meta  *ResponseMeta  `json:"meta,omitempty" swaggertype:"object"`  // Response metadata including trace ID and pagination
+	Error *ResponseError `json:"error,omitempty" swaggertype:"object"` // Error details if request failed
 }
 
 // ResponseMeta contains metadata about the response
+// @Description Metadata included in API responses for tracing and pagination
 type ResponseMeta struct {
-	TraceID    string                 `json:"trace_id,omitempty"`
-	Pagination *PaginationMeta        `json:"pagination,omitempty"`
-	Timestamp  string                 `json:"timestamp,omitempty"`
-	Extra      map[string]interface{} `json:"extra,omitempty"`
+	TraceID    string                 `json:"trace_id,omitempty" example:"abc123xyz"`             // Request trace ID for debugging
+	Pagination *PaginationMeta        `json:"pagination,omitempty" swaggertype:"object"`          // Pagination information for list endpoints
+	Timestamp  string                 `json:"timestamp,omitempty" example:"2025-01-05T10:30:00Z"` // Response timestamp
+	Extra      map[string]interface{} `json:"extra,omitempty" swaggertype:"object"`               // Additional metadata
 }
 
 // ResponseError represents an error response
+// @Description Error details when a request fails
 type ResponseError struct {
-	Code    string                 `json:"code"`
-	Message string                 `json:"message"`
-	Details map[string]interface{} `json:"details,omitempty"`
+	Code    string                 `json:"code" example:"INVALID_INPUT"`           // Error code for programmatic handling
+	Message string                 `json:"message" example:"Invalid input data"`   // Human-readable error message
+	Details map[string]interface{} `json:"details,omitempty" swaggertype:"object"` // Additional error details
 }
 
 // PaginationMeta contains pagination information
+// @Description Pagination metadata for list endpoints
 type PaginationMeta struct {
-	Page       int  `json:"page"`
-	Limit      int  `json:"limit"`
-	Total      int  `json:"total"`
-	TotalPages int  `json:"total_pages"`
-	HasNext    bool `json:"has_next"`
-	HasPrev    bool `json:"has_prev"`
+	Page       int  `json:"page" example:"1"`         // Current page number
+	Limit      int  `json:"limit" example:"20"`       // Items per page
+	Total      int  `json:"total" example:"100"`      // Total number of items
+	TotalPages int  `json:"total_pages" example:"5"`  // Total number of pages
+	HasNext    bool `json:"has_next" example:"true"`  // Whether there is a next page
+	HasPrev    bool `json:"has_prev" example:"false"` // Whether there is a previous page
 }
 
 // Success sends a successful response

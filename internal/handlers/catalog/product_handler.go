@@ -34,8 +34,8 @@ func NewProductHandler(catalogService catalogService.CatalogServiceInterface, et
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer token"
-// @Param product body catalog.CreateCatalogItemRequest true "Product information"
-// @Success 201 {object} common.Response{data=catalog.ProductResponse}
+// @Param product body object true "Product information"
+// @Success 201 {object} common.Response{data=map[string]interface{}}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -119,7 +119,7 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Product ID"
 // @Param If-None-Match header string false "ETag for conditional requests"
-// @Success 200 {object} common.Response{data=catalog.ProductResponse}
+// @Success 200 {object} common.Response{data=map[string]interface{}}
 // @Success 304 "Not modified"
 // @Failure 404 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/catalog/products/{id} [get]
@@ -179,8 +179,8 @@ func (h *ProductHandler) GetProductByID(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param id path string true "Product ID"
-// @Param product body catalog.UpdateCatalogItemRequest true "Product updates"
-// @Success 200 {object} common.Response{data=catalog.ProductResponse}
+// @Param product body object true "Product updates"
+// @Success 200 {object} common.Response{data=map[string]interface{}}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -290,7 +290,7 @@ func (h *ProductHandler) DeleteProduct(c *gin.Context) {
 // @Param search query string false "Search in product name and description" example("organic fertilizer")
 // @Param is_active query bool false "Filter by active status (admin only)" example(true)
 // @Param include_deleted query bool false "Include soft-deleted items (admin only)" default(false)
-// @Success 200 {object} common.Response{data=[]catalog.ProductResponse,meta=common.ResponseMeta{pagination=common.PaginationMeta}} "Products retrieved successfully"
+// @Success 200 {object} common.Response{data=[]interface{},meta=common.ResponseMeta{pagination=common.PaginationMeta}} "Products retrieved successfully"
 // @Failure 401 {object} common.Response{error=common.ResponseError} "Unauthorized - missing or invalid token"
 // @Failure 500 {object} common.Response{error=common.ResponseError} "Internal server error"
 // @Router /api/v1/catalog/products [get]

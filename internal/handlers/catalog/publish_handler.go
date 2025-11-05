@@ -46,7 +46,7 @@ type PriceUpdateRequest struct {
 // @Param type path string true "Item type (products, services, labour, contracts)"
 // @Param id path string true "Item ID"
 // @Param request body PublishRequest false "Publish options"
-// @Success 200 {object} common.Response{data=catalog.CatalogItemResponse}
+// @Success 200 {object} common.Response{data=map[string]interface{}}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -141,7 +141,7 @@ func (h *CatalogHandler) PublishCatalogItem(c *gin.Context) {
 // @Param type path string true "Item type (products, services, labour, contracts)"
 // @Param id path string true "Item ID"
 // @Param request body UnpublishRequest false "Unpublish options"
-// @Success 200 {object} common.Response{data=catalog.CatalogItemResponse}
+// @Success 200 {object} common.Response{data=map[string]interface{}}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -221,7 +221,7 @@ func (h *CatalogHandler) UnpublishCatalogItem(c *gin.Context) {
 // @Param type path string true "Item type (products, services, labour, contracts)"
 // @Param id path string true "Item ID"
 // @Param request body PriceUpdateRequest true "Price update data"
-// @Success 200 {object} common.Response{data=catalog.CatalogItemResponse}
+// @Success 200 {object} common.Response{data=map[string]interface{}}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}

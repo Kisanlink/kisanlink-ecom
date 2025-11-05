@@ -114,7 +114,7 @@ func (h *CollaboratorHandler) GetCollaboratorByID(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param user_id path string true "User ID"
-// @Success 200 {object} common.Response{data=collaborator.CollaboratorResponse}
+// @Success 200 {object} common.Response{data=map[string]interface{}}
 // @Failure 404 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/collaborators/user/{user_id} [get]
 func (h *CollaboratorHandler) GetCollaboratorByUserID(c *gin.Context) {
@@ -151,7 +151,7 @@ func (h *CollaboratorHandler) GetCollaboratorByUserID(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param id path string true "Collaborator ID"
-// @Success 200 {object} common.Response{data=collaborator.CollaboratorProfileResponse}
+// @Success 200 {object} common.Response{data=map[string]interface{}}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 404 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/collaborators/{id}/profile [get]
@@ -209,8 +209,8 @@ func (h *CollaboratorHandler) GetCollaboratorProfile(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param id path string true "Collaborator ID"
-// @Param collaborator body collaborator.UpdateCollaboratorRequest true "Update data"
-// @Success 200 {object} common.Response{data=collaborator.CollaboratorResponse}
+// @Param collaborator body object true "Update data"
+// @Success 200 {object} common.Response{data=map[string]interface{}}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 404 {object} common.Response{error=common.ResponseError}
@@ -447,7 +447,7 @@ func (h *CollaboratorHandler) ListCollaborators(c *gin.Context) {
 // @Param page query int false "Page number" default(1)
 // @Param limit query int false "Items per page" default(20)
 // @Param include_deleted query bool false "Include soft-deleted items (admin only)" default(false)
-// @Success 200 {object} common.Response{data=[]collaborator.CollaboratorSummaryResponse,meta=common.ResponseMeta{pagination=common.PaginationMeta}}
+// @Success 200 {object} common.Response{data=[]interface{},meta=common.ResponseMeta{pagination=common.PaginationMeta}}
 // @Router /api/v1/collaborators/search [get]
 func (h *CollaboratorHandler) SearchCollaborators(c *gin.Context) {
 	// Extract query options (includes deleted items if user is admin and include_deleted=true)
@@ -502,7 +502,7 @@ func (h *CollaboratorHandler) SearchCollaborators(c *gin.Context) {
 // @Param Authorization header string true "Bearer token"
 // @Param id path string true "Collaborator ID"
 // @Param status body object true "Status update data"
-// @Success 200 {object} common.Response{data=collaborator.CollaboratorResponse}
+// @Success 200 {object} common.Response{data=map[string]interface{}}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 404 {object} common.Response{error=common.ResponseError}
@@ -557,7 +557,7 @@ func (h *CollaboratorHandler) UpdateCollaboratorStatus(c *gin.Context) {
 // @Param Authorization header string true "Bearer token"
 // @Param id path string true "Collaborator ID"
 // @Param verification body object true "Verification data"
-// @Success 200 {object} common.Response{data=collaborator.CollaboratorVerificationResponse}
+// @Success 200 {object} common.Response{data=map[string]interface{}}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 404 {object} common.Response{error=common.ResponseError}
@@ -611,8 +611,8 @@ func (h *CollaboratorHandler) VerifyCollaborator(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param id path string true "Collaborator ID"
-// @Param step body collaborator.UpdateOnboardingStepRequest true "Onboarding step data"
-// @Success 200 {object} common.Response{data=collaborator.OnboardingStepResponse}
+// @Param step body object true "Onboarding step data"
+// @Success 200 {object} common.Response{data=map[string]interface{}}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 404 {object} common.Response{error=common.ResponseError}
@@ -666,7 +666,7 @@ func (h *CollaboratorHandler) UpdateOnboardingStep(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param id path string true "Collaborator ID"
-// @Success 200 {object} common.Response{data=collaborator.OnboardingStepResponse}
+// @Success 200 {object} common.Response{data=map[string]interface{}}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 404 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/collaborators/{id}/onboarding/complete [post]
@@ -710,8 +710,8 @@ func (h *CollaboratorHandler) CompleteOnboarding(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer token"
-// @Param bulk body collaborator.BulkUpdateCollaboratorsRequest true "Bulk update data"
-// @Success 200 {object} common.Response{data=collaborator.BulkOperationResponse}
+// @Param bulk body object true "Bulk update data"
+// @Success 200 {object} common.Response{data=map[string]interface{}}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/collaborators/bulk [patch]
@@ -752,7 +752,7 @@ func (h *CollaboratorHandler) BulkUpdateCollaborators(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param organization_id query string false "Filter by organization ID"
-// @Success 200 {object} common.Response{data=collaborator.CollaboratorStatsResponse}
+// @Success 200 {object} common.Response{data=map[string]interface{}}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/collaborators/stats [get]
 func (h *CollaboratorHandler) GetCollaboratorStats(c *gin.Context) {

@@ -33,8 +33,8 @@ func NewServiceHandler(catalogService catalogService.CatalogServiceInterface, et
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer token"
-// @Param service body catalog.CreateServiceRequest true "Service information"
-// @Success 201 {object} common.Response{data=catalog.ServiceResponse}
+// @Param service body object true "Service information"
+// @Success 201 {object} common.Response{data=map[string]interface{}}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -83,7 +83,7 @@ func (h *ServiceHandler) CreateService(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Service ID"
 // @Param If-None-Match header string false "ETag for conditional requests"
-// @Success 200 {object} common.Response{data=catalog.ServiceResponse}
+// @Success 200 {object} common.Response{data=map[string]interface{}}
 // @Success 304 "Not modified"
 // @Failure 404 {object} common.Response{error=common.ResponseError}
 // @Router /api/v1/catalog/services/{id} [get]
@@ -143,8 +143,8 @@ func (h *ServiceHandler) GetServiceByID(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param id path string true "Service ID"
-// @Param service body catalog.UpdateCatalogItemRequest true "Service updates"
-// @Success 200 {object} common.Response{data=catalog.ServiceResponse}
+// @Param service body object true "Service updates"
+// @Success 200 {object} common.Response{data=map[string]interface{}}
 // @Failure 400 {object} common.Response{error=common.ResponseError}
 // @Failure 401 {object} common.Response{error=common.ResponseError}
 // @Failure 403 {object} common.Response{error=common.ResponseError}
@@ -253,7 +253,7 @@ func (h *ServiceHandler) DeleteService(c *gin.Context) {
 // @Param is_active query bool false "Filter by active status"
 // @Param search query string false "Search term"
 // @Param include_deleted query bool false "Include soft-deleted items (admin only)" default(false)
-// @Success 200 {object} common.Response{data=[]catalog.ServiceResponse,meta=common.ResponseMeta{pagination=common.PaginationMeta}}
+// @Success 200 {object} common.Response{data=[]interface{},meta=common.ResponseMeta{pagination=common.PaginationMeta}}
 // @Router /api/v1/catalog/services [get]
 func (h *ServiceHandler) ListServices(c *gin.Context) {
 	// Extract query options (includes deleted items if user is admin and include_deleted=true)

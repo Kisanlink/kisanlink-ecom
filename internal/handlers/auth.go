@@ -3,7 +3,7 @@ package handlers
 import (
 	"context"
 
-	authRequests "kisanlink-ecom/entities/requests/auth"
+	"kisanlink-ecom/entities/requests/auth"
 	"kisanlink-ecom/internal/common"
 	"kisanlink-ecom/internal/services/user"
 	"kisanlink-ecom/internal/utils"
@@ -35,7 +35,7 @@ func NewAuthHandler(userService *user.UserService) *AuthHandler {
 // @Failure      401      {object}  common.Response{error=common.ResponseError}  "Invalid credentials"
 // @Router       /api/v1/auth/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
-	var req authRequests.LoginRequest
+	var req auth.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		common.BadRequest(c, "VALIDATION_ERROR", err.Error(), nil)
 		return
@@ -74,7 +74,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 // @Failure      500      {object}  common.Response{error=common.ResponseError}  "Internal server error"
 // @Router       /api/v1/auth/register [post]
 func (h *AuthHandler) Register(c *gin.Context) {
-	var req authRequests.RegisterRequest
+	var req auth.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		common.BadRequest(c, "VALIDATION_ERROR", err.Error(), nil)
 		return
