@@ -5,7 +5,9 @@ import (
 	"net/http"
 
 	"kisanlink-ecom/entities/models/common"
+	marketplaceModels "kisanlink-ecom/entities/models/marketplace"
 	"kisanlink-ecom/internal/auth"
+	"kisanlink-ecom/internal/repositories/marketplace"
 
 	"github.com/gin-gonic/gin"
 )
@@ -42,13 +44,21 @@ const (
 
 // MarketplaceAuthMiddleware provides marketplace-specific authorization
 type MarketplaceAuthMiddleware struct {
-	aaaClient auth.Client
+	aaaClient   auth.Client
+	listingRepo marketplace.ListingRepository
+	bidRepo     marketplace.BidRepository
 }
 
 // NewMarketplaceAuthMiddleware creates a new marketplace authorization middleware
-func NewMarketplaceAuthMiddleware(aaaClient auth.Client) *MarketplaceAuthMiddleware {
+func NewMarketplaceAuthMiddleware(
+	aaaClient auth.Client,
+	listingRepo marketplace.ListingRepository,
+	bidRepo marketplace.BidRepository,
+) *MarketplaceAuthMiddleware {
 	return &MarketplaceAuthMiddleware{
-		aaaClient: aaaClient,
+		aaaClient:   aaaClient,
+		listingRepo: listingRepo,
+		bidRepo:     bidRepo,
 	}
 }
 
@@ -208,7 +218,7 @@ func (m *MarketplaceAuthMiddleware) RequireAdminPermission(action string) gin.Ha
 // RequireListingOwnership validates that user owns the listing or has admin privileges
 func (m *MarketplaceAuthMiddleware) RequireListingOwnership() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		_, exists := GetUserContext(c)
+		userContext, exists := GetUserContext(c)
 		if !exists {
 			m.handleUnauthorized(c, "Authentication required")
 			return
@@ -221,11 +231,37 @@ func (m *MarketplaceAuthMiddleware) RequireListingOwnership() gin.HandlerFunc {
 			return
 		}
 
-		// TODO: Implement listing ownership check by querying the listing repository
-		// For now, we'll store the requirement in context for the handler to validate
-		c.Set("require_listing_ownership", true)
-		c.Set("listing_id_for_ownership", listingID)
+		// Check if user has admin role (admins bypass ownership check)
+		hasAdminRole := false
+		for _, role := range userContext.Roles {
+			if role == RoleMarketplaceAdmin || role == "admin" || role == "super_admin" {
+				hasAdminRole = true
+				break
+			}
+		}
 
+		if hasAdminRole {
+			c.Set("is_admin_override", true)
+			c.Next()
+			return
+		}
+
+		// Query the listing to verify ownership
+		listing, err := m.listingRepo.GetByID(c.Request.Context(), listingID)
+		if err != nil {
+			m.handleAuthError(c, "Failed to retrieve listing", err)
+			return
+		}
+
+		// Verify user is the seller
+		if listing.SellerID != userContext.UserID {
+			m.handleForbidden(c, "You do not have permission to modify this listing")
+			return
+		}
+
+		// Store ownership validation in context
+		c.Set("listing_ownership_validated", true)
+		c.Set("validated_listing", listing)
 		c.Next()
 	}
 }
@@ -233,7 +269,7 @@ func (m *MarketplaceAuthMiddleware) RequireListingOwnership() gin.HandlerFunc {
 // RequireBidOwnership validates that user owns the bid or has admin privileges
 func (m *MarketplaceAuthMiddleware) RequireBidOwnership() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		_, exists := GetUserContext(c)
+		userContext, exists := GetUserContext(c)
 		if !exists {
 			m.handleUnauthorized(c, "Authentication required")
 			return
@@ -246,11 +282,37 @@ func (m *MarketplaceAuthMiddleware) RequireBidOwnership() gin.HandlerFunc {
 			return
 		}
 
-		// TODO: Implement bid ownership check by querying the bid repository
-		// For now, we'll store the requirement in context for the handler to validate
-		c.Set("require_bid_ownership", true)
-		c.Set("bid_id_for_ownership", bidID)
+		// Check if user has admin role (admins bypass ownership check)
+		hasAdminRole := false
+		for _, role := range userContext.Roles {
+			if role == RoleMarketplaceAdmin || role == "admin" || role == "super_admin" {
+				hasAdminRole = true
+				break
+			}
+		}
 
+		if hasAdminRole {
+			c.Set("is_admin_override", true)
+			c.Next()
+			return
+		}
+
+		// Query the bid to verify ownership
+		bid, err := m.bidRepo.GetByID(c.Request.Context(), bidID)
+		if err != nil {
+			m.handleAuthError(c, "Failed to retrieve bid", err)
+			return
+		}
+
+		// Verify user is the bidder
+		if bid.BidderID != userContext.UserID {
+			m.handleForbidden(c, "You do not have permission to modify this bid")
+			return
+		}
+
+		// Store ownership validation in context
+		c.Set("bid_ownership_validated", true)
+		c.Set("validated_bid", bid)
 		c.Next()
 	}
 }
@@ -258,7 +320,7 @@ func (m *MarketplaceAuthMiddleware) RequireBidOwnership() gin.HandlerFunc {
 // ValidateListingVisibility validates user can access listing based on visibility settings
 func (m *MarketplaceAuthMiddleware) ValidateListingVisibility() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		_, exists := GetUserContext(c)
+		userContext, exists := GetUserContext(c)
 		if !exists {
 			m.handleUnauthorized(c, "Authentication required")
 			return
@@ -271,17 +333,102 @@ func (m *MarketplaceAuthMiddleware) ValidateListingVisibility() gin.HandlerFunc 
 			return
 		}
 
-		// TODO: Implement listing visibility validation by querying the listing repository
-		// This will check if the user can access the listing based on its visibility settings:
-		// - PUBLIC: All authenticated users
-		// - PRIVATE: Only invited participants
-		// - NETWORK: Partner organizations
-		// - ORGANIZATION: Same organization only
+		// Query the listing to check visibility
+		listing, err := m.listingRepo.GetByID(c.Request.Context(), listingID)
+		if err != nil {
+			m.handleAuthError(c, "Failed to retrieve listing", err)
+			return
+		}
 
-		// For now, we'll store the requirement in context for the handler to validate
-		c.Set("require_visibility_check", true)
-		c.Set("listing_id_for_visibility", listingID)
+		// Check if user has admin role (admins can access all listings)
+		hasAdminRole := false
+		for _, role := range userContext.Roles {
+			if role == RoleMarketplaceAdmin || role == "admin" || role == "super_admin" {
+				hasAdminRole = true
+				break
+			}
+		}
 
+		if hasAdminRole {
+			c.Set("is_admin_override", true)
+			c.Set("validated_listing", listing)
+			c.Next()
+			return
+		}
+
+		// Validate access based on visibility settings
+		switch listing.Visibility {
+		case marketplaceModels.VisibilityPublic:
+			// PUBLIC: All authenticated users can access
+			c.Set("validated_listing", listing)
+			c.Next()
+			return
+
+		case marketplaceModels.VisibilityOrganization:
+			// ORGANIZATION: Only same organization
+			if userContext.OrganizationID != listing.OrganizationID {
+				m.handleForbidden(c, "This listing is only visible to members of the listing organization")
+				return
+			}
+
+		case marketplaceModels.VisibilityNetwork:
+			// NETWORK: Partner organizations (requires AAA check for organization relationships)
+			if userContext.OrganizationID == listing.OrganizationID {
+				// Same org always has access
+				c.Set("validated_listing", listing)
+				c.Next()
+				return
+			}
+
+			// Check if user's organization is a partner with the listing organization
+			req := &auth.AuthorizeRequest{
+				UserID:     userContext.UserID,
+				TenantID:   userContext.TenantID,
+				Resource:   "organization",
+				Action:     "access_network",
+				ResourceID: listing.OrganizationID,
+			}
+			resp, err := m.aaaClient.Authorize(c.Request.Context(), req)
+			if err != nil {
+				m.handleAuthError(c, "Network access validation failed", err)
+				return
+			}
+			if !resp.Allowed {
+				m.handleForbidden(c, "This listing is only visible to network partner organizations")
+				return
+			}
+
+		case marketplaceModels.VisibilityPrivate:
+			// PRIVATE: Only invited participants (seller + invited bidders)
+			// Check if user is the seller
+			if listing.SellerID == userContext.UserID {
+				c.Set("validated_listing", listing)
+				c.Next()
+				return
+			}
+
+			// Check if user has placed a bid (indicating they were invited)
+			bids, _, err := m.bidRepo.GetUserBids(c.Request.Context(), userContext.UserID, &marketplaceModels.BidFilter{
+				ListingID: listingID,
+			}, nil)
+			if err != nil {
+				m.handleAuthError(c, "Failed to check bid history", err)
+				return
+			}
+
+			if len(bids) == 0 {
+				m.handleForbidden(c, "This is a private listing and you have not been invited")
+				return
+			}
+
+		default:
+			m.handleAuthError(c, "Invalid listing visibility setting", fmt.Errorf("unknown visibility: %s", listing.Visibility))
+			return
+		}
+
+		// Store validated listing in context
+		c.Set("visibility_validated", true)
+		c.Set("validated_listing", listing)
 		c.Next()
 	}
 }
@@ -366,24 +513,39 @@ func (m *MarketplaceAuthMiddleware) ValidateOrganizationAccess() gin.HandlerFunc
 // PreventSelfBidding prevents users from bidding on their own listings
 func (m *MarketplaceAuthMiddleware) PreventSelfBidding() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		_, exists := GetUserContext(c)
+		userContext, exists := GetUserContext(c)
 		if !exists {
 			m.handleUnauthorized(c, "Authentication required")
 			return
 		}
 
-		// Get listing ID from URL parameter
+		// Get listing ID from URL parameter or request body
 		listingID := c.Param("id")
+		if listingID == "" {
+			// For POST requests, listing_id might be in the request body
+			listingID = c.Param("listing_id")
+		}
 		if listingID == "" {
 			m.handleBadRequest(c, "Listing ID required")
 			return
 		}
 
-		// TODO: Implement self-bidding prevention by checking if user is the listing owner
-		// For now, we'll store the requirement in context for the handler to validate
-		c.Set("prevent_self_bidding", true)
-		c.Set("listing_id_for_self_bid_check", listingID)
+		// Query the listing to check ownership
+		listing, err := m.listingRepo.GetByID(c.Request.Context(), listingID)
+		if err != nil {
+			m.handleAuthError(c, "Failed to retrieve listing", err)
+			return
+		}
 
+		// Prevent self-bidding: user cannot bid on their own listing
+		if listing.SellerID == userContext.UserID {
+			m.handleForbidden(c, "You cannot place bids on your own listings")
+			return
+		}
+
+		// Store validated listing in context for use by handler
+		c.Set("self_bidding_validated", true)
+		c.Set("validated_listing", listing)
 		c.Next()
 	}
 }

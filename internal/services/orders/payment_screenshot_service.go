@@ -407,10 +407,14 @@ func (s *PaymentScreenshotService) ValidateAmountMatch(
 	}
 
 	if paidAmount.LessThan(order.TotalAmount) {
+		paidFloat, _ := paidAmount.Float64()
+		totalFloat, _ := order.TotalAmount.Float64()
 		return false, fmt.Sprintf("Payment amount (%.2f) is less than order total (%.2f). Partial payment detected.",
-			paidAmount, order.TotalAmount), nil
+			paidFloat, totalFloat), nil
 	}
 
+	paidFloat, _ := paidAmount.Float64()
+	totalFloat, _ := order.TotalAmount.Float64()
 	return false, fmt.Sprintf("Payment amount (%.2f) is greater than order total (%.2f). Overpayment detected.",
-		paidAmount, order.TotalAmount), nil
+		paidFloat, totalFloat), nil
 }
