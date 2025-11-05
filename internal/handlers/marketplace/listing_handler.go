@@ -2,7 +2,6 @@ package marketplace
 
 import (
 	"fmt"
-	"net/http"
 	"strconv"
 	"time"
 
@@ -10,7 +9,6 @@ import (
 	"kisanlink-ecom/internal/common"
 	"kisanlink-ecom/internal/middleware"
 	marketplaceService "kisanlink-ecom/internal/services/marketplace"
-	"kisanlink-ecom/internal/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"
@@ -96,39 +94,47 @@ type ListingListResponse struct {
 func (h *ListingHandler) CreateListing(c *gin.Context) {
 	var req CreateListingRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ValidationErrorResponse(c, err.Error())
+		common.BadRequest(c, "VALIDATION_ERROR", "Invalid input data", map[string]interface{}{
+			"details": err.Error(),
+		})
 		return
 	}
 
 	// Extract user information from context
 	userID, exists := c.Get("user_id")
 	if !exists {
-		utils.ErrorResponse(c, http.StatusUnauthorized, "UNAUTHORIZED", "User not authenticated", "")
+		common.Unauthorized(c, "UNAUTHORIZED", "User not authenticated", nil)
 		return
 	}
 
 	orgID := middleware.GetOrganizationID(c)
 	if orgID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_ORG", "Organization ID not found in context", "")
+		common.BadRequest(c, "MISSING_ORG", "Organization ID not found in context", nil)
 		return
 	}
 
 	// Parse decimal values
 	quantity, err := decimal.NewFromString(req.Quantity)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_QUANTITY", "Invalid quantity format", "must be a valid decimal number")
+		common.BadRequest(c, "INVALID_QUANTITY", "Invalid quantity format", map[string]interface{}{
+			"details": "must be a valid decimal number",
+		})
 		return
 	}
 
 	askingPrice, err := decimal.NewFromString(req.AskingPrice)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_ASKING_PRICE", "Invalid asking price format", "must be a valid decimal number")
+		common.BadRequest(c, "INVALID_ASKING_PRICE", "Invalid asking price format", map[string]interface{}{
+			"details": "must be a valid decimal number",
+		})
 		return
 	}
 
 	minimumBid, err := decimal.NewFromString(req.MinimumBid)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_MINIMUM_BID", "Invalid minimum bid format", "must be a valid decimal number")
+		common.BadRequest(c, "INVALID_MINIMUM_BID", "Invalid minimum bid format", map[string]interface{}{
+			"details": "must be a valid decimal number",
+		})
 		return
 	}
 
@@ -152,26 +158,28 @@ func (h *ListingHandler) CreateListing(c *gin.Context) {
 	// Create listing
 	listing, err := h.marketplaceServices.GetListingService().CreateListing(c.Request.Context(), serviceReq)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusInternalServerError, "LISTING_CREATION_FAILED", "Failed to create listing", err.Error())
+		common.InternalServerError(c, "LISTING_CREATION_FAILED", "Failed to create listing", map[string]interface{}{
+			"details": err.Error(),
+		})
 		return
 	}
 
 	// Convert to response format
 	response := h.convertToListingResponse(listing)
-	utils.SuccessResponse(c, http.StatusCreated, "Listing created successfully", response)
+	common.Created(c, response, nil)
 }
 
 // GetListing retrieves a specific listing by ID
 func (h *ListingHandler) GetListing(c *gin.Context) {
 	listingID := c.Param("id")
 	if listingID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_LISTING_ID", "Listing ID is required", "")
+		common.BadRequest(c, "MISSING_LISTING_ID", "Listing ID is required", nil)
 		return
 	}
 
 	orgID := middleware.GetOrganizationID(c)
 	if orgID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_ORG", "Organization ID not found in context", "")
+		common.BadRequest(c, "MISSING_ORG", "Organization ID not found in context", nil)
 		return
 	}
 
@@ -179,20 +187,22 @@ func (h *ListingHandler) GetListing(c *gin.Context) {
 	listing, err := h.marketplaceServices.GetListingService().GetListing(c.Request.Context(), listingID, orgID)
 	if err != nil {
 		if err.Error() == "listing not found: "+listingID {
-			utils.ErrorResponse(c, http.StatusNotFound, "LISTING_NOT_FOUND", "Listing not found", "")
+			common.NotFound(c, "LISTING_NOT_FOUND", "Listing not found", nil)
 			return
 		}
 		if err.Error() == "access denied: listing not visible to organization "+orgID {
-			utils.ErrorResponse(c, http.StatusForbidden, "ACCESS_DENIED", "Access denied", "")
+			common.Forbidden(c, "ACCESS_DENIED", "Access denied", nil)
 			return
 		}
-		utils.ErrorResponse(c, http.StatusInternalServerError, "LISTING_RETRIEVAL_FAILED", "Failed to retrieve listing", err.Error())
+		common.InternalServerError(c, "LISTING_RETRIEVAL_FAILED", "Failed to retrieve listing", map[string]interface{}{
+			"details": err.Error(),
+		})
 		return
 	}
 
 	// Convert to response format
 	response := h.convertToListingResponse(listing)
-	utils.SuccessResponse(c, http.StatusOK, "Listing retrieved successfully", response)
+	common.Success(c, response, nil)
 }
 
 // GetActiveListings retrieves active marketplace listings
@@ -202,73 +212,76 @@ func (h *ListingHandler) GetActiveListings(c *gin.Context) {
 
 	orgID := middleware.GetOrganizationID(c)
 	if orgID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_ORG", "Organization ID not found in context", "")
+		common.BadRequest(c, "MISSING_ORG", "Organization ID not found in context", nil)
 		return
 	}
 
 	// Parse pagination parameters
 	pagination, err := h.parsePaginationParams(c)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_PAGINATION", "Invalid pagination parameters", err.Error())
+		common.BadRequest(c, "INVALID_PAGINATION", "Invalid pagination parameters", map[string]interface{}{
+			"details": err.Error(),
+		})
 		return
 	}
 
 	// Parse filter parameters
 	filter, err := h.parseListingFilters(c)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_FILTERS", "Invalid filter parameters", err.Error())
+		common.BadRequest(c, "INVALID_FILTERS", "Invalid filter parameters", map[string]interface{}{
+			"details": err.Error(),
+		})
 		return
 	}
 
 	// Get active listings
 	listings, total, err := h.marketplaceServices.GetListingService().GetActiveListings(c.Request.Context(), orgID, filter, pagination)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusInternalServerError, "LISTINGS_RETRIEVAL_FAILED", "Failed to retrieve listings", err.Error())
+		common.InternalServerError(c, "LISTINGS_RETRIEVAL_FAILED", "Failed to retrieve listings", map[string]interface{}{
+			"details": err.Error(),
+		})
 		return
 	}
 
 	// Convert to response format
-	response := ListingListResponse{
-		Listings: make([]ListingResponse, len(listings)),
-		Pagination: common.PaginationMeta{
-			Page:       pagination.Page,
-			Limit:      pagination.Limit,
-			Total:      total,
-			TotalPages: (total + pagination.Limit - 1) / pagination.Limit,
-		},
-	}
-
+	listingResponses := make([]ListingResponse, len(listings))
 	for i, listing := range listings {
-		response.Listings[i] = h.convertToListingResponse(listing)
+		listingResponses[i] = h.convertToListingResponse(listing)
 	}
 
-	utils.SuccessResponse(c, http.StatusOK, "Listings retrieved successfully", response)
+	common.Success(c, gin.H{
+		"listings": listingResponses,
+	}, &common.ResponseMeta{
+		Pagination: common.NewPaginationMeta(pagination.Page, pagination.Limit, total),
+	})
 }
 
 // UpdateListing updates an existing listing
 func (h *ListingHandler) UpdateListing(c *gin.Context) {
 	listingID := c.Param("id")
 	if listingID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_LISTING_ID", "Listing ID is required", "")
+		common.BadRequest(c, "MISSING_LISTING_ID", "Listing ID is required", nil)
 		return
 	}
 
 	var req UpdateListingRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ValidationErrorResponse(c, err.Error())
+		common.BadRequest(c, "VALIDATION_ERROR", "Invalid input data", map[string]interface{}{
+			"details": err.Error(),
+		})
 		return
 	}
 
 	// Extract user information from context
 	userID, exists := c.Get("user_id")
 	if !exists {
-		utils.ErrorResponse(c, http.StatusUnauthorized, "UNAUTHORIZED", "User not authenticated", "")
+		common.Unauthorized(c, "UNAUTHORIZED", "User not authenticated", nil)
 		return
 	}
 
 	orgID := middleware.GetOrganizationID(c)
 	if orgID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_ORG", "Organization ID not found in context", "")
+		common.BadRequest(c, "MISSING_ORG", "Organization ID not found in context", nil)
 		return
 	}
 
@@ -284,7 +297,9 @@ func (h *ListingHandler) UpdateListing(c *gin.Context) {
 	if req.AskingPrice != nil {
 		askingPrice, err := decimal.NewFromString(*req.AskingPrice)
 		if err != nil {
-			utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_ASKING_PRICE", "Invalid asking price format", "must be a valid decimal number")
+			common.BadRequest(c, "INVALID_ASKING_PRICE", "Invalid asking price format", map[string]interface{}{
+				"details": "must be a valid decimal number",
+			})
 			return
 		}
 		serviceReq.AskingPrice = &askingPrice
@@ -293,7 +308,9 @@ func (h *ListingHandler) UpdateListing(c *gin.Context) {
 	if req.MinimumBid != nil {
 		minimumBid, err := decimal.NewFromString(*req.MinimumBid)
 		if err != nil {
-			utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_MINIMUM_BID", "Invalid minimum bid format", "must be a valid decimal number")
+			common.BadRequest(c, "INVALID_MINIMUM_BID", "Invalid minimum bid format", map[string]interface{}{
+				"details": "must be a valid decimal number",
+			})
 			return
 		}
 		serviceReq.MinimumBid = &minimumBid
@@ -303,46 +320,50 @@ func (h *ListingHandler) UpdateListing(c *gin.Context) {
 	listing, err := h.marketplaceServices.GetListingService().UpdateListing(c.Request.Context(), listingID, serviceReq, userID.(string), orgID)
 	if err != nil {
 		if err.Error() == "listing not found: "+listingID {
-			utils.ErrorResponse(c, http.StatusNotFound, "LISTING_NOT_FOUND", "Listing not found", "")
+			common.NotFound(c, "LISTING_NOT_FOUND", "Listing not found", nil)
 			return
 		}
 		if err.Error() == "access denied: user "+userID.(string)+" cannot update listing "+listingID {
-			utils.ErrorResponse(c, http.StatusForbidden, "ACCESS_DENIED", "Access denied", "")
+			common.Forbidden(c, "ACCESS_DENIED", "Access denied", nil)
 			return
 		}
-		utils.ErrorResponse(c, http.StatusInternalServerError, "LISTING_UPDATE_FAILED", "Failed to update listing", err.Error())
+		common.InternalServerError(c, "LISTING_UPDATE_FAILED", "Failed to update listing", map[string]interface{}{
+			"details": err.Error(),
+		})
 		return
 	}
 
 	// Convert to response format
 	response := h.convertToListingResponse(listing)
-	utils.SuccessResponse(c, http.StatusOK, "Listing updated successfully", response)
+	common.Success(c, response, nil)
 }
 
 // CloseListing closes an existing listing
 func (h *ListingHandler) CloseListing(c *gin.Context) {
 	listingID := c.Param("id")
 	if listingID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_LISTING_ID", "Listing ID is required", "")
+		common.BadRequest(c, "MISSING_LISTING_ID", "Listing ID is required", nil)
 		return
 	}
 
 	var req CloseListingRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ValidationErrorResponse(c, err.Error())
+		common.BadRequest(c, "VALIDATION_ERROR", "Invalid input data", map[string]interface{}{
+			"details": err.Error(),
+		})
 		return
 	}
 
 	// Extract user information from context
 	userID, exists := c.Get("user_id")
 	if !exists {
-		utils.ErrorResponse(c, http.StatusUnauthorized, "UNAUTHORIZED", "User not authenticated", "")
+		common.Unauthorized(c, "UNAUTHORIZED", "User not authenticated", nil)
 		return
 	}
 
 	orgID := middleware.GetOrganizationID(c)
 	if orgID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_ORG", "Organization ID not found in context", "")
+		common.BadRequest(c, "MISSING_ORG", "Organization ID not found in context", nil)
 		return
 	}
 
@@ -350,20 +371,22 @@ func (h *ListingHandler) CloseListing(c *gin.Context) {
 	listing, err := h.marketplaceServices.GetListingService().CloseListing(c.Request.Context(), listingID, req.Reason, userID.(string), orgID)
 	if err != nil {
 		if err.Error() == "listing not found: "+listingID {
-			utils.ErrorResponse(c, http.StatusNotFound, "LISTING_NOT_FOUND", "Listing not found", "")
+			common.NotFound(c, "LISTING_NOT_FOUND", "Listing not found", nil)
 			return
 		}
 		if err.Error() == "access denied: user "+userID.(string)+" cannot close listing "+listingID {
-			utils.ErrorResponse(c, http.StatusForbidden, "ACCESS_DENIED", "Access denied", "")
+			common.Forbidden(c, "ACCESS_DENIED", "Access denied", nil)
 			return
 		}
-		utils.ErrorResponse(c, http.StatusInternalServerError, "LISTING_CLOSE_FAILED", "Failed to close listing", err.Error())
+		common.InternalServerError(c, "LISTING_CLOSE_FAILED", "Failed to close listing", map[string]interface{}{
+			"details": err.Error(),
+		})
 		return
 	}
 
 	// Convert to response format
 	response := h.convertToListingResponse(listing)
-	utils.SuccessResponse(c, http.StatusOK, "Listing closed successfully", response)
+	common.Success(c, response, nil)
 }
 
 // GetMyListings retrieves listings for the authenticated user
@@ -374,47 +397,48 @@ func (h *ListingHandler) GetMyListings(c *gin.Context) {
 	// Extract user information from context
 	userID, exists := c.Get("user_id")
 	if !exists {
-		utils.ErrorResponse(c, http.StatusUnauthorized, "UNAUTHORIZED", "User not authenticated", "")
+		common.Unauthorized(c, "UNAUTHORIZED", "User not authenticated", nil)
 		return
 	}
 
 	// Parse pagination parameters
 	pagination, err := h.parsePaginationParams(c)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_PAGINATION", "Invalid pagination parameters", err.Error())
+		common.BadRequest(c, "INVALID_PAGINATION", "Invalid pagination parameters", map[string]interface{}{
+			"details": err.Error(),
+		})
 		return
 	}
 
 	// Parse filter parameters
 	filter, err := h.parseListingFilters(c)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_FILTERS", "Invalid filter parameters", err.Error())
+		common.BadRequest(c, "INVALID_FILTERS", "Invalid filter parameters", map[string]interface{}{
+			"details": err.Error(),
+		})
 		return
 	}
 
 	// Get seller listings
 	listings, total, err := h.marketplaceServices.GetListingService().GetSellerListings(c.Request.Context(), userID.(string), filter, pagination)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusInternalServerError, "LISTINGS_RETRIEVAL_FAILED", "Failed to retrieve listings", err.Error())
+		common.InternalServerError(c, "LISTINGS_RETRIEVAL_FAILED", "Failed to retrieve listings", map[string]interface{}{
+			"details": err.Error(),
+		})
 		return
 	}
 
 	// Convert to response format
-	response := ListingListResponse{
-		Listings: make([]ListingResponse, len(listings)),
-		Pagination: common.PaginationMeta{
-			Page:       pagination.Page,
-			Limit:      pagination.Limit,
-			Total:      total,
-			TotalPages: (total + pagination.Limit - 1) / pagination.Limit,
-		},
-	}
-
+	listingResponses := make([]ListingResponse, len(listings))
 	for i, listing := range listings {
-		response.Listings[i] = h.convertToListingResponse(listing)
+		listingResponses[i] = h.convertToListingResponse(listing)
 	}
 
-	utils.SuccessResponse(c, http.StatusOK, "Listings retrieved successfully", response)
+	common.Success(c, gin.H{
+		"listings": listingResponses,
+	}, &common.ResponseMeta{
+		Pagination: common.NewPaginationMeta(pagination.Page, pagination.Limit, total),
+	})
 }
 
 // Helper methods
