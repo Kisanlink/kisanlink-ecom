@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"context"
-	"net/http"
 
 	authRequests "kisanlink-ecom/entities/requests/auth"
+	"kisanlink-ecom/internal/common"
 	"kisanlink-ecom/internal/services/user"
 	"kisanlink-ecom/internal/utils"
 
@@ -37,26 +37,28 @@ func NewAuthHandler(userService *user.UserService) *AuthHandler {
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req authRequests.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ValidationErrorResponse(c, err.Error())
+		common.BadRequest(c, "VALIDATION_ERROR", err.Error(), nil)
 		return
 	}
 
 	if err := utils.ValidateStruct(&req); err != nil {
-		utils.ValidationErrorResponse(c, err.Error())
+		common.BadRequest(c, "VALIDATION_ERROR", err.Error(), nil)
 		return
 	}
 
 	ctx := context.Background()
 	user, token, err := h.userService.LoginUser(ctx, req.Username, req.Password)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusUnauthorized, "AUTH_ERROR", "Invalid credentials", err.Error())
+		common.Unauthorized(c, "AUTH_ERROR", "Invalid credentials", map[string]interface{}{
+			"error": err.Error(),
+		})
 		return
 	}
 
-	utils.SuccessResponse(c, http.StatusOK, "Login successful", gin.H{
+	common.Success(c, gin.H{
 		"user":  user,
 		"token": token,
-	})
+	}, nil)
 }
 
 // Register handles user registration.
@@ -74,25 +76,27 @@ func (h *AuthHandler) Login(c *gin.Context) {
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req authRequests.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ValidationErrorResponse(c, err.Error())
+		common.BadRequest(c, "VALIDATION_ERROR", err.Error(), nil)
 		return
 	}
 
 	if err := utils.ValidateStruct(&req); err != nil {
-		utils.ValidationErrorResponse(c, err.Error())
+		common.BadRequest(c, "VALIDATION_ERROR", err.Error(), nil)
 		return
 	}
 
 	ctx := context.Background()
 	user, err := h.userService.CreateUser(ctx, req)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to register user", err.Error())
+		common.InternalServerError(c, "INTERNAL_ERROR", "Failed to register user", map[string]interface{}{
+			"error": err.Error(),
+		})
 		return
 	}
 
-	utils.SuccessResponse(c, http.StatusCreated, "Registration successful", gin.H{
+	common.Created(c, gin.H{
 		"user": user,
-	})
+	}, nil)
 }
 
 // Logout handles user logout.
@@ -107,7 +111,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 // @Router       /api/v1/auth/logout [post]
 func (h *AuthHandler) Logout(c *gin.Context) {
 	// TODO: Implement token invalidation logic
-	utils.SuccessResponse(c, http.StatusOK, "Logout successful", nil)
+	common.Success(c, nil, nil)
 }
 
 // Legacy handler functions for backward compatibility
@@ -121,7 +125,7 @@ func SetDefaultAuthHandler(handler *AuthHandler) {
 // Login is the legacy function that delegates to the handler
 func Login(c *gin.Context) {
 	if defaultAuthHandler == nil {
-		utils.ErrorResponse(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Auth handler not initialized", "")
+		common.InternalServerError(c, "INTERNAL_ERROR", "Auth handler not initialized", nil)
 		return
 	}
 	defaultAuthHandler.Login(c)
@@ -130,7 +134,7 @@ func Login(c *gin.Context) {
 // Register is the legacy function that delegates to the handler
 func Register(c *gin.Context) {
 	if defaultAuthHandler == nil {
-		utils.ErrorResponse(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Auth handler not initialized", "")
+		common.InternalServerError(c, "INTERNAL_ERROR", "Auth handler not initialized", nil)
 		return
 	}
 	defaultAuthHandler.Register(c)
@@ -139,7 +143,7 @@ func Register(c *gin.Context) {
 // Logout is the legacy function that delegates to the handler
 func Logout(c *gin.Context) {
 	if defaultAuthHandler == nil {
-		utils.ErrorResponse(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Auth handler not initialized", "")
+		common.InternalServerError(c, "INTERNAL_ERROR", "Auth handler not initialized", nil)
 		return
 	}
 	defaultAuthHandler.Logout(c)
