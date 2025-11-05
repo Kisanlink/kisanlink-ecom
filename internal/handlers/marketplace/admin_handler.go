@@ -2,7 +2,6 @@ package marketplace
 
 import (
 	"fmt"
-	"net/http"
 	"strconv"
 	"time"
 
@@ -74,21 +73,25 @@ type MarketplaceStatsResponse struct {
 func (h *AdminHandler) GetAllListings(c *gin.Context) {
 	// Verify admin role
 	if !h.isAdmin(c) {
-		utils.ForbiddenResponse(c)
+		common.Forbidden(c, "FORBIDDEN", "Access denied", nil)
 		return
 	}
 
 	// Parse pagination parameters
 	pagination, err := h.parsePaginationParams(c)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_PAGINATION", "Invalid pagination parameters", err.Error())
+		common.BadRequest(c, "INVALID_PAGINATION", "Invalid pagination parameters", map[string]interface{}{
+			"details": err.Error(),
+		})
 		return
 	}
 
 	// Parse filter parameters
 	filter, err := h.parseListingFilters(c)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_FILTER", "Invalid filter parameters", err.Error())
+		common.BadRequest(c, "INVALID_FILTER", "Invalid filter parameters", map[string]interface{}{
+			"details": err.Error(),
+		})
 		return
 	}
 
@@ -100,21 +103,16 @@ func (h *AdminHandler) GetAllListings(c *gin.Context) {
 	}
 
 	// Convert to response format
-	response := ListingListResponse{
-		Listings: make([]ListingResponse, len(listings)),
-		Pagination: common.PaginationMeta{
-			Page:       pagination.Page,
-			Limit:      pagination.Limit,
-			Total:      total,
-			TotalPages: (total + pagination.Limit - 1) / pagination.Limit,
-		},
-	}
-
+	listingResponses := make([]ListingResponse, len(listings))
 	for i, listing := range listings {
-		response.Listings[i] = h.convertToListingResponse(listing)
+		listingResponses[i] = h.convertToListingResponse(listing)
 	}
 
-	utils.SuccessResponse(c, http.StatusOK, "Listings retrieved successfully", response)
+	common.Success(c, gin.H{
+		"listings": listingResponses,
+	}, &common.ResponseMeta{
+		Pagination: common.NewPaginationMeta(pagination.Page, pagination.Limit, total),
+	})
 }
 
 // ForceCloseListing force closes a listing (admin operation)
@@ -136,26 +134,28 @@ func (h *AdminHandler) GetAllListings(c *gin.Context) {
 func (h *AdminHandler) ForceCloseListing(c *gin.Context) {
 	// Verify admin role
 	if !h.isAdmin(c) {
-		utils.ForbiddenResponse(c)
+		common.Forbidden(c, "FORBIDDEN", "Access denied", nil)
 		return
 	}
 
 	listingID := c.Param("id")
 	if listingID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_REQUEST", "Listing ID is required", "")
+		common.BadRequest(c, "INVALID_REQUEST", "Listing ID is required", nil)
 		return
 	}
 
 	var req ForceCloseListingRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ValidationErrorResponse(c, err.Error())
+		common.BadRequest(c, "VALIDATION_ERROR", "Invalid input data", map[string]interface{}{
+			"details": err.Error(),
+		})
 		return
 	}
 
 	// Extract admin user ID from context
 	adminID, exists := c.Get("user_id")
 	if !exists {
-		utils.UnauthorizedResponse(c)
+		common.Unauthorized(c, "UNAUTHORIZED", "Authentication required", nil)
 		return
 	}
 
@@ -168,7 +168,7 @@ func (h *AdminHandler) ForceCloseListing(c *gin.Context) {
 
 	// Convert to response format
 	response := h.convertToListingResponse(listing)
-	utils.SuccessResponse(c, http.StatusOK, "Listing force closed successfully", response)
+	common.Success(c, response, nil)
 }
 
 // RemoveBid removes a fraudulent bid (admin operation)
@@ -190,26 +190,28 @@ func (h *AdminHandler) ForceCloseListing(c *gin.Context) {
 func (h *AdminHandler) RemoveBid(c *gin.Context) {
 	// Verify admin role
 	if !h.isAdmin(c) {
-		utils.ForbiddenResponse(c)
+		common.Forbidden(c, "FORBIDDEN", "Access denied", nil)
 		return
 	}
 
 	bidID := c.Param("id")
 	if bidID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_REQUEST", "Bid ID is required", "")
+		common.BadRequest(c, "INVALID_REQUEST", "Bid ID is required", nil)
 		return
 	}
 
 	var req RemoveBidRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ValidationErrorResponse(c, err.Error())
+		common.BadRequest(c, "VALIDATION_ERROR", "Invalid input data", map[string]interface{}{
+			"details": err.Error(),
+		})
 		return
 	}
 
 	// Extract admin user ID from context
 	adminID, exists := c.Get("user_id")
 	if !exists {
-		utils.UnauthorizedResponse(c)
+		common.Unauthorized(c, "UNAUTHORIZED", "Authentication required", nil)
 		return
 	}
 
@@ -220,7 +222,7 @@ func (h *AdminHandler) RemoveBid(c *gin.Context) {
 		return
 	}
 
-	utils.SuccessResponse(c, http.StatusOK, "Bid removed successfully", nil)
+	common.Success(c, nil, nil)
 }
 
 // GetMarketplaceStats retrieves marketplace statistics (admin operation)
@@ -239,7 +241,7 @@ func (h *AdminHandler) RemoveBid(c *gin.Context) {
 func (h *AdminHandler) GetMarketplaceStats(c *gin.Context) {
 	// Verify admin role
 	if !h.isAdmin(c) {
-		utils.ForbiddenResponse(c)
+		common.Forbidden(c, "FORBIDDEN", "Access denied", nil)
 		return
 	}
 
@@ -267,7 +269,7 @@ func (h *AdminHandler) GetMarketplaceStats(c *gin.Context) {
 		AverageListingValue:   stats.AverageListingValue.String(),
 	}
 
-	utils.SuccessResponse(c, http.StatusOK, "Statistics retrieved successfully", response)
+	common.Success(c, response, nil)
 }
 
 // GetAuditLog retrieves marketplace audit log (admin operation)
@@ -293,21 +295,25 @@ func (h *AdminHandler) GetMarketplaceStats(c *gin.Context) {
 func (h *AdminHandler) GetAuditLog(c *gin.Context) {
 	// Verify admin role
 	if !h.isAdmin(c) {
-		utils.ForbiddenResponse(c)
+		common.Forbidden(c, "FORBIDDEN", "Access denied", nil)
 		return
 	}
 
 	// Parse pagination parameters
 	pagination, err := h.parsePaginationParams(c)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_PAGINATION", "Invalid pagination parameters", err.Error())
+		common.BadRequest(c, "INVALID_PAGINATION", "Invalid pagination parameters", map[string]interface{}{
+			"details": err.Error(),
+		})
 		return
 	}
 
 	// Parse filter parameters
 	filter, err := h.parseEventFilters(c)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_FILTER", "Invalid filter parameters", err.Error())
+		common.BadRequest(c, "INVALID_FILTER", "Invalid filter parameters", map[string]interface{}{
+			"details": err.Error(),
+		})
 		return
 	}
 
@@ -319,21 +325,16 @@ func (h *AdminHandler) GetAuditLog(c *gin.Context) {
 	}
 
 	// Convert to response format
-	response := AuditLogResponse{
-		Events: make([]AuditEventResponse, len(events)),
-		Pagination: common.PaginationMeta{
-			Page:       pagination.Page,
-			Limit:      pagination.Limit,
-			Total:      total,
-			TotalPages: (total + pagination.Limit - 1) / pagination.Limit,
-		},
-	}
-
+	eventResponses := make([]AuditEventResponse, len(events))
 	for i, event := range events {
-		response.Events[i] = h.convertToAuditEventResponse(event)
+		eventResponses[i] = h.convertToAuditEventResponse(event)
 	}
 
-	utils.SuccessResponse(c, http.StatusOK, "Audit log retrieved successfully", response)
+	common.Success(c, gin.H{
+		"events": eventResponses,
+	}, &common.ResponseMeta{
+		Pagination: common.NewPaginationMeta(pagination.Page, pagination.Limit, total),
+	})
 }
 
 // Helper methods
