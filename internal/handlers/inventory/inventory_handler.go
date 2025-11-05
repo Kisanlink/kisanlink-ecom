@@ -1,7 +1,6 @@
 package inventory
 
 import (
-	"net/http"
 	"strconv"
 	"time"
 
@@ -9,7 +8,6 @@ import (
 	"kisanlink-ecom/internal/common"
 	"kisanlink-ecom/internal/middleware"
 	inventoryService "kisanlink-ecom/internal/services/inventory"
-	"kisanlink-ecom/internal/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"
@@ -83,20 +81,20 @@ type InventoryAvailabilityResponse struct {
 func (h *InventoryHandler) CreateInventoryLot(c *gin.Context) {
 	var req CreateInventoryLotRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ValidationErrorResponse(c, err.Error())
+		common.BadRequest(c, "VALIDATION_ERROR", err.Error(), nil)
 		return
 	}
 
 	// Get user context
 	userID, exists := common.GetSubjectID(c)
 	if !exists {
-		utils.ErrorResponse(c, http.StatusUnauthorized, "UNAUTHORIZED", "User not authenticated", "")
+		common.Unauthorized(c, "UNAUTHORIZED", "User not authenticated", nil)
 		return
 	}
 
 	orgID, exists := common.GetOrganizationID(c)
 	if !exists {
-		utils.ErrorResponse(c, http.StatusForbidden, "FORBIDDEN", "Organization context required", "")
+		common.Forbidden(c, "FORBIDDEN", "Organization context required", nil)
 		return
 	}
 
@@ -117,7 +115,7 @@ func (h *InventoryHandler) CreateInventoryLot(c *gin.Context) {
 		if harvestDate, err := time.Parse("2006-01-02", req.HarvestDate); err == nil {
 			serviceReq.HarvestDate = &harvestDate
 		} else {
-			utils.ErrorResponse(c, http.StatusBadRequest, "VALIDATION_ERROR", "Invalid harvest date format. Use YYYY-MM-DD", "")
+			common.BadRequest(c, "VALIDATION_ERROR", "Invalid harvest date format. Use YYYY-MM-DD", nil)
 			return
 		}
 	}
@@ -126,7 +124,7 @@ func (h *InventoryHandler) CreateInventoryLot(c *gin.Context) {
 		if expiryDate, err := time.Parse("2006-01-02", req.ExpiryDate); err == nil {
 			serviceReq.ExpiryDate = &expiryDate
 		} else {
-			utils.ErrorResponse(c, http.StatusBadRequest, "VALIDATION_ERROR", "Invalid expiry date format. Use YYYY-MM-DD", "")
+			common.BadRequest(c, "VALIDATION_ERROR", "Invalid expiry date format. Use YYYY-MM-DD", nil)
 			return
 		}
 	}
@@ -145,11 +143,11 @@ func (h *InventoryHandler) CreateInventoryLot(c *gin.Context) {
 		orgID,
 	)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "SERVICE_ERROR", err.Error(), "")
+		common.BadRequest(c, "SERVICE_ERROR", err.Error(), nil)
 		return
 	}
 
-	utils.SuccessResponse(c, http.StatusCreated, "Inventory lot created successfully", lot)
+	common.Created(c, lot, nil)
 }
 
 // UpdateInventoryLot updates an inventory lot
@@ -170,26 +168,26 @@ func (h *InventoryHandler) CreateInventoryLot(c *gin.Context) {
 func (h *InventoryHandler) UpdateInventoryLot(c *gin.Context) {
 	lotID := c.Param("id")
 	if lotID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "VALIDATION_ERROR", "Lot ID is required", "")
+		common.BadRequest(c, "VALIDATION_ERROR", "Lot ID is required", nil)
 		return
 	}
 
 	var req UpdateInventoryLotRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ValidationErrorResponse(c, err.Error())
+		common.BadRequest(c, "VALIDATION_ERROR", err.Error(), nil)
 		return
 	}
 
 	// Get user context
 	userID, exists := common.GetSubjectID(c)
 	if !exists {
-		utils.ErrorResponse(c, http.StatusUnauthorized, "UNAUTHORIZED", "User not authenticated", "")
+		common.Unauthorized(c, "UNAUTHORIZED", "User not authenticated", nil)
 		return
 	}
 
 	orgID, exists := common.GetOrganizationID(c)
 	if !exists {
-		utils.ErrorResponse(c, http.StatusForbidden, "FORBIDDEN", "Organization context required", "")
+		common.Forbidden(c, "FORBIDDEN", "Organization context required", nil)
 		return
 	}
 
@@ -206,7 +204,7 @@ func (h *InventoryHandler) UpdateInventoryLot(c *gin.Context) {
 		if harvestDate, err := time.Parse("2006-01-02", *req.HarvestDate); err == nil {
 			serviceReq.HarvestDate = &harvestDate
 		} else {
-			utils.ErrorResponse(c, http.StatusBadRequest, "VALIDATION_ERROR", "Invalid harvest date format. Use YYYY-MM-DD", "")
+			common.BadRequest(c, "VALIDATION_ERROR", "Invalid harvest date format. Use YYYY-MM-DD", nil)
 			return
 		}
 	}
@@ -215,7 +213,7 @@ func (h *InventoryHandler) UpdateInventoryLot(c *gin.Context) {
 		if expiryDate, err := time.Parse("2006-01-02", *req.ExpiryDate); err == nil {
 			serviceReq.ExpiryDate = &expiryDate
 		} else {
-			utils.ErrorResponse(c, http.StatusBadRequest, "VALIDATION_ERROR", "Invalid expiry date format. Use YYYY-MM-DD", "")
+			common.BadRequest(c, "VALIDATION_ERROR", "Invalid expiry date format. Use YYYY-MM-DD", nil)
 			return
 		}
 	}
@@ -235,11 +233,11 @@ func (h *InventoryHandler) UpdateInventoryLot(c *gin.Context) {
 		orgID,
 	)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "SERVICE_ERROR", err.Error(), "")
+		common.BadRequest(c, "SERVICE_ERROR", err.Error(), nil)
 		return
 	}
 
-	utils.SuccessResponse(c, http.StatusOK, "Inventory lot updated successfully", lot)
+	common.Success(c, lot, nil)
 }
 
 // ListInventoryLots lists inventory lots with filtering and pagination
@@ -268,13 +266,13 @@ func (h *InventoryHandler) ListInventoryLots(c *gin.Context) {
 	// Get user context
 	userID, exists := common.GetSubjectID(c)
 	if !exists {
-		utils.ErrorResponse(c, http.StatusUnauthorized, "UNAUTHORIZED", "User not authenticated", "")
+		common.Unauthorized(c, "UNAUTHORIZED", "User not authenticated", nil)
 		return
 	}
 
 	orgID, exists := common.GetOrganizationID(c)
 	if !exists {
-		utils.ErrorResponse(c, http.StatusForbidden, "FORBIDDEN", "Organization context required", "")
+		common.Forbidden(c, "FORBIDDEN", "Organization context required", nil)
 		return
 	}
 
@@ -294,7 +292,7 @@ func (h *InventoryHandler) ListInventoryLots(c *gin.Context) {
 		if expiringDate, err := time.Parse("2006-01-02", expiringStr); err == nil {
 			filter.ExpiringBefore = &expiringDate
 		} else {
-			utils.ErrorResponse(c, http.StatusBadRequest, "VALIDATION_ERROR", "Invalid expiring_before date format. Use YYYY-MM-DD", "")
+			common.BadRequest(c, "VALIDATION_ERROR", "Invalid expiring_before date format. Use YYYY-MM-DD", nil)
 			return
 		}
 	}
@@ -320,11 +318,11 @@ func (h *InventoryHandler) ListInventoryLots(c *gin.Context) {
 		orgID,
 	)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusInternalServerError, "INTERNAL_ERROR", err.Error(), "")
+		common.InternalServerError(c, "INTERNAL_ERROR", err.Error(), nil)
 		return
 	}
 
-	utils.SuccessResponse(c, http.StatusOK, "Inventory lots retrieved successfully", response)
+	common.Success(c, response, nil)
 }
 
 // GetInventoryLot retrieves a specific inventory lot
@@ -344,20 +342,20 @@ func (h *InventoryHandler) ListInventoryLots(c *gin.Context) {
 func (h *InventoryHandler) GetInventoryLot(c *gin.Context) {
 	lotID := c.Param("id")
 	if lotID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "VALIDATION_ERROR", "Lot ID is required", "")
+		common.BadRequest(c, "VALIDATION_ERROR", "Lot ID is required", nil)
 		return
 	}
 
 	// Get user context
 	userID, exists := common.GetSubjectID(c)
 	if !exists {
-		utils.ErrorResponse(c, http.StatusUnauthorized, "UNAUTHORIZED", "User not authenticated", "")
+		common.Unauthorized(c, "UNAUTHORIZED", "User not authenticated", nil)
 		return
 	}
 
 	orgID, exists := common.GetOrganizationID(c)
 	if !exists {
-		utils.ErrorResponse(c, http.StatusForbidden, "FORBIDDEN", "Organization context required", "")
+		common.Forbidden(c, "FORBIDDEN", "Organization context required", nil)
 		return
 	}
 
@@ -369,11 +367,11 @@ func (h *InventoryHandler) GetInventoryLot(c *gin.Context) {
 		orgID,
 	)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusNotFound, "NOT_FOUND", err.Error(), "")
+		common.NotFound(c, "NOT_FOUND", err.Error(), nil)
 		return
 	}
 
-	utils.SuccessResponse(c, http.StatusOK, "Inventory lot retrieved successfully", lot)
+	common.Success(c, lot, nil)
 }
 
 // AdjustInventoryQuantity adjusts inventory quantity for a specific lot
@@ -394,26 +392,26 @@ func (h *InventoryHandler) GetInventoryLot(c *gin.Context) {
 func (h *InventoryHandler) AdjustInventoryQuantity(c *gin.Context) {
 	lotID := c.Param("id")
 	if lotID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "VALIDATION_ERROR", "Lot ID is required", "")
+		common.BadRequest(c, "VALIDATION_ERROR", "Lot ID is required", nil)
 		return
 	}
 
 	var req AdjustInventoryRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ValidationErrorResponse(c, err.Error())
+		common.BadRequest(c, "VALIDATION_ERROR", err.Error(), nil)
 		return
 	}
 
 	// Get user context
 	userID, exists := common.GetSubjectID(c)
 	if !exists {
-		utils.ErrorResponse(c, http.StatusUnauthorized, "UNAUTHORIZED", "User not authenticated", "")
+		common.Unauthorized(c, "UNAUTHORIZED", "User not authenticated", nil)
 		return
 	}
 
 	orgID, exists := common.GetOrganizationID(c)
 	if !exists {
-		utils.ErrorResponse(c, http.StatusForbidden, "FORBIDDEN", "Organization context required", "")
+		common.Forbidden(c, "FORBIDDEN", "Organization context required", nil)
 		return
 	}
 
@@ -427,11 +425,11 @@ func (h *InventoryHandler) AdjustInventoryQuantity(c *gin.Context) {
 		orgID,
 	)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "SERVICE_ERROR", err.Error(), "")
+		common.BadRequest(c, "SERVICE_ERROR", err.Error(), nil)
 		return
 	}
 
-	utils.SuccessResponse(c, http.StatusOK, "Inventory adjusted successfully", lot)
+	common.Success(c, lot, nil)
 }
 
 // CheckInventoryAvailability checks inventory availability for a catalog item
@@ -452,20 +450,20 @@ func (h *InventoryHandler) AdjustInventoryQuantity(c *gin.Context) {
 func (h *InventoryHandler) CheckInventoryAvailability(c *gin.Context) {
 	catalogItemID := c.Param("catalog_item_id")
 	if catalogItemID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "VALIDATION_ERROR", "Catalog item ID is required", "")
+		common.BadRequest(c, "VALIDATION_ERROR", "Catalog item ID is required", nil)
 		return
 	}
 
 	// Get user context
 	userID, exists := common.GetSubjectID(c)
 	if !exists {
-		utils.ErrorResponse(c, http.StatusUnauthorized, "UNAUTHORIZED", "User not authenticated", "")
+		common.Unauthorized(c, "UNAUTHORIZED", "User not authenticated", nil)
 		return
 	}
 
 	orgID, exists := common.GetOrganizationID(c)
 	if !exists {
-		utils.ErrorResponse(c, http.StatusForbidden, "FORBIDDEN", "Organization context required", "")
+		common.Forbidden(c, "FORBIDDEN", "Organization context required", nil)
 		return
 	}
 
@@ -475,7 +473,7 @@ func (h *InventoryHandler) CheckInventoryAvailability(c *gin.Context) {
 		if reqQty, err := decimal.NewFromString(reqQtyStr); err == nil && reqQty.GreaterThan(decimal.Zero) {
 			requiredQuantity = reqQty
 		} else {
-			utils.ErrorResponse(c, http.StatusBadRequest, "VALIDATION_ERROR", "Invalid required_quantity parameter", "")
+			common.BadRequest(c, "VALIDATION_ERROR", "Invalid required_quantity parameter", nil)
 			return
 		}
 	}
@@ -489,7 +487,7 @@ func (h *InventoryHandler) CheckInventoryAvailability(c *gin.Context) {
 		orgID,
 	)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "SERVICE_ERROR", err.Error(), "")
+		common.BadRequest(c, "SERVICE_ERROR", err.Error(), nil)
 		return
 	}
 
@@ -501,7 +499,7 @@ func (h *InventoryHandler) CheckInventoryAvailability(c *gin.Context) {
 		orgID,
 	)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusInternalServerError, "INTERNAL_ERROR", err.Error(), "")
+		common.InternalServerError(c, "INTERNAL_ERROR", err.Error(), nil)
 		return
 	}
 
@@ -512,7 +510,7 @@ func (h *InventoryHandler) CheckInventoryAvailability(c *gin.Context) {
 		TotalQuantity:     totalQty,
 	}
 
-	utils.SuccessResponse(c, http.StatusOK, "Inventory availability checked successfully", response)
+	common.Success(c, response, nil)
 }
 
 // GetInventoryAuditTrail gets audit trail for an inventory lot
@@ -534,20 +532,20 @@ func (h *InventoryHandler) CheckInventoryAvailability(c *gin.Context) {
 func (h *InventoryHandler) GetInventoryAuditTrail(c *gin.Context) {
 	lotID := c.Param("id")
 	if lotID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "VALIDATION_ERROR", "Lot ID is required", "")
+		common.BadRequest(c, "VALIDATION_ERROR", "Lot ID is required", nil)
 		return
 	}
 
 	// Get user context
 	userID, exists := common.GetSubjectID(c)
 	if !exists {
-		utils.ErrorResponse(c, http.StatusUnauthorized, "UNAUTHORIZED", "User not authenticated", "")
+		common.Unauthorized(c, "UNAUTHORIZED", "User not authenticated", nil)
 		return
 	}
 
 	orgID, exists := common.GetOrganizationID(c)
 	if !exists {
-		utils.ErrorResponse(c, http.StatusForbidden, "FORBIDDEN", "Organization context required", "")
+		common.Forbidden(c, "FORBIDDEN", "Organization context required", nil)
 		return
 	}
 
@@ -577,9 +575,9 @@ func (h *InventoryHandler) GetInventoryAuditTrail(c *gin.Context) {
 		orgID,
 	)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "SERVICE_ERROR", err.Error(), "")
+		common.BadRequest(c, "SERVICE_ERROR", err.Error(), nil)
 		return
 	}
 
-	utils.SuccessResponse(c, http.StatusOK, "Audit trail retrieved successfully", response)
+	common.Success(c, response, nil)
 }
