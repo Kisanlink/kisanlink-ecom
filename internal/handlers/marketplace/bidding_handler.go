@@ -1,7 +1,6 @@
 package marketplace
 
 import (
-	"net/http"
 	"strconv"
 	"time"
 
@@ -155,39 +154,45 @@ type FilteredBidStatistics struct {
 func (h *BiddingHandler) PlaceBid(c *gin.Context) {
 	listingID := c.Param("id")
 	if listingID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_REQUEST", "Listing ID is required", "")
+		common.BadRequest(c, "INVALID_REQUEST", "Listing ID is required", nil)
 		return
 	}
 
 	var req PlaceBidRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ValidationErrorResponse(c, err.Error())
+		common.BadRequest(c, "VALIDATION_ERROR", "Invalid input data", map[string]interface{}{
+			"details": err.Error(),
+		})
 		return
 	}
 
 	// Extract user information from context
 	userID, exists := c.Get("user_id")
 	if !exists {
-		utils.UnauthorizedResponse(c)
+		common.Unauthorized(c, "UNAUTHORIZED", "Authentication required", nil)
 		return
 	}
 
 	orgID := middleware.GetOrganizationID(c)
 	if orgID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_ORG", "Organization ID not found in context", "")
+		common.BadRequest(c, "MISSING_ORG", "Organization ID not found in context", nil)
 		return
 	}
 
 	// Parse decimal values
 	bidAmount, err := decimal.NewFromString(req.BidAmount)
 	if err != nil {
-		utils.ValidationErrorResponseWithFields(c, map[string]string{"bid_amount": "must be a valid decimal number"})
+		common.BadRequest(c, "VALIDATION_ERROR", "Invalid input data", map[string]interface{}{
+			"fields": map[string]string{"bid_amount": "must be a valid decimal number"},
+		})
 		return
 	}
 
 	quantity, err := decimal.NewFromString(req.Quantity)
 	if err != nil {
-		utils.ValidationErrorResponseWithFields(c, map[string]string{"quantity": "must be a valid decimal number"})
+		common.BadRequest(c, "VALIDATION_ERROR", "Invalid input data", map[string]interface{}{
+			"fields": map[string]string{"quantity": "must be a valid decimal number"},
+		})
 		return
 	}
 
@@ -195,7 +200,9 @@ func (h *BiddingHandler) PlaceBid(c *gin.Context) {
 	if req.AutoBidLimit != nil {
 		_, err := decimal.NewFromString(*req.AutoBidLimit)
 		if err != nil {
-			utils.ValidationErrorResponseWithFields(c, map[string]string{"auto_bid_limit": "must be a valid decimal number"})
+			common.BadRequest(c, "VALIDATION_ERROR", "Invalid input data", map[string]interface{}{
+				"fields": map[string]string{"auto_bid_limit": "must be a valid decimal number"},
+			})
 			return
 		}
 		// Auto-bid limit validation passed, but not used in regular bid placement
@@ -220,7 +227,7 @@ func (h *BiddingHandler) PlaceBid(c *gin.Context) {
 
 	// Convert to response format
 	response := h.convertToBidResponse(bid)
-	utils.SuccessResponse(c, http.StatusCreated, "Bid placed successfully", response)
+	common.Created(c, response, nil)
 }
 
 // GetListingBids retrieves bids for a specific listing
@@ -247,27 +254,29 @@ func (h *BiddingHandler) GetListingBids(c *gin.Context) {
 
 	listingID := c.Param("id")
 	if listingID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_REQUEST", "Listing ID is required", "")
+		common.BadRequest(c, "INVALID_REQUEST", "Listing ID is required", nil)
 		return
 	}
 
 	// Extract user information from context
 	userID, exists := c.Get("user_id")
 	if !exists {
-		utils.UnauthorizedResponse(c)
+		common.Unauthorized(c, "UNAUTHORIZED", "Authentication required", nil)
 		return
 	}
 
 	orgID := middleware.GetOrganizationID(c)
 	if orgID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_ORG", "Organization ID not found in context", "")
+		common.BadRequest(c, "MISSING_ORG", "Organization ID not found in context", nil)
 		return
 	}
 
 	// Parse pagination parameters
 	pagination, err := h.parsePaginationParams(c)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_PAGINATION", "Invalid pagination parameters", err.Error())
+		common.BadRequest(c, "INVALID_PAGINATION", "Invalid pagination parameters", map[string]interface{}{
+			"details": err.Error(),
+		})
 		return
 	}
 
@@ -280,7 +289,7 @@ func (h *BiddingHandler) GetListingBids(c *gin.Context) {
 
 	// Convert to response format
 	response := h.convertToFilteredBidHistoryResponse(filteredHistory, pagination)
-	utils.SuccessResponse(c, http.StatusOK, "Bids retrieved successfully", response)
+	common.Success(c, response, nil)
 }
 
 // GetBid retrieves a specific bid by ID
@@ -302,20 +311,20 @@ func (h *BiddingHandler) GetListingBids(c *gin.Context) {
 func (h *BiddingHandler) GetBid(c *gin.Context) {
 	bidID := c.Param("id")
 	if bidID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_REQUEST", "Bid ID is required", "")
+		common.BadRequest(c, "INVALID_REQUEST", "Bid ID is required", nil)
 		return
 	}
 
 	// Extract user information from context
 	userID, exists := c.Get("user_id")
 	if !exists {
-		utils.UnauthorizedResponse(c)
+		common.Unauthorized(c, "UNAUTHORIZED", "Authentication required", nil)
 		return
 	}
 
 	orgID := middleware.GetOrganizationID(c)
 	if orgID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_ORG", "Organization ID not found in context", "")
+		common.BadRequest(c, "MISSING_ORG", "Organization ID not found in context", nil)
 		return
 	}
 
@@ -328,7 +337,7 @@ func (h *BiddingHandler) GetBid(c *gin.Context) {
 
 	// Convert to response format
 	response := h.convertToBidResponse(bid)
-	utils.SuccessResponse(c, http.StatusOK, "Bid retrieved successfully", response)
+	common.Success(c, response, nil)
 }
 
 // GetMyBids retrieves bids placed by the authenticated user
@@ -355,21 +364,25 @@ func (h *BiddingHandler) GetMyBids(c *gin.Context) {
 	// Extract user information from context
 	userID, exists := c.Get("user_id")
 	if !exists {
-		utils.UnauthorizedResponse(c)
+		common.Unauthorized(c, "UNAUTHORIZED", "Authentication required", nil)
 		return
 	}
 
 	// Parse pagination parameters
 	pagination, err := h.parsePaginationParams(c)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_PAGINATION", "Invalid pagination parameters", err.Error())
+		common.BadRequest(c, "INVALID_PAGINATION", "Invalid pagination parameters", map[string]interface{}{
+			"details": err.Error(),
+		})
 		return
 	}
 
 	// Parse filter parameters
 	filter, err := h.parseBidFilters(c)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_FILTER", "Invalid filter parameters", err.Error())
+		common.BadRequest(c, "INVALID_FILTER", "Invalid filter parameters", map[string]interface{}{
+			"details": err.Error(),
+		})
 		return
 	}
 
@@ -381,21 +394,16 @@ func (h *BiddingHandler) GetMyBids(c *gin.Context) {
 	}
 
 	// Convert to response format
-	response := BidListResponse{
-		Bids: make([]BidResponse, len(bids)),
-		Pagination: common.PaginationMeta{
-			Page:       pagination.Page,
-			Limit:      pagination.Limit,
-			Total:      total,
-			TotalPages: (total + pagination.Limit - 1) / pagination.Limit,
-		},
-	}
-
+	bidResponses := make([]BidResponse, len(bids))
 	for i, bid := range bids {
-		response.Bids[i] = h.convertToBidResponse(bid)
+		bidResponses[i] = h.convertToBidResponse(bid)
 	}
 
-	utils.SuccessResponse(c, http.StatusOK, "Bids retrieved successfully", response)
+	common.Success(c, gin.H{
+		"bids": bidResponses,
+	}, &common.ResponseMeta{
+		Pagination: common.NewPaginationMeta(pagination.Page, pagination.Limit, total),
+	})
 }
 
 // Helper methods
@@ -616,20 +624,20 @@ func (h *BiddingHandler) convertFilteredBidToResponse(filteredBid *marketplaceSe
 func (h *BiddingHandler) GetAuctionResults(c *gin.Context) {
 	listingID := c.Param("id")
 	if listingID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_REQUEST", "Listing ID is required", "")
+		common.BadRequest(c, "INVALID_REQUEST", "Listing ID is required", nil)
 		return
 	}
 
 	// Extract user information from context
 	userID, exists := c.Get("user_id")
 	if !exists {
-		utils.UnauthorizedResponse(c)
+		common.Unauthorized(c, "UNAUTHORIZED", "Authentication required", nil)
 		return
 	}
 
 	orgID := middleware.GetOrganizationID(c)
 	if orgID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_ORG", "Organization ID not found in context", "")
+		common.BadRequest(c, "MISSING_ORG", "Organization ID not found in context", nil)
 		return
 	}
 
@@ -640,7 +648,7 @@ func (h *BiddingHandler) GetAuctionResults(c *gin.Context) {
 		return
 	}
 
-	utils.SuccessResponse(c, http.StatusOK, "Auction results retrieved successfully", results)
+	common.Success(c, results, nil)
 }
 
 // GetAuctionSummary retrieves a high-level auction summary
@@ -662,20 +670,20 @@ func (h *BiddingHandler) GetAuctionResults(c *gin.Context) {
 func (h *BiddingHandler) GetAuctionSummary(c *gin.Context) {
 	listingID := c.Param("id")
 	if listingID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_REQUEST", "Listing ID is required", "")
+		common.BadRequest(c, "INVALID_REQUEST", "Listing ID is required", nil)
 		return
 	}
 
 	// Extract user information from context
 	userID, exists := c.Get("user_id")
 	if !exists {
-		utils.UnauthorizedResponse(c)
+		common.Unauthorized(c, "UNAUTHORIZED", "Authentication required", nil)
 		return
 	}
 
 	orgID := middleware.GetOrganizationID(c)
 	if orgID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_ORG", "Organization ID not found in context", "")
+		common.BadRequest(c, "MISSING_ORG", "Organization ID not found in context", nil)
 		return
 	}
 
@@ -686,7 +694,7 @@ func (h *BiddingHandler) GetAuctionSummary(c *gin.Context) {
 		return
 	}
 
-	utils.SuccessResponse(c, http.StatusOK, "Auction summary retrieved successfully", summary)
+	common.Success(c, summary, nil)
 }
 
 // GetHistoricalBidData retrieves historical bid data with proper filtering
@@ -713,27 +721,29 @@ func (h *BiddingHandler) GetAuctionSummary(c *gin.Context) {
 func (h *BiddingHandler) GetHistoricalBidData(c *gin.Context) {
 	listingID := c.Param("id")
 	if listingID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_REQUEST", "Listing ID is required", "")
+		common.BadRequest(c, "INVALID_REQUEST", "Listing ID is required", nil)
 		return
 	}
 
 	// Extract user information from context
 	userID, exists := c.Get("user_id")
 	if !exists {
-		utils.UnauthorizedResponse(c)
+		common.Unauthorized(c, "UNAUTHORIZED", "Authentication required", nil)
 		return
 	}
 
 	orgID := middleware.GetOrganizationID(c)
 	if orgID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_ORG", "Organization ID not found in context", "")
+		common.BadRequest(c, "MISSING_ORG", "Organization ID not found in context", nil)
 		return
 	}
 
 	// Parse historical data filters
 	filter, err := h.parseHistoricalDataFilters(c)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_FILTER", "Invalid filter parameters", err.Error())
+		common.BadRequest(c, "INVALID_FILTER", "Invalid filter parameters", map[string]interface{}{
+			"details": err.Error(),
+		})
 		return
 	}
 
@@ -744,7 +754,7 @@ func (h *BiddingHandler) GetHistoricalBidData(c *gin.Context) {
 		return
 	}
 
-	utils.SuccessResponse(c, http.StatusOK, "Historical bid data retrieved successfully", historicalData)
+	common.Success(c, historicalData, nil)
 }
 
 // GetBidStatistics retrieves bid statistics with visibility filtering
@@ -766,20 +776,20 @@ func (h *BiddingHandler) GetHistoricalBidData(c *gin.Context) {
 func (h *BiddingHandler) GetBidStatistics(c *gin.Context) {
 	listingID := c.Param("id")
 	if listingID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "INVALID_REQUEST", "Listing ID is required", "")
+		common.BadRequest(c, "INVALID_REQUEST", "Listing ID is required", nil)
 		return
 	}
 
 	// Extract user information from context
 	userID, exists := c.Get("user_id")
 	if !exists {
-		utils.UnauthorizedResponse(c)
+		common.Unauthorized(c, "UNAUTHORIZED", "Authentication required", nil)
 		return
 	}
 
 	orgID := middleware.GetOrganizationID(c)
 	if orgID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "MISSING_ORG", "Organization ID not found in context", "")
+		common.BadRequest(c, "MISSING_ORG", "Organization ID not found in context", nil)
 		return
 	}
 
@@ -790,7 +800,7 @@ func (h *BiddingHandler) GetBidStatistics(c *gin.Context) {
 		return
 	}
 
-	utils.SuccessResponse(c, http.StatusOK, "Bid statistics retrieved successfully", statistics)
+	common.Success(c, statistics, nil)
 }
 
 // parseHistoricalDataFilters parses historical data filter parameters from query string
