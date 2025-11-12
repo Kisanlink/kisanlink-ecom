@@ -199,6 +199,36 @@ install-swagger:
 	$(GOGET) -u github.com/swaggo/gin-swagger
 	@echo "Swagger tools installed!"
 
+# Proto generation
+PROTO_DIR=proto
+PROTO_GEN_DIR=$(PROTO_DIR)/gen
+
+.PHONY: proto proto-clean proto-install
+
+# Generate proto files
+proto:
+	@echo "Generating proto files..."
+	@mkdir -p $(PROTO_GEN_DIR)/go $(PROTO_GEN_DIR)/openapi
+	@protoc -I $(PROTO_DIR) \
+		--go_out=$(PROTO_GEN_DIR)/go --go_opt=paths=source_relative \
+		--go-grpc_out=$(PROTO_GEN_DIR)/go --go-grpc_opt=paths=source_relative \
+		$(PROTO_DIR)/shared/*.proto \
+		$(PROTO_DIR)/collaborator/v1/*.proto
+	@echo "Proto files generated successfully!"
+
+# Clean proto generated files
+proto-clean:
+	@echo "Cleaning proto generated files..."
+	@rm -rf $(PROTO_GEN_DIR)
+	@echo "Proto generated files cleaned!"
+
+# Install proto tools
+proto-install:
+	@echo "Installing proto tools..."
+	@$(GOGET) -u google.golang.org/protobuf/cmd/protoc-gen-go@latest
+	@$(GOGET) -u google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+	@echo "Proto tools installed!"
+
 # Run the application
 run: build
 	@echo "Running $(BINARY_NAME)..."

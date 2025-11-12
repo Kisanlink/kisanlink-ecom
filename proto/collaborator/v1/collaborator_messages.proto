@@ -1,0 +1,259 @@
+syntax = "proto3";
+
+package kisanlink.collaborator.v1;
+
+option go_package = "kisanlink-ecom/proto/gen/go/collaborator/v1;collaboratorpb";
+
+import "collaborator/v1/collaborator_types.proto";
+import "shared/pagination.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+
+// CreateCollaboratorRequest for creating a new collaborator
+message CreateCollaboratorRequest {
+  // Required user information
+  string user_id = 1;
+  string username = 2;
+  string email = 3;
+  string first_name = 4;
+  string last_name = 5;
+
+  // Optional personal information
+  optional string middle_name = 6;
+  optional string phone = 7;
+  optional string profile_picture = 8;
+  optional string bio = 9;
+
+  // Type and organization
+  CollaboratorType type = 10;
+  optional string organization_id = 11;
+
+  // Business information (required for VENDOR/BUYER types)
+  optional CreateBusinessInfoRequest business_info = 12;
+
+  // Address (will be created in AAA service)
+  optional CreateAddressRequest address = 13;
+
+  // Location and preferences
+  optional string location = 14;
+  optional GeoCoordinates coordinates = 15;
+  optional string language_preference = 16;
+  optional string timezone_preference = 17;
+  optional string currency_preference = 18;
+
+  // Metadata
+  map<string, string> metadata = 19;
+  repeated string tags = 20;
+}
+
+// CreateBusinessInfoRequest for business information
+message CreateBusinessInfoRequest {
+  string business_name = 1;
+  BusinessType business_type = 2;
+  optional string gst_number = 3;
+  optional string pan_number = 4;
+  optional string tax_id = 5;
+  optional string business_license = 6;
+  optional string business_phone = 7;
+  optional string business_email = 8;
+  optional string business_website = 9;
+  optional string business_description = 10;
+
+  // Banking information
+  optional string bank_account_number = 11;
+  optional string bank_name = 12;
+  optional string bank_ifsc_code = 13;
+  optional string bank_branch = 14;
+}
+
+// CreateAddressRequest for address creation
+message CreateAddressRequest {
+  string line1 = 1;
+  optional string line2 = 2;
+  optional string line3 = 3;
+  string city = 4;
+  string state = 5;
+  string country = 6;
+  string postal_code = 7;
+  AddressType type = 8;
+  optional string landmark = 9;
+  optional GeoCoordinates coordinates = 10;
+  bool is_primary = 11;
+}
+
+// UpdateCollaboratorRequest for updating collaborator
+message UpdateCollaboratorRequest {
+  string id = 1;
+
+  // Field mask for partial updates
+  google.protobuf.FieldMask field_mask = 2;
+
+  // Fields that can be updated
+  optional string email = 3;
+  optional string phone = 4;
+  optional string first_name = 5;
+  optional string last_name = 6;
+  optional string middle_name = 7;
+  optional string profile_picture = 8;
+  optional string bio = 9;
+  optional string location = 10;
+  optional GeoCoordinates coordinates = 11;
+  optional UpdateBusinessInfoRequest business_info = 12;
+  optional string language_preference = 13;
+  optional string timezone_preference = 14;
+  optional string currency_preference = 15;
+  map<string, string> metadata = 16;
+  repeated string tags = 17;
+}
+
+// UpdateBusinessInfoRequest for updating business information
+message UpdateBusinessInfoRequest {
+  optional string business_name = 1;
+  optional BusinessType business_type = 2;
+  optional string business_phone = 3;
+  optional string business_email = 4;
+  optional string business_website = 5;
+  optional string business_description = 6;
+  optional string bank_account_number = 7;
+  optional string bank_name = 8;
+  optional string bank_ifsc_code = 9;
+  optional string bank_branch = 10;
+}
+
+// DeactivateCollaboratorRequest for deactivating collaborator
+message DeactivateCollaboratorRequest {
+  string id = 1;
+  optional string reason = 2;
+  optional CollaboratorStatus new_status = 3;
+}
+
+// GetCollaboratorRequest for retrieving collaborator
+message GetCollaboratorRequest {
+  string id = 1;
+
+  // Whether to expand address from AAA service
+  bool expand_address = 2;
+
+  // Whether to include deleted collaborators
+  bool include_deleted = 3;
+}
+
+// ListCollaboratorsRequest for listing collaborators
+message ListCollaboratorsRequest {
+  // Pagination
+  optional kisanlink.shared.PaginationRequest pagination = 1;
+
+  // Filters
+  optional CollaboratorFilter filter = 2;
+
+  // Sorting
+  optional string sort_by = 3;
+  optional kisanlink.shared.SortOrder sort_order = 4;
+
+  // Whether to expand addresses from AAA service
+  bool expand_addresses = 5;
+}
+
+// CollaboratorFilter for filtering collaborators
+message CollaboratorFilter {
+  repeated CollaboratorType types = 1;
+  repeated CollaboratorStatus statuses = 2;
+  optional string organization_id = 3;
+  optional string search_query = 4;
+  optional bool has_business_info = 5;
+  optional bool is_verified = 6;
+  optional string location = 7;
+  optional google.protobuf.Timestamp created_after = 8;
+  optional google.protobuf.Timestamp created_before = 9;
+  repeated string tags = 10;
+  map<string, string> metadata = 11;
+}
+
+// CollaboratorResponse for single collaborator
+message CollaboratorResponse {
+  Collaborator collaborator = 1;
+
+  // Additional computed fields
+  optional CollaboratorStats stats = 2;
+  optional CollaboratorPermissions permissions = 3;
+}
+
+// ListCollaboratorsResponse for multiple collaborators
+message ListCollaboratorsResponse {
+  repeated Collaborator collaborators = 1;
+  kisanlink.shared.PaginationResponse pagination = 2;
+  optional CollaboratorStats aggregate_stats = 3;
+}
+
+// StatusResponse for status update operations
+message StatusResponse {
+  bool success = 1;
+  string message = 2;
+  optional CollaboratorStatus new_status = 3;
+  optional google.protobuf.Timestamp updated_at = 4;
+}
+
+// CollaboratorStats for analytics
+message CollaboratorStats {
+  int32 total_transactions = 1;
+  double total_revenue = 2;
+  double average_rating = 3;
+  int32 total_reviews = 4;
+  google.protobuf.Timestamp last_active_at = 5;
+  google.protobuf.Timestamp member_since = 6;
+}
+
+// CollaboratorPermissions for access control
+message CollaboratorPermissions {
+  bool can_edit = 1;
+  bool can_delete = 2;
+  bool can_view_sensitive_info = 3;
+  bool can_manage_addresses = 4;
+  bool can_verify = 5;
+}
+
+// VerifyCollaboratorRequest
+message VerifyCollaboratorRequest {
+  string id = 1;
+  bool is_verified = 2;
+  optional string verification_notes = 3;
+  repeated string verified_documents = 4;
+}
+
+// VerifyCollaboratorResponse
+message VerifyCollaboratorResponse {
+  bool success = 1;
+  string message = 2;
+  CollaboratorStatus new_status = 3;
+  google.protobuf.Timestamp verified_at = 4;
+  string verified_by = 5;
+}
+
+// GetCollaboratorByGSTRequest
+message GetCollaboratorByGSTRequest {
+  string gst_number = 1;
+  bool expand_address = 2;
+}
+
+// HealthCheckResponse
+message HealthCheckResponse {
+  enum Status {
+    STATUS_UNSPECIFIED = 0;
+    STATUS_HEALTHY = 1;
+    STATUS_DEGRADED = 2;
+    STATUS_UNHEALTHY = 3;
+  }
+
+  Status status = 1;
+  string version = 2;
+  google.protobuf.Timestamp timestamp = 3;
+
+  message Dependency {
+    string name = 1;
+    Status status = 2;
+    optional string error = 3;
+    optional int64 latency_ms = 4;
+  }
+
+  repeated Dependency dependencies = 4;
+}
