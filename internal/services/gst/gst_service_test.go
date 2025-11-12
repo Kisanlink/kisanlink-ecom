@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -30,22 +31,42 @@ func setupTestDB(t *testing.T) *gorm.DB {
 	return db
 }
 
+// setupTestRedisClient creates a test Redis client
+func setupTestRedisClient(t *testing.T) redis.UniversalClient {
+	client := redis.NewClient(&redis.Options{
+		Addr: "localhost:6379",
+		DB:   15, // Use dedicated test database
+	})
+
+	ctx := context.Background()
+	if err := client.FlushDB(ctx).Err(); err != nil {
+		t.Skip("Redis not available, skipping test")
+	}
+
+	return client
+}
+
 func TestNewService(t *testing.T) {
 	db := setupTestDB(t)
+	redisClient := setupTestRedisClient(t)
+	defer func() { _ = redisClient.Close() }()
 	logger := logrus.New()
 
-	service := NewService(db, logger)
+	service := NewService(db, redisClient, logger)
 
 	assert.NotNil(t, service)
 	assert.NotNil(t, service.db)
 	assert.NotNil(t, service.validator)
+	assert.NotNil(t, service.lockMgr)
 	assert.NotNil(t, service.logger)
 }
 
 func TestGSTService_ValidateAndNormalize(t *testing.T) {
 	db := setupTestDB(t)
+	redisClient := setupTestRedisClient(t)
+	defer func() { _ = redisClient.Close() }()
 	logger := logrus.New()
-	service := NewService(db, logger)
+	service := NewService(db, redisClient, logger)
 
 	tests := []struct {
 		name        string
@@ -108,8 +129,10 @@ func TestGSTService_ValidateAndNormalize(t *testing.T) {
 
 func TestGSTService_CheckGSTExists(t *testing.T) {
 	db := setupTestDB(t)
+	redisClient := setupTestRedisClient(t)
+	defer func() { _ = redisClient.Close() }()
 	logger := logrus.New()
-	service := NewService(db, logger)
+	service := NewService(db, redisClient, logger)
 
 	ctx := context.Background()
 
@@ -187,8 +210,10 @@ func TestGSTService_CheckGSTExists(t *testing.T) {
 
 func TestGSTService_GetInfo(t *testing.T) {
 	db := setupTestDB(t)
+	redisClient := setupTestRedisClient(t)
+	defer func() { _ = redisClient.Close() }()
 	logger := logrus.New()
-	service := NewService(db, logger)
+	service := NewService(db, redisClient, logger)
 
 	tests := []struct {
 		name           string
@@ -252,8 +277,10 @@ func TestGSTService_GetInfo(t *testing.T) {
 
 func TestGSTService_GetInfo_EntityTypes(t *testing.T) {
 	db := setupTestDB(t)
+	redisClient := setupTestRedisClient(t)
+	defer func() { _ = redisClient.Close() }()
 	logger := logrus.New()
-	service := NewService(db, logger)
+	service := NewService(db, redisClient, logger)
 
 	// Test different entity types based on 4th character in PAN
 	tests := []struct {
@@ -295,8 +322,10 @@ func TestGSTService_GetInfo_EntityTypes(t *testing.T) {
 // Benchmark tests
 func BenchmarkService_ValidateAndNormalize(b *testing.B) {
 	db := setupTestDB(&testing.T{})
+	redisClient := redis.NewClient(&redis.Options{Addr: "localhost:6379", DB: 15})
+	defer func() { _ = redisClient.Close() }()
 	logger := logrus.New()
-	service := NewService(db, logger)
+	service := NewService(db, redisClient, logger)
 	gst := "27AAPFU0939F1ZV"
 
 	b.ResetTimer()
@@ -307,8 +336,10 @@ func BenchmarkService_ValidateAndNormalize(b *testing.B) {
 
 func BenchmarkService_CheckGSTExists(b *testing.B) {
 	db := setupTestDB(&testing.T{})
+	redisClient := redis.NewClient(&redis.Options{Addr: "localhost:6379", DB: 15})
+	defer func() { _ = redisClient.Close() }()
 	logger := logrus.New()
-	service := NewService(db, logger)
+	service := NewService(db, redisClient, logger)
 	ctx := context.Background()
 	gst := "27AAPFU0939F1ZV"
 

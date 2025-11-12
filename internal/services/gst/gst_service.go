@@ -5,7 +5,9 @@ package gst
 import (
 	"context"
 	"fmt"
+	"time"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -14,14 +16,16 @@ import (
 type Service struct {
 	db        *gorm.DB
 	validator *Validator
+	lockMgr   *DistributedLock
 	logger    *logrus.Logger
 }
 
 // NewService creates a new GST service
-func NewService(db *gorm.DB, logger *logrus.Logger) *Service {
+func NewService(db *gorm.DB, redisClient redis.UniversalClient, logger *logrus.Logger) *Service {
 	return &Service{
 		db:        db,
 		validator: NewValidator(),
+		lockMgr:   NewDistributedLock(redisClient, logger),
 		logger:    logger,
 	}
 }
@@ -42,6 +46,7 @@ func (s *Service) ValidateAndNormalize(gst string) (string, error) {
 
 // CheckGSTExists checks if a GST number is already registered
 // This is used for deduplication to prevent multiple collaborators with same GST
+// Deprecated: Use CheckAndReserveGST instead for race-condition-free checking
 func (s *Service) CheckGSTExists(ctx context.Context, gst string) (bool, error) {
 	// Normalize GST first
 	normalized, err := s.ValidateAndNormalize(gst)
@@ -62,6 +67,82 @@ func (s *Service) CheckGSTExists(ctx context.Context, gst string) (bool, error) 
 	}
 
 	return count > 0, nil
+}
+
+// CheckAndReserveGST acquires a distributed lock, checks if GST exists, and reserves it if not
+// This prevents race conditions where multiple FPOs create duplicate master collaborators
+func (s *Service) CheckAndReserveGST(ctx context.Context, gst string, fpoID uint64, requestID string) (bool, error) {
+	// Normalize and validate GST first
+	normalized, err := s.ValidateAndNormalize(gst)
+	if err != nil {
+		return false, fmt.Errorf("GST validation failed: %w", err)
+	}
+
+	// Create lock key
+	lockKey := fmt.Sprintf("gst:lock:%s", normalized)
+
+	// Acquire distributed lock with retry
+	lock, err := s.lockMgr.AcquireLock(ctx, LockOptions{
+		Key:        lockKey,
+		TTL:        30 * time.Second,
+		RetryDelay: 100 * time.Millisecond,
+		MaxRetries: 10,
+		Owner:      fmt.Sprintf("fpo:%d:req:%s", fpoID, requestID),
+	})
+
+	if err != nil {
+		s.logger.WithError(err).WithFields(logrus.Fields{
+			"gst":        normalized,
+			"fpo_id":     fpoID,
+			"request_id": requestID,
+		}).Error("Failed to acquire GST lock")
+		return false, fmt.Errorf("failed to acquire GST lock: %w", err)
+	}
+
+	defer func() {
+		if err := lock.Release(ctx); err != nil {
+			s.logger.WithError(err).WithFields(logrus.Fields{
+				"gst":        normalized,
+				"fpo_id":     fpoID,
+				"request_id": requestID,
+			}).Error("Failed to release GST lock")
+		}
+	}()
+
+	// Check if GST exists while holding the lock
+	var count int64
+	err = s.db.WithContext(ctx).
+		Table("collaborators").
+		Where("tax_id = ? AND deleted_at IS NULL", normalized).
+		Count(&count).Error
+
+	if err != nil {
+		s.logger.WithError(err).WithFields(logrus.Fields{
+			"gst":        normalized,
+			"fpo_id":     fpoID,
+			"request_id": requestID,
+		}).Error("Failed to check GST existence")
+		return false, fmt.Errorf("failed to check GST existence: %w", err)
+	}
+
+	// If GST exists, return true (indicating it's already registered)
+	if count > 0 {
+		s.logger.WithFields(logrus.Fields{
+			"gst":        normalized,
+			"fpo_id":     fpoID,
+			"request_id": requestID,
+		}).Warn("GST already exists")
+		return true, nil
+	}
+
+	// GST does not exist - it's reserved by this lock holder
+	s.logger.WithFields(logrus.Fields{
+		"gst":        normalized,
+		"fpo_id":     fpoID,
+		"request_id": requestID,
+	}).Info("GST reserved successfully")
+
+	return false, nil
 }
 
 // Info contains extracted information from a GST number
