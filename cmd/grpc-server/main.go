@@ -5,6 +5,7 @@ import (
 	"context"
 	"kisanlink-ecom/internal/config"
 	grpcserver "kisanlink-ecom/internal/grpc"
+	"kisanlink-ecom/internal/grpc/interceptors"
 	"log"
 	"net"
 	"os"
@@ -12,7 +13,7 @@ import (
 	"syscall"
 	"time"
 
-	"google.golang.org/grpc"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
@@ -37,11 +38,18 @@ func main() {
 		log.Fatalf("Failed to listen on %s: %v", address, err)
 	}
 
-	// Create gRPC server with interceptors (will be added in P1-2)
-	var interceptors []grpc.UnaryServerInterceptor
-	// TODO: Add interceptors in P1-2
+	// Initialize logger
+	logger := logrus.New()
+	logger.SetFormatter(&logrus.JSONFormatter{})
+	logger.SetLevel(logrus.InfoLevel)
 
-	server := grpcserver.NewServer(cfg, interceptors)
+	// Create mock JWT validator (will be replaced with real validator in production)
+	jwtValidator := &interceptors.MockJWTValidator{}
+
+	// Build 10-layer interceptor chain
+	interceptorChain := grpcserver.BuildInterceptorChain(logger, jwtValidator)
+
+	server := grpcserver.NewServer(cfg, interceptorChain)
 
 	// Register health check service
 	healthServer := health.NewServer()
