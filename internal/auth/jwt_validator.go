@@ -9,6 +9,7 @@ import (
 // JWTValidator handles JWT token validation with AAA service
 type JWTValidator struct {
 	aaaClient Client
+	jtiCache  JTICache
 	issuer    string
 	audience  string
 	clockSkew time.Duration
@@ -18,9 +19,21 @@ type JWTValidator struct {
 func NewJWTValidator(aaaClient Client, issuer, audience string) *JWTValidator {
 	return &JWTValidator{
 		aaaClient: aaaClient,
+		jtiCache:  NewInMemoryJTICache(),
 		issuer:    issuer,
 		audience:  audience,
 		clockSkew: 5 * time.Minute, // Allow 5 minutes clock skew
+	}
+}
+
+// NewJWTValidatorWithJTICache creates a new JWT validator with custom JTI cache
+func NewJWTValidatorWithJTICache(aaaClient Client, jtiCache JTICache, issuer, audience string) *JWTValidator {
+	return &JWTValidator{
+		aaaClient: aaaClient,
+		jtiCache:  jtiCache,
+		issuer:    issuer,
+		audience:  audience,
+		clockSkew: 5 * time.Minute,
 	}
 }
 
@@ -79,6 +92,16 @@ func (v *JWTValidator) ValidateToken(ctx context.Context, tokenString string) (*
 			Valid: false,
 			Error: fmt.Errorf("invalid audience: expected %s, got %s", v.audience, jwtClaims.Audience),
 		}, nil
+	}
+
+	// Check for replay attacks using JTI (JWT ID)
+	if tokenClaims.JTI != "" && v.jtiCache != nil {
+		if err := v.jtiCache.Check(ctx, tokenClaims.JTI, jwtClaims.ExpiresAt); err != nil {
+			return &TokenValidationResult{
+				Valid: false,
+				Error: fmt.Errorf("replay attack detected: %w", err),
+			}, nil
+		}
 	}
 
 	// Create user context with all enhanced fields
