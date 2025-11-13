@@ -1,0 +1,488 @@
+package marketplace
+
+import (
+	"context"
+	"fmt"
+
+	"kisanlink-ecom/entities/models/marketplace"
+	marketplaceModels "kisanlink-ecom/entities/models/marketplace"
+	"kisanlink-ecom/internal/common"
+	marketplaceRepo "kisanlink-ecom/internal/repositories/marketplace"
+
+	"github.com/shopspring/decimal"
+)
+
+// ListingServiceInterface defines the interface for listing management operations
+type ListingServiceInterface interface {
+	// Listing Management
+	CreateListing(ctx context.Context, req *CreateListingRequest) (*marketplaceModels.Listing, error)
+	GetListing(ctx context.Context, listingID string, viewerOrgID string) (*marketplaceModels.Listing, error)
+	GetActiveListings(ctx context.Context, viewerOrgID string, filter *marketplaceModels.ListingFilter, pagination *common.PaginationParams) ([]*marketplaceModels.Listing, int, error)
+	UpdateListing(ctx context.Context, listingID string, req *UpdateListingRequest, userID string, orgID string) (*marketplaceModels.Listing, error)
+	CloseListing(ctx context.Context, listingID string, reason string, userID string, orgID string) (*marketplaceModels.Listing, error)
+
+	// Seller operations
+	GetSellerListings(ctx context.Context, sellerID string, filter *marketplaceModels.ListingFilter, pagination *common.PaginationParams) ([]*marketplaceModels.Listing, int, error)
+
+	// Admin operations
+	GetAllListings(ctx context.Context, filter *marketplaceModels.ListingFilter, pagination *common.PaginationParams) ([]*marketplaceModels.Listing, int, error)
+	ForceCloseListing(ctx context.Context, listingID string, reason string, adminID string) (*marketplaceModels.Listing, error)
+}
+
+// ListingService provides business logic for listing management
+type ListingService struct {
+	listingRepo      marketplaceRepo.ListingRepository
+	inventoryService InventoryServiceInterface
+	eventService     EventServiceInterface
+}
+
+// NewListingService creates a new listing service
+func NewListingService(
+	listingRepo marketplaceRepo.ListingRepository,
+	inventoryService InventoryServiceInterface,
+	eventService EventServiceInterface,
+) ListingServiceInterface {
+	return &ListingService{
+		listingRepo:      listingRepo,
+		inventoryService: inventoryService,
+		eventService:     eventService,
+	}
+}
+
+// CreateListing creates a new marketplace listing with visibility validation and inventory checks
+func (s *ListingService) CreateListing(ctx context.Context, req *CreateListingRequest) (*marketplaceModels.Listing, error) {
+	// Validate request
+	if err := s.validateCreateListingRequest(req); err != nil {
+		return nil, fmt.Errorf("validation failed: %w", err)
+	}
+
+	// Check inventory availability
+	if s.inventoryService != nil {
+		available, err := s.inventoryService.CheckAvailability(ctx, req.ProductID, req.Quantity, req.OrganizationID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to check inventory availability: %w", err)
+		}
+		if !available {
+			return nil, fmt.Errorf("insufficient inventory for product %s, requested quantity: %s", req.ProductID, req.Quantity.String())
+		}
+	}
+
+	// Create listing entity
+	listing := marketplace.NewListing(
+		req.ProductID,
+		req.SellerID,
+		req.OrganizationID,
+		req.Quantity,
+		req.AskingPrice,
+		req.MinimumBid,
+		req.ListingDuration,
+	)
+
+	// Set optional fields
+	if req.Currency != "" {
+		listing.Currency = req.Currency
+	}
+	if req.Visibility != "" {
+		listing.Visibility = req.Visibility
+	}
+	if req.AuctionType != "" {
+		listing.AuctionType = req.AuctionType
+	}
+	if req.BidVisibility != "" {
+		listing.BidVisibility = req.BidVisibility
+	}
+	if req.PickupLocation != nil {
+		if err := listing.SetPickupLocation(req.PickupLocation); err != nil {
+			return nil, fmt.Errorf("failed to set pickup location: %w", err)
+		}
+	}
+	if req.TermsConditions != "" {
+		listing.TermsConditions = req.TermsConditions
+	}
+
+	// Validate visibility configuration
+	if err := s.validateVisibilityConfiguration(listing); err != nil {
+		return nil, fmt.Errorf("visibility validation failed: %w", err)
+	}
+
+	// Reserve inventory if service is available
+	if s.inventoryService != nil {
+		if err := s.inventoryService.ReserveInventory(ctx, req.ProductID, req.Quantity, req.OrganizationID, listing.ListingID); err != nil {
+			return nil, fmt.Errorf("failed to reserve inventory: %w", err)
+		}
+	}
+
+	// Save listing to database
+	if err := s.listingRepo.Create(ctx, listing); err != nil {
+		// Release inventory on failure
+		if s.inventoryService != nil {
+			_ = s.inventoryService.ReleaseInventory(ctx, req.ProductID, req.Quantity, listing.ListingID)
+		}
+		return nil, fmt.Errorf("failed to create listing: %w", err)
+	}
+
+	// Record listing creation event
+	if s.eventService != nil {
+		eventData := map[string]interface{}{
+			"listing_id":   listing.ListingID,
+			"product_id":   listing.ProductID,
+			"quantity":     listing.Quantity,
+			"asking_price": listing.AskingPrice,
+			"minimum_bid":  listing.MinimumBid,
+			"visibility":   listing.Visibility,
+			"auction_type": listing.AuctionType,
+			"expires_at":   listing.ExpiresAt,
+		}
+		_ = s.eventService.RecordListingEvent(ctx, listing.ListingID, marketplace.EventListingCreated, eventData, req.SellerID)
+	}
+
+	return listing, nil
+}
+
+// GetListing retrieves a listing with access control based on visibility settings
+func (s *ListingService) GetListing(ctx context.Context, listingID string, viewerOrgID string) (*marketplaceModels.Listing, error) {
+	// Get listing from repository
+	listing, err := s.listingRepo.GetByListingID(ctx, listingID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get listing: %w", err)
+	}
+	if listing == nil {
+		return nil, fmt.Errorf("listing not found: %s", listingID)
+	}
+
+	// Check visibility permissions
+	if !s.canViewListing(ctx, listing, viewerOrgID) {
+		return nil, fmt.Errorf("access denied: listing not visible to organization %s", viewerOrgID)
+	}
+
+	return listing, nil
+}
+
+// GetActiveListings retrieves active listings with visibility filtering
+func (s *ListingService) GetActiveListings(ctx context.Context, viewerOrgID string, filter *marketplaceModels.ListingFilter, pagination *common.PaginationParams) ([]*marketplaceModels.Listing, int, error) {
+	// Convert pagination params to repository format
+	paginationReq := &common.PaginationRequest{
+		Limit:  pagination.Limit,
+		Offset: pagination.CalculateOffset(),
+	}
+
+	// Get active listings with visibility filtering
+	listings, total, err := s.listingRepo.GetActiveListings(ctx, viewerOrgID, filter, paginationReq)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to get active listings: %w", err)
+	}
+
+	return listings, total, nil
+}
+
+// UpdateListing updates an existing listing with proper authorization
+func (s *ListingService) UpdateListing(ctx context.Context, listingID string, req *UpdateListingRequest, userID string, orgID string) (*marketplaceModels.Listing, error) {
+	// Get existing listing
+	listing, err := s.listingRepo.GetByListingID(ctx, listingID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get listing: %w", err)
+	}
+	if listing == nil {
+		return nil, fmt.Errorf("listing not found: %s", listingID)
+	}
+
+	// Check authorization - only seller or same organization can update
+	if listing.SellerID != userID && listing.OrganizationID != orgID {
+		return nil, fmt.Errorf("access denied: user %s cannot update listing %s", userID, listingID)
+	}
+
+	// Check if listing can be updated (must be active and not expired)
+	if !listing.CanAcceptBids() {
+		return nil, fmt.Errorf("cannot update listing: listing is not active or has expired")
+	}
+
+	// Apply updates
+	updated := false
+	if req.AskingPrice != nil {
+		if req.AskingPrice.LessThanOrEqual(decimal.Zero) {
+			return nil, fmt.Errorf("asking price must be greater than zero")
+		}
+		listing.AskingPrice = *req.AskingPrice
+		updated = true
+	}
+
+	if req.MinimumBid != nil {
+		if req.MinimumBid.LessThanOrEqual(decimal.Zero) {
+			return nil, fmt.Errorf("minimum bid must be greater than zero")
+		}
+		// Ensure minimum bid is not higher than asking price
+		if req.MinimumBid.GreaterThan(listing.AskingPrice) {
+			return nil, fmt.Errorf("minimum bid cannot be higher than asking price")
+		}
+		listing.MinimumBid = *req.MinimumBid
+		updated = true
+	}
+
+	if req.Visibility != nil {
+		listing.Visibility = *req.Visibility
+		updated = true
+	}
+
+	if req.BidVisibility != nil {
+		listing.BidVisibility = *req.BidVisibility
+		updated = true
+	}
+
+	if req.PickupLocation != nil {
+		if err := listing.SetPickupLocation(req.PickupLocation); err != nil {
+			return nil, fmt.Errorf("failed to set pickup location: %w", err)
+		}
+		updated = true
+	}
+
+	if req.TermsConditions != nil {
+		listing.TermsConditions = *req.TermsConditions
+		updated = true
+	}
+
+	if !updated {
+		return listing, nil // No changes to apply
+	}
+
+	// Validate updated configuration
+	if err := s.validateVisibilityConfiguration(listing); err != nil {
+		return nil, fmt.Errorf("visibility validation failed: %w", err)
+	}
+
+	// Save updated listing
+	if err := s.listingRepo.Update(ctx, listing); err != nil {
+		return nil, fmt.Errorf("failed to update listing: %w", err)
+	}
+
+	return listing, nil
+}
+
+// CloseListing closes a listing with proper authorization
+func (s *ListingService) CloseListing(ctx context.Context, listingID string, reason string, userID string, orgID string) (*marketplaceModels.Listing, error) {
+	// Get existing listing
+	listing, err := s.listingRepo.GetByListingID(ctx, listingID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get listing: %w", err)
+	}
+	if listing == nil {
+		return nil, fmt.Errorf("listing not found: %s", listingID)
+	}
+
+	// Check authorization - only seller or same organization can close
+	if listing.SellerID != userID && listing.OrganizationID != orgID {
+		return nil, fmt.Errorf("access denied: user %s cannot close listing %s", userID, listingID)
+	}
+
+	// Check if listing can be closed
+	if listing.Status != marketplace.ListingStatusActive {
+		return nil, fmt.Errorf("cannot close listing: listing is already %s", listing.Status)
+	}
+
+	// Update listing status
+	closeReason := reason
+	if closeReason == "" {
+		closeReason = "Closed by seller"
+	}
+
+	if err := listing.UpdateStatus(marketplace.ListingStatusClosed, closeReason); err != nil {
+		return nil, fmt.Errorf("failed to update listing status: %w", err)
+	}
+
+	// Save updated listing
+	if err := s.listingRepo.Update(ctx, listing); err != nil {
+		return nil, fmt.Errorf("failed to save listing closure: %w", err)
+	}
+
+	// Release reserved inventory
+	if s.inventoryService != nil {
+		_ = s.inventoryService.ReleaseInventory(ctx, listing.ProductID, listing.Quantity, listing.ListingID)
+	}
+
+	// Record listing closure event
+	if s.eventService != nil {
+		eventData := map[string]interface{}{
+			"listing_id":   listing.ListingID,
+			"close_reason": closeReason,
+			"closed_by":    userID,
+			"bid_count":    listing.BidCount,
+		}
+		_ = s.eventService.RecordListingEvent(ctx, listing.ListingID, marketplace.EventListingClosed, eventData, userID)
+	}
+
+	return listing, nil
+}
+
+// GetSellerListings retrieves listings for a specific seller
+func (s *ListingService) GetSellerListings(ctx context.Context, sellerID string, filter *marketplaceModels.ListingFilter, pagination *common.PaginationParams) ([]*marketplaceModels.Listing, int, error) {
+	// Convert pagination params to repository format
+	paginationReq := &common.PaginationRequest{
+		Limit:  pagination.Limit,
+		Offset: pagination.CalculateOffset(),
+	}
+
+	// Get seller listings
+	listings, total, err := s.listingRepo.GetSellerListings(ctx, sellerID, filter, paginationReq)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to get seller listings: %w", err)
+	}
+
+	return listings, total, nil
+}
+
+// GetAllListings retrieves all listings (admin operation)
+func (s *ListingService) GetAllListings(ctx context.Context, filter *marketplaceModels.ListingFilter, pagination *common.PaginationParams) ([]*marketplaceModels.Listing, int, error) {
+	// Convert pagination params to repository format
+	paginationReq := &common.PaginationRequest{
+		Limit:  pagination.Limit,
+		Offset: pagination.CalculateOffset(),
+	}
+
+	// Get all listings
+	listings, total, err := s.listingRepo.GetAllListings(ctx, filter, paginationReq)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to get all listings: %w", err)
+	}
+
+	return listings, total, nil
+}
+
+// ForceCloseListing force closes a listing (admin operation)
+func (s *ListingService) ForceCloseListing(ctx context.Context, listingID string, reason string, adminID string) (*marketplaceModels.Listing, error) {
+	// Get existing listing
+	listing, err := s.listingRepo.GetByListingID(ctx, listingID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get listing: %w", err)
+	}
+	if listing == nil {
+		return nil, fmt.Errorf("listing not found: %s", listingID)
+	}
+
+	// Force close using repository method
+	if err := s.listingRepo.ForceCloseListing(ctx, listingID, reason, adminID); err != nil {
+		return nil, fmt.Errorf("failed to force close listing: %w", err)
+	}
+
+	// Get updated listing
+	updatedListing, err := s.listingRepo.GetByListingID(ctx, listingID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get updated listing: %w", err)
+	}
+
+	// Release reserved inventory
+	if s.inventoryService != nil {
+		_ = s.inventoryService.ReleaseInventory(ctx, listing.ProductID, listing.Quantity, listing.ListingID)
+	}
+
+	// Record admin closure event
+	if s.eventService != nil {
+		eventData := map[string]interface{}{
+			"listing_id":   listing.ListingID,
+			"close_reason": reason,
+			"admin_id":     adminID,
+			"force_closed": true,
+			"bid_count":    listing.BidCount,
+		}
+		_ = s.eventService.RecordListingEvent(ctx, listing.ListingID, marketplace.EventListingClosed, eventData, adminID)
+	}
+
+	return updatedListing, nil
+}
+
+// Helper methods
+
+// validateCreateListingRequest validates the create listing request
+func (s *ListingService) validateCreateListingRequest(req *CreateListingRequest) error {
+	if req == nil {
+		return fmt.Errorf("request cannot be nil")
+	}
+
+	if req.ProductID == "" {
+		return fmt.Errorf("product ID is required")
+	}
+
+	if req.SellerID == "" {
+		return fmt.Errorf("seller ID is required")
+	}
+
+	if req.OrganizationID == "" {
+		return fmt.Errorf("organization ID is required")
+	}
+
+	if req.Quantity.LessThanOrEqual(decimal.Zero) {
+		return fmt.Errorf("quantity must be greater than zero")
+	}
+
+	if req.AskingPrice.LessThanOrEqual(decimal.Zero) {
+		return fmt.Errorf("asking price must be greater than zero")
+	}
+
+	if req.MinimumBid.LessThanOrEqual(decimal.Zero) {
+		return fmt.Errorf("minimum bid must be greater than zero")
+	}
+
+	if req.MinimumBid.GreaterThan(req.AskingPrice) {
+		return fmt.Errorf("minimum bid cannot be higher than asking price")
+	}
+
+	if req.ListingDuration < 1 || req.ListingDuration > 168 { // Max 7 days
+		return fmt.Errorf("listing duration must be between 1 and 168 hours")
+	}
+
+	// Set defaults if not provided
+	if req.Currency == "" {
+		req.Currency = "INR"
+	}
+
+	if req.Visibility == "" {
+		req.Visibility = marketplace.VisibilityPublic
+	}
+
+	if req.AuctionType == "" {
+		req.AuctionType = marketplace.AuctionTypeOpen
+	}
+
+	if req.BidVisibility == "" {
+		req.BidVisibility = marketplace.BidVisibilityFull
+	}
+
+	return nil
+}
+
+// validateVisibilityConfiguration validates the visibility configuration
+func (s *ListingService) validateVisibilityConfiguration(listing *marketplaceModels.Listing) error {
+	// Validate visibility and auction type combination
+	if listing.Visibility == marketplace.VisibilityPrivate {
+		// Private listings should have additional validation for invitation management
+		// This would be implemented when invitation system is added
+	}
+
+	// Validate bid visibility with auction type
+	if listing.AuctionType == marketplace.AuctionTypeClosed {
+		// For closed auctions, certain bid visibility levels might not make sense
+		if listing.BidVisibility == marketplace.BidVisibilityFull {
+			// This is allowed but bid amounts won't be shown until auction ends
+		}
+	}
+
+	return nil
+}
+
+// canViewListing checks if a viewer can access a listing based on visibility settings
+func (s *ListingService) canViewListing(ctx context.Context, listing *marketplaceModels.Listing, viewerOrgID string) bool {
+	switch listing.Visibility {
+	case marketplace.VisibilityPrivate:
+		// For private listings, additional invitation logic would be needed
+		// For now, only same organization can view
+		return listing.OrganizationID == viewerOrgID
+	case marketplace.VisibilityPublic:
+		return true
+	case marketplace.VisibilityNetwork:
+		// For network visibility, network membership logic would be needed
+		// For now, simplified to allow all
+		return true
+	case marketplace.VisibilityOrganization:
+		return listing.OrganizationID == viewerOrgID
+	default:
+		return false
+	}
+}

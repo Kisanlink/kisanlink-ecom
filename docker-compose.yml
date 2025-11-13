@@ -1,0 +1,318 @@
+# Docker Compose configuration for KisanLink E-commerce Service
+# Supports development, testing, and production environments
+
+version: "3.8"
+
+# =============================================================================
+# Services
+# =============================================================================
+services:
+  # Application service (development)
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: kisanlink-ecom-dev
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - GIN_MODE=debug
+      - LOG_LEVEL=debug
+      - LOG_FORMAT=text
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=dev_password_123
+      - DB_NAME=kisanlink_ecom
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=dev_jwt_secret_change_in_production
+    volumes:
+      - .:/app
+      - go_mod_cache:/go/pkg/mod
+      - app_uploads:/app/uploads
+      - app_logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - kisanlink-network
+    profiles:
+      - dev
+      - full
+
+  # Application service (production)
+  app-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+      args:
+        BUILD_ENV: production
+    container_name: kisanlink-ecom-prod
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - GIN_MODE=release
+      - LOG_LEVEL=info
+      - LOG_FORMAT=json
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=prod_password_change_me
+      - DB_NAME=kisanlink_ecom
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=${JWT_SECRET:-prod_jwt_secret_change_me}
+    volumes:
+      - app_uploads:/app/uploads
+      - app_logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - kisanlink-network
+    profiles:
+      - prod
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: kisanlink-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: kisanlink_ecom
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev_password_123}
+      PGDATA: /var/lib/postgresql/data/pgdata
+      # Performance tuning for development
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/01-init-db.sql:ro
+      - ./scripts/init-test-data.sql:/docker-entrypoint-initdb.d/02-init-test-data.sql:ro
+      - ./migrations:/docker-entrypoint-initdb.d/migrations:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d kisanlink_ecom"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - kisanlink-network
+    profiles:
+      - dev
+      - prod
+      - full
+      - db-only
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: kisanlink-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+      - ./scripts/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: redis-server /usr/local/etc/redis/redis.conf
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - kisanlink-network
+    profiles:
+      - dev
+      - prod
+      - full
+      - cache-only
+
+  # pgAdmin for database management
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: kisanlink-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@kisanlink.local}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin123}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./scripts/pgadmin-servers.json:/pgadmin4/servers.json:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - kisanlink-network
+    profiles:
+      - dev
+      - full
+      - admin
+
+  # Redis Commander for Redis management
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: kisanlink-redis-commander
+    restart: unless-stopped
+    environment:
+      REDIS_HOSTS: local:redis:6379
+      HTTP_USER: ${REDIS_COMMANDER_USER:-admin}
+      HTTP_PASSWORD: ${REDIS_COMMANDER_PASSWORD:-admin123}
+    ports:
+      - "${REDIS_COMMANDER_PORT:-8081}:8081"
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - kisanlink-network
+    profiles:
+      - dev
+      - full
+      - admin
+
+  # Documentation server
+  docs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: docs
+    container_name: kisanlink-docs
+    restart: unless-stopped
+    ports:
+      - "${DOCS_PORT:-8082}:80"
+    networks:
+      - kisanlink-network
+    profiles:
+      - dev
+      - full
+      - docs
+
+  # Test runner service
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: testing
+    container_name: kisanlink-test
+    environment:
+      - GIN_MODE=test
+      - DB_HOST=postgres-test
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=test_password_123
+      - DB_NAME=kisanlink_ecom_test
+    volumes:
+      - .:/app
+      - go_mod_cache:/go/pkg/mod
+      - test_coverage:/app/coverage
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+    networks:
+      - kisanlink-network
+    profiles:
+      - test
+    command: make ci
+
+  # Test database (isolated from development)
+  postgres-test:
+    image: postgres:15-alpine
+    container_name: kisanlink-postgres-test
+    environment:
+      POSTGRES_DB: kisanlink_ecom_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: test_password_123
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+      - ./scripts/init-test-db.sql:/docker-entrypoint-initdb.d/init-test-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d kisanlink_ecom_test"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+      - kisanlink-network
+    profiles:
+      - test
+
+  # Load balancer (for production)
+  nginx:
+    image: nginx:alpine
+    container_name: kisanlink-nginx
+    restart: unless-stopped
+    ports:
+      - "${NGINX_HTTP_PORT:-80}:80"
+      - "${NGINX_HTTPS_PORT:-443}:443"
+    volumes:
+      - ./scripts/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./scripts/nginx-default.conf:/etc/nginx/conf.d/default.conf:ro
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      - app-prod
+    networks:
+      - kisanlink-network
+    profiles:
+      - prod
+      - full
+
+# =============================================================================
+# Volumes
+# =============================================================================
+volumes:
+  # Database volumes
+  postgres_data:
+    driver: local
+  postgres_test_data:
+    driver: local
+
+  # Cache volumes
+  redis_data:
+    driver: local
+
+  # Application volumes
+  app_uploads:
+    driver: local
+  app_logs:
+    driver: local
+
+  # Admin tool volumes
+  pgadmin_data:
+    driver: local
+
+  # Development volumes
+  go_mod_cache:
+    driver: local
+  test_coverage:
+    driver: local
+
+  # Web server volumes
+  nginx_logs:
+    driver: local
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  kisanlink-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

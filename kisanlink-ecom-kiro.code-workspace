@@ -1,0 +1,19 @@
+{
+    "folders": [
+        {
+            "path": "."
+        },
+        {
+            "path": "../kisanlink-db"
+        },
+        {
+            "path": "../aaa-service"
+        },
+        {
+            "path": "../ecommerce-frontend"
+        }
+    ],
+    "settings": {
+        "kiroAgent.configureMCP": "Enabled"
+    }
+}

@@ -1,0 +1,13 @@
+linters-settings:
+  dupl:
+    threshold: 200 # Allow more duplication in tests
+  goconst:
+    min-occurrences: 10 # Allow more string repetition in tests
+
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - dupl
+        - goconst
+        - nolintlint

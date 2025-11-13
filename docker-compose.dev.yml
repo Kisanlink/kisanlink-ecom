@@ -1,0 +1,47 @@
+# Development-specific Docker Compose configuration
+# Use with: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+version: "3.8"
+
+services:
+  app-dev:
+    build:
+      target: development
+    environment:
+      - GIN_MODE=debug
+      - LOG_LEVEL=debug
+      - LOG_FORMAT=text
+      - HOT_RELOAD=true
+    volumes:
+      - .:/app:cached
+      - go_mod_cache:/go/pkg/mod
+      - /app/tmp # Exclude tmp directory from sync
+    ports:
+      - "8080:8080"
+      - "2345:2345" # Delve debugger port
+    command: air -c .air.toml
+
+  postgres:
+    environment:
+      POSTGRES_PASSWORD: dev_password_123
+    ports:
+      - "5432:5432"
+
+  redis:
+    ports:
+      - "6379:6379"
+
+  # Development tools
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: kisanlink-mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025" # SMTP
+      - "8025:8025" # Web UI
+    networks:
+      - kisanlink-network
+
+volumes:
+  go_mod_cache:
+    driver: local

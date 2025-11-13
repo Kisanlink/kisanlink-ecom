@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package kisanlink.shared;
+
+option go_package = "kisanlink-ecom/proto/gen/go/shared;sharedpb";
+
+// PaginationRequest for requesting paginated data
+message PaginationRequest {
+  int32 page = 1;  // 1-indexed
+  int32 page_size = 2;
+  optional string cursor = 3;  // For cursor-based pagination
+}
+
+// PaginationResponse contains pagination metadata
+message PaginationResponse {
+  int32 page = 1;
+  int32 page_size = 2;
+  int32 total_pages = 3;
+  int64 total_items = 4;
+  bool has_next = 5;
+  bool has_previous = 6;
+  optional string next_cursor = 7;
+  optional string previous_cursor = 8;
+}
+
+// SortOrder for sorting
+enum SortOrder {
+  SORT_ORDER_UNSPECIFIED = 0;
+  SORT_ORDER_ASC = 1;
+  SORT_ORDER_DESC = 2;
+}

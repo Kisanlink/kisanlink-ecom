@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package kisanlink.collaborator.v1;
+
+option go_package = "kisanlink-ecom/proto/gen/go/collaborator/v1;collaboratorpb";
+
+import "collaborator/v1/collaborator_messages.proto";
+import "google/protobuf/empty.proto";
+
+// CollaboratorService provides gRPC endpoints for collaborator management
+service CollaboratorService {
+  // CreateCollaborator creates a new collaborator
+  rpc CreateCollaborator(CreateCollaboratorRequest) returns (CollaboratorResponse);
+
+  // UpdateCollaborator updates an existing collaborator
+  rpc UpdateCollaborator(UpdateCollaboratorRequest) returns (CollaboratorResponse);
+
+  // DeactivateCollaborator deactivates or suspends a collaborator
+  rpc DeactivateCollaborator(DeactivateCollaboratorRequest) returns (StatusResponse);
+
+  // GetCollaborator retrieves a single collaborator by ID
+  rpc GetCollaborator(GetCollaboratorRequest) returns (CollaboratorResponse);
+
+  // ListCollaborators lists collaborators with filtering and pagination
+  rpc ListCollaborators(ListCollaboratorsRequest) returns (ListCollaboratorsResponse);
+
+  // VerifyCollaborator verifies business information
+  rpc VerifyCollaborator(VerifyCollaboratorRequest) returns (VerifyCollaboratorResponse);
+
+  // GetCollaboratorByGST retrieves a collaborator by GST number
+  rpc GetCollaboratorByGST(GetCollaboratorByGSTRequest) returns (CollaboratorResponse);
+
+  // HealthCheck endpoint
+  rpc HealthCheck(google.protobuf.Empty) returns (HealthCheckResponse);
+}
