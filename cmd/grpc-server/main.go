@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"kisanlink-ecom/internal/aaa"
 	"kisanlink-ecom/internal/config"
+	collabDomain "kisanlink-ecom/internal/domain/collaborator"
 	grpcserver "kisanlink-ecom/internal/grpc"
 	"kisanlink-ecom/internal/grpc/handlers/collaborator"
 	"kisanlink-ecom/internal/grpc/interceptors"
 	"kisanlink-ecom/internal/saga"
 	"kisanlink-ecom/internal/services/gst"
+	"kisanlink-ecom/internal/services/otp"
 	pb "kisanlink-ecom/proto/gen/go/collaborator/v1"
 	"log"
 	"net"
@@ -111,8 +113,14 @@ func main() {
 	zapLogger, _ := zap.NewProduction()
 	sagaExecutor := saga.NewSagaExecutor(sagaStorage, zapLogger, sagaMetrics)
 
+	// Initialize OTP service
+	otpService := otp.NewOTPService(zapLogger)
+
+	// Initialize State Machine
+	stateMachine := collabDomain.NewStateMachine(db, zapLogger)
+
 	// Create collaborator handler
-	collaboratorHandler := collaborator.NewHandler(db, logger, aaaClient, gstService, sagaExecutor)
+	collaboratorHandler := collaborator.NewHandler(db, logger, aaaClient, gstService, sagaExecutor, otpService, stateMachine)
 
 	// Register collaborator service
 	pb.RegisterCollaboratorServiceServer(server, collaboratorHandler)
