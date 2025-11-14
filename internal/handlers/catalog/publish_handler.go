@@ -3,10 +3,10 @@ package catalog
 import (
 	"time"
 
-	catalogModels "kisanlink-ecom/entities/models/catalog"
-	"kisanlink-ecom/internal/common"
-	"kisanlink-ecom/internal/middleware"
-	catalogService "kisanlink-ecom/internal/services/catalog"
+	catalogModels "github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
+	"github.com/Kisanlink/kisanlink-ecom/internal/common"
+	"github.com/Kisanlink/kisanlink-ecom/internal/middleware"
+	catalogService "github.com/Kisanlink/kisanlink-ecom/internal/services/catalog"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"

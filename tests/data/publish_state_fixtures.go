@@ -3,7 +3,7 @@ package data
 import (
 	"time"
 
-	"kisanlink-ecom/entities/models/catalog"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/base"
 	"github.com/shopspring/decimal"

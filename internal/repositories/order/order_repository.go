@@ -3,7 +3,7 @@ package order
 import (
 	"context"
 
-	"kisanlink-ecom/entities/models/orders"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/orders"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/base"
 	"github.com/Kisanlink/kisanlink-db/pkg/db"

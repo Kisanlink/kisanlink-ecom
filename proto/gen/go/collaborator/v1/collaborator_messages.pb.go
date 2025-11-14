@@ -7,10 +7,11 @@
 package collaboratorpb
 
 import (
-	shared "kisanlink-ecom/proto/gen/go/shared"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
+
+	shared "github.com/Kisanlink/kisanlink-ecom/proto/gen/go/shared"
 
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"

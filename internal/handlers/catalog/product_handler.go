@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"strconv"
 
-	catalogModels "kisanlink-ecom/entities/models/catalog"
-	catalogRequests "kisanlink-ecom/entities/requests/catalog"
-	"kisanlink-ecom/internal/common"
-	"kisanlink-ecom/internal/middleware"
-	catalogService "kisanlink-ecom/internal/services/catalog"
+	catalogModels "github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
+	catalogRequests "github.com/Kisanlink/kisanlink-ecom/entities/requests/catalog"
+	"github.com/Kisanlink/kisanlink-ecom/internal/common"
+	"github.com/Kisanlink/kisanlink-ecom/internal/middleware"
+	catalogService "github.com/Kisanlink/kisanlink-ecom/internal/services/catalog"
 
 	"github.com/gin-gonic/gin"
 )

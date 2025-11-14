@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"kisanlink-ecom/entities/models/marketplace"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/marketplace"
 )
 
 // CacheService provides caching functionality for marketplace operations

@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"kisanlink-ecom/entities/models/common"
-	"kisanlink-ecom/internal/database"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/common"
+	"github.com/Kisanlink/kisanlink-ecom/internal/database"
 
 	"github.com/gin-gonic/gin"
 )

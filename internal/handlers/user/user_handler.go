@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"strings"
 
-	"kisanlink-ecom/entities/requests/auth"
-	"kisanlink-ecom/internal/common"
-	userService "kisanlink-ecom/internal/services/user"
+	"github.com/Kisanlink/kisanlink-ecom/entities/requests/auth"
+	"github.com/Kisanlink/kisanlink-ecom/internal/common"
+	userService "github.com/Kisanlink/kisanlink-ecom/internal/services/user"
 
 	"github.com/gin-gonic/gin"
 )

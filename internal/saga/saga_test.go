@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"kisanlink-ecom/internal/saga"
+	"github.com/Kisanlink/kisanlink-ecom/internal/saga"
 
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"

@@ -1,7 +1,7 @@
 package orders
 
 import (
-	"kisanlink-ecom/entities/models/orders"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/orders"
 
 	"github.com/shopspring/decimal"
 )

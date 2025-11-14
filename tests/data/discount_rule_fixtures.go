@@ -1,7 +1,7 @@
 package data
 
 import (
-	"kisanlink-ecom/entities/models/discounts"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/discounts"
 )
 
 // CreateTestDiscountRule creates a test discount rule with default values

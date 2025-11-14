@@ -3,8 +3,8 @@ package inventory
 import (
 	"strconv"
 
-	"kisanlink-ecom/internal/common"
-	inventoryService "kisanlink-ecom/internal/services/inventory"
+	"github.com/Kisanlink/kisanlink-ecom/internal/common"
+	inventoryService "github.com/Kisanlink/kisanlink-ecom/internal/services/inventory"
 
 	"github.com/gin-gonic/gin"
 )

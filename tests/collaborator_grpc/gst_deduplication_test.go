@@ -14,7 +14,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	pb "kisanlink-ecom/proto/gen/go/collaborator/v1"
+	pb "github.com/Kisanlink/kisanlink-ecom/proto/gen/go/collaborator/v1"
 )
 
 // TestGSTDeduplicationLogic tests all GST-related business invariants

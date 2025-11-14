@@ -3,7 +3,7 @@ package data
 import (
 	"time"
 
-	"kisanlink-ecom/entities/models/services"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/services"
 )
 
 // CreateTestSLA creates a test SLA with default values

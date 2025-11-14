@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"kisanlink-ecom/entities/models/common"
-	"kisanlink-ecom/internal/auth"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/common"
+	"github.com/Kisanlink/kisanlink-ecom/internal/auth"
 
 	"github.com/gin-gonic/gin"
 	"github.com/patrickmn/go-cache"

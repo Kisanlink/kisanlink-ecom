@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"testing"
 
-	"kisanlink-ecom/entities/models/services"
-	svcRepo "kisanlink-ecom/internal/repositories/services"
-	"kisanlink-ecom/tests/data"
-	"kisanlink-ecom/tests/mocks"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/services"
+	svcRepo "github.com/Kisanlink/kisanlink-ecom/internal/repositories/services"
+	"github.com/Kisanlink/kisanlink-ecom/tests/data"
+	"github.com/Kisanlink/kisanlink-ecom/tests/mocks"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/base"
 	"github.com/stretchr/testify/assert"

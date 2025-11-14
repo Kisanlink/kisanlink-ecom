@@ -4,11 +4,11 @@ import (
 	"strconv"
 	"time"
 
-	"kisanlink-ecom/entities/models/marketplace"
-	"kisanlink-ecom/internal/common"
-	"kisanlink-ecom/internal/middleware"
-	marketplaceService "kisanlink-ecom/internal/services/marketplace"
-	"kisanlink-ecom/internal/utils"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/marketplace"
+	"github.com/Kisanlink/kisanlink-ecom/internal/common"
+	"github.com/Kisanlink/kisanlink-ecom/internal/middleware"
+	marketplaceService "github.com/Kisanlink/kisanlink-ecom/internal/services/marketplace"
+	"github.com/Kisanlink/kisanlink-ecom/internal/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"

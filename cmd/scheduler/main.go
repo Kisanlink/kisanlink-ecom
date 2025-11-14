@@ -8,11 +8,11 @@ import (
 	"syscall"
 	"time"
 
-	"kisanlink-ecom/internal/config"
-	"kisanlink-ecom/internal/database"
-	"kisanlink-ecom/internal/repositories/inventory"
-	inventoryService "kisanlink-ecom/internal/services/inventory"
-	"kisanlink-ecom/internal/services/notifications"
+	"github.com/Kisanlink/kisanlink-ecom/internal/config"
+	"github.com/Kisanlink/kisanlink-ecom/internal/database"
+	"github.com/Kisanlink/kisanlink-ecom/internal/repositories/inventory"
+	inventoryService "github.com/Kisanlink/kisanlink-ecom/internal/services/inventory"
+	"github.com/Kisanlink/kisanlink-ecom/internal/services/notifications"
 )
 
 func main() {

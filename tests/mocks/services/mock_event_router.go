@@ -5,8 +5,8 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"kisanlink-ecom/entities/models/outbox"
-	"kisanlink-ecom/internal/services/events"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/outbox"
+	"github.com/Kisanlink/kisanlink-ecom/internal/services/events"
 )
 
 // MockEventRouter is a mock implementation of EventRouter

@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"kisanlink-ecom/entities/models/marketplace"
-	"kisanlink-ecom/internal/common"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/marketplace"
+	"github.com/Kisanlink/kisanlink-ecom/internal/common"
 
 	"github.com/shopspring/decimal"
 )

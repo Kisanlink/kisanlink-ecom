@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	orderModels "kisanlink-ecom/entities/models/orders"
-	orderResponses "kisanlink-ecom/entities/responses/orders"
+	orderModels "github.com/Kisanlink/kisanlink-ecom/entities/models/orders"
+	orderResponses "github.com/Kisanlink/kisanlink-ecom/entities/responses/orders"
 
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"

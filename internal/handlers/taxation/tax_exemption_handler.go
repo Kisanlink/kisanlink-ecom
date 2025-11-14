@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"strings"
 
-	"kisanlink-ecom/internal/common"
-	taxationService "kisanlink-ecom/internal/services/taxation"
+	"github.com/Kisanlink/kisanlink-ecom/internal/common"
+	taxationService "github.com/Kisanlink/kisanlink-ecom/internal/services/taxation"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"

@@ -7,9 +7,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	integrationRequests "kisanlink-ecom/entities/requests/integrations"
-	"kisanlink-ecom/internal/handlers/integrations"
-	integrationService "kisanlink-ecom/internal/services/integrations"
+	integrationRequests "github.com/Kisanlink/kisanlink-ecom/entities/requests/integrations"
+	"github.com/Kisanlink/kisanlink-ecom/internal/handlers/integrations"
+	integrationService "github.com/Kisanlink/kisanlink-ecom/internal/services/integrations"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"

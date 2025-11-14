@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"kisanlink-ecom/entities/models/outbox"
-	"kisanlink-ecom/internal/repositories/events"
-	"kisanlink-ecom/tests/testutils"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/outbox"
+	"github.com/Kisanlink/kisanlink-ecom/internal/repositories/events"
+	"github.com/Kisanlink/kisanlink-ecom/tests/testutils"
 )
 
 func TestOutboxRepository_Create(t *testing.T) {

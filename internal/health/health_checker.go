@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"kisanlink-ecom/internal/cache"
-	"kisanlink-ecom/internal/resilience"
+	"github.com/Kisanlink/kisanlink-ecom/internal/cache"
+	"github.com/Kisanlink/kisanlink-ecom/internal/resilience"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/db"
 )

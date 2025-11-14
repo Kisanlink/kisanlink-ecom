@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"kisanlink-ecom/internal/common"
-	rolesService "kisanlink-ecom/internal/services/roles"
+	"github.com/Kisanlink/kisanlink-ecom/internal/common"
+	rolesService "github.com/Kisanlink/kisanlink-ecom/internal/services/roles"
 
 	"github.com/gin-gonic/gin"
 )

@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"strings"
 
-	"kisanlink-ecom/entities/models/common"
-	catalogRequests "kisanlink-ecom/entities/requests/catalog"
-	"kisanlink-ecom/internal/validators"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/common"
+	catalogRequests "github.com/Kisanlink/kisanlink-ecom/entities/requests/catalog"
+	"github.com/Kisanlink/kisanlink-ecom/internal/validators"
 
 	"github.com/gin-gonic/gin"
 )

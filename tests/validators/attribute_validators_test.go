@@ -3,7 +3,7 @@ package validators
 import (
 	"testing"
 
-	"kisanlink-ecom/internal/validators"
+	"github.com/Kisanlink/kisanlink-ecom/internal/validators"
 
 	"github.com/stretchr/testify/assert"
 )

@@ -3,10 +3,10 @@ package orders
 import (
 	"strconv"
 
-	orderModels "kisanlink-ecom/entities/models/orders"
-	"kisanlink-ecom/internal/common"
-	"kisanlink-ecom/internal/middleware"
-	orderService "kisanlink-ecom/internal/services/orders"
+	orderModels "github.com/Kisanlink/kisanlink-ecom/entities/models/orders"
+	"github.com/Kisanlink/kisanlink-ecom/internal/common"
+	"github.com/Kisanlink/kisanlink-ecom/internal/middleware"
+	orderService "github.com/Kisanlink/kisanlink-ecom/internal/services/orders"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"

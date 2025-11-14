@@ -1,21 +1,21 @@
 package models
 
 import (
-	"kisanlink-ecom/entities/models/actors"
-	"kisanlink-ecom/entities/models/catalog"
-	"kisanlink-ecom/entities/models/collaborator"
-	"kisanlink-ecom/entities/models/common"
-	"kisanlink-ecom/entities/models/discounts"
-	"kisanlink-ecom/entities/models/inventory"
-	"kisanlink-ecom/entities/models/marketplace"
-	"kisanlink-ecom/entities/models/media"
-	"kisanlink-ecom/entities/models/orders"
-	"kisanlink-ecom/entities/models/outbox"
-	"kisanlink-ecom/entities/models/pricing"
-	"kisanlink-ecom/entities/models/roles"
-	"kisanlink-ecom/entities/models/services"
-	"kisanlink-ecom/entities/models/taxation"
-	"kisanlink-ecom/entities/models/user"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/actors"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/collaborator"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/common"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/discounts"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/inventory"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/marketplace"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/media"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/orders"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/outbox"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/pricing"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/roles"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/services"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/taxation"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/user"
 )
 
 // AllModels returns a slice of all GORM models for migration

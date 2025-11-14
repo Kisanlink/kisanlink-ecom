@@ -4,7 +4,7 @@ import (
 	"os"
 	"strconv"
 
-	"kisanlink-ecom/internal/config"
+	"github.com/Kisanlink/kisanlink-ecom/internal/config"
 )
 
 // LoadTestDatabaseConfig loads database configuration for integration tests from environment variables

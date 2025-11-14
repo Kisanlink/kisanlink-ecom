@@ -9,11 +9,11 @@ import (
 	"testing"
 	"time"
 
-	catalogModels "kisanlink-ecom/entities/models/catalog"
-	orderModels "kisanlink-ecom/entities/models/orders"
-	catalogRepo "kisanlink-ecom/internal/repositories/catalog"
-	orderRepo "kisanlink-ecom/internal/repositories/orders"
-	"kisanlink-ecom/tests/testutils"
+	catalogModels "github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
+	orderModels "github.com/Kisanlink/kisanlink-ecom/entities/models/orders"
+	catalogRepo "github.com/Kisanlink/kisanlink-ecom/internal/repositories/catalog"
+	orderRepo "github.com/Kisanlink/kisanlink-ecom/internal/repositories/orders"
+	"github.com/Kisanlink/kisanlink-ecom/tests/testutils"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/base"
 	"github.com/Kisanlink/kisanlink-db/pkg/db"

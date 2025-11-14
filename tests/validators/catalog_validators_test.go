@@ -3,9 +3,9 @@ package validators
 import (
 	"testing"
 
-	"kisanlink-ecom/entities/models/catalog"
-	catalogRequests "kisanlink-ecom/entities/requests/catalog"
-	"kisanlink-ecom/internal/validators"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
+	catalogRequests "github.com/Kisanlink/kisanlink-ecom/entities/requests/catalog"
+	"github.com/Kisanlink/kisanlink-ecom/internal/validators"
 
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"

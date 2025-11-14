@@ -6,10 +6,10 @@ import (
 	"log"
 	"time"
 
-	catalogModels "kisanlink-ecom/entities/models/catalog"
-	inventoryModels "kisanlink-ecom/entities/models/inventory"
-	inventoryRepo "kisanlink-ecom/internal/repositories/inventory"
-	"kisanlink-ecom/internal/services/notifications"
+	catalogModels "github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
+	inventoryModels "github.com/Kisanlink/kisanlink-ecom/entities/models/inventory"
+	inventoryRepo "github.com/Kisanlink/kisanlink-ecom/internal/repositories/inventory"
+	"github.com/Kisanlink/kisanlink-ecom/internal/services/notifications"
 
 	"github.com/shopspring/decimal"
 )

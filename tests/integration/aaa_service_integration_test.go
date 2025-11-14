@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"kisanlink-ecom/internal/auth"
-	"kisanlink-ecom/tests/testutils"
+	"github.com/Kisanlink/kisanlink-ecom/internal/auth"
+	"github.com/Kisanlink/kisanlink-ecom/tests/testutils"
 
 	"github.com/stretchr/testify/suite"
 )

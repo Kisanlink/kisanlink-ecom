@@ -1,8 +1,8 @@
 package marketplace
 
 import (
-	"kisanlink-ecom/internal/common"
-	"kisanlink-ecom/internal/services/marketplace"
+	"github.com/Kisanlink/kisanlink-ecom/internal/common"
+	"github.com/Kisanlink/kisanlink-ecom/internal/services/marketplace"
 
 	"github.com/gin-gonic/gin"
 )

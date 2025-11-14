@@ -7,10 +7,10 @@ import (
 	"net/url"
 	"testing"
 
-	catalogModels "kisanlink-ecom/entities/models/catalog"
-	"kisanlink-ecom/internal/handlers/catalog"
-	catalogService "kisanlink-ecom/internal/services/catalog"
-	"kisanlink-ecom/internal/services/catalog/mocks"
+	catalogModels "github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
+	"github.com/Kisanlink/kisanlink-ecom/internal/handlers/catalog"
+	catalogService "github.com/Kisanlink/kisanlink-ecom/internal/services/catalog"
+	"github.com/Kisanlink/kisanlink-ecom/internal/services/catalog/mocks"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"

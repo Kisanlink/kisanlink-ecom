@@ -1,7 +1,7 @@
 package actors
 
 import (
-	"kisanlink-ecom/entities/models/actors"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/actors"
 )
 
 // CreateCustomerRequest represents the request to create a customer

@@ -17,9 +17,9 @@ import (
 	"testing"
 	"time"
 
-	integrationRequests "kisanlink-ecom/entities/requests/integrations"
-	integrationResponses "kisanlink-ecom/entities/responses/integrations"
-	"kisanlink-ecom/internal/handlers/integrations"
+	integrationRequests "github.com/Kisanlink/kisanlink-ecom/entities/requests/integrations"
+	integrationResponses "github.com/Kisanlink/kisanlink-ecom/entities/responses/integrations"
+	"github.com/Kisanlink/kisanlink-ecom/internal/handlers/integrations"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"

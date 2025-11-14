@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"kisanlink-ecom/internal/config"
-	"kisanlink-ecom/internal/database"
-	"kisanlink-ecom/tests/testutils"
+	"github.com/Kisanlink/kisanlink-ecom/internal/config"
+	"github.com/Kisanlink/kisanlink-ecom/internal/database"
+	"github.com/Kisanlink/kisanlink-ecom/tests/testutils"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

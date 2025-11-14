@@ -4,8 +4,8 @@ import (
 	"context"
 	"strconv"
 
-	collabModel "kisanlink-ecom/entities/models/collaborator"
-	pb "kisanlink-ecom/proto/gen/go/collaborator/v1"
+	collabModel "github.com/Kisanlink/kisanlink-ecom/entities/models/collaborator"
+	pb "github.com/Kisanlink/kisanlink-ecom/proto/gen/go/collaborator/v1"
 
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"

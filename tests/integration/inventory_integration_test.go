@@ -8,12 +8,12 @@ import (
 	"testing"
 	"time"
 
-	catalogModels "kisanlink-ecom/entities/models/catalog"
-	"kisanlink-ecom/internal/database"
-	catalogRepo "kisanlink-ecom/internal/repositories/catalog"
-	"kisanlink-ecom/internal/repositories/inventory"
-	inventoryService "kisanlink-ecom/internal/services/inventory"
-	"kisanlink-ecom/tests/testutils"
+	catalogModels "github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
+	"github.com/Kisanlink/kisanlink-ecom/internal/database"
+	catalogRepo "github.com/Kisanlink/kisanlink-ecom/internal/repositories/catalog"
+	"github.com/Kisanlink/kisanlink-ecom/internal/repositories/inventory"
+	inventoryService "github.com/Kisanlink/kisanlink-ecom/internal/services/inventory"
+	"github.com/Kisanlink/kisanlink-ecom/tests/testutils"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/db"
 	"github.com/shopspring/decimal"

@@ -4,11 +4,11 @@ import (
 	"strconv"
 	"strings"
 
-	"kisanlink-ecom/entities/models/collaborator"
-	collaboratorRequests "kisanlink-ecom/entities/requests/collaborator"
-	"kisanlink-ecom/internal/common"
-	"kisanlink-ecom/internal/middleware"
-	collaboratorService "kisanlink-ecom/internal/services/collaborator"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/collaborator"
+	collaboratorRequests "github.com/Kisanlink/kisanlink-ecom/entities/requests/collaborator"
+	"github.com/Kisanlink/kisanlink-ecom/internal/common"
+	"github.com/Kisanlink/kisanlink-ecom/internal/middleware"
+	collaboratorService "github.com/Kisanlink/kisanlink-ecom/internal/services/collaborator"
 
 	"github.com/gin-gonic/gin"
 )

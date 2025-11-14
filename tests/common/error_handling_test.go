@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 
-	"kisanlink-ecom/internal/common"
+	"github.com/Kisanlink/kisanlink-ecom/internal/common"
 )
 
 func TestAppError(t *testing.T) {

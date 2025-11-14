@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	marketplaceModels "kisanlink-ecom/entities/models/marketplace"
-	"kisanlink-ecom/internal/services/marketplace"
+	marketplaceModels "github.com/Kisanlink/kisanlink-ecom/entities/models/marketplace"
+	"github.com/Kisanlink/kisanlink-ecom/internal/services/marketplace"
 
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"

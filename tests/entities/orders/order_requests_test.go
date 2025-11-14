@@ -4,8 +4,8 @@ import (
 	"errors"
 	"testing"
 
-	orderModels "kisanlink-ecom/entities/models/orders"
-	orderRequests "kisanlink-ecom/entities/requests/orders"
+	orderModels "github.com/Kisanlink/kisanlink-ecom/entities/models/orders"
+	orderRequests "github.com/Kisanlink/kisanlink-ecom/entities/requests/orders"
 
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"

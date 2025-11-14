@@ -9,11 +9,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	catalogModels "kisanlink-ecom/entities/models/catalog"
-	"kisanlink-ecom/internal/handlers/inventory"
-	inventoryRepo "kisanlink-ecom/internal/repositories/inventory"
-	inventoryService "kisanlink-ecom/internal/services/inventory"
-	"kisanlink-ecom/tests/data"
+	catalogModels "github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
+	"github.com/Kisanlink/kisanlink-ecom/internal/handlers/inventory"
+	inventoryRepo "github.com/Kisanlink/kisanlink-ecom/internal/repositories/inventory"
+	inventoryService "github.com/Kisanlink/kisanlink-ecom/internal/services/inventory"
+	"github.com/Kisanlink/kisanlink-ecom/tests/data"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"

@@ -4,10 +4,10 @@ import (
 	"strconv"
 	"time"
 
-	catalogModels "kisanlink-ecom/entities/models/catalog"
-	"kisanlink-ecom/internal/common"
-	"kisanlink-ecom/internal/middleware"
-	inventoryService "kisanlink-ecom/internal/services/inventory"
+	catalogModels "github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
+	"github.com/Kisanlink/kisanlink-ecom/internal/common"
+	"github.com/Kisanlink/kisanlink-ecom/internal/middleware"
+	inventoryService "github.com/Kisanlink/kisanlink-ecom/internal/services/inventory"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"

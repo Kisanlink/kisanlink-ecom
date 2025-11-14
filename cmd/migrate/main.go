@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"kisanlink-ecom/internal/config"
-	"kisanlink-ecom/internal/database"
+	"github.com/Kisanlink/kisanlink-ecom/internal/config"
+	"github.com/Kisanlink/kisanlink-ecom/internal/database"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/db"
 )

@@ -1,8 +1,8 @@
 package data
 
 import (
-	"kisanlink-ecom/entities/models/collaborator"
-	collaboratorRequests "kisanlink-ecom/entities/requests/collaborator"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/collaborator"
+	collaboratorRequests "github.com/Kisanlink/kisanlink-ecom/entities/requests/collaborator"
 )
 
 // TestCollaboratorData provides test data for collaborator tests

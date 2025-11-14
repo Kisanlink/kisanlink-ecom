@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	catalogModels "kisanlink-ecom/entities/models/catalog"
-	inventoryRepo "kisanlink-ecom/internal/repositories/inventory"
+	catalogModels "github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
+	inventoryRepo "github.com/Kisanlink/kisanlink-ecom/internal/repositories/inventory"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/base"
 	"github.com/shopspring/decimal"

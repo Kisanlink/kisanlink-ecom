@@ -5,10 +5,10 @@ import (
 	"strconv"
 	"time"
 
-	"kisanlink-ecom/entities/models/marketplace"
-	"kisanlink-ecom/internal/common"
-	marketplaceService "kisanlink-ecom/internal/services/marketplace"
-	"kisanlink-ecom/internal/utils"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/marketplace"
+	"github.com/Kisanlink/kisanlink-ecom/internal/common"
+	marketplaceService "github.com/Kisanlink/kisanlink-ecom/internal/services/marketplace"
+	"github.com/Kisanlink/kisanlink-ecom/internal/utils"
 
 	"github.com/gin-gonic/gin"
 )

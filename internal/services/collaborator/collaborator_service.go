@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"time"
 
-	"kisanlink-ecom/entities/models/collaborator"
-	collaboratorRequests "kisanlink-ecom/entities/requests/collaborator"
-	collaboratorResponses "kisanlink-ecom/entities/responses/collaborator"
-	collaboratorRepo "kisanlink-ecom/internal/repositories/collaborator"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/collaborator"
+	collaboratorRequests "github.com/Kisanlink/kisanlink-ecom/entities/requests/collaborator"
+	collaboratorResponses "github.com/Kisanlink/kisanlink-ecom/entities/responses/collaborator"
+	collaboratorRepo "github.com/Kisanlink/kisanlink-ecom/internal/repositories/collaborator"
 
 	"github.com/sirupsen/logrus"
 )

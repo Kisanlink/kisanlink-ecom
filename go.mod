@@ -1,4 +1,4 @@
-module kisanlink-ecom
+module github.com/Kisanlink/kisanlink-ecom
 
 go 1.24
 

@@ -7,10 +7,10 @@ import (
 	"context"
 	"testing"
 
-	"kisanlink-ecom/entities/models/marketplace"
-	"kisanlink-ecom/internal/database"
-	"kisanlink-ecom/migrations"
-	"kisanlink-ecom/tests/testutils"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/marketplace"
+	"github.com/Kisanlink/kisanlink-ecom/internal/database"
+	"github.com/Kisanlink/kisanlink-ecom/migrations"
+	"github.com/Kisanlink/kisanlink-ecom/tests/testutils"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/db"
 	"github.com/shopspring/decimal"

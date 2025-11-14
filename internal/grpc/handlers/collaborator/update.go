@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"strconv"
 
-	collabModel "kisanlink-ecom/entities/models/collaborator"
-	"kisanlink-ecom/internal/domain/collaborator"
-	"kisanlink-ecom/internal/saga"
-	pb "kisanlink-ecom/proto/gen/go/collaborator/v1"
+	collabModel "github.com/Kisanlink/kisanlink-ecom/entities/models/collaborator"
+	"github.com/Kisanlink/kisanlink-ecom/internal/domain/collaborator"
+	"github.com/Kisanlink/kisanlink-ecom/internal/saga"
+	pb "github.com/Kisanlink/kisanlink-ecom/proto/gen/go/collaborator/v1"
 
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"

@@ -1,10 +1,10 @@
 package routes
 
 import (
-	"kisanlink-ecom/internal/auth"
-	"kisanlink-ecom/internal/handlers/marketplace"
-	"kisanlink-ecom/internal/middleware"
-	marketplaceService "kisanlink-ecom/internal/services/marketplace"
+	"github.com/Kisanlink/kisanlink-ecom/internal/auth"
+	"github.com/Kisanlink/kisanlink-ecom/internal/handlers/marketplace"
+	"github.com/Kisanlink/kisanlink-ecom/internal/middleware"
+	marketplaceService "github.com/Kisanlink/kisanlink-ecom/internal/services/marketplace"
 
 	"github.com/gin-gonic/gin"
 )

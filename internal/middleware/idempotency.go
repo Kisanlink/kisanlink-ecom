@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"kisanlink-ecom/entities/models/common"
-	commonErrors "kisanlink-ecom/internal/common"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/common"
+	commonErrors "github.com/Kisanlink/kisanlink-ecom/internal/common"
 
 	"github.com/gin-gonic/gin"
 	"github.com/patrickmn/go-cache"

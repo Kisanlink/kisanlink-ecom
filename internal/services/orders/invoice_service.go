@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	orderModels "kisanlink-ecom/entities/models/orders"
-	"kisanlink-ecom/internal/repositories/orders"
+	orderModels "github.com/Kisanlink/kisanlink-ecom/entities/models/orders"
+	"github.com/Kisanlink/kisanlink-ecom/internal/repositories/orders"
 
 	"github.com/shopspring/decimal"
 )

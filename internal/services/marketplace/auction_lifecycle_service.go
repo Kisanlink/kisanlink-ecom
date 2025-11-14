@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"kisanlink-ecom/entities/models/marketplace"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/marketplace"
 
 	"github.com/shopspring/decimal"
 )

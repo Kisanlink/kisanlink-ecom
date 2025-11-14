@@ -3,11 +3,11 @@ package testutils
 import (
 	"time"
 
-	catalogModels "kisanlink-ecom/entities/models/catalog"
-	orderModels "kisanlink-ecom/entities/models/orders"
-	catalogRequests "kisanlink-ecom/entities/requests/catalog"
-	orderRequests "kisanlink-ecom/entities/requests/orders"
-	"kisanlink-ecom/internal/auth"
+	catalogModels "github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
+	orderModels "github.com/Kisanlink/kisanlink-ecom/entities/models/orders"
+	catalogRequests "github.com/Kisanlink/kisanlink-ecom/entities/requests/catalog"
+	orderRequests "github.com/Kisanlink/kisanlink-ecom/entities/requests/orders"
+	"github.com/Kisanlink/kisanlink-ecom/internal/auth"
 
 	"github.com/shopspring/decimal"
 )

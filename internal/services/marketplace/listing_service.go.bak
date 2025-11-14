@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/marketplace"
 	marketplaceModels "github.com/Kisanlink/kisanlink-ecom/entities/models/marketplace"
 	"github.com/Kisanlink/kisanlink-ecom/internal/common"
 	marketplaceRepo "github.com/Kisanlink/kisanlink-ecom/internal/repositories/marketplace"
@@ -67,7 +68,7 @@ func (s *ListingService) CreateListing(ctx context.Context, req *CreateListingRe
 	}
 
 	// Create listing entity
-	listing := marketplaceModels.NewListing(
+	listing := marketplace.NewListing(
 		req.ProductID,
 		req.SellerID,
 		req.OrganizationID,
@@ -132,7 +133,7 @@ func (s *ListingService) CreateListing(ctx context.Context, req *CreateListingRe
 			"auction_type": listing.AuctionType,
 			"expires_at":   listing.ExpiresAt,
 		}
-		_ = s.eventService.RecordListingEvent(ctx, listing.ListingID, marketplaceModels.EventListingCreated, eventData, req.SellerID)
+		_ = s.eventService.RecordListingEvent(ctx, listing.ListingID, marketplace.EventListingCreated, eventData, req.SellerID)
 	}
 
 	return listing, nil
@@ -273,7 +274,7 @@ func (s *ListingService) CloseListing(ctx context.Context, listingID string, rea
 	}
 
 	// Check if listing can be closed
-	if listing.Status != marketplaceModels.ListingStatusActive {
+	if listing.Status != marketplace.ListingStatusActive {
 		return nil, fmt.Errorf("cannot close listing: listing is already %s", listing.Status)
 	}
 
@@ -283,7 +284,7 @@ func (s *ListingService) CloseListing(ctx context.Context, listingID string, rea
 		closeReason = "Closed by seller"
 	}
 
-	if err := listing.UpdateStatus(marketplaceModels.ListingStatusClosed, closeReason); err != nil {
+	if err := listing.UpdateStatus(marketplace.ListingStatusClosed, closeReason); err != nil {
 		return nil, fmt.Errorf("failed to update listing status: %w", err)
 	}
 
@@ -305,7 +306,7 @@ func (s *ListingService) CloseListing(ctx context.Context, listingID string, rea
 			"closed_by":    userID,
 			"bid_count":    listing.BidCount,
 		}
-		_ = s.eventService.RecordListingEvent(ctx, listing.ListingID, marketplaceModels.EventListingClosed, eventData, userID)
+		_ = s.eventService.RecordListingEvent(ctx, listing.ListingID, marketplace.EventListingClosed, eventData, userID)
 	}
 
 	return listing, nil
@@ -381,7 +382,7 @@ func (s *ListingService) ForceCloseListing(ctx context.Context, listingID string
 			"force_closed": true,
 			"bid_count":    listing.BidCount,
 		}
-		_ = s.eventService.RecordListingEvent(ctx, listing.ListingID, marketplaceModels.EventListingClosed, eventData, adminID)
+		_ = s.eventService.RecordListingEvent(ctx, listing.ListingID, marketplace.EventListingClosed, eventData, adminID)
 	}
 
 	return updatedListing, nil
@@ -433,15 +434,15 @@ func (s *ListingService) validateCreateListingRequest(req *CreateListingRequest)
 	}
 
 	if req.Visibility == "" {
-		req.Visibility = marketplaceModels.VisibilityPublic
+		req.Visibility = marketplace.VisibilityPublic
 	}
 
 	if req.AuctionType == "" {
-		req.AuctionType = marketplaceModels.AuctionTypeOpen
+		req.AuctionType = marketplace.AuctionTypeOpen
 	}
 
 	if req.BidVisibility == "" {
-		req.BidVisibility = marketplaceModels.BidVisibilityFull
+		req.BidVisibility = marketplace.BidVisibilityFull
 	}
 
 	return nil
@@ -449,25 +450,37 @@ func (s *ListingService) validateCreateListingRequest(req *CreateListingRequest)
 
 // validateVisibilityConfiguration validates the visibility configuration
 func (s *ListingService) validateVisibilityConfiguration(listing *marketplaceModels.Listing) error {
-	// TODO: Private listings should have additional validation for invitation management
-	// TODO: For closed auctions with full bid visibility, bid amounts won't be shown until auction ends
+	// Validate visibility and auction type combination
+	if listing.Visibility == marketplace.VisibilityPrivate {
+		// Private listings should have additional validation for invitation management
+		// This would be implemented when invitation system is added
+	}
+
+	// Validate bid visibility with auction type
+	if listing.AuctionType == marketplace.AuctionTypeClosed {
+		// For closed auctions, certain bid visibility levels might not make sense
+		if listing.BidVisibility == marketplace.BidVisibilityFull {
+			// This is allowed but bid amounts won't be shown until auction ends
+		}
+	}
+
 	return nil
 }
 
 // canViewListing checks if a viewer can access a listing based on visibility settings
 func (s *ListingService) canViewListing(ctx context.Context, listing *marketplaceModels.Listing, viewerOrgID string) bool {
 	switch listing.Visibility {
-	case marketplaceModels.VisibilityPrivate:
+	case marketplace.VisibilityPrivate:
 		// For private listings, additional invitation logic would be needed
 		// For now, only same organization can view
 		return listing.OrganizationID == viewerOrgID
-	case marketplaceModels.VisibilityPublic:
+	case marketplace.VisibilityPublic:
 		return true
-	case marketplaceModels.VisibilityNetwork:
+	case marketplace.VisibilityNetwork:
 		// For network visibility, network membership logic would be needed
 		// For now, simplified to allow all
 		return true
-	case marketplaceModels.VisibilityOrganization:
+	case marketplace.VisibilityOrganization:
 		return listing.OrganizationID == viewerOrgID
 	default:
 		return false

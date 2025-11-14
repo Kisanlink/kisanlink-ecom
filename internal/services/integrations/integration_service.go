@@ -9,10 +9,10 @@ import (
 	"strconv"
 	"time"
 
-	integrationRequests "kisanlink-ecom/entities/requests/integrations"
-	integrationResponses "kisanlink-ecom/entities/responses/integrations"
-	catalogService "kisanlink-ecom/internal/services/catalog"
-	orderService "kisanlink-ecom/internal/services/orders"
+	integrationRequests "github.com/Kisanlink/kisanlink-ecom/entities/requests/integrations"
+	integrationResponses "github.com/Kisanlink/kisanlink-ecom/entities/responses/integrations"
+	catalogService "github.com/Kisanlink/kisanlink-ecom/internal/services/catalog"
+	orderService "github.com/Kisanlink/kisanlink-ecom/internal/services/orders"
 
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"

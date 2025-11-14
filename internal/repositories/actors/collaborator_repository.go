@@ -5,8 +5,8 @@ import (
 	"context"
 	"fmt"
 
-	"kisanlink-ecom/entities/models/actors"
-	"kisanlink-ecom/internal/repositories/common"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/actors"
+	"github.com/Kisanlink/kisanlink-ecom/internal/repositories/common"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/base"
 	"github.com/Kisanlink/kisanlink-db/pkg/db"

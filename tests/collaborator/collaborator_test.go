@@ -3,7 +3,7 @@ package collaborator_test
 import (
 	"testing"
 
-	"kisanlink-ecom/entities/models/collaborator"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/collaborator"
 )
 
 func TestCollaboratorModel(t *testing.T) {

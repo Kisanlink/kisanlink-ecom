@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	catalogModels "kisanlink-ecom/entities/models/catalog"
-	"kisanlink-ecom/internal/auth"
-	catalogService "kisanlink-ecom/internal/services/catalog"
+	catalogModels "github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
+	"github.com/Kisanlink/kisanlink-ecom/internal/auth"
+	catalogService "github.com/Kisanlink/kisanlink-ecom/internal/services/catalog"
 )
 
 // ResilientCatalogService wraps the catalog service with resilience patterns

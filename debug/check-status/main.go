@@ -9,9 +9,9 @@ import (
 	"log"
 	"time"
 
-	"kisanlink-ecom/internal/auth"
-	"kisanlink-ecom/internal/config"
-	"kisanlink-ecom/internal/middleware"
+	"github.com/Kisanlink/kisanlink-ecom/internal/auth"
+	"github.com/Kisanlink/kisanlink-ecom/internal/config"
+	"github.com/Kisanlink/kisanlink-ecom/internal/middleware"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

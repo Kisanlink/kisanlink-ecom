@@ -3,7 +3,7 @@ package catalog
 import (
 	"testing"
 
-	catalogModels "kisanlink-ecom/entities/models/catalog"
+	catalogModels "github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
 
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"

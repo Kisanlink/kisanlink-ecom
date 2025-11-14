@@ -8,10 +8,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"kisanlink-ecom/entities/models/catalog"
-	"kisanlink-ecom/entities/models/orders"
-	"kisanlink-ecom/internal/services/events"
-	"kisanlink-ecom/tests/data"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/orders"
+	"github.com/Kisanlink/kisanlink-ecom/internal/services/events"
+	"github.com/Kisanlink/kisanlink-ecom/tests/data"
 )
 
 func TestEventFactory_CreateOrderCreatedEvent(t *testing.T) {

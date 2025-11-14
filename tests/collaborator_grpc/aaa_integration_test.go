@@ -16,8 +16,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	aaapb "kisanlink-ecom/proto/gen/go/aaa/v2"
-	pb "kisanlink-ecom/proto/gen/go/collaborator/v1"
+	aaapb "github.com/Kisanlink/aaa-service/v2/pkg/proto"
+	pb "github.com/Kisanlink/kisanlink-ecom/proto/gen/go/collaborator/v1"
 )
 
 // MockAAAService simulates AAA service behavior for testing

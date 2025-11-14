@@ -7,7 +7,7 @@ import (
 
 	"gorm.io/gorm"
 
-	"kisanlink-ecom/entities/models/outbox"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/outbox"
 )
 
 // outboxRepositoryImpl implements the OutboxRepository interface

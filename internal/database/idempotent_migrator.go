@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"kisanlink-ecom/entities/models"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/db"
 	"gorm.io/gorm"

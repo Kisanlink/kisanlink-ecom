@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"time"
 
-	"kisanlink-ecom/entities/models/roles"
-	"kisanlink-ecom/entities/models/user"
-	"kisanlink-ecom/entities/requests/auth"
-	authService "kisanlink-ecom/internal/auth"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/roles"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/user"
+	"github.com/Kisanlink/kisanlink-ecom/entities/requests/auth"
+	authService "github.com/Kisanlink/kisanlink-ecom/internal/auth"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/base"
 )

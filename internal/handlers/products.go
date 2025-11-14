@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	catalogRequests "kisanlink-ecom/entities/requests/catalog"
-	"kisanlink-ecom/internal/common"
-	"kisanlink-ecom/internal/utils"
+	catalogRequests "github.com/Kisanlink/kisanlink-ecom/entities/requests/catalog"
+	"github.com/Kisanlink/kisanlink-ecom/internal/common"
+	"github.com/Kisanlink/kisanlink-ecom/internal/utils"
 
 	"github.com/gin-gonic/gin"
 )

@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"kisanlink-ecom/entities/models/catalog"
-	"kisanlink-ecom/internal/middleware"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
+	"github.com/Kisanlink/kisanlink-ecom/internal/middleware"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"

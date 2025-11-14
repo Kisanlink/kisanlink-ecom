@@ -3,9 +3,9 @@ package services
 import (
 	"github.com/stretchr/testify/mock"
 
-	"kisanlink-ecom/entities/models/catalog"
-	"kisanlink-ecom/entities/models/orders"
-	"kisanlink-ecom/entities/models/outbox"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/orders"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/outbox"
 )
 
 // MockEventFactory is a mock implementation of EventFactoryInterface

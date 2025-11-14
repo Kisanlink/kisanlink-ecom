@@ -7,10 +7,10 @@ import (
 	"strings"
 	"time"
 
-	collabModel "kisanlink-ecom/entities/models/collaborator"
-	"kisanlink-ecom/internal/aaa"
-	"kisanlink-ecom/internal/saga"
-	pb "kisanlink-ecom/proto/gen/go/collaborator/v1"
+	collabModel "github.com/Kisanlink/kisanlink-ecom/entities/models/collaborator"
+	"github.com/Kisanlink/kisanlink-ecom/internal/aaa"
+	"github.com/Kisanlink/kisanlink-ecom/internal/saga"
+	pb "github.com/Kisanlink/kisanlink-ecom/proto/gen/go/collaborator/v1"
 
 	"github.com/sirupsen/logrus"
 	"go.uber.org/zap"

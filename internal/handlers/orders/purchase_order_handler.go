@@ -4,10 +4,10 @@ import (
 	"net/http"
 	"strconv"
 
-	orderModels "kisanlink-ecom/entities/models/orders"
-	orders "kisanlink-ecom/entities/requests/orders"
-	"kisanlink-ecom/internal/common"
-	orderService "kisanlink-ecom/internal/services/orders"
+	orderModels "github.com/Kisanlink/kisanlink-ecom/entities/models/orders"
+	orders "github.com/Kisanlink/kisanlink-ecom/entities/requests/orders"
+	"github.com/Kisanlink/kisanlink-ecom/internal/common"
+	orderService "github.com/Kisanlink/kisanlink-ecom/internal/services/orders"
 
 	"github.com/gin-gonic/gin"
 )

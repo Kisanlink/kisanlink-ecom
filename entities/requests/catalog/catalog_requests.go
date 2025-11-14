@@ -2,8 +2,9 @@ package catalog
 
 import (
 	"fmt"
-	"kisanlink-ecom/entities/models/catalog"
 	"time"
+
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
 
 	"github.com/shopspring/decimal"
 )

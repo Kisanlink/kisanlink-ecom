@@ -3,7 +3,7 @@ package data
 import (
 	"time"
 
-	"kisanlink-ecom/entities/models/user"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/user"
 )
 
 // CreateTestUser creates a test user with default values

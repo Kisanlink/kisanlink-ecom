@@ -4,7 +4,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"kisanlink-ecom/internal/common"
+	"github.com/Kisanlink/kisanlink-ecom/internal/common"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"

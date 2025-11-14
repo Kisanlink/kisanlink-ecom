@@ -12,10 +12,10 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
 	"github.com/sirupsen/logrus"
 
-	"kisanlink-ecom/entities/models/catalog"
-	"kisanlink-ecom/entities/models/orders"
-	"kisanlink-ecom/entities/models/outbox"
-	"kisanlink-ecom/internal/repositories/events"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/orders"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/outbox"
+	"github.com/Kisanlink/kisanlink-ecom/internal/repositories/events"
 )
 
 // OutboxPublisher handles reliable event publishing using the outbox pattern

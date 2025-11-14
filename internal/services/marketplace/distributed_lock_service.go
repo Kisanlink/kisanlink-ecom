@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"kisanlink-ecom/entities/models/marketplace"
-	marketplaceRepo "kisanlink-ecom/internal/repositories/marketplace"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/marketplace"
+	marketplaceRepo "github.com/Kisanlink/kisanlink-ecom/internal/repositories/marketplace"
 
 	"github.com/shopspring/decimal"
 )

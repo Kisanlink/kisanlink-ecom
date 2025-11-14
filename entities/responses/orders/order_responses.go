@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
-	orderModels "kisanlink-ecom/entities/models/orders"
+	orderModels "github.com/Kisanlink/kisanlink-ecom/entities/models/orders"
 
 	"github.com/shopspring/decimal"
 )

@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"kisanlink-ecom/entities/models/marketplace"
-	"kisanlink-ecom/internal/common"
-	marketplaceRepo "kisanlink-ecom/internal/repositories/marketplace"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/marketplace"
+	"github.com/Kisanlink/kisanlink-ecom/internal/common"
+	marketplaceRepo "github.com/Kisanlink/kisanlink-ecom/internal/repositories/marketplace"
 )
 
 // AccessControlServiceInterface defines the interface for visibility and access control operations

@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"kisanlink-ecom/internal/services/gst"
+	"github.com/Kisanlink/kisanlink-ecom/internal/services/gst"
 
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"

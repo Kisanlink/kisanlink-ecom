@@ -10,10 +10,10 @@ import (
 	"testing"
 	"time"
 
-	orderModels "kisanlink-ecom/entities/models/orders"
-	orderRequests "kisanlink-ecom/entities/requests/orders"
-	"kisanlink-ecom/internal/handlers/orders"
-	orderService "kisanlink-ecom/internal/services/orders"
+	orderModels "github.com/Kisanlink/kisanlink-ecom/entities/models/orders"
+	orderRequests "github.com/Kisanlink/kisanlink-ecom/entities/requests/orders"
+	"github.com/Kisanlink/kisanlink-ecom/internal/handlers/orders"
+	orderService "github.com/Kisanlink/kisanlink-ecom/internal/services/orders"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"

@@ -3,7 +3,7 @@ package collaborator
 import (
 	"time"
 
-	"kisanlink-ecom/entities/models/collaborator"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/collaborator"
 )
 
 // CollaboratorResponse represents the response for a collaborator

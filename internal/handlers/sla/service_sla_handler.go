@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"strings"
 
-	"kisanlink-ecom/entities/models/services"
-	"kisanlink-ecom/internal/common"
-	slaService "kisanlink-ecom/internal/services/sla"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/services"
+	"github.com/Kisanlink/kisanlink-ecom/internal/common"
+	slaService "github.com/Kisanlink/kisanlink-ecom/internal/services/sla"
 
 	"github.com/gin-gonic/gin"
 )

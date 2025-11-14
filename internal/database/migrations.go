@@ -3,8 +3,9 @@ package database
 import (
 	"context"
 	"fmt"
-	"kisanlink-ecom/entities/models"
 	"log"
+
+	"github.com/Kisanlink/kisanlink-ecom/entities/models"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/db"
 )

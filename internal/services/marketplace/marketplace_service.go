@@ -1,7 +1,7 @@
 package marketplace
 
 import (
-	"kisanlink-ecom/internal/repositories/marketplace"
+	"github.com/Kisanlink/kisanlink-ecom/internal/repositories/marketplace"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/db"
 )

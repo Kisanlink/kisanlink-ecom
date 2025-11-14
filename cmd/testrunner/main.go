@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"kisanlink-ecom/internal/testutils"
+	"github.com/Kisanlink/kisanlink-ecom/internal/testutils"
 )
 
 func main() {

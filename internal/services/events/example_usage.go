@@ -8,9 +8,9 @@ import (
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
-	"kisanlink-ecom/entities/models/catalog"
-	"kisanlink-ecom/entities/models/orders"
-	"kisanlink-ecom/internal/repositories/events"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/orders"
+	"github.com/Kisanlink/kisanlink-ecom/internal/repositories/events"
 )
 
 // ExampleUsage demonstrates how to use the event publishing service with routing

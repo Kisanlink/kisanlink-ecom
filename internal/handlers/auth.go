@@ -3,10 +3,10 @@ package handlers
 import (
 	"context"
 
-	"kisanlink-ecom/entities/requests/auth"
-	"kisanlink-ecom/internal/common"
-	"kisanlink-ecom/internal/services/user"
-	"kisanlink-ecom/internal/utils"
+	"github.com/Kisanlink/kisanlink-ecom/entities/requests/auth"
+	"github.com/Kisanlink/kisanlink-ecom/internal/common"
+	"github.com/Kisanlink/kisanlink-ecom/internal/services/user"
+	"github.com/Kisanlink/kisanlink-ecom/internal/utils"
 
 	"github.com/gin-gonic/gin"
 )

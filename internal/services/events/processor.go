@@ -2,8 +2,9 @@ package events
 
 import (
 	"context"
-	"kisanlink-ecom/internal/repositories/events"
 	"time"
+
+	"github.com/Kisanlink/kisanlink-ecom/internal/repositories/events"
 
 	"github.com/sirupsen/logrus"
 )

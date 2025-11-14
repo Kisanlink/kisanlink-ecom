@@ -8,8 +8,8 @@ import (
 	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 
-	"kisanlink-ecom/entities/models/catalog"
-	catalogRepo "kisanlink-ecom/internal/repositories/catalog"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
+	catalogRepo "github.com/Kisanlink/kisanlink-ecom/internal/repositories/catalog"
 )
 
 // PublishService handles product publishing business logic

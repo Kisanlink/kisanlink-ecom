@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"kisanlink-ecom/entities/models/roles"
-	roleRepo "kisanlink-ecom/internal/repositories/roles"
-	"kisanlink-ecom/tests/data"
-	"kisanlink-ecom/tests/mocks"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/roles"
+	roleRepo "github.com/Kisanlink/kisanlink-ecom/internal/repositories/roles"
+	"github.com/Kisanlink/kisanlink-ecom/tests/data"
+	"github.com/Kisanlink/kisanlink-ecom/tests/mocks"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/base"
 	"github.com/stretchr/testify/assert"

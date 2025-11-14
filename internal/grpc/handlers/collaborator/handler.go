@@ -1,12 +1,12 @@
 package collaborator
 
 import (
-	"kisanlink-ecom/internal/aaa"
-	"kisanlink-ecom/internal/domain/collaborator"
-	"kisanlink-ecom/internal/saga"
-	"kisanlink-ecom/internal/services/gst"
-	"kisanlink-ecom/internal/services/otp"
-	pb "kisanlink-ecom/proto/gen/go/collaborator/v1"
+	"github.com/Kisanlink/kisanlink-ecom/internal/aaa"
+	"github.com/Kisanlink/kisanlink-ecom/internal/domain/collaborator"
+	"github.com/Kisanlink/kisanlink-ecom/internal/saga"
+	"github.com/Kisanlink/kisanlink-ecom/internal/services/gst"
+	"github.com/Kisanlink/kisanlink-ecom/internal/services/otp"
+	pb "github.com/Kisanlink/kisanlink-ecom/proto/gen/go/collaborator/v1"
 
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"

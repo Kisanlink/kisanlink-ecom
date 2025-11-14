@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"kisanlink-ecom/internal/services/marketplace"
+	"github.com/Kisanlink/kisanlink-ecom/internal/services/marketplace"
 
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"

@@ -2,7 +2,7 @@
 package grpc
 
 import (
-	"kisanlink-ecom/internal/grpc/interceptors"
+	"github.com/Kisanlink/kisanlink-ecom/internal/grpc/interceptors"
 
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"

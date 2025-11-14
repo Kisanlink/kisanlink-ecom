@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"kisanlink-ecom/entities/models/taxation"
-	taxRepo "kisanlink-ecom/internal/repositories/taxation"
-	"kisanlink-ecom/tests/data"
-	"kisanlink-ecom/tests/mocks"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/taxation"
+	taxRepo "github.com/Kisanlink/kisanlink-ecom/internal/repositories/taxation"
+	"github.com/Kisanlink/kisanlink-ecom/tests/data"
+	"github.com/Kisanlink/kisanlink-ecom/tests/mocks"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/base"
 	"github.com/stretchr/testify/assert"

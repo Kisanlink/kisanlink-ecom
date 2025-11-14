@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	marketplaceModels "kisanlink-ecom/entities/models/marketplace"
-	"kisanlink-ecom/internal/common"
-	marketplaceRepo "kisanlink-ecom/internal/repositories/marketplace"
+	marketplaceModels "github.com/Kisanlink/kisanlink-ecom/entities/models/marketplace"
+	"github.com/Kisanlink/kisanlink-ecom/internal/common"
+	marketplaceRepo "github.com/Kisanlink/kisanlink-ecom/internal/repositories/marketplace"
 )
 
 // AuditServiceInterface defines the interface for marketplace audit operations

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"kisanlink-ecom/internal/auth"
+	"github.com/Kisanlink/kisanlink-ecom/internal/auth"
 )
 
 // ServiceConfig holds configuration for resilient service wrappers

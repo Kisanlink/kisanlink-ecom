@@ -5,10 +5,10 @@ import (
 	"errors"
 	"testing"
 
-	catalogModels "kisanlink-ecom/entities/models/catalog"
-	catalogRequests "kisanlink-ecom/entities/requests/catalog"
-	catalogService "kisanlink-ecom/internal/services/catalog"
-	"kisanlink-ecom/tests/data"
+	catalogModels "github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
+	catalogRequests "github.com/Kisanlink/kisanlink-ecom/entities/requests/catalog"
+	catalogService "github.com/Kisanlink/kisanlink-ecom/internal/services/catalog"
+	"github.com/Kisanlink/kisanlink-ecom/tests/data"
 
 	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"

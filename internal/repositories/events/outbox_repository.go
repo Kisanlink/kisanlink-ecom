@@ -3,7 +3,7 @@ package events
 import (
 	"context"
 
-	"kisanlink-ecom/entities/models/outbox"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/outbox"
 )
 
 // OutboxRepository defines the interface for outbox event persistence

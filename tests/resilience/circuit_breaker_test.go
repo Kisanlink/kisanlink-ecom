@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"kisanlink-ecom/internal/resilience"
+	"github.com/Kisanlink/kisanlink-ecom/internal/resilience"
 
 	"github.com/stretchr/testify/assert"
 )

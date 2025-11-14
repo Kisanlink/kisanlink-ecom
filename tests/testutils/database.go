@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	"kisanlink-ecom/entities/models/outbox"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/outbox"
 )
 
 // SetupTestDB creates an in-memory SQLite database for testing

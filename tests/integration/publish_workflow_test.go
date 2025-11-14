@@ -5,11 +5,11 @@ import (
 	"testing"
 	"time"
 
-	catalogModels "kisanlink-ecom/entities/models/catalog"
-	catalogRepo "kisanlink-ecom/internal/repositories/catalog"
-	catalogService "kisanlink-ecom/internal/services/catalog"
-	"kisanlink-ecom/tests/data"
-	"kisanlink-ecom/tests/mocks"
+	catalogModels "github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
+	catalogRepo "github.com/Kisanlink/kisanlink-ecom/internal/repositories/catalog"
+	catalogService "github.com/Kisanlink/kisanlink-ecom/internal/services/catalog"
+	"github.com/Kisanlink/kisanlink-ecom/tests/data"
+	"github.com/Kisanlink/kisanlink-ecom/tests/mocks"
 
 	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"

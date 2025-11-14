@@ -5,9 +5,10 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"kisanlink-ecom/internal/config"
 	"os"
 	"time"
+
+	"github.com/Kisanlink/kisanlink-ecom/internal/config"
 
 	aaaPb "github.com/Kisanlink/aaa-service/v2/pkg/proto"
 

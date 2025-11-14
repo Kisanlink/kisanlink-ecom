@@ -4,7 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"kisanlink-ecom/entities/models/outbox"
+
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/outbox"
 )
 
 // RecipientType defines the type of recipient

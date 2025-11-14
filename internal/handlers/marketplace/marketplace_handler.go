@@ -1,6 +1,6 @@
 package marketplace
 
-import marketplaceService "kisanlink-ecom/internal/services/marketplace"
+import marketplaceService "github.com/Kisanlink/kisanlink-ecom/internal/services/marketplace"
 
 // MarketplaceHandler aggregates all marketplace-related handlers
 type MarketplaceHandler struct {

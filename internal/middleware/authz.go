@@ -3,8 +3,8 @@ package middleware
 import (
 	"net/http"
 
-	"kisanlink-ecom/internal/auth"
-	"kisanlink-ecom/internal/common"
+	"github.com/Kisanlink/kisanlink-ecom/internal/auth"
+	"github.com/Kisanlink/kisanlink-ecom/internal/common"
 
 	"github.com/gin-gonic/gin"
 )

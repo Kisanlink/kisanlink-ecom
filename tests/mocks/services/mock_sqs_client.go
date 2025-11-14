@@ -6,7 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/stretchr/testify/mock"
 
-	"kisanlink-ecom/internal/services/events"
+	"github.com/Kisanlink/kisanlink-ecom/internal/services/events"
 )
 
 // MockSQSClient is a mock implementation of SQS client

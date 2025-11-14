@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	inventoryModels "kisanlink-ecom/entities/models/inventory"
-	"kisanlink-ecom/internal/repositories/common"
+	inventoryModels "github.com/Kisanlink/kisanlink-ecom/entities/models/inventory"
+	"github.com/Kisanlink/kisanlink-ecom/internal/repositories/common"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/base"
 	"github.com/Kisanlink/kisanlink-db/pkg/db"

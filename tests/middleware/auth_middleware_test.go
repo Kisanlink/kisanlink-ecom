@@ -9,8 +9,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"kisanlink-ecom/internal/auth"
-	"kisanlink-ecom/internal/middleware"
+	"github.com/Kisanlink/kisanlink-ecom/internal/auth"
+	"github.com/Kisanlink/kisanlink-ecom/internal/middleware"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"

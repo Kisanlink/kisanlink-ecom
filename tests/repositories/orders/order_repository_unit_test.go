@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"kisanlink-ecom/entities/models/orders"
-	ordersRequests "kisanlink-ecom/entities/requests/orders"
-	ordersRepo "kisanlink-ecom/internal/repositories/orders"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/orders"
+	ordersRequests "github.com/Kisanlink/kisanlink-ecom/entities/requests/orders"
+	ordersRepo "github.com/Kisanlink/kisanlink-ecom/internal/repositories/orders"
 
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"

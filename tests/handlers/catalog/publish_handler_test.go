@@ -9,10 +9,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	catalogModels "kisanlink-ecom/entities/models/catalog"
-	"kisanlink-ecom/internal/handlers/catalog"
-	catalogService "kisanlink-ecom/internal/services/catalog"
-	"kisanlink-ecom/tests/data"
+	catalogModels "github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
+	"github.com/Kisanlink/kisanlink-ecom/internal/handlers/catalog"
+	catalogService "github.com/Kisanlink/kisanlink-ecom/internal/services/catalog"
+	"github.com/Kisanlink/kisanlink-ecom/tests/data"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"

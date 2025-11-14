@@ -3,9 +3,9 @@ package middleware
 import (
 	"strconv"
 
-	repositoryCommon "kisanlink-ecom/internal/repositories/common"
+	repositoryCommon "github.com/Kisanlink/kisanlink-ecom/internal/repositories/common"
 
-	"kisanlink-ecom/internal/auth"
+	"github.com/Kisanlink/kisanlink-ecom/internal/auth"
 
 	"github.com/gin-gonic/gin"
 )

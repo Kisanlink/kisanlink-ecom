@@ -9,8 +9,8 @@ import (
 	"log"
 	"time"
 
-	"kisanlink-ecom/internal/auth"
-	"kisanlink-ecom/internal/config"
+	"github.com/Kisanlink/kisanlink-ecom/internal/auth"
+	"github.com/Kisanlink/kisanlink-ecom/internal/config"
 )
 
 func main() {

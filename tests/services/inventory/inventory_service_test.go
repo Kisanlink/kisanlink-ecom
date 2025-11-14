@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	catalogModels "kisanlink-ecom/entities/models/catalog"
-	inventoryRepo "kisanlink-ecom/internal/repositories/inventory"
-	inventoryService "kisanlink-ecom/internal/services/inventory"
+	catalogModels "github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
+	inventoryRepo "github.com/Kisanlink/kisanlink-ecom/internal/repositories/inventory"
+	inventoryService "github.com/Kisanlink/kisanlink-ecom/internal/services/inventory"
 
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"

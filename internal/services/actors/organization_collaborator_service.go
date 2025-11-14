@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	"kisanlink-ecom/entities/models/actors"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/actors"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/base"
 )

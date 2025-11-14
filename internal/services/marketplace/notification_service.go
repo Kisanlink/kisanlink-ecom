@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"kisanlink-ecom/entities/models/marketplace"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/marketplace"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"

@@ -2,7 +2,8 @@ package server
 
 import (
 	"fmt"
-	"kisanlink-ecom/internal/config"
+
+	"github.com/Kisanlink/kisanlink-ecom/internal/config"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"

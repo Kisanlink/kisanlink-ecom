@@ -14,9 +14,9 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	collabModel "kisanlink-ecom/entities/models/collaborator"
-	"kisanlink-ecom/internal/aaa"
-	pb "kisanlink-ecom/proto/gen/go/collaborator/v1"
+	collabModel "github.com/Kisanlink/kisanlink-ecom/entities/models/collaborator"
+	"github.com/Kisanlink/kisanlink-ecom/internal/aaa"
+	pb "github.com/Kisanlink/kisanlink-ecom/proto/gen/go/collaborator/v1"
 )
 
 const validTestGST = "27AABCU9603R1ZN"

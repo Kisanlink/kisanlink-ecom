@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"kisanlink-ecom/entities/models/orders"
-	repositoryCommon "kisanlink-ecom/internal/repositories/common"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/orders"
+	repositoryCommon "github.com/Kisanlink/kisanlink-ecom/internal/repositories/common"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/base"
 	"github.com/Kisanlink/kisanlink-db/pkg/db"

@@ -1,19 +1,19 @@
 package services
 
 import (
-	"kisanlink-ecom/internal/auth"
-	"kisanlink-ecom/internal/config"
-	"kisanlink-ecom/internal/database"
-	catalogRepo "kisanlink-ecom/internal/repositories/catalog"
-	inventoryRepo "kisanlink-ecom/internal/repositories/inventory"
-	orderRepo "kisanlink-ecom/internal/repositories/orders"
-	sequenceRepo "kisanlink-ecom/internal/repositories/sequence"
-	userRepo "kisanlink-ecom/internal/repositories/user"
-	"kisanlink-ecom/internal/services/catalog"
-	"kisanlink-ecom/internal/services/inventory"
-	"kisanlink-ecom/internal/services/orders"
-	"kisanlink-ecom/internal/services/sequence"
-	"kisanlink-ecom/internal/services/user"
+	"github.com/Kisanlink/kisanlink-ecom/internal/auth"
+	"github.com/Kisanlink/kisanlink-ecom/internal/config"
+	"github.com/Kisanlink/kisanlink-ecom/internal/database"
+	catalogRepo "github.com/Kisanlink/kisanlink-ecom/internal/repositories/catalog"
+	inventoryRepo "github.com/Kisanlink/kisanlink-ecom/internal/repositories/inventory"
+	orderRepo "github.com/Kisanlink/kisanlink-ecom/internal/repositories/orders"
+	sequenceRepo "github.com/Kisanlink/kisanlink-ecom/internal/repositories/sequence"
+	userRepo "github.com/Kisanlink/kisanlink-ecom/internal/repositories/user"
+	"github.com/Kisanlink/kisanlink-ecom/internal/services/catalog"
+	"github.com/Kisanlink/kisanlink-ecom/internal/services/inventory"
+	"github.com/Kisanlink/kisanlink-ecom/internal/services/orders"
+	"github.com/Kisanlink/kisanlink-ecom/internal/services/sequence"
+	"github.com/Kisanlink/kisanlink-ecom/internal/services/user"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/db"
 )

@@ -1,7 +1,7 @@
 package collaborator
 
 import (
-	"kisanlink-ecom/entities/models/collaborator"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/collaborator"
 )
 
 // CreateCollaboratorRequest represents the request to create a new collaborator

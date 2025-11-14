@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"kisanlink-ecom/internal/resilience"
+	"github.com/Kisanlink/kisanlink-ecom/internal/resilience"
 
 	"go.opentelemetry.io/otel/attribute"
 	metricapi "go.opentelemetry.io/otel/metric"

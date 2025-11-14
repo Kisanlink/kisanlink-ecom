@@ -13,10 +13,10 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	"kisanlink-ecom/entities/models/outbox"
-	"kisanlink-ecom/internal/services/events"
-	"kisanlink-ecom/tests/mocks/repositories"
-	"kisanlink-ecom/tests/mocks/services"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/outbox"
+	"github.com/Kisanlink/kisanlink-ecom/internal/services/events"
+	"github.com/Kisanlink/kisanlink-ecom/tests/mocks/repositories"
+	"github.com/Kisanlink/kisanlink-ecom/tests/mocks/services"
 )
 
 func TestOutboxPublisher_PublishEvent(t *testing.T) {

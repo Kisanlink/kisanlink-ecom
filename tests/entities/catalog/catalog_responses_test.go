@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	catalogModels "kisanlink-ecom/entities/models/catalog"
-	catalogResponses "kisanlink-ecom/entities/responses/catalog"
+	catalogModels "github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
+	catalogResponses "github.com/Kisanlink/kisanlink-ecom/entities/responses/catalog"
 
 	"github.com/lib/pq"
 	"github.com/shopspring/decimal"

@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"kisanlink-ecom/entities/models/common"
-	marketplaceModels "kisanlink-ecom/entities/models/marketplace"
-	"kisanlink-ecom/internal/auth"
-	"kisanlink-ecom/internal/repositories/marketplace"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/common"
+	marketplaceModels "github.com/Kisanlink/kisanlink-ecom/entities/models/marketplace"
+	"github.com/Kisanlink/kisanlink-ecom/internal/auth"
+	"github.com/Kisanlink/kisanlink-ecom/internal/repositories/marketplace"
 
 	"github.com/gin-gonic/gin"
 )

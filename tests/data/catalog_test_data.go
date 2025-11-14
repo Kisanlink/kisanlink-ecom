@@ -2,10 +2,11 @@ package data
 
 import (
 	"database/sql"
-	catalogModels "kisanlink-ecom/entities/models/catalog"
-	"kisanlink-ecom/entities/models/orders"
-	catalogRequests "kisanlink-ecom/entities/requests/catalog"
 	"time"
+
+	catalogModels "github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/orders"
+	catalogRequests "github.com/Kisanlink/kisanlink-ecom/entities/requests/catalog"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/base"
 	"github.com/shopspring/decimal"

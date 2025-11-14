@@ -8,10 +8,10 @@ import (
 	"testing"
 	"time"
 
-	"kisanlink-ecom/entities/models/common"
-	"kisanlink-ecom/internal/config"
-	"kisanlink-ecom/internal/database"
-	"kisanlink-ecom/internal/handlers/health"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/common"
+	"github.com/Kisanlink/kisanlink-ecom/internal/config"
+	"github.com/Kisanlink/kisanlink-ecom/internal/database"
+	"github.com/Kisanlink/kisanlink-ecom/internal/handlers/health"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"

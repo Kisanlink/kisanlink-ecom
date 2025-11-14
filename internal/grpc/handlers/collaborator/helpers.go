@@ -3,8 +3,8 @@ package collaborator
 import (
 	"context"
 
-	"kisanlink-ecom/internal/aaa"
-	pb "kisanlink-ecom/proto/gen/go/collaborator/v1"
+	"github.com/Kisanlink/kisanlink-ecom/internal/aaa"
+	pb "github.com/Kisanlink/kisanlink-ecom/proto/gen/go/collaborator/v1"
 
 	"gorm.io/gorm"
 )

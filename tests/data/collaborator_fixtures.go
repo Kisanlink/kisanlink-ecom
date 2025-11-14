@@ -3,7 +3,7 @@ package data
 import (
 	"time"
 
-	"kisanlink-ecom/entities/models/actors"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/actors"
 )
 
 // CreateTestCollaborator creates a test collaborator with default values

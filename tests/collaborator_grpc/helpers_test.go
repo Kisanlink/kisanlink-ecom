@@ -13,12 +13,12 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	collabModel "kisanlink-ecom/entities/models/collaborator"
-	"kisanlink-ecom/internal/aaa"
-	domainCollab "kisanlink-ecom/internal/domain/collaborator"
-	grpcHandler "kisanlink-ecom/internal/grpc/handlers/collaborator"
-	"kisanlink-ecom/internal/saga"
-	"kisanlink-ecom/internal/services/gst"
+	collabModel "github.com/Kisanlink/kisanlink-ecom/entities/models/collaborator"
+	"github.com/Kisanlink/kisanlink-ecom/internal/aaa"
+	domainCollab "github.com/Kisanlink/kisanlink-ecom/internal/domain/collaborator"
+	grpcHandler "github.com/Kisanlink/kisanlink-ecom/internal/grpc/handlers/collaborator"
+	"github.com/Kisanlink/kisanlink-ecom/internal/saga"
+	"github.com/Kisanlink/kisanlink-ecom/internal/services/gst"
 
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"

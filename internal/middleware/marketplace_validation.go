@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"kisanlink-ecom/entities/models/common"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/common"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"

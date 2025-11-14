@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"kisanlink-ecom/entities/models/common"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/common"
 )
 
 // SequenceServiceInterface defines the interface for sequence operations

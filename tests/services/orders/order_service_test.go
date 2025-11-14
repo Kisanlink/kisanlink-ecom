@@ -3,7 +3,7 @@ package orders
 import (
 	"testing"
 
-	orderRequests "kisanlink-ecom/entities/requests/orders"
+	orderRequests "github.com/Kisanlink/kisanlink-ecom/entities/requests/orders"
 
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"

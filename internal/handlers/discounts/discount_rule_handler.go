@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"strings"
 
-	"kisanlink-ecom/internal/common"
-	discountsService "kisanlink-ecom/internal/services/discounts"
+	"github.com/Kisanlink/kisanlink-ecom/internal/common"
+	discountsService "github.com/Kisanlink/kisanlink-ecom/internal/services/discounts"
 
 	"github.com/gin-gonic/gin"
 )

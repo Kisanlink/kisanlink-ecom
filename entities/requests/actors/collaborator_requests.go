@@ -3,7 +3,7 @@ package actors
 import (
 	"time"
 
-	"kisanlink-ecom/entities/models/actors"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/actors"
 )
 
 // CreateCollaboratorRequest represents the request to create a collaborator

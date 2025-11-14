@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"time"
 
-	orderModels "kisanlink-ecom/entities/models/orders"
-	orderRequests "kisanlink-ecom/entities/requests/orders"
-	"kisanlink-ecom/internal/repositories/orders"
-	"kisanlink-ecom/internal/services/catalog"
-	"kisanlink-ecom/internal/services/inventory"
+	orderModels "github.com/Kisanlink/kisanlink-ecom/entities/models/orders"
+	orderRequests "github.com/Kisanlink/kisanlink-ecom/entities/requests/orders"
+	"github.com/Kisanlink/kisanlink-ecom/internal/repositories/orders"
+	"github.com/Kisanlink/kisanlink-ecom/internal/services/catalog"
+	"github.com/Kisanlink/kisanlink-ecom/internal/services/inventory"
 
 	"github.com/shopspring/decimal"
 )

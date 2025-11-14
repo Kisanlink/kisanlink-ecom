@@ -4,9 +4,9 @@ import (
 	"io"
 	"strconv"
 
-	"kisanlink-ecom/entities/requests/integrations"
-	"kisanlink-ecom/internal/common"
-	integrationService "kisanlink-ecom/internal/services/integrations"
+	"github.com/Kisanlink/kisanlink-ecom/entities/requests/integrations"
+	"github.com/Kisanlink/kisanlink-ecom/internal/common"
+	integrationService "github.com/Kisanlink/kisanlink-ecom/internal/services/integrations"
 
 	"github.com/gin-gonic/gin"
 )

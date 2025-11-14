@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"kisanlink-ecom/internal/config"
+	"github.com/Kisanlink/kisanlink-ecom/internal/config"
 
 	"github.com/Kisanlink/kisanlink-db/pkg/db"
 )

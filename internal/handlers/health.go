@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"kisanlink-ecom/internal/health"
+	"github.com/Kisanlink/kisanlink-ecom/internal/health"
 
 	"github.com/gin-gonic/gin"
 )

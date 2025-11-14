@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	catalogModels "kisanlink-ecom/entities/models/catalog"
+	catalogModels "github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"

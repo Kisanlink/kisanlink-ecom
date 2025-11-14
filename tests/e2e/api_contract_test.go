@@ -11,9 +11,9 @@ import (
 	"testing"
 	"time"
 
-	orderModels "kisanlink-ecom/entities/models/orders"
-	orderRequests "kisanlink-ecom/entities/requests/orders"
-	"kisanlink-ecom/tests/testutils"
+	orderModels "github.com/Kisanlink/kisanlink-ecom/entities/models/orders"
+	orderRequests "github.com/Kisanlink/kisanlink-ecom/entities/requests/orders"
+	"github.com/Kisanlink/kisanlink-ecom/tests/testutils"
 
 	"github.com/stretchr/testify/suite"
 )

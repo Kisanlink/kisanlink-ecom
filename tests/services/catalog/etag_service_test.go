@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	catalogModels "kisanlink-ecom/entities/models/catalog"
-	catalogService "kisanlink-ecom/internal/services/catalog"
+	catalogModels "github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
+	catalogService "github.com/Kisanlink/kisanlink-ecom/internal/services/catalog"
 
 	"github.com/stretchr/testify/assert"
 )

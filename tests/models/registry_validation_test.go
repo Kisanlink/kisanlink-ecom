@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	"kisanlink-ecom/entities/models"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models"
 )
 
 // TestAllModelsRegistered validates that all models with base.BaseModel are registered in the registry
@@ -77,11 +77,11 @@ func TestNoDuplicateTableNames(t *testing.T) {
 			// Allow catalog_items to be shared by CatalogItem subtypes (Single Table Inheritance)
 			if tableName == "catalog_items" {
 				expectedSTIModels := map[string]bool{
-					"kisanlink-ecom/entities/models/catalog.CatalogItem": true,
-					"kisanlink-ecom/entities/models/catalog.Product":     true,
-					"kisanlink-ecom/entities/models/catalog.Service":     true,
-					"kisanlink-ecom/entities/models/catalog.Labour":      true,
-					"kisanlink-ecom/entities/models/catalog.Contract":    true,
+					"github.com/Kisanlink/kisanlink-ecom/entities/models/catalog.CatalogItem": true,
+					"github.com/Kisanlink/kisanlink-ecom/entities/models/catalog.Product":     true,
+					"github.com/Kisanlink/kisanlink-ecom/entities/models/catalog.Service":     true,
+					"github.com/Kisanlink/kisanlink-ecom/entities/models/catalog.Labour":      true,
+					"github.com/Kisanlink/kisanlink-ecom/entities/models/catalog.Contract":    true,
 				}
 
 				allValid := true
@@ -223,7 +223,7 @@ func discoverModelsWithBaseModel(t *testing.T, dir string) map[string]bool {
 			if hasBaseModel {
 				// Construct the full model name
 				pkgName := node.Name.Name
-				fullName := fmt.Sprintf("kisanlink-ecom/entities/models/%s.%s", pkgName, typeSpec.Name.Name)
+				fullName := fmt.Sprintf("github.com/Kisanlink/kisanlink-ecom/entities/models/%s.%s", pkgName, typeSpec.Name.Name)
 				models[fullName] = true
 				t.Logf("Discovered model with BaseModel: %s", fullName)
 			}

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"kisanlink-ecom/internal/config"
+	"github.com/Kisanlink/kisanlink-ecom/internal/config"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

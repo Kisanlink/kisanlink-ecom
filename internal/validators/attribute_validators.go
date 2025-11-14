@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"kisanlink-ecom/entities/models/catalog"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/shopspring/decimal"

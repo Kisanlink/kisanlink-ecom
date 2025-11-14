@@ -1,8 +1,9 @@
 package middleware
 
 import (
-	"kisanlink-ecom/internal/config"
 	"strings"
+
+	"github.com/Kisanlink/kisanlink-ecom/internal/config"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/requestid"

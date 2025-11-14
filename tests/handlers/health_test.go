@@ -9,8 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 
-	"kisanlink-ecom/entities/models/common"
-	"kisanlink-ecom/internal/handlers/health"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/common"
+	"github.com/Kisanlink/kisanlink-ecom/internal/handlers/health"
 )
 
 func setupTestRouter() *gin.Engine {

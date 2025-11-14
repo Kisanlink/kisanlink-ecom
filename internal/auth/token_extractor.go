@@ -3,7 +3,7 @@ package auth
 import (
 	"strings"
 
-	"kisanlink-ecom/internal/common"
+	"github.com/Kisanlink/kisanlink-ecom/internal/common"
 
 	"github.com/gin-gonic/gin"
 )

@@ -10,9 +10,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"kisanlink-ecom/internal/common"
-	"kisanlink-ecom/internal/handlers/health"
-	"kisanlink-ecom/internal/middleware"
+	"github.com/Kisanlink/kisanlink-ecom/internal/common"
+	"github.com/Kisanlink/kisanlink-ecom/internal/handlers/health"
+	"github.com/Kisanlink/kisanlink-ecom/internal/middleware"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/suite"

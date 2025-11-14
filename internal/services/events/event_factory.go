@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"kisanlink-ecom/entities/models/catalog"
-	"kisanlink-ecom/entities/models/orders"
-	"kisanlink-ecom/entities/models/outbox"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/orders"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/outbox"
 )
 
 // EventFactory creates outbox events for different domain entities

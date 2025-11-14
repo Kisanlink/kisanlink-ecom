@@ -1,9 +1,9 @@
 package catalog
 
 import (
-	catalogResponses "kisanlink-ecom/entities/responses/catalog"
-	"kisanlink-ecom/internal/common"
-	"kisanlink-ecom/internal/middleware"
+	catalogResponses "github.com/Kisanlink/kisanlink-ecom/entities/responses/catalog"
+	"github.com/Kisanlink/kisanlink-ecom/internal/common"
+	"github.com/Kisanlink/kisanlink-ecom/internal/middleware"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"

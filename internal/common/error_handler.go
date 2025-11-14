@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"kisanlink-ecom/entities/models/common"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/common"
 
 	"github.com/gin-gonic/gin"
 )

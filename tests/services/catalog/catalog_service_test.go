@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	catalogModels "kisanlink-ecom/entities/models/catalog"
-	catalogRequests "kisanlink-ecom/entities/requests/catalog"
-	catalogService "kisanlink-ecom/internal/services/catalog"
+	catalogModels "github.com/Kisanlink/kisanlink-ecom/entities/models/catalog"
+	catalogRequests "github.com/Kisanlink/kisanlink-ecom/entities/requests/catalog"
+	catalogService "github.com/Kisanlink/kisanlink-ecom/internal/services/catalog"
 
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"

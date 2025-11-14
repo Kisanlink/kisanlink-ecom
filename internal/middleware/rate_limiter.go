@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"kisanlink-ecom/entities/models/common"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/common"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/time/rate"

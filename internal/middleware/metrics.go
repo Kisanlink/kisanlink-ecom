@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"time"
 
-	"kisanlink-ecom/internal/observability"
+	"github.com/Kisanlink/kisanlink-ecom/internal/observability"
 
 	"github.com/gin-gonic/gin"
 )

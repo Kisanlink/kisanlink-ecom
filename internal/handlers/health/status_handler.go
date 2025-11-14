@@ -8,7 +8,7 @@ import (
 	"runtime"
 	"time"
 
-	"kisanlink-ecom/internal/database"
+	"github.com/Kisanlink/kisanlink-ecom/internal/database"
 
 	"github.com/gin-gonic/gin"
 )

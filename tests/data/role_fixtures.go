@@ -3,7 +3,7 @@ package data
 import (
 	"time"
 
-	"kisanlink-ecom/entities/models/roles"
+	"github.com/Kisanlink/kisanlink-ecom/entities/models/roles"
 )
 
 // CreateTestUserRole creates a test user role assignment
